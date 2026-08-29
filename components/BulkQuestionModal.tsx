@@ -23,6 +23,12 @@ interface BulkQuestionModalProps {
    * someone has been curating.
    */
   prefill?: string | null;
+  /**
+   * What has already been asked in this session, oldest first, offered as a set
+   * to load. Repeats are kept: a set is an ordered conversation, and a question
+   * asked twice was asked twice.
+   */
+  sessionQuestions?: string[];
 }
 
 /**
@@ -67,6 +73,7 @@ export function BulkQuestionModal({
   onClose,
   onStartSequence,
   prefill,
+  sessionQuestions = [],
 }: BulkQuestionModalProps) {
   const [text, setText] = useState('');
   const [pickingSample, setPickingSample] = useState(false);
@@ -113,8 +120,22 @@ export function BulkQuestionModal({
     onClose();
   };
 
+  /**
+   * Fills the box with a set, without saving it.
+   *
+   * Storage holds the list someone has been curating by typing in it. A set
+   * loaded to run once is not that list, and writing it there made every run
+   * replace what you had written — permanently, since the box is restored on
+   * load, so a refresh brought back the last set that ran rather than your own
+   * questions. `prefill` already said this was the rule; this is the path that
+   * did not follow it.
+   *
+   * One per line is the contract of the box these land in, and the composer
+   * can now put a newline inside a single question. Flatten, or one question
+   * arrives as several.
+   */
   const loadSample = (questions: string[]) => {
-    updateText(questions.join('\n'));
+    setText(questions.map((question) => question.replace(/\s*\n\s*/g, ' ').trim()).join('\n'));
     setPickingSample(false);
   };
 
@@ -179,7 +200,7 @@ export function BulkQuestionModal({
                   className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 transition-colors font-medium"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  Load Sample
+                  Load
                   <ChevronDown
                     aria-hidden="true"
                     className={`h-3 w-3 transition-transform ${pickingSample ? 'rotate-180' : ''}`}
@@ -190,6 +211,23 @@ export function BulkQuestionModal({
                     role="menu"
                     className="absolute left-0 top-full z-10 mt-1.5 min-w-44 overflow-hidden rounded-lg border border-white/10 bg-neutral-900 shadow-xl"
                   >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={sessionQuestions.length === 0}
+                      onClick={() => loadSample(sessionQuestions)}
+                      title={
+                        sessionQuestions.length === 0
+                          ? 'Nothing has been asked in this session yet'
+                          : 'Every question asked in this session, in order'
+                      }
+                      className="flex w-full items-center justify-between gap-4 border-b border-white/10 px-3 py-2 text-left text-xs text-neutral-300 transition-colors hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:text-neutral-600 disabled:hover:bg-transparent"
+                    >
+                      <span>Current session</span>
+                      <span className="font-mono text-[11px] text-neutral-500">
+                        {sessionQuestions.length}
+                      </span>
+                    </button>
                     {SAMPLE_SETS.map((set) => (
                       <button
                         key={set.id}

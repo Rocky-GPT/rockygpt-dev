@@ -13,11 +13,35 @@ export function TurnList({
   turns,
   selectedId,
   onSelect,
+  filtered = false,
+  onShowAll,
 }: {
   turns: Turn[];
   selectedId?: string;
   onSelect: (localId: string) => void;
+  /** Whether `turns` has already been narrowed to the failures. */
+  filtered?: boolean;
+  onShowAll?: () => void;
 }) {
+  // A filter that hides everything must say so and offer the way back, or an
+  // empty list reads as a lost session.
+  if (turns.length === 0 && filtered) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
+        <p className="text-sm text-muted-foreground">No failed turns.</p>
+        {onShowAll && (
+          <button
+            type="button"
+            onClick={onShowAll}
+            className="rounded-lg border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Show every turn
+          </button>
+        )}
+      </div>
+    );
+  }
+
   if (turns.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8 text-center">

@@ -11,7 +11,16 @@ export interface BulkProgress {
   stopped?: boolean;
 }
 
-export function BulkRunner({ progress }: { progress: BulkProgress }) {
+export function BulkRunner({
+  progress,
+  failedOnly,
+  onToggleFailed,
+}: {
+  progress: BulkProgress;
+  failedOnly: boolean;
+  /** The count is where the eye already is, so it is also the control. */
+  onToggleFailed: () => void;
+}) {
   const { running, asked, failed, total, stop, stopped } = progress;
   const percent = total === 0 ? 0 : Math.round((asked / total) * 100);
 
@@ -21,7 +30,21 @@ export function BulkRunner({ progress }: { progress: BulkProgress }) {
         <span className="text-xs font-medium text-foreground">
           {running ? 'Running' : stopped ? 'Stopped' : 'Finished'} {asked} of {total}
         </span>
-        {failed > 0 && <span className="text-xs text-red-300">{failed} failed</span>}
+        {failed > 0 && (
+          <button
+            type="button"
+            onClick={onToggleFailed}
+            aria-pressed={failedOnly}
+            title={failedOnly ? 'Show every turn' : 'Show only the turns that failed'}
+            className={`shrink-0 rounded border px-1.5 py-0.5 text-xs transition-colors ${
+              failedOnly
+                ? 'border-red-500/50 bg-red-500/15 text-red-200'
+                : 'border-transparent text-red-300 hover:border-red-500/30 hover:bg-red-500/10'
+            }`}
+          >
+            {failed} failed
+          </button>
+        )}
         <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-white/10">
           <div
             className="h-full rounded-full bg-sky-400 transition-[width] duration-200"

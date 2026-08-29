@@ -6,6 +6,7 @@ import {
   ClipboardCopy,
   Download,
   FileDown,
+  Filter,
   PanelRightClose,
   PanelRightOpen,
   Plus,
@@ -56,6 +57,9 @@ export function AskWorkbench() {
   const [busy, setBusy] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulk, setBulk] = useState<BulkProgress | null>(null);
+  // A view of the list, not a fact about the thread, so it stays local: coming
+  // back to Ask should show what is there rather than what was last narrowed to.
+  const [failedOnly, setFailedOnly] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [exported, setExported] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -123,25 +127,33 @@ export function AskWorkbench() {
       const body: ChatRequestBody = buildBody(composer, history);
       const startedAt = Date.now();
 
-      pushTurn({
+      const pending: Turn = {
         localId,
         question: message.trim(),
         request: body,
         status: 'pending',
         startedAt,
-      });
+      };
+      pushTurn(pending);
       setSelectedId(localId);
 
+      /**
+       * Records how the turn ended, and answers with it.
+       *
+       * The settled turn is built here rather than read back out of the state
+       * updater. React runs an updater during render, not during the call that
+       * schedules it — it runs one early only as a bail-out optimisation, and
+       * only while nothing else is queued. So the assignment this used to read
+       * back was there for a single turn and gone during a bulk run, where the
+       * queue is never empty, and the `?? { status: 'failed' }` it fell through
+       * to reported every answered question as a failure. The rows on screen
+       * were right the whole time: only what `send` returned was wrong, and
+       * the bulk counter is the one thing that reads it.
+       */
       const settle = (patch: Partial<Turn>): Turn => {
-        let settled: Turn | undefined;
-        setTurns((current) =>
-          current.map((turn) => {
-            if (turn.localId !== localId) return turn;
-            settled = { ...turn, ...patch, latencyMs: Date.now() - startedAt };
-            return settled;
-          })
-        );
-        return settled ?? { localId, question: message, request: body, status: 'failed', startedAt };
+        const settled: Turn = { ...pending, ...patch, latencyMs: Date.now() - startedAt };
+        setTurns((current) => current.map((turn) => (turn.localId === localId ? settled : turn)));
+        return settled;
       };
 
       try {
@@ -206,6 +218,18 @@ export function AskWorkbench() {
     }
   }, [problems.length, busy, state.message, send, setState]);
 
+  // Counted from the turns rather than from the bulk progress, so a failure
+  // from a single send is filterable too — and so the count cannot disagree
+  // with what the filter actually shows.
+  const failedCount = turns.filter((turn) => turn.status === 'failed').length;
+  const shownTurns = failedOnly ? turns.filter((turn) => turn.status === 'failed') : turns;
+
+  // Named where the export is offered, so the narrowed case is never a
+  // surprise found later in the file.
+  const exportScope = failedOnly
+    ? `the ${shownTurns.length} failed turn${shownTurns.length === 1 ? '' : 's'}`
+    : `all ${shownTurns.length} turn${shownTurns.length === 1 ? '' : 's'}`;
+
   const selected = turns.find((turn) => turn.localId === selectedId);
   const inspectable = turns.filter((turn) => turn.raw);
   const position = inspectable.findIndex((turn) => turn.localId === selectedId);
@@ -217,9 +241,14 @@ export function AskWorkbench() {
    * artifact wanted two ways — a file to keep and re-read, or a paste into the
    * issue you are already writing. Making the second one a save-then-open was
    * the friction worth removing.
+   *
+   * It exports what the list shows. Narrowing to the failures and then
+   * exporting is one action — here are the ones that broke — and an export
+   * that quietly widened back to everything would be the wrong artifact
+   * attached to the report.
    */
   const sessionNdjson = () =>
-    turns
+    shownTurns
       .map((turn) =>
         JSON.stringify({
           question: turn.question,
@@ -245,7 +274,8 @@ export function AskWorkbench() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `rockygpt-dev-session-${new Date().toISOString().slice(0, 19)}.ndjson`;
+    const scope = failedOnly ? '-failed' : '';
+    anchor.download = `rockygpt-dev-session${scope}-${new Date().toISOString().slice(0, 19)}.ndjson`;
     anchor.click();
     URL.revokeObjectURL(url);
     setExportOpen(false);
@@ -257,7 +287,7 @@ export function AskWorkbench() {
         title="Ask & Inspect"
         subtitle={`${state.conversationId || 'new thread'} · ${turns.length} turn${turns.length === 1 ? '' : 's'}${
           dropped ? ` · ${dropped} dropped` : ''
-        }`}
+        }${failedOnly ? ` · showing ${shownTurns.length} failed` : ''}`}
         actions={
           <>
             <HeaderButton
@@ -271,11 +301,26 @@ export function AskWorkbench() {
                 setTurns([]);
                 setSelectedId(undefined);
                 setDropped(0);
+                setFailedOnly(false);
               }}
               title="Clear turns"
             >
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
+            {/* Offered only when there is something to filter to. */}
+            {failedCount > 0 && (
+              <HeaderButton
+                onClick={() => setFailedOnly((only) => !only)}
+                title={
+                  failedOnly
+                    ? 'Showing only failed turns — show every turn'
+                    : `Show only the ${failedCount} failed turn${failedCount === 1 ? '' : 's'}`
+                }
+                active={failedOnly}
+              >
+                <Filter className="h-4 w-4" />
+              </HeaderButton>
+            )}
             <div ref={exportRef} className="relative">
               <HeaderButton
                 onClick={() => setExportOpen((open) => !open)}
@@ -296,13 +341,13 @@ export function AskWorkbench() {
                   <ExportItem
                     icon={ClipboardCopy}
                     label="Clipboard"
-                    hint="Paste it where you are already writing"
+                    hint={exportScope}
                     onClick={copySession}
                   />
                   <ExportItem
                     icon={FileDown}
                     label="File"
-                    hint=".ndjson, one turn per line"
+                    hint={`.ndjson · ${exportScope}`}
                     onClick={saveSessionFile}
                   />
                 </div>
@@ -324,8 +369,20 @@ export function AskWorkbench() {
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col border-border lg:border-r">
-          {bulk && <BulkRunner progress={bulk} />}
-          <TurnList turns={turns} selectedId={selectedId} onSelect={setSelectedId} />
+          {bulk && (
+            <BulkRunner
+              progress={bulk}
+              failedOnly={failedOnly}
+              onToggleFailed={() => setFailedOnly((only) => !only)}
+            />
+          )}
+          <TurnList
+            turns={shownTurns}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            filtered={failedOnly}
+            onShowAll={() => setFailedOnly(false)}
+          />
           <Composer
             state={state}
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}
@@ -356,6 +413,7 @@ export function AskWorkbench() {
       <BulkQuestionModal
         isOpen={bulkOpen}
         onClose={() => setBulkOpen(false)}
+        sessionQuestions={turns.map((turn) => turn.question)}
         onStartSequence={(questions, delayMs) => {
           setBulkOpen(false);
           void runBulk(questions, delayMs, send, setBulk);
@@ -370,12 +428,15 @@ function HeaderButton({
   title,
   children,
   expanded,
+  active,
 }: {
   onClick: () => void;
   title: string;
   children: React.ReactNode;
   /** Set only by a button that owns a menu, which then announces its state. */
   expanded?: boolean;
+  /** A toggle that is currently on, drawn so the list's state has a cause. */
+  active?: boolean;
 }) {
   return (
     <button
@@ -385,7 +446,12 @@ function HeaderButton({
       aria-label={title}
       aria-haspopup={expanded === undefined ? undefined : 'menu'}
       aria-expanded={expanded}
-      className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      aria-pressed={active}
+      className={`rounded-lg border p-2 transition-colors ${
+        active
+          ? 'border-sky-500/50 bg-sky-500/10 text-sky-300'
+          : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+      }`}
     >
       {children}
     </button>

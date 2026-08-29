@@ -1,13 +1,23 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Download, PanelRightClose, PanelRightOpen, Plus, Trash2 } from 'lucide-react';
+import {
+  Check,
+  ClipboardCopy,
+  Download,
+  FileDown,
+  PanelRightClose,
+  PanelRightOpen,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { BulkQuestionModal } from '@/components/BulkQuestionModal';
 import { Composer } from './Composer';
 import { TurnList } from './TurnList';
 import { TurnInspector } from './TurnInspector';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
+import { useAskSession } from './AskSession';
 import type { Turn } from './types';
 import {
   buildBody,
@@ -26,35 +36,29 @@ import {
  */
 const MAX_RETAINED_TURNS = 200;
 
-/**
- * The composer's starting state.
- *
- * `conversationId` is deliberately empty rather than minted here. This
- * component is server-rendered before it hydrates, so a `crypto.randomUUID()`
- * in the initial state runs twice and produces two different ids — the server
- * renders one into the header and the client renders another, which React
- * reports as a hydration mismatch. The id is minted in an effect below, where
- * only the browser runs it. `timezone` has the same problem for the same
- * reason: the server's zone is not the reader's.
- */
-function initialState(): ComposerState {
-  return {
-    message: '',
-    conversationId: '',
-    questionOrigin: 'dev',
-    memorySource: 'brain',
-  };
-}
-
 export function AskWorkbench() {
-  const [state, setState] = useState<ComposerState>(initialState);
-  const [turns, setTurns] = useState<Turn[]>([]);
-  const [selectedId, setSelectedId] = useState<string | undefined>();
+  // The thread outlives this page: it is held by `AskSessionProvider` up in the
+  // shell, so stepping over to Capabilities and back returns to the same
+  // conversation rather than a new one. What stays local is the request in
+  // flight, which genuinely does not survive leaving the page it was sent from.
+  const {
+    state,
+    setState,
+    turns,
+    setTurns,
+    selectedId,
+    setSelectedId,
+    dropped,
+    setDropped,
+    inspectorOpen,
+    setInspectorOpen,
+  } = useAskSession();
   const [busy, setBusy] = useState(false);
-  const [dropped, setDropped] = useState(0);
-  const [inspectorOpen, setInspectorOpen] = useState(true);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulk, setBulk] = useState<BulkProgress | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exported, setExported] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   // Read by the send path rather than the render closure, so a bulk run holding
   // one closure across dozens of awaits still sees current turns. Synced in an
@@ -65,18 +69,26 @@ export function AskWorkbench() {
     turnsRef.current = turns;
   }, [turns]);
 
-  // Browser-only values, filled once on mount. See `initialState`.
+  // Same dismissal contract as the menus on Chat Logs: a click anywhere else
+  // or Escape closes it. Bound only while open, so the app is not listening to
+  // every click on the document for the sake of a menu nobody opened.
   useEffect(() => {
-    setState((current) =>
-      current.conversationId
-        ? current
-        : {
-            ...current,
-            conversationId: newConversationId(),
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          }
-    );
-  }, []);
+    if (!exportOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setExportOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [exportOpen]);
 
   const problems = useMemo(() => validate(state), [state]);
 
@@ -87,7 +99,7 @@ export function AskWorkbench() {
       setDropped((count) => count + next.length - MAX_RETAINED_TURNS);
       return next.slice(next.length - MAX_RETAINED_TURNS);
     });
-  }, []);
+  }, [setTurns, setDropped]);
 
   /**
    * Sends one turn and records everything about it.
@@ -179,7 +191,7 @@ export function AskWorkbench() {
         });
       }
     },
-    [state, pushTurn]
+    [state, pushTurn, setTurns, setSelectedId]
   );
 
   const sendFromComposer = useCallback(async () => {
@@ -192,31 +204,51 @@ export function AskWorkbench() {
     } finally {
       setBusy(false);
     }
-  }, [problems.length, busy, state.message, send]);
+  }, [problems.length, busy, state.message, send, setState]);
 
   const selected = turns.find((turn) => turn.localId === selectedId);
   const inspectable = turns.filter((turn) => turn.raw);
   const position = inspectable.findIndex((turn) => turn.localId === selectedId);
 
-  const downloadSession = () => {
-    const lines = turns.map((turn) =>
-      JSON.stringify({
-        question: turn.question,
-        status: turn.status,
-        httpStatus: turn.httpStatus,
-        latencyMs: turn.latencyMs,
-        requestId: turn.requestId,
-        request: turn.request,
-        response: turn.raw,
-      })
-    );
-    const blob = new Blob([lines.join('\n')], { type: 'application/x-ndjson' });
+  /**
+   * The session as NDJSON: one turn per line, request and response whole.
+   *
+   * Both export routes render the same bytes, because they are the same
+   * artifact wanted two ways — a file to keep and re-read, or a paste into the
+   * issue you are already writing. Making the second one a save-then-open was
+   * the friction worth removing.
+   */
+  const sessionNdjson = () =>
+    turns
+      .map((turn) =>
+        JSON.stringify({
+          question: turn.question,
+          status: turn.status,
+          httpStatus: turn.httpStatus,
+          latencyMs: turn.latencyMs,
+          requestId: turn.requestId,
+          request: turn.request,
+          response: turn.raw,
+        })
+      )
+      .join('\n');
+
+  const copySession = () => {
+    void navigator.clipboard.writeText(sessionNdjson());
+    setExportOpen(false);
+    setExported(true);
+    setTimeout(() => setExported(false), 2000);
+  };
+
+  const saveSessionFile = () => {
+    const blob = new Blob([sessionNdjson()], { type: 'application/x-ndjson' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `rockygpt-dev-session-${new Date().toISOString().slice(0, 19)}.ndjson`;
     anchor.click();
     URL.revokeObjectURL(url);
+    setExportOpen(false);
   };
 
   return (
@@ -244,9 +276,38 @@ export function AskWorkbench() {
             >
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
-            <HeaderButton onClick={downloadSession} title="Download this session as NDJSON">
-              <Download className="h-4 w-4" />
-            </HeaderButton>
+            <div ref={exportRef} className="relative">
+              <HeaderButton
+                onClick={() => setExportOpen((open) => !open)}
+                title="Export this session as NDJSON"
+                expanded={exportOpen}
+              >
+                {exported ? (
+                  <Check className="h-4 w-4 text-emerald-400" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+              </HeaderButton>
+              {exportOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full z-50 mt-2 w-60 origin-top-right rounded-2xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                >
+                  <ExportItem
+                    icon={ClipboardCopy}
+                    label="Clipboard"
+                    hint="Paste it where you are already writing"
+                    onClick={copySession}
+                  />
+                  <ExportItem
+                    icon={FileDown}
+                    label="File"
+                    hint=".ndjson, one turn per line"
+                    onClick={saveSessionFile}
+                  />
+                </div>
+              )}
+            </div>
             <HeaderButton
               onClick={() => setInspectorOpen((open) => !open)}
               title={inspectorOpen ? 'Hide inspector' : 'Show inspector'}
@@ -308,10 +369,13 @@ function HeaderButton({
   onClick,
   title,
   children,
+  expanded,
 }: {
   onClick: () => void;
   title: string;
   children: React.ReactNode;
+  /** Set only by a button that owns a menu, which then announces its state. */
+  expanded?: boolean;
 }) {
   return (
     <button
@@ -319,9 +383,38 @@ function HeaderButton({
       onClick={onClick}
       title={title}
       aria-label={title}
+      aria-haspopup={expanded === undefined ? undefined : 'menu'}
+      aria-expanded={expanded}
       className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {children}
+    </button>
+  );
+}
+
+function ExportItem({
+  icon: Icon,
+  label,
+  hint,
+  onClick,
+}: {
+  icon: typeof ClipboardCopy;
+  label: string;
+  hint: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-white/10"
+    >
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <span className="min-w-0">
+        <span className="block text-sm font-medium text-foreground">{label}</span>
+        <span className="block text-[11px] text-muted-foreground">{hint}</span>
+      </span>
     </button>
   );
 }

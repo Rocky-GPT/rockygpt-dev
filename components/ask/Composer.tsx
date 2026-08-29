@@ -47,13 +47,19 @@ export function Composer({
           value={state.message}
           onChange={(event) => onChange({ message: event.target.value })}
           onKeyDown={(event) => {
-            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && !blocked) {
-              event.preventDefault();
-              onSend();
-            }
+            if (event.key !== 'Enter') return;
+            // Shift holds the newline. `isComposing` is the IME guard: the
+            // Enter that accepts a composition candidate is finishing a word,
+            // and sending on it would fire off a half-typed question.
+            if (event.shiftKey || event.nativeEvent.isComposing) return;
+            // Prevented whether or not the send goes through, so a blocked
+            // composer swallows the key rather than dropping a stray newline
+            // into the question someone is about to retry.
+            event.preventDefault();
+            if (!blocked) onSend();
           }}
           rows={2}
-          placeholder="Ask the brain something…  (⌘↵ to send)"
+          placeholder="Ask the brain something…  (↵ to send, ⇧↵ for a new line)"
           className="min-w-0 flex-1 resize-none rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:border-sky-500/50 focus:outline-none"
         />
         <button
@@ -61,7 +67,7 @@ export function Composer({
           onClick={onSend}
           disabled={blocked}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-500/90 text-white transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
-          title="Send (⌘↵)"
+          title="Send (↵)"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>

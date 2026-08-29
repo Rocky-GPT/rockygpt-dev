@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AskSessionProvider } from '@/components/ask/AskSession';
 import { Sidebar } from './Sidebar';
 
 /**
@@ -8,12 +9,18 @@ import { Sidebar } from './Sidebar';
  * headers differ — Ask carries live controls, Logs carries a connection
  * indicator — and a shell that tried to own all of them would grow a prop for
  * each.
+ *
+ * It does own one piece of page state: the Ask & Inspect thread. That has to
+ * be held by something the sidebar cannot unmount, and the shell is the only
+ * thing on screen that qualifies. See `AskSessionProvider`.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh overflow-hidden bg-background text-foreground">
       <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        <AskSessionProvider>{children}</AskSessionProvider>
+      </div>
     </div>
   );
 }

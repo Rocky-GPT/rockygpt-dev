@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Sparkles } from 'lucide-react';
+import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { JsonViewer } from '@/components/JsonViewer';
 import { BOOKKEEPING, modeChips, recordValue, STAGES, turnPipeline } from '@/lib/turn-pipeline';
 
@@ -206,7 +207,9 @@ export function TurnInspector({
       {/*
         The last stage, pinned rather than scrolled. It is the one payload that
         is prose, and it stays in view while the stages above it are read —
-        which is the comparison anyone has this open to make.
+        which is the comparison anyone has this open to make. Being prose, it
+        is also the one drawn as Markdown rather than as JSON: a `<p>` collapses
+        the newlines it was written with and leaves the `###` and `**` showing.
       */}
       {answerText ? (
         <div className="shrink-0 border-t border-border bg-neutral-950/80 px-5 py-3.5">
@@ -216,9 +219,9 @@ export function TurnInspector({
               BRAIN #3 · translate
             </span>
           </div>
-          <p className="mt-2 max-h-32 overflow-auto text-sm leading-relaxed text-foreground">
-            {answerText}
-          </p>
+          <div className="mt-2 max-h-32 overflow-auto text-sm leading-relaxed text-foreground">
+            <BrainMarkdown>{answerText}</BrainMarkdown>
+          </div>
         </div>
       ) : null}
     </div>

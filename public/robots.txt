@@ -1,0 +1,3 @@
+# This app surfaces real student conversations. It must never be indexed.
+User-agent: *
+Disallow: /

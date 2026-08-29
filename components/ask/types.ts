@@ -8,12 +8,25 @@ import type { ChatRequestBody } from '@/lib/chat-request';
  * stringify round-trip does not preserve — number formatting and key order both
  * change. On a turn that went wrong that difference is sometimes the finding.
  */
+/** How a turn came out, once it has. `pending` is not one of these. */
+export type TurnOutcome = 'ok' | 'declined' | 'failed';
+
+export const OUTCOMES: ReadonlyArray<{ id: TurnOutcome; label: string }> = [
+  { id: 'ok', label: 'Answered' },
+  { id: 'declined', label: 'Declined' },
+  { id: 'failed', label: 'Failed' },
+];
+
 export interface Turn {
   localId: string;
   question: string;
   /** Exactly what was sent, so a turn can be reproduced or diffed. */
   request: ChatRequestBody;
-  status: 'pending' | 'ok' | 'failed';
+  /**
+   * `declined` is a guard refusing on purpose — no answer, nothing broken.
+   * `failed` is the system: an unreachable brain, campus data down, a crash.
+   */
+  status: 'pending' | TurnOutcome;
   httpStatus?: number;
   rawText?: string;
   raw?: Record<string, unknown>;

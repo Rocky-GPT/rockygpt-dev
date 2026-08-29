@@ -51,8 +51,11 @@ export function TurnInspector({
     const panel = panelRef.current;
     if (!panel) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      const forward = event.key === 'ArrowRight';
-      const step = forward ? onNext : event.key === 'ArrowLeft' ? onPrev : null;
+      // Up joins Right and Down joins Left, matching the workbench's own
+      // handler, so the keys mean one thing wherever focus happens to be.
+      const forward = event.key === 'ArrowRight' || event.key === 'ArrowUp';
+      const backward = event.key === 'ArrowLeft' || event.key === 'ArrowDown';
+      const step = forward ? onNext : backward ? onPrev : null;
       if (!step) return;
       event.preventDefault();
       setCopied(false);
@@ -147,7 +150,7 @@ export function TurnInspector({
                   onPrev?.();
                 }}
                 disabled={!onPrev}
-                title="Previous turn (←)"
+                title="Previous turn (← or ↓)"
                 className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -159,7 +162,7 @@ export function TurnInspector({
                   onNext?.();
                 }}
                 disabled={!onNext}
-                title="Next turn (→)"
+                title="Next turn (→ or ↑)"
                 className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />

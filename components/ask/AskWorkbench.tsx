@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AlertCircle,
   Check,
   ClipboardCopy,
   Download,
   FileDown,
   Filter,
+  ShieldAlert,
   PanelRightClose,
   PanelRightOpen,
   Plus,
@@ -19,10 +21,11 @@ import { TurnList } from './TurnList';
 import { TurnInspector } from './TurnInspector';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { useAskSession } from './AskSession';
-import type { Turn } from './types';
+import { OUTCOMES, type Turn, type TurnOutcome } from './types';
 import {
   buildBody,
   buildHistory,
+  classifyFailure,
   describeFailure,
   newConversationId,
   validate,
@@ -36,6 +39,15 @@ import {
  * than silently, so the ceiling is stated and the drop is announced.
  */
 const MAX_RETAINED_TURNS = 200;
+
+/** The same mark and tone the list draws, so the filter reads as the list. */
+const OUTCOME_TONE: Record<TurnOutcome, { icon: typeof Check; tone: string }> = {
+  ok: { icon: Check, tone: 'text-emerald-400' },
+  declined: { icon: ShieldAlert, tone: 'text-amber-400' },
+  failed: { icon: AlertCircle, tone: 'text-red-400' },
+};
+
+const EVERY_OUTCOME: ReadonlySet<TurnOutcome> = new Set(OUTCOMES.map((outcome) => outcome.id));
 
 export function AskWorkbench() {
   // The thread outlives this page: it is held by `AskSessionProvider` up in the
@@ -59,7 +71,13 @@ export function AskWorkbench() {
   const [bulk, setBulk] = useState<BulkProgress | null>(null);
   // A view of the list, not a fact about the thread, so it stays local: coming
   // back to Ask should show what is there rather than what was last narrowed to.
-  const [failedOnly, setFailedOnly] = useState(false);
+  //
+  // A set rather than a flag, because the useful questions are combinations:
+  // what broke and what was refused, ignoring the answers; or what answered and
+  // what was refused, ignoring an outage someone already knows about.
+  const [shown, setShown] = useState<ReadonlySet<TurnOutcome>>(EVERY_OUTCOME);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [exported, setExported] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -93,6 +111,24 @@ export function AskWorkbench() {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [exportOpen]);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setFilterOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [filterOpen]);
 
   const problems = useMemo(() => validate(state), [state]);
 
@@ -179,7 +215,7 @@ export function AskWorkbench() {
 
         if (!response.ok) {
           return settle({
-            status: 'failed',
+            status: classifyFailure(rawText),
             httpStatus: response.status,
             rawText,
             raw,
@@ -218,21 +254,90 @@ export function AskWorkbench() {
     }
   }, [problems.length, busy, state.message, send, setState]);
 
-  // Counted from the turns rather than from the bulk progress, so a failure
-  // from a single send is filterable too — and so the count cannot disagree
-  // with what the filter actually shows.
-  const failedCount = turns.filter((turn) => turn.status === 'failed').length;
-  const shownTurns = failedOnly ? turns.filter((turn) => turn.status === 'failed') : turns;
+  // Counted from the turns rather than from the bulk progress, so a single
+  // send's outcome is filterable too, and so the counts cannot disagree with
+  // what the filter actually shows.
+  const counts = OUTCOMES.reduce<Record<TurnOutcome, number>>(
+    (tally, outcome) => ({
+      ...tally,
+      [outcome.id]: turns.filter((turn) => turn.status === outcome.id).length,
+    }),
+    { ok: 0, declined: 0, failed: 0 }
+  );
+  const filtering = shown.size < OUTCOMES.length;
+  // A turn still in flight has no outcome to filter on, and hiding it would
+  // make a run look stalled. It stays, whatever is selected.
+  const shownTurns = filtering
+    ? turns.filter((turn) => turn.status === 'pending' || shown.has(turn.status))
+    : turns;
+
+  const toggleOutcome = (outcome: TurnOutcome) =>
+    setShown((current) => {
+      const next = new Set(current);
+      if (next.has(outcome)) next.delete(outcome);
+      else next.add(outcome);
+      return next;
+    });
+
+  // What a count chip does: narrow to just this, or undo that.
+  const showOnly = (outcome: TurnOutcome) =>
+    setShown((current) =>
+      current.size === 1 && current.has(outcome) ? EVERY_OUTCOME : new Set([outcome])
+    );
 
   // Named where the export is offered, so the narrowed case is never a
   // surprise found later in the file.
-  const exportScope = failedOnly
-    ? `the ${shownTurns.length} failed turn${shownTurns.length === 1 ? '' : 's'}`
+  const exportScope = filtering
+    ? `the ${shownTurns.length} shown turn${shownTurns.length === 1 ? '' : 's'}`
     : `all ${shownTurns.length} turn${shownTurns.length === 1 ? '' : 's'}`;
 
   const selected = turns.find((turn) => turn.localId === selectedId);
-  const inspectable = turns.filter((turn) => turn.raw);
-  const position = inspectable.findIndex((turn) => turn.localId === selectedId);
+  // Stepping walks the list on screen. It used to walk every turn carrying a
+  // trace, which was the same list until a filter existed; now they differ, and
+  // an arrow that jumps to a turn the filter is hiding is an arrow that undoes
+  // the filter without saying so.
+  const position = shownTurns.findIndex((turn) => turn.localId === selectedId);
+
+  const stepTurn = useCallback(
+    (delta: number) => {
+      if (shownTurns.length === 0) return;
+      const at = shownTurns.findIndex((turn) => turn.localId === selectedId);
+      // Nothing selected yet: enter the list from the end you asked for.
+      const next = at === -1 ? (delta > 0 ? 0 : shownTurns.length - 1) : at + delta;
+      if (next < 0 || next >= shownTurns.length) return;
+      setSelectedId(shownTurns[next].localId);
+    },
+    [shownTurns, selectedId, setSelectedId]
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const forward = event.key === 'ArrowRight' || event.key === 'ArrowUp';
+      const back = event.key === 'ArrowLeft' || event.key === 'ArrowDown';
+      if (!forward && !back) return;
+      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      // The inspector binds these on its own panel and calls `preventDefault`;
+      // letting both fire would step twice for one press.
+      if (event.defaultPrevented) return;
+      // A caret is what arrow keys are for wherever text is being edited, and
+      // an open dialog owns its own keys.
+      // `event.target` is only an element when something is focused; on a
+      // document-level keydown it can be the document itself, which has no
+      // `closest` and would throw rather than fall through.
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.closest('input, textarea, select, [contenteditable="true"]')
+      ) {
+        return;
+      }
+      if (document.querySelector('[role="dialog"]')) return;
+      event.preventDefault();
+      stepTurn(forward ? 1 : -1);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [stepTurn]);
 
   /**
    * The session as NDJSON: one turn per line, request and response whole.
@@ -274,7 +379,11 @@ export function AskWorkbench() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    const scope = failedOnly ? '-failed' : '';
+    const scope = filtering
+      ? `-${OUTCOMES.filter((outcome) => shown.has(outcome.id))
+          .map((outcome) => outcome.id)
+          .join('-')}`
+      : '';
     anchor.download = `rockygpt-dev-session${scope}-${new Date().toISOString().slice(0, 19)}.ndjson`;
     anchor.click();
     URL.revokeObjectURL(url);
@@ -287,7 +396,7 @@ export function AskWorkbench() {
         title="Ask & Inspect"
         subtitle={`${state.conversationId || 'new thread'} · ${turns.length} turn${turns.length === 1 ? '' : 's'}${
           dropped ? ` · ${dropped} dropped` : ''
-        }${failedOnly ? ` · showing ${shownTurns.length} failed` : ''}`}
+        }${filtering ? ` · showing ${shownTurns.length} of ${turns.length}` : ''}`}
         actions={
           <>
             <HeaderButton
@@ -301,25 +410,68 @@ export function AskWorkbench() {
                 setTurns([]);
                 setSelectedId(undefined);
                 setDropped(0);
-                setFailedOnly(false);
+                setShown(EVERY_OUTCOME);
               }}
               title="Clear turns"
             >
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
             {/* Offered only when there is something to filter to. */}
-            {failedCount > 0 && (
-              <HeaderButton
-                onClick={() => setFailedOnly((only) => !only)}
-                title={
-                  failedOnly
-                    ? 'Showing only failed turns — show every turn'
-                    : `Show only the ${failedCount} failed turn${failedCount === 1 ? '' : 's'}`
-                }
-                active={failedOnly}
-              >
-                <Filter className="h-4 w-4" />
-              </HeaderButton>
+            {turns.length > 0 && (
+              <div ref={filterRef} className="relative">
+                <HeaderButton
+                  onClick={() => setFilterOpen((open) => !open)}
+                  title={filtering ? 'Filtered by outcome' : 'Filter by outcome'}
+                  expanded={filterOpen}
+                  active={filtering}
+                >
+                  <Filter className="h-4 w-4" />
+                </HeaderButton>
+                {filterOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-2xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                  >
+                    {OUTCOMES.map(({ id, label }) => {
+                      const { icon: Mark, tone } = OUTCOME_TONE[id];
+                      const on = shown.has(id);
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          role="menuitemcheckbox"
+                          aria-checked={on}
+                          onClick={() => toggleOutcome(id)}
+                          className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-white/10"
+                        >
+                          <span
+                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                              on ? 'border-sky-400/60 bg-sky-500/20' : 'border-white/20'
+                            }`}
+                          >
+                            {on && <Check className="h-3 w-3 text-sky-300" />}
+                          </span>
+                          <Mark className={`h-3.5 w-3.5 shrink-0 ${tone}`} />
+                          <span className="min-w-0 flex-1 text-sm text-foreground">{label}</span>
+                          <span className="font-mono text-[11px] text-muted-foreground">
+                            {counts[id]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {filtering && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => setShown(EVERY_OUTCOME)}
+                        className="mt-1 flex w-full items-center justify-center rounded-xl border-t border-white/10 px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+                      >
+                        Show all
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
             <div ref={exportRef} className="relative">
               <HeaderButton
@@ -370,18 +522,14 @@ export function AskWorkbench() {
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col border-border lg:border-r">
           {bulk && (
-            <BulkRunner
-              progress={bulk}
-              failedOnly={failedOnly}
-              onToggleFailed={() => setFailedOnly((only) => !only)}
-            />
+            <BulkRunner progress={bulk} shown={shown} onShowOnly={showOnly} />
           )}
           <TurnList
             turns={shownTurns}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            filtered={failedOnly}
-            onShowAll={() => setFailedOnly(false)}
+            filtered={filtering}
+            onShowAll={() => setShown(EVERY_OUTCOME)}
           />
           <Composer
             state={state}
@@ -399,12 +547,8 @@ export function AskWorkbench() {
               payload={selected?.raw}
               question={selected?.question}
               requestId={selected?.localId}
-              onPrev={position > 0 ? () => setSelectedId(inspectable[position - 1].localId) : undefined}
-              onNext={
-                position >= 0 && position < inspectable.length - 1
-                  ? () => setSelectedId(inspectable[position + 1].localId)
-                  : undefined
-              }
+              onPrev={position > 0 ? () => stepTurn(-1) : undefined}
+              onNext={position >= 0 && position < shownTurns.length - 1 ? () => stepTurn(1) : undefined}
             />
           </div>
         )}
@@ -505,15 +649,17 @@ async function runBulk(
   const stop = () => controller.abort();
   let asked = 0;
   let failed = 0;
+  let declined = 0;
 
-  setBulk({ running: true, asked, failed, total: questions.length, stop });
+  setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
 
   for (const question of questions) {
     if (controller.signal.aborted) break;
     const turn = await send(question, controller.signal);
     asked += 1;
-    if (turn.status !== 'ok') failed += 1;
-    setBulk({ running: true, asked, failed, total: questions.length, stop });
+    if (turn.status === 'failed') failed += 1;
+    else if (turn.status === 'declined') declined += 1;
+    setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
     if (delayMs > 0 && !controller.signal.aborted) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
@@ -523,6 +669,7 @@ async function runBulk(
     running: false,
     asked,
     failed,
+    declined,
     total: questions.length,
     stop,
     stopped: controller.signal.aborted,

@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, Check, Loader2 } from 'lucide-react';
+import { AlertCircle, Check, Loader2, ShieldAlert } from 'lucide-react';
 import type { Turn } from './types';
 
 const ROUTE_TONE: Record<string, string> = {
@@ -28,7 +28,7 @@ export function TurnList({
   if (turns.length === 0 && filtered) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-        <p className="text-sm text-muted-foreground">No failed turns.</p>
+        <p className="text-sm text-muted-foreground">No turns match this filter.</p>
         {onShowAll && (
           <button
             type="button"
@@ -78,6 +78,10 @@ export function TurnList({
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                 ) : turn.status === 'ok' ? (
                   <Check className="h-3.5 w-3.5 text-emerald-400" />
+                ) : turn.status === 'declined' ? (
+                  // A guard stopped this one. Amber, and a shield rather than
+                  // an alarm: nothing broke, there is simply no answer.
+                  <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
                 ) : (
                   <AlertCircle className="h-3.5 w-3.5 text-red-400" />
                 )}
@@ -97,8 +101,14 @@ export function TurnList({
                 {answer}
               </p>
             )}
-            {turn.status === 'failed' && turn.failure && (
-              <p className="mt-1.5 font-mono text-xs leading-5 text-red-300">{turn.failure}</p>
+            {(turn.status === 'failed' || turn.status === 'declined') && turn.failure && (
+              <p
+                className={`mt-1.5 font-mono text-xs leading-5 ${
+                  turn.status === 'declined' ? 'text-amber-300' : 'text-red-300'
+                }`}
+              >
+                {turn.failure}
+              </p>
             )}
 
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">

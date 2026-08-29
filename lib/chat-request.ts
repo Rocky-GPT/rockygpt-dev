@@ -175,6 +175,33 @@ export function buildBody(state: ComposerState, history: ChatTurn[]): ChatReques
  * reassurance. Here the brain's own message, code and request id are the
  * finding — softening them would hide the thing this app exists to show.
  */
+/**
+ * Whether a non-2xx turn is Rocky declining or Rocky broken.
+ *
+ * `SERVICE_UNAVAILABLE` is the code behind every refusal the brain makes on
+ * purpose: the question could not be worked out, the plan was rejected, the
+ * capability does not exist, a campus name would not resolve. A guard fired
+ * and there is no answer — but nothing is wrong, and drawing that in the same
+ * red as a dead brain loses the only distinction worth having while reading a
+ * run of a hundred questions.
+ *
+ * Everything else is a fault: campus data unreachable, an unhandled error, a
+ * malformed request, or no service listening at all. A body that is not the
+ * brain's own JSON is likewise not a refusal the brain made.
+ */
+export function classifyFailure(rawText: string): 'declined' | 'failed' {
+  try {
+    const parsed = JSON.parse(rawText) as { error?: { code?: string } | string };
+    const error = parsed.error;
+    if (error && typeof error !== 'string' && error.code === 'SERVICE_UNAVAILABLE') {
+      return 'declined';
+    }
+  } catch {
+    // Not JSON, so not something the brain said. A fault.
+  }
+  return 'failed';
+}
+
 export function describeFailure(status: number, rawText: string, requestId?: string): string {
   let detail = rawText.trim();
   try {

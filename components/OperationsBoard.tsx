@@ -134,6 +134,7 @@ function CurrentSurfaceCard() {
     <Card title="Current Brain surface" tone="idle" pill="Shell only">
       <Row label="GET" value="/health" />
       <Row label="GET" value="/readiness" />
+      <Row label="POST" value="/v1/chat" />
       <p className="pt-1">Developer tools return as their clean-room contracts are rebuilt.</p>
     </Card>
   );

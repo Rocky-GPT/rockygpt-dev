@@ -79,10 +79,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/brain/ask',
         label: 'Ask & Inspect',
-        description: 'Send a question and watch all four stages',
+        description: 'Send a message through the clean-room chat shell',
         icon: MessageSquareCode,
-        status: 'planned',
-        upstream: 'clean-room chat and trace contracts',
+        status: 'ready',
+        upstream: 'POST /v1/chat',
       },
       {
         href: '/brain/capabilities',

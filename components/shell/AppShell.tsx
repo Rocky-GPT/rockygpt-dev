@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AskSessionProvider } from '@/components/ask/AskSession';
 import { Sidebar } from './Sidebar';
 
 /**
@@ -9,14 +10,15 @@ import { Sidebar } from './Sidebar';
  * indicator — and a shell that tried to own all of them would grow a prop for
  * each.
  *
- * Brain-specific state will return only when its clean-room contract exists.
+ * The Ask session lives above page navigation so a test conversation survives
+ * moving around the control room.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-dvh overflow-hidden bg-background text-foreground">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-        {children}
+        <AskSessionProvider>{children}</AskSessionProvider>
       </div>
     </div>
   );

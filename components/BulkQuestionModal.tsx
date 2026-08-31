@@ -16,7 +16,7 @@ import shortRunQuestions from '@/lib/short-run-questions.json';
 interface BulkQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onStartSequence: (questions: string[], delayMs: number) => void;
+  onStartSequence: (questions: string[], delayMs: number, preserveHistory: boolean) => void;
   /**
    * Questions to load instead of the saved set. Not written back to storage —
    * a conversation loaded to re-run should not silently replace the list
@@ -46,9 +46,24 @@ interface BulkQuestionModalProps {
  * Each set is its own ordered conversation, so the follow-ups inside it ("what
  * room did you tell me earlier") have something to refer back to.
  */
-const SAMPLE_SETS: ReadonlyArray<{ id: string; label: string; questions: string[] }> = [
-  { id: 'full', label: 'Capability suite', questions: capabilityTestQuestions },
-  { id: 'short', label: 'Short run', questions: shortRunQuestions },
+const SAMPLE_SETS: ReadonlyArray<{
+  id: string;
+  label: string;
+  questions: string[];
+  preserveHistory: boolean;
+}> = [
+  {
+    id: 'full',
+    label: 'Capability suite',
+    questions: capabilityTestQuestions,
+    preserveHistory: true,
+  },
+  {
+    id: 'short',
+    label: 'Short run',
+    questions: shortRunQuestions,
+    preserveHistory: true,
+  },
 ];
 const QUESTIONS_STORAGE_KEY = 'rockygpt_dev_bulk_questions';
 const LAST_RUN_STORAGE_KEY = 'rockygpt_dev_bulk_last_run';
@@ -79,6 +94,7 @@ export function BulkQuestionModal({
   const [text, setText] = useState('');
   const [pickingSample, setPickingSample] = useState(false);
   const [delayMs, setDelayMs] = useState(0);
+  const [preserveHistory, setPreserveHistory] = useState(false);
   const dialogRef = useAccessibleDialog(isOpen, onClose);
 
   useEffect(() => {
@@ -98,13 +114,20 @@ export function BulkQuestionModal({
     try {
       const cachedRun = window.localStorage.getItem(LAST_RUN_STORAGE_KEY);
       if (cachedRun === null) return;
-      const parsed = JSON.parse(cachedRun) as { text?: unknown; delayMs?: unknown };
+      const parsed = JSON.parse(cachedRun) as {
+        text?: unknown;
+        delayMs?: unknown;
+        preserveHistory?: unknown;
+      };
       if (typeof parsed.text === 'string') setText(parsed.text);
       if (
         typeof parsed.delayMs === 'number' &&
         DELAY_OPTIONS.some((option) => option.value === parsed.delayMs)
       ) {
         setDelayMs(parsed.delayMs);
+      }
+      if (typeof parsed.preserveHistory === 'boolean') {
+        setPreserveHistory(parsed.preserveHistory);
       }
     } catch {
       // Ignore an unavailable store or a stale value and keep the current draft.
@@ -142,12 +165,12 @@ export function BulkQuestionModal({
     try {
       window.localStorage.setItem(
         LAST_RUN_STORAGE_KEY,
-        JSON.stringify({ text: runText, delayMs })
+        JSON.stringify({ text: runText, delayMs, preserveHistory })
       );
     } catch {
       // The run should still start when browser storage is unavailable.
     }
-    onStartSequence(parsedQuestions, delayMs);
+    onStartSequence(parsedQuestions, delayMs, preserveHistory);
     onClose();
   };
 
@@ -165,8 +188,9 @@ export function BulkQuestionModal({
    * can now put a newline inside a single question. Flatten, or one question
    * arrives as several.
    */
-  const loadSample = (questions: string[]) => {
+  const loadSample = (questions: string[], keepHistory: boolean) => {
     setText(questions.map((question) => question.replace(/\s*\n\s*/g, ' ').trim()).join('\n'));
+    setPreserveHistory(keepHistory);
     setPickingSample(false);
   };
 
@@ -246,7 +270,7 @@ export function BulkQuestionModal({
                       type="button"
                       role="menuitem"
                       disabled={sessionQuestions.length === 0}
-                      onClick={() => loadSample(sessionQuestions)}
+                      onClick={() => loadSample(sessionQuestions, true)}
                       title={
                         sessionQuestions.length === 0
                           ? 'Nothing has been asked in this session yet'
@@ -264,7 +288,7 @@ export function BulkQuestionModal({
                         key={set.id}
                         type="button"
                         role="menuitem"
-                        onClick={() => loadSample(set.questions)}
+                        onClick={() => loadSample(set.questions, set.preserveHistory)}
                         className="flex w-full items-center justify-between gap-4 px-3 py-2 text-left text-xs text-neutral-300 transition-colors hover:bg-white/5 hover:text-white"
                       >
                         <span>{set.label}</span>
@@ -302,6 +326,24 @@ export function BulkQuestionModal({
               className="w-full resize-none rounded-xl border border-input bg-card p-3.5 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
             />
           </div>
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/70 bg-card/60 p-3">
+            <input
+              type="checkbox"
+              checked={preserveHistory}
+              onChange={(event) => setPreserveHistory(event.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-input accent-sky-500"
+            />
+            <span>
+              <span className="block text-xs font-medium text-foreground">
+                Preserve history between questions
+              </span>
+              <span className="mt-1 block text-[11px] leading-4 text-muted-foreground">
+                Off runs every line as a fresh conversation. Enable only for intentional
+                multi-turn tests.
+              </span>
+            </span>
+          </label>
 
           {/* Configuration & Meta */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -342,7 +384,9 @@ export function BulkQuestionModal({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground/80 mt-2">
-                Questions will execute in order with live streaming answers in the chat.
+                {preserveHistory
+                  ? 'Questions will execute as one intentional conversation.'
+                  : 'Every question will execute in a fresh conversation.'}
               </p>
             </div>
           </div>

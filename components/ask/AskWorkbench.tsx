@@ -20,6 +20,11 @@ import { TurnInspector } from './TurnInspector';
 import { TurnList } from './TurnList';
 import type { Turn } from './types';
 
+interface SendOptions {
+  signal?: AbortSignal;
+  priorMessages?: ChatMessageInput[];
+}
+
 export function AskWorkbench() {
   const {
     state,
@@ -65,15 +70,17 @@ export function AskWorkbench() {
     };
   }, [conversationExportOpen]);
 
-  const send = useCallback(async (message: string, signal?: AbortSignal): Promise<Turn> => {
-    const priorMessages = turnsRef.current.flatMap<ChatMessageInput>((turn) => {
-      const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-      if (turn.status !== 'ok' || !answer) return [];
-      return [
-        { role: 'user', content: turn.question },
-        { role: 'assistant', content: answer },
-      ];
-    });
+  const send = useCallback(async (message: string, options: SendOptions = {}): Promise<Turn> => {
+    const priorMessages =
+      options.priorMessages ??
+      turnsRef.current.flatMap<ChatMessageInput>((turn) => {
+        const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+        if (turn.status !== 'ok' || !answer) return [];
+        return [
+          { role: 'user', content: turn.question },
+          { role: 'assistant', content: answer },
+        ];
+      });
     const body = buildBody({ message }, priorMessages);
     const requestText = JSON.stringify(body);
     const localId = crypto.randomUUID();
@@ -105,7 +112,7 @@ export function AskWorkbench() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: requestText,
-        signal,
+        signal: options.signal,
       });
       const rawText = await response.text();
       let raw: Record<string, unknown> | undefined;
@@ -293,8 +300,8 @@ export function AskWorkbench() {
         isOpen={bulkOpen}
         onClose={() => setBulkOpen(false)}
         sessionQuestions={turns.map((turn) => turn.question)}
-        onStartSequence={(questions, delayMs) => {
-          void runBulk(questions, delayMs, send, setBulk);
+        onStartSequence={(questions, delayMs, preserveHistory) => {
+          void runBulk(questions, delayMs, preserveHistory, send, setBulk);
         }}
       />
     </>
@@ -321,7 +328,8 @@ function describeFailure(status: number, body?: Record<string, unknown>): string
 async function runBulk(
   questions: string[],
   delayMs: number,
-  send: (message: string, signal?: AbortSignal) => Promise<Turn>,
+  preserveHistory: boolean,
+  send: (message: string, options?: SendOptions) => Promise<Turn>,
   setBulk: (progress: BulkProgress | null) => void
 ) {
   const controller = new AbortController();
@@ -329,15 +337,25 @@ async function runBulk(
   let asked = 0;
   let failed = 0;
   let declined = 0;
+  const history: ChatMessageInput[] = [];
 
   setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
 
   for (const question of questions) {
     if (controller.signal.aborted) break;
-    const turn = await send(question, controller.signal);
+    const turn = await send(question, {
+      signal: controller.signal,
+      priorMessages: preserveHistory ? history : [],
+    });
     asked += 1;
     if (turn.status === 'failed') failed += 1;
     else if (turn.status === 'declined') declined += 1;
+    if (preserveHistory && turn.status === 'ok' && typeof turn.raw?.answer === 'string') {
+      history.push(
+        { role: 'user', content: turn.question },
+        { role: 'assistant', content: turn.raw.answer }
+      );
+    }
     setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
 
     if (delayMs > 0 && !controller.signal.aborted) {

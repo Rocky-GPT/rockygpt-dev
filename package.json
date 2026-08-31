@@ -2,7 +2,7 @@
   "name": "@rockygpt/dev",
   "version": "0.1.0",
   "private": true,
-  "description": "The RockyGPT developer control room: inspect the brain, browse campus data, read chat logs, and watch service health.",
+  "description": "The RockyGPT developer control room, connected to the clean-room Brain shell.",
   "engines": {
     "node": "22.x"
   },

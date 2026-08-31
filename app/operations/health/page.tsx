@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { OperationsBoard } from '@/components/OperationsBoard';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { hasAdminToken } from '@/lib/brain-address';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,10 +14,10 @@ export default function HealthPage() {
     <>
       <PageHeader
         title="Service Health"
-        subtitle="Readiness, degradation, and whether this app is configured to read it"
+        subtitle="Liveness and readiness from the current clean-room Brain shell"
       />
       <main className="min-w-0 px-6 py-6">
-        <OperationsBoard adminTokenConfigured={hasAdminToken()} />
+        <OperationsBoard />
       </main>
     </>
   );

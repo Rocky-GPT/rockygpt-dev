@@ -25,10 +25,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'RockyGPT Dev',
-  description: 'Inspect the brain, browse campus data, read chat logs, and watch service health.',
+  description: 'The RockyGPT developer control room for the clean-room Brain.',
   applicationName: 'RockyGPT Dev',
-  // Belt and braces with the X-Robots-Tag header. This app renders real
-  // student conversations.
   robots: { index: false, follow: false },
 };
 

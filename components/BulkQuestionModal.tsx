@@ -51,6 +51,7 @@ const SAMPLE_SETS: ReadonlyArray<{ id: string; label: string; questions: string[
   { id: 'short', label: 'Short run', questions: shortRunQuestions },
 ];
 const QUESTIONS_STORAGE_KEY = 'rockygpt_dev_bulk_questions';
+const LAST_RUN_STORAGE_KEY = 'rockygpt_dev_bulk_last_run';
 
 /**
  * The pause between questions.
@@ -89,6 +90,27 @@ export function BulkQuestionModal({
     }
   }, []);
 
+  // Opening the runner resumes the exact set and delay used for the last run.
+  // This is separate from the saved draft so launching a sample does not erase
+  // questions someone was still editing.
+  useEffect(() => {
+    if (!isOpen || prefill) return;
+    try {
+      const cachedRun = window.localStorage.getItem(LAST_RUN_STORAGE_KEY);
+      if (cachedRun === null) return;
+      const parsed = JSON.parse(cachedRun) as { text?: unknown; delayMs?: unknown };
+      if (typeof parsed.text === 'string') setText(parsed.text);
+      if (
+        typeof parsed.delayMs === 'number' &&
+        DELAY_OPTIONS.some((option) => option.value === parsed.delayMs)
+      ) {
+        setDelayMs(parsed.delayMs);
+      }
+    } catch {
+      // Ignore an unavailable store or a stale value and keep the current draft.
+    }
+  }, [isOpen, prefill]);
+
   // A prefill wins over whatever was restored, for as long as it is supplied.
   useEffect(() => {
     if (isOpen && prefill) setText(prefill);
@@ -116,6 +138,15 @@ export function BulkQuestionModal({
 
   const handleStart = () => {
     if (parsedQuestions.length === 0) return;
+    const runText = parsedQuestions.join('\n');
+    try {
+      window.localStorage.setItem(
+        LAST_RUN_STORAGE_KEY,
+        JSON.stringify({ text: runText, delayMs })
+      );
+    } catch {
+      // The run should still start when browser storage is unavailable.
+    }
     onStartSequence(parsedQuestions, delayMs);
     onClose();
   };

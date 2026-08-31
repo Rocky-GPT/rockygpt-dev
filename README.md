@@ -13,7 +13,8 @@ while the Brain is rebuilt cleanly. For now, the only live Brain connection is:
 The existing Ask & Inspect screen sends the complete ordered conversation as
 `messages` and displays the Brain’s single-model response, model name, and raw
 request/response. Next-shuttle answers also display the deterministic departure,
-calculation method, official Ramapo source, and source-check date. Other campus
+calculation method, active database dataset, selected trip record, collection
+time, and official source provenance. Other campus
 data, logs, feedback, and their former
 proxy routes remain disconnected. The Dev UI does not emulate missing Brain
 behavior.

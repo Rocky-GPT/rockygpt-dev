@@ -83,11 +83,15 @@ export function TurnInspector({
 function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
   const departureTime = typeof fact.departureTime === 'string' ? fact.departureTime : 'Unknown';
   const departureAt = typeof fact.departureAt === 'string' ? fact.departureAt : undefined;
-  const origin = typeof fact.origin === 'string' ? fact.origin : undefined;
-  const service = typeof fact.service === 'string' ? fact.service : undefined;
+  const method = typeof fact.method === 'string' ? fact.method : 'deterministic lookup';
+  const route = typeof fact.route === 'string' ? fact.route : undefined;
+  const arrival = typeof fact.arrival === 'string' ? fact.arrival : undefined;
+  const datasetVersion = typeof fact.datasetVersion === 'string' ? fact.datasetVersion : undefined;
+  const tripId = typeof fact.tripId === 'string' ? fact.tripId : undefined;
+  const collectedAt = typeof fact.collectedAt === 'string' ? fact.collectedAt : undefined;
   const sourceTitle = typeof fact.sourceTitle === 'string' ? fact.sourceTitle : 'Official source';
   const sourceUrl = typeof fact.sourceUrl === 'string' ? fact.sourceUrl : undefined;
-  const checkedAt = typeof fact.sourceCheckedAt === 'string' ? fact.sourceCheckedAt : undefined;
+  const sourceTrust = typeof fact.sourceTrustTier === 'string' ? fact.sourceTrustTier : undefined;
 
   return (
     <section className="border-b border-border px-5 py-4">
@@ -96,18 +100,25 @@ function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
           SHUTTLE FACT
         </h2>
         <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
-          deterministic_schedule_lookup
+          {method}
         </span>
       </div>
       <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4">
         <p className="text-xl font-semibold text-foreground">{departureTime}</p>
-        {service && <p className="mt-1 text-sm text-muted-foreground">{service}</p>}
+        {route && (
+          <p className="mt-1 text-sm text-muted-foreground">
+            {route}{arrival ? ` · arrives ${arrival}` : ''}
+          </p>
+        )}
         <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
-          {origin && <FactRow label="Origin" value={origin} />}
           {departureAt && <FactRow label="Departure" value={departureAt} />}
-          {checkedAt && <FactRow label="Source checked" value={checkedAt} />}
+          {datasetVersion && <FactRow label="Active dataset" value={datasetVersion} />}
+          {tripId && <FactRow label="Trip record" value={tripId} />}
+          {collectedAt && <FactRow label="Collected" value={collectedAt} />}
           <div>
-            <dt className="text-muted-foreground">Trusted source</dt>
+            <dt className="text-muted-foreground">
+              Trusted source{sourceTrust ? ` · ${sourceTrust}` : ''}
+            </dt>
             <dd className="mt-0.5 break-words text-foreground">
               {sourceUrl ? (
                 <a className="text-sky-300 underline underline-offset-2" href={sourceUrl}>

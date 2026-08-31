@@ -25,6 +25,8 @@ export function TurnInspector({
     );
   }
 
+  const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
+
   const copyRaw = () => {
     void navigator.clipboard.writeText(
       `Request\n${turn.requestText}\n\nResponse\n${turn.rawText ?? ''}`
@@ -41,6 +43,7 @@ export function TurnInspector({
           <p className="mt-1 font-mono text-[11px] text-muted-foreground">
             {turn.httpStatus ? `HTTP ${turn.httpStatus}` : 'Pending'}
             {turn.latencyMs !== undefined ? ` · ${turn.latencyMs} ms` : ''}
+            {model ? ` · ${model}` : ''}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">

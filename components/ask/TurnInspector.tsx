@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { BrainMarkdown } from '@/components/BrainMarkdown';
 import type { Turn } from './types';
 
 export function TurnInspector({
@@ -26,6 +27,7 @@ export function TurnInspector({
   }
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
+  const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
 
   const copyRaw = () => {
     void navigator.clipboard.writeText(
@@ -66,9 +68,34 @@ export function TurnInspector({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <RawPanel title="REQUEST" text={turn.requestText} />
-        <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
+        {answer ? (
+          <ResponsePanel answer={answer} rawText={turn.rawText ?? ''} />
+        ) : (
+          <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
+        )}
       </div>
     </div>
+  );
+}
+
+function ResponsePanel({ answer, rawText }: { answer: string; rawText: string }) {
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+        RESPONSE
+      </h2>
+      <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4 text-[15px] leading-7 text-foreground">
+        <BrainMarkdown>{answer}</BrainMarkdown>
+      </div>
+      <details className="mt-3 rounded-lg border border-border bg-neutral-950/40 px-3 py-2">
+        <summary className="cursor-pointer font-mono text-[11px] text-muted-foreground">
+          Raw JSON
+        </summary>
+        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-5 text-foreground">
+          {rawText}
+        </pre>
+      </details>
+    </section>
   );
 }
 

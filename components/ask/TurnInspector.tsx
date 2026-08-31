@@ -28,6 +28,7 @@ export function TurnInspector({
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  const shuttleFact = isRecord(turn.raw?.shuttleFact) ? turn.raw.shuttleFact : undefined;
 
   const copyRaw = () => {
     void navigator.clipboard.writeText(
@@ -68,6 +69,7 @@ export function TurnInspector({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <RawPanel title="REQUEST" text={turn.requestText} />
+        {shuttleFact && <ShuttleFactPanel fact={shuttleFact} />}
         {answer ? (
           <ResponsePanel answer={answer} rawText={turn.rawText ?? ''} />
         ) : (
@@ -76,6 +78,63 @@ export function TurnInspector({
       </div>
     </div>
   );
+}
+
+function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
+  const departureTime = typeof fact.departureTime === 'string' ? fact.departureTime : 'Unknown';
+  const departureAt = typeof fact.departureAt === 'string' ? fact.departureAt : undefined;
+  const origin = typeof fact.origin === 'string' ? fact.origin : undefined;
+  const service = typeof fact.service === 'string' ? fact.service : undefined;
+  const sourceTitle = typeof fact.sourceTitle === 'string' ? fact.sourceTitle : 'Official source';
+  const sourceUrl = typeof fact.sourceUrl === 'string' ? fact.sourceUrl : undefined;
+  const checkedAt = typeof fact.sourceCheckedAt === 'string' ? fact.sourceCheckedAt : undefined;
+
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+          SHUTTLE FACT
+        </h2>
+        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
+          deterministic_schedule_lookup
+        </span>
+      </div>
+      <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4">
+        <p className="text-xl font-semibold text-foreground">{departureTime}</p>
+        {service && <p className="mt-1 text-sm text-muted-foreground">{service}</p>}
+        <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
+          {origin && <FactRow label="Origin" value={origin} />}
+          {departureAt && <FactRow label="Departure" value={departureAt} />}
+          {checkedAt && <FactRow label="Source checked" value={checkedAt} />}
+          <div>
+            <dt className="text-muted-foreground">Trusted source</dt>
+            <dd className="mt-0.5 break-words text-foreground">
+              {sourceUrl ? (
+                <a className="text-sky-300 underline underline-offset-2" href={sourceUrl}>
+                  {sourceTitle}
+                </a>
+              ) : (
+                sourceTitle
+              )}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function FactRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 break-words font-mono text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function ResponsePanel({ answer, rawText }: { answer: string; rawText: string }) {

@@ -11,7 +11,8 @@ while the Brain is rebuilt cleanly. For now, the only live Brain connection is:
 - `POST /v1/chat`
 
 The existing Ask & Inspect screen sends chat messages and displays the Brain’s
-fixed response. Capabilities, campus data, logs, feedback, and their former
+single-model response, model name, and raw request/response. Capabilities,
+campus data, logs, feedback, and their former
 proxy routes remain disconnected. The Dev UI does not emulate missing Brain
 behavior.
 

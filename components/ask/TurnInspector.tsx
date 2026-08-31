@@ -28,7 +28,6 @@ export function TurnInspector({
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  const shuttleFact = isRecord(turn.raw?.shuttleFact) ? turn.raw.shuttleFact : undefined;
   const statusLabel =
     turn.status === 'ok'
       ? 'Answered'
@@ -79,7 +78,6 @@ export function TurnInspector({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <RequestConversationPanel messages={turn.request.messages} />
-        {shuttleFact && <ShuttleFactPanel fact={shuttleFact} />}
         {answer ? (
           <ResponsePanel answer={answer} />
         ) : turn.status === 'failed' ? (
@@ -134,109 +132,11 @@ function RequestConversationPanel({ messages }: { messages: Turn['request']['mes
   );
 }
 
-function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
-  const kind = typeof fact.kind === 'string' ? fact.kind : undefined;
-  const departureTime = typeof fact.departureTime === 'string' ? fact.departureTime : 'Unknown';
-  const departureAt = typeof fact.departureAt === 'string' ? fact.departureAt : undefined;
-  const currentTime = typeof fact.currentTime === 'string' ? fact.currentTime : undefined;
-  const minutesUntil = typeof fact.minutesUntil === 'number' ? fact.minutesUntil : undefined;
-  const route = typeof fact.route === 'string' ? fact.route : undefined;
-  const arrival = typeof fact.arrival === 'string' ? fact.arrival : undefined;
-  const sourceTitle = typeof fact.sourceTitle === 'string' ? fact.sourceTitle : 'Official source';
-  const sourceUrl = typeof fact.sourceUrl === 'string' ? fact.sourceUrl : undefined;
-  const sourceTrust = typeof fact.sourceTrustTier === 'string' ? fact.sourceTrustTier : undefined;
-
-  return (
-    <section className="border-b border-border px-5 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          SHUTTLE FACT
-        </h2>
-        {kind && (
-          <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[10px] text-sky-300">
-            {humanizeIdentifier(kind)}
-          </span>
-        )}
-      </div>
-      <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4">
-        <p className="text-xl font-semibold text-foreground">{departureTime}</p>
-        {route && (
-          <p className="mt-1 text-sm text-muted-foreground">
-            {route}
-            {arrival ? ` · arrives ${arrival}` : ''}
-            {minutesUntil !== undefined
-              ? ` · ${minutesUntil === 0 ? 'departing now' : `in ${minutesUntil} minute${minutesUntil === 1 ? '' : 's'}`}`
-              : ''}
-          </p>
-        )}
-        <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
-          {currentTime && <FactRow label="Evaluated at" value={formatIsoDateTime(currentTime)} />}
-          {departureAt && <FactRow label="Departure" value={formatIsoDateTime(departureAt)} />}
-          <div>
-            <dt className="text-muted-foreground">
-              Trusted source{sourceTrust ? ` · ${humanizeIdentifier(sourceTrust)}` : ''}
-            </dt>
-            <dd className="mt-0.5 break-words text-foreground">
-              {sourceUrl ? (
-                <a className="text-sky-300 underline underline-offset-2" href={sourceUrl}>
-                  {sourceTitle}
-                </a>
-              ) : (
-                sourceTitle
-              )}
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </section>
-  );
-}
-
-function FactRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 break-words font-mono text-foreground">{value}</dd>
-    </div>
-  );
-}
 
 function humanizeIdentifier(value: string) {
   return value
     .replace(/_/g, ' ')
     .replace(/\b\w/g, (character) => character.toUpperCase());
-}
-
-function formatIsoDateTime(value: string) {
-  const match = value.match(
-    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/
-  );
-  if (!match) return value;
-
-  const [, year, month, day, hour, minute, second = '00', offset] = match;
-  const hourNumber = Number(hour);
-  const displayHour = hourNumber % 12 || 12;
-  const period = hourNumber >= 12 ? 'PM' : 'AM';
-  const monthName = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ][Number(month) - 1];
-  const zone = offset === 'Z' || offset === '+00:00' ? 'UTC' : `UTC${offset}`;
-  return `${monthName} ${Number(day)}, ${year} at ${displayHour}:${minute}:${second} ${period} (${zone})`;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function ResponsePanel({ answer }: { answer: string }) {

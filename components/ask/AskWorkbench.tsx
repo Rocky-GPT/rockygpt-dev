@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { PanelRightClose, PanelRightOpen, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { buildBody, validate } from '@/lib/chat-request';
+import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
 import { TurnInspector } from './TurnInspector';
@@ -27,13 +27,21 @@ export function AskWorkbench() {
   const send = useCallback(async () => {
     if (busy || problems.length > 0) return;
 
-    const body = buildBody(state);
+    const priorMessages = turns.flatMap<ChatMessageInput>((turn) => {
+      const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+      if (turn.status !== 'ok' || !answer) return [];
+      return [
+        { role: 'user', content: turn.question },
+        { role: 'assistant', content: answer },
+      ];
+    });
+    const body = buildBody(state, priorMessages);
     const requestText = JSON.stringify(body);
     const localId = crypto.randomUUID();
     const startedAt = Date.now();
     const pending: Turn = {
       localId,
-      question: body.message,
+      question: state.message.trim(),
       request: body,
       requestText,
       status: 'pending',
@@ -81,7 +89,7 @@ export function AskWorkbench() {
     } finally {
       setBusy(false);
     }
-  }, [busy, problems.length, setSelectedId, setState, setTurns, state]);
+  }, [busy, problems.length, setSelectedId, setState, setTurns, state, turns]);
 
   const selected = turns.find((turn) => turn.localId === selectedId);
   const position = turns.findIndex((turn) => turn.localId === selectedId);

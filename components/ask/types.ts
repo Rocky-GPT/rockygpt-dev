@@ -20,8 +20,9 @@ export const OUTCOMES: ReadonlyArray<{ id: TurnOutcome; label: string }> = [
 export interface Turn {
   localId: string;
   question: string;
-  /** Exactly what was sent, so a turn can be reproduced or diffed. */
+  /** The parsed request plus its exact serialized bytes. */
   request: ChatRequestBody;
+  requestText: string;
   /**
    * `declined` is a guard refusing on purpose — no answer, nothing broken.
    * `failed` is the system: an unreachable brain, campus data down, a crash.

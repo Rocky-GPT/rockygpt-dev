@@ -37,6 +37,30 @@ export async function proxyBrainProbe(path: string): Promise<Response> {
   }
 }
 
+export async function proxyBrainChat(request: Request): Promise<Response> {
+  const target = targetFor('/v1/chat');
+  if (target === null) {
+    return unavailable('The brain is not configured for this deployment.', 'misconfigured');
+  }
+
+  try {
+    const upstream = await fetch(target, {
+      method: 'POST',
+      headers: { accept: 'application/json', 'content-type': 'application/json' },
+      body: await request.text(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    });
+
+    return new Response(upstream.body, {
+      status: upstream.status,
+      headers: { 'content-type': upstream.headers.get('content-type') ?? 'application/json' },
+    });
+  } catch {
+    return unavailable('The brain is not reachable.', 'unreachable');
+  }
+}
+
 export interface BrainRead<T> {
   data?: T;
   problem?: string;

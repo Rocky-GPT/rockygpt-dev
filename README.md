@@ -8,11 +8,12 @@ while the Brain is rebuilt cleanly. For now, the only live Brain connection is:
 
 - `GET /health`
 - `GET /readiness`
+- `POST /v1/chat`
 
-Chat, capabilities, campus data, logs, feedback, and their former proxy routes
-are deliberately disconnected. Their sidebar entries remain visible as planned
-work, and their page shells explain which clean-room contract they are waiting
-for. The Dev UI does not emulate missing Brain behavior.
+The existing Ask & Inspect screen sends chat messages and displays the Brain’s
+fixed response. Capabilities, campus data, logs, feedback, and their former
+proxy routes remain disconnected. The Dev UI does not emulate missing Brain
+behavior.
 
 ## Running
 

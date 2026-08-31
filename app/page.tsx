@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Gauge, ListChecks } from 'lucide-react';
+import { Gauge, MessageSquareCode } from 'lucide-react';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { StatusPill, type PillTone } from '@/components/shell/StatusPill';
 import { readBrainProbe } from '@/lib/brain-proxy';
@@ -43,8 +43,8 @@ export default async function OverviewPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
-          <Tile label="HTTP surface" value="2 probes" />
-          <Tile label="Build phase" value="Shell" />
+          <Tile label="HTTP surface" value="3 endpoints" />
+          <Tile label="Build phase" value="Chat shell" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -55,10 +55,10 @@ export default async function OverviewPage() {
             body="Watch the clean-room Brain’s liveness and readiness probes."
           />
           <Shortcut
-            href="/roadmap"
-            icon={<ListChecks className="h-4 w-4" />}
-            title="Roadmap"
-            body="See which existing developer surfaces are waiting for new Brain contracts."
+            href="/brain/ask"
+            icon={<MessageSquareCode className="h-4 w-4" />}
+            title="Ask & Inspect"
+            body="Send a message through the clean-room Brain and inspect the fixed response."
           />
         </div>
       </main>

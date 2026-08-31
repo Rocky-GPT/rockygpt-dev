@@ -90,7 +90,7 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-border px-5 py-3 text-[11px] leading-4 text-muted-foreground/70">
-        Reads the brain over HTTP. Never Neon.
+        Clean-room Brain connection · HTTP only
       </div>
     </nav>
   );

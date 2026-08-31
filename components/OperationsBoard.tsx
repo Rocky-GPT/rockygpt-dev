@@ -4,26 +4,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { StatusPill, type PillTone } from '@/components/shell/StatusPill';
 
-/**
- * The brain's readiness shape.
- *
- * `failing` and `degraded` are optional because the brain serializes with
- * `exclude_none` — they are *absent* when empty, not null, so anything that
- * reaches for `.length` without a fallback throws on a healthy brain.
- */
-interface Readiness {
+interface ProbeBody {
   status?: string;
-  failing?: string[];
-  degraded?: string[];
-  timestamp?: string;
+  error?: string;
+  reason?: string;
 }
 
 interface Probe {
-  /** Whether this app could reach the brain at all. */
   reached: boolean;
   httpStatus?: number;
-  body?: Readiness & Record<string, unknown>;
-  /** Set when the address itself is the problem, not the service. */
+  body?: ProbeBody;
   misconfigured?: boolean;
   problem?: string;
 }
@@ -33,15 +23,12 @@ const POLL_MS = 10_000;
 async function probe(path: string): Promise<Probe> {
   try {
     const response = await fetch(path, { cache: 'no-store' });
-    const body = (await response.json().catch(() => ({}))) as Readiness & Record<string, unknown>;
-    // A 503 carrying `reason: 'misconfigured'` is this app's own refusal — the
-    // brain was never given an address — not the brain answering unready. They
-    // need different fixes: one is a deploy, the other a restart.
+    const body = (await response.json().catch(() => ({}))) as ProbeBody;
     if (body.reason === 'misconfigured') {
-      return { reached: false, misconfigured: true, problem: String(body.error ?? '') };
+      return { reached: false, misconfigured: true, problem: body.error };
     }
     if (body.reason === 'unreachable') {
-      return { reached: false, problem: String(body.error ?? '') };
+      return { reached: false, problem: body.error };
     }
     return { reached: true, httpStatus: response.status, body };
   } catch (error) {
@@ -49,21 +36,18 @@ async function probe(path: string): Promise<Probe> {
   }
 }
 
-export function OperationsBoard({ adminTokenConfigured }: { adminTokenConfigured: boolean }) {
+export function OperationsBoard() {
   const [readiness, setReadiness] = useState<Probe | null>(null);
-  const [chatLogs, setChatLogs] = useState<Probe | null>(null);
   const [health, setHealth] = useState<Probe | null>(null);
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [a, b, c] = await Promise.all([
+    const [readinessProbe, healthProbe] = await Promise.all([
       probe('/api/brain/readiness'),
-      probe('/api/brain/readiness/chat-logs'),
       probe('/api/brain/health'),
     ]);
-    setReadiness(a);
-    setChatLogs(b);
-    setHealth(c);
+    setReadiness(readinessProbe);
+    setHealth(healthProbe);
     setCheckedAt(new Date().toLocaleTimeString());
   }, []);
 
@@ -88,9 +72,9 @@ export function OperationsBoard({ adminTokenConfigured }: { adminTokenConfigured
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <BrainReadinessCard probe={readiness} />
-        <ChatLogCard probe={chatLogs} />
-        <ConfigCard probe={health} adminTokenConfigured={adminTokenConfigured} />
+        <ProbeCard title="Brain readiness" expected="ready" probe={readiness} />
+        <ProbeCard title="Brain health" expected="ok" probe={health} />
+        <CurrentSurfaceCard />
       </div>
     </div>
   );
@@ -118,99 +102,39 @@ function Card({
   );
 }
 
-/**
- * Brain readiness, judged on the body rather than the status code.
- *
- * The brain answers 200 while `degraded` is non-empty, deliberately: a chat-log
- * outage must not take the site down. A card driven by `response.ok` therefore
- * shows green while logging is dead — which is the exact invisible outage the
- * degraded field was added to surface. Amber is its own state here, not a shade
- * of red, because "serving but something is broken" is genuinely a third thing.
- */
-function BrainReadinessCard({ probe }: { probe: Probe | null }) {
-  if (!probe) return <Card title="Brain readiness" tone="idle" pill="Checking…" />;
-
-  if (probe.misconfigured) {
-    return (
-      <Card title="Brain readiness" tone="bad" pill="Misconfigured">
-        <p>{probe.problem}</p>
-        <p className="text-muted-foreground/70">A deploy fixes this, not a restart.</p>
-      </Card>
-    );
-  }
-  if (!probe.reached) {
-    return (
-      <Card title="Brain readiness" tone="bad" pill="Unreachable">
-        <p className="font-mono">{probe.problem}</p>
-      </Card>
-    );
-  }
-
-  const failing = probe.body?.failing ?? [];
-  const degraded = probe.body?.degraded ?? [];
-  const tone: PillTone = failing.length > 0 ? 'bad' : degraded.length > 0 ? 'warn' : 'ok';
-  const pill = failing.length > 0 ? 'Unready' : degraded.length > 0 ? 'Degraded' : 'Ready';
-
-  return (
-    <Card title="Brain readiness" tone={tone} pill={pill}>
-      <Row label="HTTP" value={String(probe.httpStatus)} />
-      <Row label="status" value={probe.body?.status ?? '—'} />
-      <Row label="failing" value={failing.length ? failing.join(', ') : 'none'} />
-      <Row label="degraded" value={degraded.length ? degraded.join(', ') : 'none'} />
-      {degraded.length > 0 && (
-        <p className="pt-1 text-amber-300/80">
-          Still answering 200 on purpose — a log outage must not take the site down.
-        </p>
-      )}
-    </Card>
-  );
-}
-
-function ChatLogCard({ probe }: { probe: Probe | null }) {
-  if (!probe) return <Card title="Chat-log store" tone="idle" pill="Checking…" />;
-  if (!probe.reached) {
-    return (
-      <Card title="Chat-log store" tone="bad" pill={probe.misconfigured ? 'Misconfigured' : 'Unreachable'}>
-        <p className="font-mono">{probe.problem}</p>
-      </Card>
-    );
-  }
-  // This one does answer 503, unlike /readiness. It is the dedicated target for
-  // an uptime monitor.
-  const ok = probe.httpStatus === 200;
-  return (
-    <Card title="Chat-log store" tone={ok ? 'ok' : 'bad'} pill={ok ? 'Persisting' : 'Degraded'}>
-      <Row label="HTTP" value={String(probe.httpStatus)} />
-      <Row label="status" value={probe.body?.status ?? '—'} />
-      {!ok && <p className="pt-1">Turns are still answered; they are not being written.</p>}
-    </Card>
-  );
-}
-
-function ConfigCard({
+function ProbeCard({
+  title,
+  expected,
   probe,
-  adminTokenConfigured,
 }: {
+  title: string;
+  expected: string;
   probe: Probe | null;
-  adminTokenConfigured: boolean;
 }) {
-  const uptime = typeof probe?.body?.uptime === 'number' ? probe.body.uptime : undefined;
+  if (!probe) return <Card title={title} tone="idle" pill="Checking…" />;
+  if (!probe.reached) {
+    return (
+      <Card title={title} tone="bad" pill={probe.misconfigured ? 'Misconfigured' : 'Unreachable'}>
+        <p className="font-mono">{probe.problem}</p>
+      </Card>
+    );
+  }
+
+  const ok = probe.httpStatus === 200 && probe.body?.status === expected;
   return (
-    <Card
-      title="This app"
-      tone={adminTokenConfigured ? 'ok' : 'warn'}
-      pill={adminTokenConfigured ? 'Configured' : 'No admin token'}
-    >
-      <Row label="brain reachable" value={probe?.reached ? 'yes' : 'no'} />
-      {uptime !== undefined && <Row label="brain uptime" value={`${Math.round(uptime)}s`} />}
-      {/* Boolean only, never the value. A blank token is the most likely
-          reason the Logs page is empty, and it is otherwise invisible. */}
-      <Row label="ADMIN_API_TOKEN" value={adminTokenConfigured ? 'set' : 'not set'} />
-      {!adminTokenConfigured && (
-        <p className="pt-1 text-amber-300/80">
-          Chat logs will be empty until this is set to match the brain’s own token.
-        </p>
-      )}
+    <Card title={title} tone={ok ? 'ok' : 'bad'} pill={ok ? 'Ready' : 'Unexpected'}>
+      <Row label="HTTP" value={String(probe.httpStatus)} />
+      <Row label="status" value={probe.body?.status ?? '—'} />
+    </Card>
+  );
+}
+
+function CurrentSurfaceCard() {
+  return (
+    <Card title="Current Brain surface" tone="idle" pill="Shell only">
+      <Row label="GET" value="/health" />
+      <Row label="GET" value="/readiness" />
+      <p className="pt-1">Developer tools return as their clean-room contracts are rebuilt.</p>
     </Card>
   );
 }

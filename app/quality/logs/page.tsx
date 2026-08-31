@@ -1,21 +1,19 @@
 import type { Metadata } from 'next';
-import { LogsDashboard } from '@/components/LogsDashboard';
-
-export const dynamic = 'force-dynamic';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Chat Logs | RockyGPT Dev',
-  description: 'Live student chat logs, invoked tools, and latency telemetry.',
+  description: 'Preserved while the clean-room log contract is rebuilt.',
 };
 
-/**
- * No `NODE_ENV` guard.
- *
- * The student app called `notFound()` here outside development, which was the
- * wrong boundary twice over: it 404'd on any built instance, and it conflated
- * "not deployed" with "not authorised". Being a separate, undeployed app is the
- * boundary now; `proxy.ts` is what enforces it.
- */
 export default function LogsPage() {
-  return <LogsDashboard />;
+  return (
+    <>
+      <PageHeader title="Chat Logs" subtitle="Waiting on the clean-room Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="a new log and telemetry contract" />
+      </main>
+    </>
+  );
 }

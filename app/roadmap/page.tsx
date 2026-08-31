@@ -25,11 +25,9 @@ export default function RoadmapPage() {
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Every section this app intends to have, including the ones that do not
-          work yet. What is missing is mostly not missing from here — it is
-          missing from the brain’s HTTP surface, and the blocker column says
-          which. That makes this the working list for what to build upstream
-          next.
+          The existing developer surfaces remain visible in the plan, but only
+          the dashboard and service-health views are connected. Every other
+          section waits for a new clean-room Brain contract.
         </p>
 
         {NAVIGATION.map((section) => (
@@ -69,16 +67,12 @@ export default function RoadmapPage() {
         ))}
 
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-sm font-semibold">The largest gap</h2>
+          <h2 className="text-sm font-semibold">Current boundary</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Five of the eight <code className="font-mono text-foreground/80">brainTrace</code>{' '}
-            boxes — question, memory, understanding, context, and normalizedPlan
-            — are never written to the database, and no endpoint returns a
-            stored trace or fetches one log by id. So you can inspect a turn you
-            asked yourself, but not one a student asked. Re-asking their question
-            produces a different turn, against different data, at a different
-            time. An endpoint that returns a stored trace is the highest-value
-            thing to add to the brain next.
+            The Dev UI currently reads only <code className="font-mono text-foreground/80">GET /health</code>{' '}
+            and <code className="font-mono text-foreground/80">GET /readiness</code>.
+            It does not emulate chat, data, logs, feedback, or any other removed
+            Brain behavior.
           </p>
         </section>
       </main>

@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { AskWorkbench } from '@/components/ask/AskWorkbench';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Ask & Inspect | RockyGPT Dev',
-  description: 'Send a question to the brain and read every stage of the turn it produced.',
+  description: 'Preserved while the clean-room chat contract is rebuilt.',
 };
 
 export default function AskPage() {
-  return <AskWorkbench />;
+  return (
+    <>
+      <PageHeader title="Ask & Inspect" subtitle="Waiting on the clean-room Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="a new chat and trace contract" />
+      </main>
+    </>
+  );
 }

@@ -1,67 +1,36 @@
 # rockygpt-dev
 
-The RockyGPT developer control room. A sibling product to `rockygpt-ui`, not a
-mode of it.
+The RockyGPT developer control room. It remains a sibling product to
+`rockygpt-ui`, not a mode of it.
 
-    rockygpt-ui   = only what a student should ever see
-    rockygpt-dev  = everything you need to understand, debug, test, and operate
+The existing layout, visual system, and developer-tool components are preserved
+while the Brain is rebuilt cleanly. For now, the only live Brain connection is:
 
-## The boundary
+- `GET /health`
+- `GET /readiness`
 
-```
-Student UI ──→ Brain ──→ Neon
-Dev UI     ──→ Brain ──→ Neon
-```
-
-**Separate interface, not separate architecture.** This app:
-
-- never connects to Neon, or to any database
-- never imports another repository's source
-- never becomes a second truth path
-
-Every fact it shows arrives over versioned HTTP from `rockygpt-brain`. That is
-the contract in `rockygpt-infra/docs/application-isolation.md`, and it is the
-reason this app can exist at all without doubling the number of places a campus
-fact can come from.
+Chat, capabilities, campus data, logs, feedback, and their former proxy routes
+are deliberately disconnected. Their sidebar entries remain visible as planned
+work, and their page shells explain which clean-room contract they are waiting
+for. The Dev UI does not emulate missing Brain behavior.
 
 ## Running
 
-    npm install
-    cp .env.example .env
-    npm run dev            # http://localhost:3100
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
 
-The brain must be up. From the repository root:
-
-    ./run-local.sh start   # brain :8000, student UI :3000
-
-Port 3100 is deliberate: `run-local.sh` culls ports 3000 and 8000 on every
-start, so this app survives a stack restart.
+The Dev UI runs at `http://localhost:3100`. The Brain shell defaults to
+`http://127.0.0.1:8000` in local development.
 
 ## Environment
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `BRAIN_URL` | yes | The brain. Defaults to `http://127.0.0.1:8000` outside production. |
-| `ADMIN_API_TOKEN` | for Logs | Bearer token for `/v1/admin/*`. Without it the Logs page is empty. |
-| `BRAIN_TIMEOUT_MS` | no | Proxy timeout, default 120000. Never applied to the log stream. |
+| `BRAIN_URL` | in production | Brain service address; local development falls back to `http://127.0.0.1:8000`. |
 
-## What is not built, and why
-
-The nav shows every intended section, including the ones that do not work yet,
-each marked with the brain endpoint it is waiting on. `/roadmap` renders the
-same list as a table. Nothing is hidden: the shape of what is missing is itself
-information.
-
-The largest gap is **replaying a stored turn**. Five of the eight `brainTrace`
-boxes — `question`, `memory`, `understanding`, `context`, `normalizedPlan` — are
-never written to the database, and no endpoint returns a stored trace. So you
-can inspect a turn you asked yourself, but not one a student asked. Re-asking
-their question produces a different turn, against different data, at a
-different time. That endpoint is the highest-value thing to add next.
-
-## A warning
-
-Pointed at a production `BRAIN_URL` with a production `ADMIN_API_TOKEN`, this
-app reads **real student chat logs**. It is local-only today and refuses to
-start on Vercel for exactly that reason. Before it is ever deployed it needs
-real authentication.
+The Dev UI does not connect to a database or import another repository’s source.
+It remains local-only until authentication is designed for future protected
+developer surfaces.

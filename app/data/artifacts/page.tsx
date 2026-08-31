@@ -1,22 +1,18 @@
 import type { Metadata } from 'next';
-import { ArtifactBrowser } from '@/components/ArtifactBrowser';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { ARTIFACTS } from '@/lib/brain-routes';
 
 export const metadata: Metadata = {
   title: 'Artifacts | RockyGPT Dev',
-  description: 'Published campus datasets, with the release each one came from.',
+  description: 'Preserved while the clean-room data contract is rebuilt.',
 };
 
 export default function ArtifactsPage() {
   return (
     <>
-      <PageHeader
-        title="Artifacts"
-        subtitle="Published campus datasets and the release metadata they carry"
-      />
+      <PageHeader title="Artifacts" subtitle="Waiting on the clean-room Brain" />
       <main className="min-w-0 px-6 py-6">
-        <ArtifactBrowser artifacts={ARTIFACTS} />
+        <BrainFeaturePending contract="a new artifact contract" />
       </main>
     </>
   );

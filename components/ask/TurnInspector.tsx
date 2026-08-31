@@ -29,6 +29,14 @@ export function TurnInspector({
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
   const shuttleFact = isRecord(turn.raw?.shuttleFact) ? turn.raw.shuttleFact : undefined;
+  const statusLabel =
+    turn.status === 'ok'
+      ? 'Answered'
+      : turn.status === 'declined'
+        ? 'Declined'
+        : turn.status === 'failed'
+          ? 'Failed'
+          : 'Pending';
 
   const copyRaw = () => {
     void navigator.clipboard.writeText(
@@ -44,9 +52,11 @@ export function TurnInspector({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium leading-5 text-foreground">{turn.question}</p>
           <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-            {turn.httpStatus ? `HTTP ${turn.httpStatus}` : 'Pending'}
+            {statusLabel}
+            {turn.httpStatus ? ` · HTTP ${turn.httpStatus}` : ''}
             {turn.latencyMs !== undefined ? ` · ${turn.latencyMs} ms` : ''}
             {model ? ` · ${model}` : ''}
+            {turn.requestId ? ` · request ${turn.requestId}` : ''}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -68,10 +78,12 @@ export function TurnInspector({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        <RawPanel title="REQUEST" text={turn.requestText} />
+        <RequestConversationPanel messages={turn.request.messages} />
         {shuttleFact && <ShuttleFactPanel fact={shuttleFact} />}
         {answer ? (
-          <ResponsePanel answer={answer} rawText={turn.rawText ?? ''} />
+          <ResponsePanel answer={answer} />
+        ) : turn.status === 'failed' ? (
+          <FailurePanel turn={turn} />
         ) : (
           <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
         )}
@@ -80,15 +92,56 @@ export function TurnInspector({
   );
 }
 
+function RequestConversationPanel({ messages }: { messages: Turn['request']['messages'] }) {
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+          Request conversation
+        </h2>
+        <span className="font-mono text-[10px] text-muted-foreground">
+          {messages.length} message{messages.length === 1 ? '' : 's'}
+        </span>
+      </div>
+
+      <div className="mt-3 max-h-96 space-y-2 overflow-y-auto rounded-xl border border-border bg-neutral-950/40 p-3">
+        {messages.map((message, index) => {
+          const user = message.role === 'user';
+          return (
+            <div
+              key={`${message.role}-${index}`}
+              className={`rounded-lg border px-3 py-2.5 ${
+                user
+                  ? 'border-sky-500/20 bg-sky-500/10'
+                  : 'border-white/10 bg-white/[0.04]'
+              }`}
+            >
+              <p
+                className={`mb-1 text-[10px] font-semibold uppercase tracking-wider ${
+                  user ? 'text-sky-300' : 'text-emerald-300'
+                }`}
+              >
+                {user ? 'User' : 'RockyGPT'}
+              </p>
+              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
+                {message.content}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
+  const kind = typeof fact.kind === 'string' ? fact.kind : undefined;
   const departureTime = typeof fact.departureTime === 'string' ? fact.departureTime : 'Unknown';
   const departureAt = typeof fact.departureAt === 'string' ? fact.departureAt : undefined;
-  const method = typeof fact.method === 'string' ? fact.method : 'deterministic lookup';
+  const currentTime = typeof fact.currentTime === 'string' ? fact.currentTime : undefined;
+  const minutesUntil = typeof fact.minutesUntil === 'number' ? fact.minutesUntil : undefined;
   const route = typeof fact.route === 'string' ? fact.route : undefined;
   const arrival = typeof fact.arrival === 'string' ? fact.arrival : undefined;
-  const datasetVersion = typeof fact.datasetVersion === 'string' ? fact.datasetVersion : undefined;
-  const tripId = typeof fact.tripId === 'string' ? fact.tripId : undefined;
-  const collectedAt = typeof fact.collectedAt === 'string' ? fact.collectedAt : undefined;
   const sourceTitle = typeof fact.sourceTitle === 'string' ? fact.sourceTitle : 'Official source';
   const sourceUrl = typeof fact.sourceUrl === 'string' ? fact.sourceUrl : undefined;
   const sourceTrust = typeof fact.sourceTrustTier === 'string' ? fact.sourceTrustTier : undefined;
@@ -99,25 +152,29 @@ function ShuttleFactPanel({ fact }: { fact: Record<string, unknown> }) {
         <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
           SHUTTLE FACT
         </h2>
-        <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
-          {method}
-        </span>
+        {kind && (
+          <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[10px] text-sky-300">
+            {humanizeIdentifier(kind)}
+          </span>
+        )}
       </div>
       <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4">
         <p className="text-xl font-semibold text-foreground">{departureTime}</p>
         {route && (
           <p className="mt-1 text-sm text-muted-foreground">
-            {route}{arrival ? ` · arrives ${arrival}` : ''}
+            {route}
+            {arrival ? ` · arrives ${arrival}` : ''}
+            {minutesUntil !== undefined
+              ? ` · ${minutesUntil === 0 ? 'departing now' : `in ${minutesUntil} minute${minutesUntil === 1 ? '' : 's'}`}`
+              : ''}
           </p>
         )}
         <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
-          {departureAt && <FactRow label="Departure" value={departureAt} />}
-          {datasetVersion && <FactRow label="Active dataset" value={datasetVersion} />}
-          {tripId && <FactRow label="Trip record" value={tripId} />}
-          {collectedAt && <FactRow label="Collected" value={collectedAt} />}
+          {currentTime && <FactRow label="Evaluated at" value={formatIsoDateTime(currentTime)} />}
+          {departureAt && <FactRow label="Departure" value={formatIsoDateTime(departureAt)} />}
           <div>
             <dt className="text-muted-foreground">
-              Trusted source{sourceTrust ? ` · ${sourceTrust}` : ''}
+              Trusted source{sourceTrust ? ` · ${humanizeIdentifier(sourceTrust)}` : ''}
             </dt>
             <dd className="mt-0.5 break-words text-foreground">
               {sourceUrl ? (
@@ -144,11 +201,45 @@ function FactRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function humanizeIdentifier(value: string) {
+  return value
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function formatIsoDateTime(value: string) {
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/
+  );
+  if (!match) return value;
+
+  const [, year, month, day, hour, minute, second = '00', offset] = match;
+  const hourNumber = Number(hour);
+  const displayHour = hourNumber % 12 || 12;
+  const period = hourNumber >= 12 ? 'PM' : 'AM';
+  const monthName = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ][Number(month) - 1];
+  const zone = offset === 'Z' || offset === '+00:00' ? 'UTC' : `UTC${offset}`;
+  return `${monthName} ${Number(day)}, ${year} at ${displayHour}:${minute}:${second} ${period} (${zone})`;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
-function ResponsePanel({ answer, rawText }: { answer: string; rawText: string }) {
+function ResponsePanel({ answer }: { answer: string }) {
   return (
     <section className="border-b border-border px-5 py-4">
       <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
@@ -157,15 +248,72 @@ function ResponsePanel({ answer, rawText }: { answer: string; rawText: string })
       <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4 text-[15px] leading-7 text-foreground">
         <BrainMarkdown>{answer}</BrainMarkdown>
       </div>
-      <details className="mt-3 rounded-lg border border-border bg-neutral-950/40 px-3 py-2">
-        <summary className="cursor-pointer font-mono text-[11px] text-muted-foreground">
-          Raw JSON
-        </summary>
-        <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-5 text-foreground">
-          {rawText}
-        </pre>
-      </details>
     </section>
+  );
+}
+
+function FailurePanel({ turn }: { turn: Turn }) {
+  const reason = typeof turn.raw?.reason === 'string' ? turn.raw.reason : undefined;
+  const errorMessage = typeof turn.raw?.error === 'string' ? turn.raw.error : undefined;
+  const detailMessage = typeof turn.raw?.detail === 'string' ? turn.raw.detail : undefined;
+  const message =
+    errorMessage ?? detailMessage ?? turn.failure ?? 'The request failed before a response was received.';
+  const detail = errorMessage ? detailMessage : undefined;
+  const retryable = typeof turn.raw?.retryable === 'boolean' ? turn.raw.retryable : undefined;
+  const timeoutMs = typeof turn.raw?.timeoutMs === 'number' ? turn.raw.timeoutMs : undefined;
+  const heading =
+    reason === 'timeout'
+      ? 'Brain response timed out'
+      : reason === 'unreachable'
+        ? 'Brain connection failed'
+        : reason === 'misconfigured'
+          ? 'Brain is not configured'
+          : reason === 'cancelled'
+            ? 'Request stopped'
+            : reason === 'client_network_error'
+              ? 'Browser request failed'
+            : 'Brain request failed';
+
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-red-300">ERROR</h2>
+      <div className="mt-3 rounded-xl border border-red-500/25 bg-red-500/[0.06] p-4">
+        <p className="text-base font-semibold text-red-200">{heading}</p>
+        <p className="mt-2 text-sm leading-6 text-foreground">{message}</p>
+        {detail && <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>}
+        <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          {turn.httpStatus !== undefined && (
+            <FailureDetail label="HTTP status" value={String(turn.httpStatus)} />
+          )}
+          {reason && <FailureDetail label="Reason" value={humanizeIdentifier(reason)} />}
+          {timeoutMs !== undefined && (
+            <FailureDetail label="Timeout" value={`${timeoutMs / 1_000} seconds`} />
+          )}
+          {retryable !== undefined && (
+            <FailureDetail label="Retryable" value={retryable ? 'Yes' : 'No'} />
+          )}
+        </dl>
+      </div>
+      {turn.rawText && (
+        <details className="mt-3 rounded-xl border border-border bg-neutral-950/50">
+          <summary className="cursor-pointer px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground">
+            Raw response
+          </summary>
+          <pre className="overflow-x-auto whitespace-pre-wrap break-words border-t border-border p-3 font-mono text-xs leading-5 text-foreground">
+            {turn.rawText}
+          </pre>
+        </details>
+      )}
+    </section>
+  );
+}
+
+function FailureDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 font-mono text-foreground">{value}</dd>
+    </div>
   );
 }
 

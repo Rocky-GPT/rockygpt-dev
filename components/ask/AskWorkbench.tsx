@@ -1,9 +1,19 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import { PanelRightClose, PanelRightOpen, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Check,
+  ClipboardCopy,
+  Download,
+  FileDown,
+  PanelRightClose,
+  PanelRightOpen,
+  Trash2,
+} from 'lucide-react';
+import { BulkQuestionModal } from '@/components/BulkQuestionModal';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
+import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
 import { TurnInspector } from './TurnInspector';
@@ -22,12 +32,41 @@ export function AskWorkbench() {
     setInspectorOpen,
   } = useAskSession();
   const [busy, setBusy] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulk, setBulk] = useState<BulkProgress | null>(null);
+  const [conversationExportOpen, setConversationExportOpen] = useState(false);
+  const [conversationCopied, setConversationCopied] = useState(false);
+  const conversationExportRef = useRef<HTMLDivElement>(null);
+  const turnsRef = useRef(turns);
   const problems = useMemo(() => validate(state), [state]);
 
-  const send = useCallback(async () => {
-    if (busy || problems.length > 0) return;
+  useEffect(() => {
+    turnsRef.current = turns;
+  }, [turns]);
 
-    const priorMessages = turns.flatMap<ChatMessageInput>((turn) => {
+  useEffect(() => {
+    if (!conversationExportOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (
+        conversationExportRef.current &&
+        !conversationExportRef.current.contains(event.target as Node)
+      ) {
+        setConversationExportOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setConversationExportOpen(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [conversationExportOpen]);
+
+  const send = useCallback(async (message: string, signal?: AbortSignal): Promise<Turn> => {
+    const priorMessages = turnsRef.current.flatMap<ChatMessageInput>((turn) => {
       const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
       if (turn.status !== 'ok' || !answer) return [];
       return [
@@ -35,32 +74,30 @@ export function AskWorkbench() {
         { role: 'assistant', content: answer },
       ];
     });
-    const body = buildBody(state, priorMessages);
+    const body = buildBody({ message }, priorMessages);
     const requestText = JSON.stringify(body);
     const localId = crypto.randomUUID();
     const startedAt = Date.now();
     const pending: Turn = {
       localId,
-      question: state.message.trim(),
+      question: message.trim(),
       request: body,
       requestText,
       status: 'pending',
       startedAt,
     };
 
-    setState({ message: '' });
-    setTurns((current) => [...current, pending]);
+    turnsRef.current = [...turnsRef.current, pending];
+    setTurns(turnsRef.current);
     setSelectedId(localId);
-    setBusy(true);
 
-    const settle = (patch: Partial<Turn>) => {
-      setTurns((current) =>
-        current.map((turn) =>
-          turn.localId === localId
-            ? { ...turn, ...patch, latencyMs: Date.now() - startedAt }
-            : turn
-        )
+    const settle = (patch: Partial<Turn>): Turn => {
+      const settled = { ...pending, ...patch, latencyMs: Date.now() - startedAt };
+      turnsRef.current = turnsRef.current.map((turn) =>
+        turn.localId === localId ? settled : turn
       );
+      setTurns(turnsRef.current);
+      return settled;
     };
 
     try {
@@ -68,6 +105,7 @@ export function AskWorkbench() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: requestText,
+        signal,
       });
       const rawText = await response.text();
       let raw: Record<string, unknown> | undefined;
@@ -77,19 +115,84 @@ export function AskWorkbench() {
         raw = undefined;
       }
 
-      settle({
+      return settle({
         status: response.ok ? 'ok' : 'failed',
         httpStatus: response.status,
         rawText,
         raw,
-        failure: response.ok ? undefined : `HTTP ${response.status} — ${rawText}`,
+        requestId:
+          response.headers.get('x-request-id') ??
+          (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
+        failure: response.ok ? undefined : describeFailure(response.status, raw),
       });
     } catch (error) {
-      settle({ status: 'failed', failure: `Request failed — ${String(error)}` });
+      const stopped = error instanceof DOMException && error.name === 'AbortError';
+      const raw = stopped
+        ? {
+            error: 'The request was stopped before the Brain answered.',
+            reason: 'cancelled',
+            detail: 'The Dev UI cancelled this request.',
+            retryable: true,
+          }
+        : {
+            error: 'The Dev UI could not complete the request.',
+            reason: 'client_network_error',
+            detail: error instanceof Error ? error.message : String(error),
+            retryable: true,
+          };
+      return settle({
+        status: 'failed',
+        raw,
+        failure: describeFailure(0, raw),
+      });
+    }
+  }, [setSelectedId, setTurns]);
+
+  const sendFromComposer = useCallback(async () => {
+    if (busy || bulk?.running || problems.length > 0) return;
+    const message = state.message;
+    setState({ message: '' });
+    setBusy(true);
+    try {
+      await send(message);
     } finally {
       setBusy(false);
     }
-  }, [busy, problems.length, setSelectedId, setState, setTurns, state, turns]);
+  }, [bulk?.running, busy, problems.length, send, setState, state.message]);
+
+  const conversationJson = () =>
+    JSON.stringify(
+      turns.map((turn) => ({
+        question: turn.question,
+        status: turn.status,
+        httpStatus: turn.httpStatus,
+        latencyMs: turn.latencyMs,
+        requestId: turn.requestId,
+        request: turn.request,
+        response: turn.raw,
+      })),
+      null,
+      2
+    );
+
+  const copyConversation = () => {
+    void navigator.clipboard.writeText(conversationJson());
+    setConversationExportOpen(false);
+    setConversationCopied(true);
+    setTimeout(() => setConversationCopied(false), 2000);
+  };
+
+  const downloadConversation = () => {
+    const url = URL.createObjectURL(
+      new Blob([conversationJson()], { type: 'application/json' })
+    );
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `rockygpt-dev-conversation-${new Date().toISOString().slice(0, 19)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setConversationExportOpen(false);
+  };
 
   const selected = turns.find((turn) => turn.localId === selectedId);
   const position = turns.findIndex((turn) => turn.localId === selectedId);
@@ -107,6 +210,7 @@ export function AskWorkbench() {
           <>
             <HeaderButton
               onClick={() => {
+                turnsRef.current = [];
                 setTurns([]);
                 setSelectedId(undefined);
               }}
@@ -114,6 +218,38 @@ export function AskWorkbench() {
             >
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
+            {turns.length > 0 && (
+              <div ref={conversationExportRef} className="relative">
+                <HeaderButton
+                  onClick={() => setConversationExportOpen((open) => !open)}
+                  title="Export all conversation as JSON"
+                  expanded={conversationExportOpen}
+                >
+                  {conversationCopied ? (
+                    <Check className="h-4 w-4 text-emerald-400" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                </HeaderButton>
+                {conversationExportOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                  >
+                    <ConversationExportItem
+                      icon={ClipboardCopy}
+                      label="Copy JSON"
+                      onClick={copyConversation}
+                    />
+                    <ConversationExportItem
+                      icon={FileDown}
+                      label="Download JSON"
+                      onClick={downloadConversation}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
             <HeaderButton
               onClick={() => setInspectorOpen((open) => !open)}
               title={inspectorOpen ? 'Hide inspector' : 'Show inspector'}
@@ -130,12 +266,14 @@ export function AskWorkbench() {
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col border-border lg:border-r">
+          {bulk && <BulkRunner progress={bulk} />}
           <TurnList turns={turns} selectedId={selectedId} onSelect={setSelectedId} />
           <Composer
             state={state}
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}
-            onSend={() => void send()}
-            busy={busy}
+            onSend={() => void sendFromComposer()}
+            onOpenBulk={() => setBulkOpen(true)}
+            busy={busy || bulk?.running === true}
             problems={problems}
           />
         </div>
@@ -150,18 +288,84 @@ export function AskWorkbench() {
           </div>
         )}
       </div>
+
+      <BulkQuestionModal
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        sessionQuestions={turns.map((turn) => turn.question)}
+        onStartSequence={(questions, delayMs) => {
+          void runBulk(questions, delayMs, send, setBulk);
+        }}
+      />
     </>
   );
+}
+
+function describeFailure(status: number, body?: Record<string, unknown>): string {
+  const message =
+    typeof body?.error === 'string'
+      ? body.error
+      : typeof body?.detail === 'string'
+        ? body.detail
+        : 'The Brain request failed.';
+  const reason = typeof body?.reason === 'string' ? body.reason : undefined;
+
+  if (reason === 'timeout') return `Timed out — ${message}`;
+  if (reason === 'unreachable') return `Connection failed — ${message}`;
+  if (reason === 'misconfigured') return `Configuration error — ${message}`;
+  if (reason === 'cancelled') return `Cancelled — ${message}`;
+  if (reason === 'client_network_error') return `Browser request failed — ${message}`;
+  return `HTTP ${status} — ${message}`;
+}
+
+async function runBulk(
+  questions: string[],
+  delayMs: number,
+  send: (message: string, signal?: AbortSignal) => Promise<Turn>,
+  setBulk: (progress: BulkProgress | null) => void
+) {
+  const controller = new AbortController();
+  const stop = () => controller.abort();
+  let asked = 0;
+  let failed = 0;
+  let declined = 0;
+
+  setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+
+  for (const question of questions) {
+    if (controller.signal.aborted) break;
+    const turn = await send(question, controller.signal);
+    asked += 1;
+    if (turn.status === 'failed') failed += 1;
+    else if (turn.status === 'declined') declined += 1;
+    setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+
+    if (delayMs > 0 && !controller.signal.aborted) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  setBulk({
+    running: false,
+    asked,
+    failed,
+    declined,
+    total: questions.length,
+    stop,
+    stopped: controller.signal.aborted,
+  });
 }
 
 function HeaderButton({
   onClick,
   title,
   children,
+  expanded,
 }: {
   onClick: () => void;
   title: string;
   children: React.ReactNode;
+  expanded?: boolean;
 }) {
   return (
     <button
@@ -169,9 +373,33 @@ function HeaderButton({
       onClick={onClick}
       title={title}
       aria-label={title}
+      aria-haspopup={expanded === undefined ? undefined : 'menu'}
+      aria-expanded={expanded}
       className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {children}
+    </button>
+  );
+}
+
+function ConversationExportItem({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: typeof ClipboardCopy;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-white/10"
+    >
+      <Icon className="h-4 w-4 text-muted-foreground" />
+      {label}
     </button>
   );
 }

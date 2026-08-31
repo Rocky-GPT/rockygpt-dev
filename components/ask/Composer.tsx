@@ -1,18 +1,20 @@
 'use client';
 
-import { Loader2, Send } from 'lucide-react';
+import { Layers, Loader2, Send } from 'lucide-react';
 import type { ComposerState, ValidationProblem } from '@/lib/chat-request';
 
 export function Composer({
   state,
   onChange,
   onSend,
+  onOpenBulk,
   busy,
   problems,
 }: {
   state: ComposerState;
   onChange: (next: Partial<ComposerState>) => void;
   onSend: () => void;
+  onOpenBulk: () => void;
   busy: boolean;
   problems: ValidationProblem[];
 }) {
@@ -41,6 +43,17 @@ export function Composer({
           title="Send (↵)"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        </button>
+      </div>
+      <div className="mt-2 flex justify-end">
+        <button
+          type="button"
+          onClick={onOpenBulk}
+          disabled={busy}
+          className="flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Layers className="h-3.5 w-3.5" />
+          Bulk questions
         </button>
       </div>
     </div>

@@ -23,7 +23,10 @@ import type { Turn } from './types';
 interface SendOptions {
   signal?: AbortSignal;
   priorMessages?: ChatMessageInput[];
+  select?: boolean;
 }
+
+type ConversationExportStatus = 'idle' | 'copied' | 'downloaded' | 'copy-error';
 
 export function AskWorkbench() {
   const {
@@ -40,14 +43,25 @@ export function AskWorkbench() {
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulk, setBulk] = useState<BulkProgress | null>(null);
   const [conversationExportOpen, setConversationExportOpen] = useState(false);
-  const [conversationCopied, setConversationCopied] = useState(false);
+  const [conversationExportStatus, setConversationExportStatus] =
+    useState<ConversationExportStatus>('idle');
   const conversationExportRef = useRef<HTMLDivElement>(null);
+  const conversationExportTimerRef = useRef<number | null>(null);
   const turnsRef = useRef(turns);
   const problems = useMemo(() => validate(state), [state]);
 
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
+
+  useEffect(
+    () => () => {
+      if (conversationExportTimerRef.current !== null) {
+        window.clearTimeout(conversationExportTimerRef.current);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     if (!conversationExportOpen) return;
@@ -96,7 +110,7 @@ export function AskWorkbench() {
 
     turnsRef.current = [...turnsRef.current, pending];
     setTurns(turnsRef.current);
-    setSelectedId(localId);
+    if (options.select !== false) setSelectedId(localId);
 
     const settle = (patch: Partial<Turn>): Turn => {
       const settled = { ...pending, ...patch, latencyMs: Date.now() - startedAt };
@@ -182,11 +196,24 @@ export function AskWorkbench() {
       2
     );
 
-  const copyConversation = () => {
-    void navigator.clipboard.writeText(conversationJson());
-    setConversationExportOpen(false);
-    setConversationCopied(true);
-    setTimeout(() => setConversationCopied(false), 2000);
+  const showConversationExportStatus = (status: ConversationExportStatus) => {
+    if (conversationExportTimerRef.current !== null) {
+      window.clearTimeout(conversationExportTimerRef.current);
+    }
+    setConversationExportStatus(status);
+    conversationExportTimerRef.current = window.setTimeout(() => {
+      setConversationExportStatus('idle');
+      conversationExportTimerRef.current = null;
+    }, 2500);
+  };
+
+  const copyConversation = async () => {
+    try {
+      await copyText(conversationJson());
+      showConversationExportStatus('copied');
+    } catch {
+      showConversationExportStatus('copy-error');
+    }
   };
 
   const downloadConversation = () => {
@@ -196,9 +223,11 @@ export function AskWorkbench() {
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `rockygpt-dev-conversation-${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
-    setConversationExportOpen(false);
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showConversationExportStatus('downloaded');
   };
 
   const selected = turns.find((turn) => turn.localId === selectedId);
@@ -232,7 +261,8 @@ export function AskWorkbench() {
                   title="Export all conversation as JSON"
                   expanded={conversationExportOpen}
                 >
-                  {conversationCopied ? (
+                  {conversationExportStatus === 'copied' ||
+                  conversationExportStatus === 'downloaded' ? (
                     <Check className="h-4 w-4 text-emerald-400" />
                   ) : (
                     <Download className="h-4 w-4" />
@@ -244,15 +274,24 @@ export function AskWorkbench() {
                     className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
                   >
                     <ConversationExportItem
-                      icon={ClipboardCopy}
-                      label="Copy JSON"
-                      onClick={copyConversation}
+                      icon={conversationExportStatus === 'copied' ? Check : ClipboardCopy}
+                      label={conversationExportStatus === 'copied' ? 'Copied JSON' : 'Copy JSON'}
+                      onClick={() => void copyConversation()}
                     />
                     <ConversationExportItem
-                      icon={FileDown}
-                      label="Download JSON"
+                      icon={conversationExportStatus === 'downloaded' ? Check : FileDown}
+                      label={
+                        conversationExportStatus === 'downloaded'
+                          ? 'Downloaded JSON'
+                          : 'Download JSON'
+                      }
                       onClick={downloadConversation}
                     />
+                    {conversationExportStatus === 'copy-error' && (
+                      <p role="status" className="px-2.5 pb-1 pt-2 text-xs leading-4 text-red-300">
+                        Couldn&apos;t copy JSON. Check this browser&apos;s clipboard permission.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -346,6 +385,7 @@ async function runBulk(
     const turn = await send(question, {
       signal: controller.signal,
       priorMessages: preserveHistory ? history : [],
+      select: false,
     });
     asked += 1;
     if (turn.status === 'failed') failed += 1;
@@ -420,4 +460,22 @@ function ConversationExportItem({
       {label}
     </button>
   );
+}
+
+async function copyText(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    if (!copied) throw new Error('Clipboard access was denied.');
+  }
 }

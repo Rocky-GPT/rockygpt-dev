@@ -12,6 +12,8 @@ import { CheckCircle2, ChevronDown, Clock, Layers, Play, Sparkles, Trash2, X } f
 import { MODAL_OVERLAY } from '@/components/modalShell';
 import capabilityTestQuestions from '@/lib/capability-test-questions.json';
 import shortRunQuestions from '@/lib/short-run-questions.json';
+import step5bFollowUpQuestions from '@/lib/step-5b-follow-up-questions.json';
+import step5bIndependentQuestions from '@/lib/step-5b-independent-questions.json';
 
 interface BulkQuestionModalProps {
   isOpen: boolean;
@@ -42,9 +44,9 @@ interface BulkQuestionModalProps {
 /**
  * The sample sets the runner can load, in the order they are offered.
  *
- * Adding one is adding an entry — a label and the file its questions live in.
- * Each set is its own ordered conversation, so the follow-ups inside it ("what
- * room did you tell me earlier") have something to refer back to.
+ * Each set explicitly chooses whether its lines are independent questions or
+ * one ordered conversation. Follow-up sets preserve history; evaluation sets
+ * default to a fresh conversation for every line.
  */
 const SAMPLE_SETS: ReadonlyArray<{
   id: string;
@@ -52,6 +54,18 @@ const SAMPLE_SETS: ReadonlyArray<{
   questions: string[];
   preserveHistory: boolean;
 }> = [
+  {
+    id: 'step-5b-independent',
+    label: 'Step 5B · independent',
+    questions: step5bIndependentQuestions,
+    preserveHistory: false,
+  },
+  {
+    id: 'step-5b-follow-up',
+    label: 'Step 5B · follow-up',
+    questions: step5bFollowUpQuestions,
+    preserveHistory: true,
+  },
   {
     id: 'full',
     label: 'Capability suite',

@@ -12,8 +12,8 @@ import { CheckCircle2, ChevronDown, Clock, Layers, Play, Sparkles, Trash2, X } f
 import { MODAL_OVERLAY } from '@/components/modalShell';
 import capabilityTestQuestions from '@/lib/capability-test-questions.json';
 import shortRunQuestions from '@/lib/short-run-questions.json';
-import step5bFollowUpQuestions from '@/lib/step-5b-follow-up-questions.json';
-import step5bIndependentQuestions from '@/lib/step-5b-independent-questions.json';
+import step5FollowUpQuestions from '@/lib/step-5b-follow-up-questions.json';
+import step5IndependentQuestions from '@/lib/step-5b-independent-questions.json';
 
 interface BulkQuestionModalProps {
   isOpen: boolean;
@@ -55,15 +55,15 @@ const SAMPLE_SETS: ReadonlyArray<{
   preserveHistory: boolean;
 }> = [
   {
-    id: 'step-5b-independent',
-    label: 'Step 5B · independent',
-    questions: step5bIndependentQuestions,
+    id: 'step-5-independent',
+    label: 'Step 5 · independent',
+    questions: step5IndependentQuestions,
     preserveHistory: false,
   },
   {
-    id: 'step-5b-follow-up',
-    label: 'Step 5B · follow-up',
-    questions: step5bFollowUpQuestions,
+    id: 'step-5-follow-up',
+    label: 'Step 5 · follow-up',
+    questions: step5FollowUpQuestions,
     preserveHistory: true,
   },
   {
@@ -79,8 +79,10 @@ const SAMPLE_SETS: ReadonlyArray<{
     preserveHistory: true,
   },
 ];
-const QUESTIONS_STORAGE_KEY = 'rockygpt_dev_bulk_questions';
-const LAST_RUN_STORAGE_KEY = 'rockygpt_dev_bulk_last_run';
+// Versioned so invalid Step 5B strings (arrow notation and clock conditions in
+// question text) cannot silently return as the current evaluation set.
+const QUESTIONS_STORAGE_KEY = 'rockygpt_dev_bulk_questions_v2';
+const LAST_RUN_STORAGE_KEY = 'rockygpt_dev_bulk_last_run_v2';
 
 /**
  * The pause between questions.

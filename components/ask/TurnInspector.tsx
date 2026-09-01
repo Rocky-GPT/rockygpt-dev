@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { assessStep5Response } from '@/lib/step-5-response-check';
 import type { Turn } from './types';
 
 export function TurnInspector({
@@ -37,6 +38,7 @@ export function TurnInspector({
   const transportationProvenance = isRecord(turn.raw?.transportationProvenance)
     ? turn.raw.transportationProvenance
     : undefined;
+  const assessment = assessStep5Response(turn);
   const statusLabel =
     turn.status === 'ok'
       ? 'Answered'
@@ -86,6 +88,7 @@ export function TurnInspector({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
+        {assessment && <ResponseChecksPanel assessment={assessment} />}
         <RequestConversationPanel messages={turn.request.messages} />
         {transportationInterpretation && (
           <TransportationInterpretationPanel interpretation={transportationInterpretation} />
@@ -117,6 +120,41 @@ export function TurnInspector({
         )}
       </div>
     </div>
+  );
+}
+
+function ResponseChecksPanel({
+  assessment,
+}: {
+  assessment: NonNullable<ReturnType<typeof assessStep5Response>>;
+}) {
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+          Response checks
+        </h2>
+        <span
+          className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${
+            assessment.passed
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              : 'border-red-500/30 bg-red-500/10 text-red-300'
+          }`}
+        >
+          {assessment.passed ? 'Passed' : 'Failed'}
+        </span>
+      </div>
+      <ul className="mt-3 space-y-1.5 text-xs">
+        {assessment.assertions.map((assertion) => (
+          <li
+            key={assertion.label}
+            className={assertion.passed ? 'text-muted-foreground' : 'text-red-300'}
+          >
+            {assertion.passed ? '✓' : '✕'} {assertion.label}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 

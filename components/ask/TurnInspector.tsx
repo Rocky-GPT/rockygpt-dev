@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
-import { assessStep5Response } from '@/lib/step-5-response-check';
 import type { Turn } from './types';
 
 export function TurnInspector({
@@ -29,16 +28,6 @@ export function TurnInspector({
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  const transportationInterpretation = isRecord(turn.raw?.transportationInterpretation)
-    ? turn.raw.transportationInterpretation
-    : undefined;
-  const transportationResult = isRecord(turn.raw?.transportationResult)
-    ? turn.raw.transportationResult
-    : undefined;
-  const transportationProvenance = isRecord(turn.raw?.transportationProvenance)
-    ? turn.raw.transportationProvenance
-    : undefined;
-  const assessment = assessStep5Response(turn);
   const statusLabel =
     turn.status === 'ok'
       ? 'Answered'
@@ -88,29 +77,7 @@ export function TurnInspector({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {assessment && <ResponseChecksPanel assessment={assessment} />}
         <RequestConversationPanel messages={turn.request.messages} />
-        {transportationInterpretation && (
-          <TransportationInterpretationPanel interpretation={transportationInterpretation} />
-        )}
-        {transportationResult && (
-          <StructuredInspectionPanel
-            title="Deterministic transportation result"
-            value={transportationResult}
-            badge={
-              typeof transportationResult.outcome === 'string'
-                ? humanizeIdentifier(transportationResult.outcome)
-                : undefined
-            }
-          />
-        )}
-        {transportationProvenance && (
-          <StructuredInspectionPanel
-            title="Trusted source / provenance"
-            value={transportationProvenance}
-            badge="Trusted database"
-          />
-        )}
         {answer ? (
           <ResponsePanel answer={answer} />
         ) : turn.status === 'failed' ? (
@@ -120,111 +87,6 @@ export function TurnInspector({
         )}
       </div>
     </div>
-  );
-}
-
-function ResponseChecksPanel({
-  assessment,
-}: {
-  assessment: NonNullable<ReturnType<typeof assessStep5Response>>;
-}) {
-  return (
-    <section className="border-b border-border px-5 py-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          Response checks
-        </h2>
-        <span
-          className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${
-            assessment.passed
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
-          }`}
-        >
-          {assessment.passed ? 'Passed' : 'Failed'}
-        </span>
-      </div>
-      <ul className="mt-3 space-y-1.5 text-xs">
-        {assessment.assertions.map((assertion) => (
-          <li
-            key={assertion.label}
-            className={assertion.passed ? 'text-muted-foreground' : 'text-red-300'}
-          >
-            {assertion.passed ? '✓' : '✕'} {assertion.label}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function StructuredInspectionPanel({
-  title,
-  value,
-  badge,
-}: {
-  title: string;
-  value: Record<string, unknown>;
-  badge?: string;
-}) {
-  return (
-    <section className="border-b border-border px-5 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          {title}
-        </h2>
-        {badge && (
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium text-emerald-300">
-            {badge}
-          </span>
-        )}
-      </div>
-      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-border bg-neutral-950/70 p-4 font-mono text-xs leading-5 text-foreground">
-        {JSON.stringify(value, null, 2)}
-      </pre>
-    </section>
-  );
-}
-
-function TransportationInterpretationPanel({
-  interpretation,
-}: {
-  interpretation: Record<string, unknown>;
-}) {
-  const selected = interpretation.selected === true;
-  const model = typeof interpretation.model === 'string' ? interpretation.model : undefined;
-  const request = isRecord(interpretation.request) ? interpretation.request : undefined;
-  const kind = typeof request?.kind === 'string' ? request.kind : undefined;
-
-  return (
-    <section className="border-b border-border px-5 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          Transportation interpretation
-        </h2>
-        <span
-          className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${
-            selected
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-white/10 bg-white/[0.04] text-muted-foreground'
-          }`}
-        >
-          {selected ? (kind ? humanizeIdentifier(kind) : 'Selected') : 'Not selected'}
-        </span>
-      </div>
-      <div className="mt-3 rounded-xl border border-border bg-neutral-950/70 p-4">
-        {model && <p className="mb-3 text-xs text-muted-foreground">Interpreted by {model}</p>}
-        {request ? (
-          <pre className="overflow-x-auto whitespace-pre-wrap break-words font-mono text-xs leading-5 text-foreground">
-            {JSON.stringify(request, null, 2)}
-          </pre>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            The model did not select the shuttle capability for this request.
-          </p>
-        )}
-      </div>
-    </section>
   );
 }
 
@@ -268,10 +130,6 @@ function RequestConversationPanel({ messages }: { messages: Turn['request']['mes
       </div>
     </section>
   );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 function humanizeIdentifier(value: string) {

@@ -1,7 +1,6 @@
 'use client';
 
 import { AlertCircle, Check, Loader2, ShieldAlert } from 'lucide-react';
-import { assessStep5Response } from '@/lib/step-5-response-check';
 import type { Turn } from './types';
 
 const ROUTE_TONE: Record<string, string> = {
@@ -61,8 +60,6 @@ export function TurnList({
         const selected = turn.localId === selectedId;
         const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;
         const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-        const assessment = assessStep5Response(turn);
-
         return (
           <button
             key={turn.localId}
@@ -78,7 +75,7 @@ export function TurnList({
               <span className="mt-0.5 shrink-0">
                 {turn.status === 'pending' ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-                ) : turn.status === 'ok' && assessment?.passed !== false ? (
+                ) : turn.status === 'ok' ? (
                   <Check className="h-3.5 w-3.5 text-emerald-400" />
                 ) : turn.status === 'declined' ? (
                   // A guard stopped this one. Amber, and a shield rather than
@@ -101,15 +98,6 @@ export function TurnList({
             {turn.status === 'ok' && answer && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
                 {answer}
-              </p>
-            )}
-            {turn.status === 'ok' && assessment?.passed === false && (
-              <p className="mt-1.5 pl-5.5 text-xs leading-5 text-red-300">
-                Response checks failed:{' '}
-                {assessment.assertions
-                  .filter((assertion) => !assertion.passed)
-                  .map((assertion) => assertion.label)
-                  .join('; ')}
               </p>
             )}
             {(turn.status === 'failed' || turn.status === 'declined') && turn.failure && (

@@ -11,8 +11,9 @@ Its current live Brain surface is:
 - `POST /v1/chat`
 
 The Ask & Inspect screen sends the complete ordered conversation and displays
-the returned capability label, model name, and raw request/response. There is no
-capability execution or transportation-specific inspection in this phase.
+the returned ordered capability labels, model name, and raw request/response.
+There is no capability execution or transportation-specific inspection in this
+phase.
 
 ## Running
 

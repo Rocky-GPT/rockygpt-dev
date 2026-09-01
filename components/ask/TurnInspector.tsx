@@ -28,6 +28,11 @@ export function TurnInspector({
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  const capabilities = Array.isArray(turn.raw?.capabilities)
+    ? turn.raw.capabilities.filter(
+        (capability): capability is string => typeof capability === 'string'
+      )
+    : [];
   const statusLabel =
     turn.status === 'ok'
       ? 'Answered'
@@ -78,6 +83,9 @@ export function TurnInspector({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <RequestConversationPanel messages={turn.request.messages} />
+        {capabilities.length > 0 && (
+          <CapabilitySelectionPanel capabilities={capabilities} />
+        )}
         {answer ? (
           <ResponsePanel answer={answer} />
         ) : turn.status === 'failed' ? (
@@ -87,6 +95,31 @@ export function TurnInspector({
         )}
       </div>
     </div>
+  );
+}
+
+function CapabilitySelectionPanel({ capabilities }: { capabilities: string[] }) {
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+          Selected capabilities
+        </h2>
+        <span className="font-mono text-[10px] text-muted-foreground">
+          {capabilities.length} selected
+        </span>
+      </div>
+      <ol className="mt-3 flex flex-wrap gap-2">
+        {capabilities.map((capability, index) => (
+          <li
+            key={capability}
+            className="rounded-lg border border-sky-500/25 bg-sky-500/10 px-2.5 py-1.5 font-mono text-xs text-sky-200"
+          >
+            {index + 1}. {capability}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

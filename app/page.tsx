@@ -44,7 +44,7 @@ export default async function OverviewPage() {
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
           <Tile label="HTTP surface" value="3 endpoints" />
-          <Tile label="Build phase" value="Single-model chat" />
+          <Tile label="Build phase" value="Capability classifier" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -58,7 +58,7 @@ export default async function OverviewPage() {
             href="/brain/ask"
             icon={<MessageSquareCode className="h-4 w-4" />}
             title="Ask & Inspect"
-            body="Send a message through the clean-room Brain and inspect the model response."
+            body="Classify a conversation and inspect the exact model request and response."
           />
         </div>
       </main>

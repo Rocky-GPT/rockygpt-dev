@@ -4,6 +4,7 @@ import 'server-only';
 import { brainAddress } from './brain-address';
 
 const PROBE_TIMEOUT_MS = 5_000;
+const CHAT_TIMEOUT_MS = 60_000;
 
 type FailureReason =
   | 'timeout'
@@ -117,15 +118,19 @@ function misconfigured(): Response {
   );
 }
 
-function upstreamFailure(error: unknown, operation: string): Response {
+function upstreamFailure(
+  error: unknown,
+  operation: string,
+  timeoutMs = PROBE_TIMEOUT_MS
+): Response {
   if (error instanceof DOMException && error.name === 'TimeoutError') {
     return failure(
       504,
-      `The Brain did not respond within ${PROBE_TIMEOUT_MS / 1_000} seconds.`,
+      `The Brain did not respond within ${timeoutMs / 1_000} seconds.`,
       'timeout',
       `${operation} exceeded the Dev UI proxy timeout.`,
       true,
-      { timeoutMs: PROBE_TIMEOUT_MS }
+      { timeoutMs }
     );
   }
 
@@ -169,12 +174,12 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
       headers: { accept: 'application/json', 'content-type': 'application/json' },
       body: await request.text(),
       cache: 'no-store',
-      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
     });
 
     return proxyResponse(upstream, 'POST /v1/chat');
   } catch (error) {
-    return upstreamFailure(error, 'POST /v1/chat');
+    return upstreamFailure(error, 'POST /v1/chat', CHAT_TIMEOUT_MS);
   }
 }
 

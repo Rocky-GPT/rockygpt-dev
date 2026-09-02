@@ -32,19 +32,11 @@ interface BulkQuestionModalProps {
 }
 
 /**
- * The capability suite, loaded verbatim from the checked-in question set.
- *
- * These are one ordered conversation rather than a list of independent
- * questions — "which one is cheapest", "does that place take flex", and
- * "where was the registrar again" only mean anything in sequence. The runner
- * sends them in order, so the order in the file is the test.
- */
-/**
  * The sample sets the runner can load, in the order they are offered.
  *
- * Each set explicitly chooses whether its lines are independent questions or
- * one ordered conversation. Follow-up sets preserve history; evaluation sets
- * default to a fresh conversation for every line.
+ * Checked-in evaluation lists contain independent cases, so every line starts
+ * a fresh conversation. History remains an explicit opt-in for a manually
+ * assembled multi-turn scenario.
  */
 const SAMPLE_SETS: ReadonlyArray<{
   id: string;
@@ -56,13 +48,13 @@ const SAMPLE_SETS: ReadonlyArray<{
     id: 'full',
     label: 'Capability suite',
     questions: capabilityTestQuestions,
-    preserveHistory: true,
+    preserveHistory: false,
   },
   {
     id: 'short',
     label: 'Short run',
     questions: shortRunQuestions,
-    preserveHistory: true,
+    preserveHistory: false,
   },
 ];
 const QUESTIONS_STORAGE_KEY = 'rockygpt_dev_bulk_questions_v3';
@@ -108,16 +100,18 @@ export function BulkQuestionModal({
 
   // Opening the runner resumes the exact set and delay used for the last run.
   // This is separate from the saved draft so launching a sample does not erase
-  // questions someone was still editing.
+  // questions someone was still editing. Conversation history is intentionally
+  // not restored: it must be opted into for each multi-turn run so a later
+  // independent evaluation cannot inherit an enormous context by accident.
   useEffect(() => {
     if (!isOpen || prefill) return;
+    setPreserveHistory(false);
     try {
       const cachedRun = window.localStorage.getItem(LAST_RUN_STORAGE_KEY);
       if (cachedRun === null) return;
       const parsed = JSON.parse(cachedRun) as {
         text?: unknown;
         delayMs?: unknown;
-        preserveHistory?: unknown;
       };
       if (typeof parsed.text === 'string') setText(parsed.text);
       if (
@@ -125,9 +119,6 @@ export function BulkQuestionModal({
         DELAY_OPTIONS.some((option) => option.value === parsed.delayMs)
       ) {
         setDelayMs(parsed.delayMs);
-      }
-      if (typeof parsed.preserveHistory === 'boolean') {
-        setPreserveHistory(parsed.preserveHistory);
       }
     } catch {
       // Ignore an unavailable store or a stale value and keep the current draft.
@@ -165,7 +156,7 @@ export function BulkQuestionModal({
     try {
       window.localStorage.setItem(
         LAST_RUN_STORAGE_KEY,
-        JSON.stringify({ text: runText, delayMs, preserveHistory })
+        JSON.stringify({ text: runText, delayMs })
       );
     } catch {
       // The run should still start when browser storage is unavailable.

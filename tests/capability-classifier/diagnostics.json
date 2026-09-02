@@ -1,0 +1,41 @@
+{
+  "initialRun": {
+    "total": 250,
+    "httpSuccess": 201,
+    "httpFailures": 49,
+    "runnerConcurrency": 10
+  },
+  "rootCause": {
+    "brainException": "openai.RateLimitError",
+    "upstreamHttpStatus": 429,
+    "limitType": "tokens_per_minute",
+    "limit": 30000,
+    "observedUsed": 30000,
+    "observedRequestedTokens": [
+      1356,
+      1357
+    ],
+    "observedRetryAfterSeconds": [
+      2.712,
+      2.714
+    ],
+    "previousClientStatus": 500,
+    "previousClientBody": "",
+    "diagnosis": "Ten concurrent classifier calls exhausted the configured gpt-4o token-per-minute limit. The Brain did not catch the provider's 429, so FastAPI exposed each exception as a blank HTTP 500."
+  },
+  "correction": {
+    "brainBehavior": "Return a reasoned HTTP 429 with reason rate_limited and do not retry automatically.",
+    "classifierTransport": "Disable the OpenAI SDK's implicit retries, allow one provider attempt for up to 90 seconds, and return explicit reasons for rate-limit, timeout, connection, and provider-status failures.",
+    "evaluationBehavior": "Use one worker by default, make one attempt per case, and report transport failures separately from exact semantic mismatches."
+  },
+  "finalAcceptanceRun": {
+    "runnerConcurrency": 2,
+    "total": 250,
+    "httpSuccess": 171,
+    "rateLimited": 79,
+    "semanticCorrect": 162,
+    "semanticIncorrect": 9,
+    "semanticAccuracyAmongClassifiedCases": 0.9473684210526315,
+    "finding": "Concurrency 2 still exceeded the same 30000 token-per-minute provider limit, but the Brain returned explicit HTTP 429 responses rather than blank 500s. The reusable evaluator now defaults to one worker; the failed requests were not retried."
+  }
+}

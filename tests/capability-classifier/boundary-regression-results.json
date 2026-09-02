@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-09-02T03:07:29Z",
+  "endpoint": "http://127.0.0.1:8000/v1/chat",
+  "summary": {
+    "total": 4,
+    "correct": 4,
+    "semanticAccuracy": 1,
+    "httpFailures": 0
+  },
+  "results": [
+    {
+      "id": "case-052",
+      "expected": ["directory"],
+      "actual": ["directory"],
+      "httpStatus": 200,
+      "semanticPass": true
+    },
+    {
+      "id": "case-163",
+      "expected": ["directory"],
+      "actual": ["directory"],
+      "httpStatus": 200,
+      "semanticPass": true
+    },
+    {
+      "id": "case-178",
+      "expected": ["clubs"],
+      "actual": ["clubs"],
+      "httpStatus": 200,
+      "semanticPass": true
+    },
+    {
+      "id": "case-233",
+      "expected": ["directory"],
+      "actual": ["directory"],
+      "httpStatus": 200,
+      "semanticPass": true
+    }
+  ]
+}

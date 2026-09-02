@@ -11,7 +11,8 @@
     "build": "next build --webpack",
     "start": "next start -p 3100",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:classifier": "node tests/capability-classifier/evaluate.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

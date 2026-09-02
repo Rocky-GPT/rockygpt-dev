@@ -1,0 +1,3186 @@
+{
+  "version": 1,
+  "labels": [
+    "transportation",
+    "dining",
+    "events",
+    "hours",
+    "directory",
+    "locations",
+    "courses",
+    "programs",
+    "clubs",
+    "academic_calendar",
+    "campus_documents",
+    "student_services",
+    "it_support",
+    "personal_account",
+    "general",
+    "clarification"
+  ],
+  "independentCases": [
+    {
+      "id": "case-001",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events r happening tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-002",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did the career fair already happen?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-004",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which classes actually count as CS electives?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-005",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the soccer club take beginners or am I cooked?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-006",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-008",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait what time is my Calc 2 section again?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-009",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo where’s the Help Desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-010",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-012",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the bookstore open tmr?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-013",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My school email isn’t loading, help?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-014",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a funny Instagram caption"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-015",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get the Dean of Students’ office number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-016",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many Intro to CS sections still have seats?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-017",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get coffee anywhere after 8 or am I done for?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-018",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s left on my meal plan rn?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-019",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does registration open for seniors?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-020",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I find the campus map?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-021",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I leave a club mailing list?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-022",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you register me for CMPS 450 and tell me how many credits it is?"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "courses"
+      ]
+    },
+    {
+      "id": "case-023",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The classroom projector is cooked—who do I report it to?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-024",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you check whether my transcript was sent?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-025",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the club fair happening?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-026",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take the shuttle to Barnes n Noble?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-027",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar and what’s their phone number?"
+        }
+      ],
+      "expected": [
+        "locations",
+        "directory"
+      ]
+    },
+    {
+      "id": "case-028",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does Dunkin close tonight?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-029",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-031",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the rule on guests staying multiple nights?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-032",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long till the next shuttle gets here fr?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-033",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the overnight guest policy?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-035",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I fix Wi-Fi and where’s the Help Desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-036",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the first shuttle tmr morning?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-037",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How late is the Learning Commons open?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-038",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I request a transcript?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-039",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh did I miss the last shuttle 😭"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-040",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the concert tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-041",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Birch open tomorrow morning?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-042",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the financial aid phone number and how do I appeal my aid?"
+        }
+      ],
+      "expected": [
+        "directory",
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-043",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest printer?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-044",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are they serving for lunch at the Atrium?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-045",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can professors record lectures without telling us?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-046",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the next three shuttle times?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-047",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did I get into housing?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-048",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a table tennis club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-049",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any study spots open 24/7?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-050",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who can help me pick classes?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-051",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I do if my financial aid is missing?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-052",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact for the robotics club?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-053",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay but what about the other one?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-054",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the shuttle run during spring break?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-055",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a fire Python project idea"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-056",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can grad students join campus clubs?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-057",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I chnage my major?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-058",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which major has the least math bc be serious"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-059",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get my PS5 on campus Wi-Fi?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-060",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is my Duo code not workinggg?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-061",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the menu in the Learning Commons?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-062",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I bring a pet into my dorm?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-063",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Someone passed out and won’t wake up—what do I do?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-064",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I add the campus printer to my Mac?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-065",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is the sky blue tho?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-066",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Y’all got a five-year master’s thing or nah?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-067",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is campus closed on Labor Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-068",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is CMPS 231 offered in the spring?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-069",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Canvas is down for me, what am I supposed to do?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-070",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I install Office for free as a student?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-071",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the mailroom open during lunch?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-072",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do winter classes start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-073",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s tonight’s event and what time does it start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-074",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight and which clubs are hosting them?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-075",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pizza station open rn or no?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-077",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you help me write a breakup text?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-079",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What day does fall semester start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-080",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me my holds and explain how to remove them"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-081",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s hosting the event in Friends Hall?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-082",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I miss the withdrawal deadline?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-083",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open rn?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-084",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print and is the library still open?"
+        }
+      ],
+      "expected": [
+        "it_support",
+        "hours"
+      ]
+    },
+    {
+      "id": "case-085",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle and is Birch still open?"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "dining"
+      ]
+    },
+    {
+      "id": "case-086",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are meeting today and how do I join the first one?"
+        }
+      ],
+      "expected": [
+        "events",
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-087",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t campus Wi-Fi connect bruh 😭"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-088",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can u get me Professor Miller’s email?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-089",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the president of IVCF this year?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-090",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any vegan desserts today or nah?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-091",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes am I registered for?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-092",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How can I appeal a parking ticket?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-093",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can Rocky see where the shuttle is rn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-094",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the Sunday shuttle schedule different?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-095",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything happening after 6 PM?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-096",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Ramapo’s policy on service animals?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-097",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where does the Ramsey Route 17 shuttle stop?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-098",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When are grades due?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-099",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the shuttle late or am I trippin?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-100",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What minors pair well with CS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-101",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How far is the gym from the student center?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-102",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle to Route 17 tn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-103",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy and who do I contact about housing?"
+        }
+      ],
+      "expected": [
+        "campus_documents",
+        "directory"
+      ]
+    },
+    {
+      "id": "case-104",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is CMPS 450?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-105",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I double major in CS and math?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-106",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-107",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Help Desk contact info?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-108",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I gotta do to study abroad?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-109",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the health center hours?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-110",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why can’t I log into Web Self Service bro"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-111",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the cheapest thing to eat on campus?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-112",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events got canceled today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-113",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Lowkey craving pasta—do they have any today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-114",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner and are there any events after I eat?"
+        }
+      ],
+      "expected": [
+        "dining",
+        "events"
+      ]
+    },
+    {
+      "id": "case-115",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break and are the dorms open during it?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-116",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the library stay open later during finals?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-117",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whens spring break fr fr?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-118",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are clubs open to commuters?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-119",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which shuttle gets me to the train station fastest?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-120",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open and how do I get there?"
+        }
+      ],
+      "expected": [
+        "hours",
+        "locations"
+      ]
+    },
+    {
+      "id": "case-121",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there class on Columbus Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-122",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop today’s whole shuttle schedule pls"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-123",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any free stuff happening on campus rn?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-124",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whats the capital of France again lol?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-125",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the last day to withdraw?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-126",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Registrar’s phone number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-127",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next campus event?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-128",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the requirements for the AI concentration?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-129",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take Machine Learning without AI first?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-130",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the last shuttle come back to campus?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-131",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get better at piano without practicing for 5 years lol"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-132",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the campus store open on Saturdays?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-133",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are students allowed to film on campus?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-134",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me the next shuttle and library hours?"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "hours"
+      ]
+    },
+    {
+      "id": "case-136",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the academic integrity policy say about AI?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-137",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What building is the financial aid office in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-138",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t my ID card scan at the lab?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-140",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me events for CS students?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-141",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print in color?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-142",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I get tutoring bc I’m cooked?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-143",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wheres Friends Hall again?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-144",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there anything fun this weekend?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-145",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the pool open?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-146",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I appeal an academic integrity decision?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-147",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Be honest, who wins: Hulk or Godzilla?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-148",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which building is the Health Center in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-149",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the graduation application deadline?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-150",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Was there a shuttle around 1 PM?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-151",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo when does add/drop end?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-152",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I declare a minor?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-153",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest bathroom to the library?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-154",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the basketball game considered a campus event?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-155",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain recursion like I’m actually five"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-156",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the CS major requirements and the prereqs for CMPS 361?"
+        }
+      ],
+      "expected": [
+        "programs",
+        "courses"
+      ]
+    },
+    {
+      "id": "case-157",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I join the Computer Science Club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-158",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Find the next shuttle and the library closing time"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "hours"
+      ]
+    },
+    {
+      "id": "case-159",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get to ASB 407?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-160",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay which one is better?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-161",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much do I owe on my account?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-162",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long is Thanksgiving break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-163",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the contact for shuttle questions?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-164",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Register me for CMPS 450 pls"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-165",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy for missing class because of illness?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-166",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the fitness center close tonight?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-167",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the capital of France and when’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "general",
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-168",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me my grades?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-169",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a Bible verse for when I’m stressed"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-170",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did my financial aid get applied yet?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-171",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the email for Public Safety?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-172",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes do I need for the CS major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-173",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between the CS BA and BS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-174",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you find the Housing Office number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-175",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does large group start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-176",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who am I supposed to talk to?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-177",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any campus events happening later tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-179",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Birch have halal food today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-180",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I start a new club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-181",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is the cybersecurity minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-182",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What dining spot is still serving food rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-183",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there food available on campus over the weekend?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-184",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who runs the Career Center?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-185",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the menu have anything high protein today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-186",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-188",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are the computer labs open Sunday?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-189",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I switch from business to CS or is it too late?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-190",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-192",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the chair of the CS department?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-193",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who handles international student stuff?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-194",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reset my Ramapo password?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-195",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who teaches Data Structures this semester?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-196",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is 7 hours of sleep enough or nah?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-197",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between CMPS 361 and 366?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-198",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi won’t connect—what do I do?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-200",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Brooo what can I even eat on campus this late?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-201",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are candles allowed in residence halls?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-202",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the handbook say about alcohol?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-203",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-205",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop my 8 AM class please I’m begging"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-206",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are good for making friends?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-207",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything vegetarian rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-208",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the campus bus leave rn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-209",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh what am I supposed to do now?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-210",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you pull up my grades real quick?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-212",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many electives does the CS major need?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-213",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the parking policy say about overnight parking?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-214",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner at Birch today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-215",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my current GPA?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-216",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What should I eat after a workout?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-217",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo whens the nxt shuttle??"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-218",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What student orgs are faith-based?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-219",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do I have any holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-220",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the process for taking a leave of absence?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-221",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I get breakfast before my 8 AM?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-222",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the library close?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "case-223",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I submit my immuniztion form?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-224",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 450 require Software Design?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-225",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the course description for CMPS 450?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-226",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can transfer credits count toward my major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-227",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reg for classes again?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-228",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact about financial aid?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-229",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu and when does it close?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-230",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the prereqs for CMPS 361?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-232",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any gluten-free food on campus?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-233",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I email about a missing grade?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-234",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I go for lost and found?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-235",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Ramapo have a data science minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-236",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades and tell me the next shuttle"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-237",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any events with free food today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-239",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What room is the CS department office?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-240",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I apply for housing?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-241",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar’s Office?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-242",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get from Laurel to the Learning Commons?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "case-243",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Remind me, what’s the overnight guest policy?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "case-244",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a computer I can borrow?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-245",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my class schedule for tomorrow"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-246",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What date are finals?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-247",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline and what happens if I miss it?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-248",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Saturday shuttle stop at Garden State Plaza?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-249",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club usually meet?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    }
+  ],
+  "multiTurnScenarios": [
+    {
+      "id": "case-003",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 231."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Does this class have a lab or nah?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-007",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Anything vegetarian on there?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-011",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Wait, is it required for the major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "case-030",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "And what’s their number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "case-034",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the overnight guest policy?"
+        },
+        {
+          "role": "assistant",
+          "content": "campus_documents"
+        },
+        {
+          "role": "user",
+          "content": "Who can I talk to if I need an exception?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "case-076",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pizza station open right now?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Wait, is it open?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "case-078",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Is there an online section of this course?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-135",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me the next shuttle and library hours?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation\n\nhours"
+        },
+        {
+          "role": "user",
+          "content": "Actually, just the shuttle."
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-139",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t my ID card scan at the lab?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "How much is it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "case-178",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any campus events happening later tonight?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "How do I join the group running the first one?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "case-187",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "case-191",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break?"
+        },
+        {
+          "role": "assistant",
+          "content": "academic_calendar"
+        },
+        {
+          "role": "user",
+          "content": "Do we have class the Friday before?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "case-199",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi won’t connect—what do I do?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Where do I go if restarting doesn’t fix it?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "case-204",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        },
+        {
+          "role": "assistant",
+          "content": "general"
+        },
+        {
+          "role": "user",
+          "content": "Can I do this tomorrow or nah?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "case-211",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you pull up my grades real quick?"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "What about my holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "case-231",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the prereqs for CMPS 361?"
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Is this class writing intensive?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "case-238",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any events with free food today?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Can you help me with that real quick?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "case-250",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club usually meet?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Wait, when does that happen?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    }
+  ]
+}

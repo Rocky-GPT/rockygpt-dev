@@ -1,0 +1,2255 @@
+{
+  "mode": "independent",
+  "scenarios": [
+    {
+      "id": 1,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events r happening tonight?"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did the career fair already happen?"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does this class have a lab or nah?"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which classes actually count as CS electives?"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the soccer club take beginners or am I cooked?"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything vegetarian on there?"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait what time is my Calc 2 section again?"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo where’s the Help Desk?"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait, is it required for the major?"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the bookstore open tmr?"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My school email isn’t loading, help?"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a funny Instagram caption"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get the Dean of Students’ office number?"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many Intro to CS sections still have seats?"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get coffee anywhere after 8 or am I done for?"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s left on my meal plan rn?"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does registration open for seniors?"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I find the campus map?"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I leave a club mailing list?"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you register me for CMPS 450 and tell me how many credits it is?"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "messages": [
+        {
+          "role": "user",
+          "content": "The classroom projector is cooked—who do I report it to?"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you check whether my transcript was sent?"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the club fair happening?"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take the shuttle to Barnes n Noble?"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar and what’s their phone number?"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does Dunkin close tonight?"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "messages": [
+        {
+          "role": "user",
+          "content": "And what’s their number?"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the rule on guests staying multiple nights?"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long till the next shuttle gets here fr?"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the overnight guest policy?"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who can I talk to if I need an exception?"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I fix Wi-Fi and where’s the Help Desk?"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the first shuttle tmr morning?"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How late is the Learning Commons open?"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I request a transcript?"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh did I miss the last shuttle 😭"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the concert tonight?"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Birch open tomorrow morning?"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the financial aid phone number and how do I appeal my aid?"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest printer?"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are they serving for lunch at the Atrium?"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can professors record lectures without telling us?"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the next three shuttle times?"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did I get into housing?"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a table tennis club?"
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any study spots open 24/7?"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who can help me pick classes?"
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I do if my financial aid is missing?"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact for the robotics club?"
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay but what about the other one?"
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the shuttle run during spring break?"
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a fire Python project idea"
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can grad students join campus clubs?"
+        }
+      ]
+    },
+    {
+      "id": 57,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I chnage my major?"
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which major has the least math bc be serious"
+        }
+      ]
+    },
+    {
+      "id": 59,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get my PS5 on campus Wi-Fi?"
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is my Duo code not workinggg?"
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the menu in the Learning Commons?"
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I bring a pet into my dorm?"
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Someone passed out and won’t wake up—what do I do?"
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I add the campus printer to my Mac?"
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is the sky blue tho?"
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Y’all got a five-year master’s thing or nah?"
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is campus closed on Labor Day?"
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is CMPS 231 offered in the spring?"
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Canvas is down for me, what am I supposed to do?"
+        }
+      ]
+    },
+    {
+      "id": 70,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I install Office for free as a student?"
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the mailroom open during lunch?"
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do winter classes start?"
+        }
+      ]
+    },
+    {
+      "id": 73,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s tonight’s event and what time does it start?"
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight and which clubs are hosting them?"
+        }
+      ]
+    },
+    {
+      "id": 75,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pizza station open rn or no?"
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait is it open?"
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you help me write a breakup text?"
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there an online section of this course?"
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What day does fall semester start?"
+        }
+      ]
+    },
+    {
+      "id": 80,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me my holds and explain how to remove them"
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s hosting the event in Friends Hall?"
+        }
+      ]
+    },
+    {
+      "id": 82,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I miss the withdrawal deadline?"
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open rn?"
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print and is the library still open?"
+        }
+      ]
+    },
+    {
+      "id": 85,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle and is Birch still open?"
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are meeting today and how do I join the first one?"
+        }
+      ]
+    },
+    {
+      "id": 87,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t campus Wi-Fi connect bruh 😭"
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can u get me Professor Miller’s email?"
+        }
+      ]
+    },
+    {
+      "id": 89,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the president of IVCF this year?"
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any vegan desserts today or nah?"
+        }
+      ]
+    },
+    {
+      "id": 91,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes am I registered for?"
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How can I appeal a parking ticket?"
+        }
+      ]
+    },
+    {
+      "id": 93,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can Rocky see where the shuttle is rn?"
+        }
+      ]
+    },
+    {
+      "id": 94,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the Sunday shuttle schedule different?"
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything happening after 6 PM?"
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Ramapo’s policy on service animals?"
+        }
+      ]
+    },
+    {
+      "id": 97,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where does the Ramsey Route 17 shuttle stop?"
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When are grades due?"
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the shuttle late or am I trippin?"
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What minors pair well with CS?"
+        }
+      ]
+    },
+    {
+      "id": 101,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How far is the gym from the student center?"
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle to Route 17 tn?"
+        }
+      ]
+    },
+    {
+      "id": 103,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy and who do I contact about housing?"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is CMPS 450?"
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I double major in CS and math?"
+        }
+      ]
+    },
+    {
+      "id": 106,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is it?"
+        }
+      ]
+    },
+    {
+      "id": 107,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Help Desk contact info?"
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I gotta do to study abroad?"
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the health center hours?"
+        }
+      ]
+    },
+    {
+      "id": 110,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why can’t I log into Web Self Service bro"
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the cheapest thing to eat on campus?"
+        }
+      ]
+    },
+    {
+      "id": 112,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events got canceled today?"
+        }
+      ]
+    },
+    {
+      "id": 113,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Lowkey craving pasta—do they have any today?"
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner and are there any events after I eat?"
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break and are the dorms open during it?"
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the library stay open later during finals?"
+        }
+      ]
+    },
+    {
+      "id": 117,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whens spring break fr fr?"
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are clubs open to commuters?"
+        }
+      ]
+    },
+    {
+      "id": 119,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which shuttle gets me to the train station fastest?"
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open and how do I get there?"
+        }
+      ]
+    },
+    {
+      "id": 121,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there class on Columbus Day?"
+        }
+      ]
+    },
+    {
+      "id": 122,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop today’s whole shuttle schedule pls"
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any free stuff happening on campus rn?"
+        }
+      ]
+    },
+    {
+      "id": 124,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whats the capital of France again lol?"
+        }
+      ]
+    },
+    {
+      "id": 125,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the last day to withdraw?"
+        }
+      ]
+    },
+    {
+      "id": 126,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Registrar’s phone number?"
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next campus event?"
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the requirements for the AI concentration?"
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take Machine Learning without AI first?"
+        }
+      ]
+    },
+    {
+      "id": 130,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the last shuttle come back to campus?"
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get better at piano without practicing for 5 years lol"
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the campus store open on Saturdays?"
+        }
+      ]
+    },
+    {
+      "id": 133,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are students allowed to film on campus?"
+        }
+      ]
+    },
+    {
+      "id": 134,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me the next shuttle and library hours?"
+        }
+      ]
+    },
+    {
+      "id": 135,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Actually, just the shuttle."
+        }
+      ]
+    },
+    {
+      "id": 136,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the academic integrity policy say about AI?"
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What building is the financial aid office in?"
+        }
+      ]
+    },
+    {
+      "id": 138,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t my ID card scan at the lab?"
+        }
+      ]
+    },
+    {
+      "id": 139,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much is it?"
+        }
+      ]
+    },
+    {
+      "id": 140,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me events for CS students?"
+        }
+      ]
+    },
+    {
+      "id": 141,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print in color?"
+        }
+      ]
+    },
+    {
+      "id": 142,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I get tutoring bc I’m cooked?"
+        }
+      ]
+    },
+    {
+      "id": 143,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wheres Friends Hall again?"
+        }
+      ]
+    },
+    {
+      "id": 144,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there anything fun this weekend?"
+        }
+      ]
+    },
+    {
+      "id": 145,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the pool open?"
+        }
+      ]
+    },
+    {
+      "id": 146,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I appeal an academic integrity decision?"
+        }
+      ]
+    },
+    {
+      "id": 147,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Be honest, who wins: Hulk or Godzilla?"
+        }
+      ]
+    },
+    {
+      "id": 148,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which building is the Health Center in?"
+        }
+      ]
+    },
+    {
+      "id": 149,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the graduation application deadline?"
+        }
+      ]
+    },
+    {
+      "id": 150,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Was there a shuttle around 1 PM?"
+        }
+      ]
+    },
+    {
+      "id": 151,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo when does add/drop end?"
+        }
+      ]
+    },
+    {
+      "id": 152,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I declare a minor?"
+        }
+      ]
+    },
+    {
+      "id": 153,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest bathroom to the library?"
+        }
+      ]
+    },
+    {
+      "id": 154,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the basketball game considered a campus event?"
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain recursion like I’m actually five"
+        }
+      ]
+    },
+    {
+      "id": 156,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the CS major requirements and the prereqs for CMPS 361?"
+        }
+      ]
+    },
+    {
+      "id": 157,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I join the Computer Science Club?"
+        }
+      ]
+    },
+    {
+      "id": 158,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Find the next shuttle and the library closing time"
+        }
+      ]
+    },
+    {
+      "id": 159,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get to ASB 407?"
+        }
+      ]
+    },
+    {
+      "id": 160,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay which one is better?"
+        }
+      ]
+    },
+    {
+      "id": 161,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much do I owe on my account?"
+        }
+      ]
+    },
+    {
+      "id": 162,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long is Thanksgiving break?"
+        }
+      ]
+    },
+    {
+      "id": 163,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the contact for shuttle questions?"
+        }
+      ]
+    },
+    {
+      "id": 164,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Register me for CMPS 450 pls"
+        }
+      ]
+    },
+    {
+      "id": 165,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy for missing class because of illness?"
+        }
+      ]
+    },
+    {
+      "id": 166,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the fitness center close tonight?"
+        }
+      ]
+    },
+    {
+      "id": 167,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the capital of France and when’s the next shuttle?"
+        }
+      ]
+    },
+    {
+      "id": 168,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me my grades?"
+        }
+      ]
+    },
+    {
+      "id": 169,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a Bible verse for when I’m stressed"
+        }
+      ]
+    },
+    {
+      "id": 170,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did my financial aid get applied yet?"
+        }
+      ]
+    },
+    {
+      "id": 171,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the email for Public Safety?"
+        }
+      ]
+    },
+    {
+      "id": 172,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes do I need for the CS major?"
+        }
+      ]
+    },
+    {
+      "id": 173,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between the CS BA and BS?"
+        }
+      ]
+    },
+    {
+      "id": 174,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you find the Housing Office number?"
+        }
+      ]
+    },
+    {
+      "id": 175,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does large group start?"
+        }
+      ]
+    },
+    {
+      "id": 176,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who am I supposed to talk to?"
+        }
+      ]
+    },
+    {
+      "id": 177,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any campus events happening later tonight?"
+        }
+      ]
+    },
+    {
+      "id": 178,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I join the group running the first one?"
+        }
+      ]
+    },
+    {
+      "id": 179,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Birch have halal food today?"
+        }
+      ]
+    },
+    {
+      "id": 180,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I start a new club?"
+        }
+      ]
+    },
+    {
+      "id": 181,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is the cybersecurity minor?"
+        }
+      ]
+    },
+    {
+      "id": 182,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What dining spot is still serving food rn?"
+        }
+      ]
+    },
+    {
+      "id": 183,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there food available on campus over the weekend?"
+        }
+      ]
+    },
+    {
+      "id": 184,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who runs the Career Center?"
+        }
+      ]
+    },
+    {
+      "id": 185,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the menu have anything high protein today?"
+        }
+      ]
+    },
+    {
+      "id": 186,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle?"
+        }
+      ]
+    },
+    {
+      "id": 187,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        }
+      ]
+    },
+    {
+      "id": 188,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are the computer labs open Sunday?"
+        }
+      ]
+    },
+    {
+      "id": 189,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I switch from business to CS or is it too late?"
+        }
+      ]
+    },
+    {
+      "id": 190,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break?"
+        }
+      ]
+    },
+    {
+      "id": 191,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do we have class the Friday before?"
+        }
+      ]
+    },
+    {
+      "id": 192,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the chair of the CS department?"
+        }
+      ]
+    },
+    {
+      "id": 193,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who handles international student stuff?"
+        }
+      ]
+    },
+    {
+      "id": 194,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reset my Ramapo password?"
+        }
+      ]
+    },
+    {
+      "id": 195,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who teaches Data Structures this semester?"
+        }
+      ]
+    },
+    {
+      "id": 196,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is 7 hours of sleep enough or nah?"
+        }
+      ]
+    },
+    {
+      "id": 197,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between CMPS 361 and 366?"
+        }
+      ]
+    },
+    {
+      "id": 198,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi won’t connect—what do I do?"
+        }
+      ]
+    },
+    {
+      "id": 199,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I go if restarting doesn’t fix it?"
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Brooo what can I even eat on campus this late?"
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are candles allowed in residence halls?"
+        }
+      ]
+    },
+    {
+      "id": 202,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the handbook say about alcohol?"
+        }
+      ]
+    },
+    {
+      "id": 203,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        }
+      ]
+    },
+    {
+      "id": 204,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I do this tomorrow or nah?"
+        }
+      ]
+    },
+    {
+      "id": 205,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop my 8 AM class please I’m begging"
+        }
+      ]
+    },
+    {
+      "id": 206,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are good for making friends?"
+        }
+      ]
+    },
+    {
+      "id": 207,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything vegetarian rn?"
+        }
+      ]
+    },
+    {
+      "id": 208,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the campus bus leave rn?"
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh what am I supposed to do now?"
+        }
+      ]
+    },
+    {
+      "id": 210,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you pull up my grades real quick?"
+        }
+      ]
+    },
+    {
+      "id": 211,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What about my holds?"
+        }
+      ]
+    },
+    {
+      "id": 212,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many electives does the CS major need?"
+        }
+      ]
+    },
+    {
+      "id": 213,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the parking policy say about overnight parking?"
+        }
+      ]
+    },
+    {
+      "id": 214,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner at Birch today?"
+        }
+      ]
+    },
+    {
+      "id": 215,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my current GPA?"
+        }
+      ]
+    },
+    {
+      "id": 216,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What should I eat after a workout?"
+        }
+      ]
+    },
+    {
+      "id": 217,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo whens the nxt shuttle??"
+        }
+      ]
+    },
+    {
+      "id": 218,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What student orgs are faith-based?"
+        }
+      ]
+    },
+    {
+      "id": 219,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do I have any holds?"
+        }
+      ]
+    },
+    {
+      "id": 220,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the process for taking a leave of absence?"
+        }
+      ]
+    },
+    {
+      "id": 221,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I get breakfast before my 8 AM?"
+        }
+      ]
+    },
+    {
+      "id": 222,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the library close?"
+        }
+      ]
+    },
+    {
+      "id": 223,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I submit my immuniztion form?"
+        }
+      ]
+    },
+    {
+      "id": 224,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 450 require Software Design?"
+        }
+      ]
+    },
+    {
+      "id": 225,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the course description for CMPS 450?"
+        }
+      ]
+    },
+    {
+      "id": 226,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can transfer credits count toward my major?"
+        }
+      ]
+    },
+    {
+      "id": 227,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reg for classes again?"
+        }
+      ]
+    },
+    {
+      "id": 228,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact about financial aid?"
+        }
+      ]
+    },
+    {
+      "id": 229,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu and when does it close?"
+        }
+      ]
+    },
+    {
+      "id": 230,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the prereqs for CMPS 361?"
+        }
+      ]
+    },
+    {
+      "id": 231,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is this class writing intensive?"
+        }
+      ]
+    },
+    {
+      "id": 232,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any gluten-free food on campus?"
+        }
+      ]
+    },
+    {
+      "id": 233,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I email about a missing grade?"
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I go for lost and found?"
+        }
+      ]
+    },
+    {
+      "id": 235,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Ramapo have a data science minor?"
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades and tell me the next shuttle"
+        }
+      ]
+    },
+    {
+      "id": 237,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any events with free food today?"
+        }
+      ]
+    },
+    {
+      "id": 238,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you help me with that real quick?"
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What room is the CS department office?"
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I apply for housing?"
+        }
+      ]
+    },
+    {
+      "id": 241,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar’s Office?"
+        }
+      ]
+    },
+    {
+      "id": 242,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get from Laurel to the Learning Commons?"
+        }
+      ]
+    },
+    {
+      "id": 243,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Remind me, what’s the overnight guest policy?"
+        }
+      ]
+    },
+    {
+      "id": 244,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a computer I can borrow?"
+        }
+      ]
+    },
+    {
+      "id": 245,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my class schedule for tomorrow"
+        }
+      ]
+    },
+    {
+      "id": 246,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What date are finals?"
+        }
+      ]
+    },
+    {
+      "id": 247,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline and what happens if I miss it?"
+        }
+      ]
+    },
+    {
+      "id": 248,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Saturday shuttle stop at Garden State Plaza?"
+        }
+      ]
+    },
+    {
+      "id": 249,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club usually meet?"
+        }
+      ]
+    },
+    {
+      "id": 250,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait when does that happen?"
+        }
+      ]
+    }
+  ]
+}

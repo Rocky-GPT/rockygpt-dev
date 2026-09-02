@@ -1,0 +1,6965 @@
+{
+  "generatedAt": "2026-09-02T03:02:06.980Z",
+  "endpoint": "http://127.0.0.1:8000/v1/chat",
+  "concurrency": 2,
+  "summary": {
+    "total": 250,
+    "httpSuccess": 171,
+    "httpFailures": 79,
+    "semanticCorrect": 162,
+    "semanticIncorrect": 9,
+    "semanticAccuracy": 0.9473684210526315,
+    "endToEndPass": 162,
+    "endToEndPassRate": 0.648,
+    "independentCorrect": 152,
+    "independentClassified": 159,
+    "independentSemanticAccuracy": 0.9559748427672956,
+    "multiTurnCorrect": 10,
+    "multiTurnClassified": 12,
+    "multiTurnSemanticAccuracy": 0.8333333333333334,
+    "averageLatencyMs": 4291,
+    "minimumLatencyMs": 528,
+    "maximumLatencyMs": 7998
+  },
+  "results": [
+    {
+      "id": "case-001",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events r happening tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 719,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-002",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did the career fair already happen?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 662,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-004",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which classes actually count as CS electives?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1644,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-005",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the soccer club take beginners or am I cooked?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1129,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-006",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1048,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-008",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait what time is my Calc 2 section again?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 810,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-009",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo where’s the Help Desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 742,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-010",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 782,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-012",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the bookstore open tmr?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 682,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-013",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My school email isn’t loading, help?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 766,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-014",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a funny Instagram caption"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 636,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-015",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get the Dean of Students’ office number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 670,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-016",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many Intro to CS sections still have seats?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 726,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-017",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get coffee anywhere after 8 or am I done for?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 800,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-018",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s left on my meal plan rn?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 644,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-019",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does registration open for seniors?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 647,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-020",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I find the campus map?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 737,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-021",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I leave a club mailing list?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 726,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-022",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you register me for CMPS 450 and tell me how many credits it is?"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "courses"
+      ],
+      "actual": [
+        "personal_account",
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 605,
+      "response": {
+        "answer": "personal_account\n\ncourses",
+        "capabilities": [
+          "personal_account",
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-023",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "The classroom projector is cooked—who do I report it to?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5490,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-024",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you check whether my transcript was sent?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4711,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-025",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the club fair happening?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4962,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-026",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take the shuttle to Barnes n Noble?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5899,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-027",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar and what’s their phone number?"
+        }
+      ],
+      "expected": [
+        "locations",
+        "directory"
+      ],
+      "actual": [
+        "locations",
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 691,
+      "response": {
+        "answer": "locations\n\ndirectory",
+        "capabilities": [
+          "locations",
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-028",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does Dunkin close tonight?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5385,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-029",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5765,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-031",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the rule on guests staying multiple nights?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6412,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-032",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long till the next shuttle gets here fr?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4954,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-033",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the overnight guest policy?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 599,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-035",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I fix Wi-Fi and where’s the Help Desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 528,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-036",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the first shuttle tmr morning?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5304,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-037",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How late is the Learning Commons open?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4934,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-038",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I request a transcript?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6480,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-039",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh did I miss the last shuttle 😭"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6228,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-040",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the concert tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6253,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-041",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Birch open tomorrow morning?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 6402,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-042",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the financial aid phone number and how do I appeal my aid?"
+        }
+      ],
+      "expected": [
+        "directory",
+        "student_services"
+      ],
+      "actual": [
+        "directory",
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6422,
+      "response": {
+        "answer": "directory\n\nstudent_services",
+        "capabilities": [
+          "directory",
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-043",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest printer?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1184,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-044",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are they serving for lunch at the Atrium?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6722,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-045",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can professors record lectures without telling us?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 2600,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-046",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the next three shuttle times?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5072,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-047",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did I get into housing?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6292,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-048",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a table tennis club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5849,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-049",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any study spots open 24/7?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4678,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-050",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who can help me pick classes?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6235,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-051",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I do if my financial aid is missing?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5650,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-052",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact for the robotics club?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory",
+        "clubs"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 643,
+      "response": {
+        "answer": "directory\n\nclubs",
+        "capabilities": [
+          "directory",
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-053",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay but what about the other one?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5305,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-054",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the shuttle run during spring break?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6728,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-055",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a fire Python project idea"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6344,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-056",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can grad students join campus clubs?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 716,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-057",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I chnage my major?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4708,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-058",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which major has the least math bc be serious"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4793,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-059",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get my PS5 on campus Wi-Fi?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4975,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-060",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is my Duo code not workinggg?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 663,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-061",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the menu in the Learning Commons?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5812,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-062",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I bring a pet into my dorm?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6891,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-063",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Someone passed out and won’t wake up—what do I do?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6839,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-064",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I add the campus printer to my Mac?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5241,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-065",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is the sky blue tho?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5219,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-066",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Y’all got a five-year master’s thing or nah?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6433,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-067",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is campus closed on Labor Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 617,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-068",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is CMPS 231 offered in the spring?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5308,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-069",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Canvas is down for me, what am I supposed to do?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6592,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-070",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I install Office for free as a student?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 716,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-071",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the mailroom open during lunch?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5543,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-072",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do winter classes start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6760,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-073",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s tonight’s event and what time does it start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4482,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-074",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight and which clubs are hosting them?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5304,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-075",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pizza station open rn or no?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 692,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-077",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you help me write a breakup text?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 566,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-079",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What day does fall semester start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6759,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-080",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me my holds and explain how to remove them"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4694,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-081",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s hosting the event in Friends Hall?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5773,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-082",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I miss the withdrawal deadline?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6519,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-083",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open rn?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 744,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-084",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print and is the library still open?"
+        }
+      ],
+      "expected": [
+        "it_support",
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5357,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-085",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle and is Birch still open?"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "dining"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5253,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-086",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are meeting today and how do I join the first one?"
+        }
+      ],
+      "expected": [
+        "events",
+        "clubs"
+      ],
+      "actual": [
+        "events",
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6870,
+      "response": {
+        "answer": "events\n\nclubs",
+        "capabilities": [
+          "events",
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-087",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t campus Wi-Fi connect bruh 😭"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5300,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-088",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can u get me Professor Miller’s email?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1147,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-089",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the president of IVCF this year?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6024,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-090",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any vegan desserts today or nah?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6545,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-091",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes am I registered for?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5445,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-092",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How can I appeal a parking ticket?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5118,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-093",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can Rocky see where the shuttle is rn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 840,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-094",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the Sunday shuttle schedule different?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6250,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-095",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything happening after 6 PM?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 741,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-096",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Ramapo’s policy on service animals?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5302,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-097",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where does the Ramsey Route 17 shuttle stop?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4892,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-098",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When are grades due?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5865,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-099",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the shuttle late or am I trippin?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 842,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-100",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What minors pair well with CS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4799,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-101",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How far is the gym from the student center?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6058,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-102",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle to Route 17 tn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5377,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-103",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy and who do I contact about housing?"
+        }
+      ],
+      "expected": [
+        "campus_documents",
+        "directory"
+      ],
+      "actual": [
+        "campus_documents",
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 699,
+      "response": {
+        "answer": "campus_documents\n\ndirectory",
+        "capabilities": [
+          "campus_documents",
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-104",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is CMPS 450?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6605,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-105",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I double major in CS and math?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4773,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-106",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5682,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-107",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Help Desk contact info?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5335,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-108",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I gotta do to study abroad?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 611,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-109",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the health center hours?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5535,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-110",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why can’t I log into Web Self Service bro"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6214,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-111",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the cheapest thing to eat on campus?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4923,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-112",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events got canceled today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4938,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-113",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Lowkey craving pasta—do they have any today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 7208,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-114",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner and are there any events after I eat?"
+        }
+      ],
+      "expected": [
+        "dining",
+        "events"
+      ],
+      "actual": [
+        "dining",
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5744,
+      "response": {
+        "answer": "dining\n\nevents",
+        "capabilities": [
+          "dining",
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-115",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break and are the dorms open during it?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ],
+      "actual": [
+        "academic_calendar",
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 677,
+      "response": {
+        "answer": "academic_calendar\n\nstudent_services",
+        "capabilities": [
+          "academic_calendar",
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-116",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the library stay open later during finals?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4864,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-117",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whens spring break fr fr?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6149,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-118",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are clubs open to commuters?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6179,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-119",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which shuttle gets me to the train station fastest?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5959,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-120",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the gym open and how do I get there?"
+        }
+      ],
+      "expected": [
+        "hours",
+        "locations"
+      ],
+      "actual": [
+        "hours",
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5905,
+      "response": {
+        "answer": "hours\n\nlocations",
+        "capabilities": [
+          "hours",
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-121",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there class on Columbus Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5944,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-122",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop today’s whole shuttle schedule pls"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 615,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-123",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any free stuff happening on campus rn?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5796,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-124",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Whats the capital of France again lol?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5338,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-125",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the last day to withdraw?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 611,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-126",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Registrar’s phone number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 612,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-127",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next campus event?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5880,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-128",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the requirements for the AI concentration?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5930,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-129",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take Machine Learning without AI first?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6478,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-130",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the last shuttle come back to campus?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 7317,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-131",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get better at piano without practicing for 5 years lol"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 691,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-132",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the campus store open on Saturdays?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6245,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-133",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are students allowed to film on campus?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5953,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-134",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me the next shuttle and library hours?"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "hours"
+      ],
+      "actual": [
+        "transportation",
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5939,
+      "response": {
+        "answer": "transportation\n\nhours",
+        "capabilities": [
+          "transportation",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-136",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the academic integrity policy say about AI?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1916,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-137",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What building is the financial aid office in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4884,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-138",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t my ID card scan at the lab?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6754,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-140",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me events for CS students?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5535,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-141",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print in color?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5278,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-142",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I get tutoring bc I’m cooked?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6356,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-143",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wheres Friends Hall again?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5141,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-144",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there anything fun this weekend?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5732,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-145",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the pool open?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 545,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-146",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I appeal an academic integrity decision?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4597,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-147",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Be honest, who wins: Hulk or Godzilla?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4989,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-148",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which building is the Health Center in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5101,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-149",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the graduation application deadline?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5354,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-150",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Was there a shuttle around 1 PM?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5611,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-151",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo when does add/drop end?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5449,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-152",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I declare a minor?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5777,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-153",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest bathroom to the library?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5503,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-154",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the basketball game considered a campus event?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4607,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-155",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain recursion like I’m actually five"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 822,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-156",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the CS major requirements and the prereqs for CMPS 361?"
+        }
+      ],
+      "expected": [
+        "programs",
+        "courses"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5905,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-157",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I join the Computer Science Club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 987,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-158",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Find the next shuttle and the library closing time"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "hours"
+      ],
+      "actual": [
+        "transportation",
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6704,
+      "response": {
+        "answer": "transportation\n\nhours",
+        "capabilities": [
+          "transportation",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-159",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get to ASB 407?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5303,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-160",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay which one is better?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 897,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-161",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much do I owe on my account?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 725,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-162",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long is Thanksgiving break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6654,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-163",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the contact for shuttle questions?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6447,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-164",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Register me for CMPS 450 pls"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5287,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-165",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy for missing class because of illness?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4564,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-166",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the fitness center close tonight?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5443,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-167",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the capital of France and when’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "general",
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6413,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-168",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me my grades?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 663,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-169",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a Bible verse for when I’m stressed"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5316,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-170",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did my financial aid get applied yet?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5477,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-171",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the email for Public Safety?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 716,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-172",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes do I need for the CS major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6241,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-173",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between the CS BA and BS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6270,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-174",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you find the Housing Office number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1028,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-175",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does large group start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 782,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-176",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who am I supposed to talk to?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5409,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-177",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any campus events happening later tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5234,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-179",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Birch have halal food today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5746,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-180",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I start a new club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 5176,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-181",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is the cybersecurity minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 679,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-182",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What dining spot is still serving food rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4726,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-183",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there food available on campus over the weekend?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6352,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-184",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who runs the Career Center?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 7331,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-185",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the menu have anything high protein today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5602,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-186",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5089,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-188",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are the computer labs open Sunday?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5253,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-189",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I switch from business to CS or is it too late?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5462,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-190",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5942,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-192",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the chair of the CS department?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 722,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-193",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who handles international student stuff?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5556,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-194",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reset my Ramapo password?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5516,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-195",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who teaches Data Structures this semester?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5640,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-196",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is 7 hours of sleep enough or nah?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5387,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-197",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between CMPS 361 and 366?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 879,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-198",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi won’t connect—what do I do?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5184,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-200",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Brooo what can I even eat on campus this late?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4513,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-201",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are candles allowed in residence halls?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6778,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-202",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the handbook say about alcohol?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6334,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-203",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5321,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-205",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop my 8 AM class please I’m begging"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6027,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-206",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are good for making friends?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 674,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-207",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything vegetarian rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5143,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-208",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the campus bus leave rn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5479,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-209",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bruh what am I supposed to do now?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 717,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-210",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you pull up my grades real quick?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5777,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-212",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many electives does the CS major need?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 795,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-213",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the parking policy say about overnight parking?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4942,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-214",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for dinner at Birch today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5770,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-215",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my current GPA?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6007,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-216",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What should I eat after a workout?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 7123,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-217",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo whens the nxt shuttle??"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5811,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-218",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What student orgs are faith-based?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "clubs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1091,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-219",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do I have any holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6847,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-220",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the process for taking a leave of absence?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6062,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-221",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I get breakfast before my 8 AM?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1670,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-222",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the library close?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4516,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-223",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I submit my immuniztion form?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5313,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-224",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 450 require Software Design?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4603,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-225",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the course description for CMPS 450?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4557,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-226",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can transfer credits count toward my major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 865,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-227",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reg for classes again?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5995,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-228",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact about financial aid?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6381,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-229",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu and when does it close?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1208,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-230",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the prereqs for CMPS 361?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6208,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-232",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any gluten-free food on campus?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5654,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-233",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I email about a missing grade?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 683,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-234",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I go for lost and found?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5568,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-235",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Ramapo have a data science minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5610,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-236",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades and tell me the next shuttle"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6265,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-237",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any events with free food today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5027,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-239",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What room is the CS department office?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 662,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-240",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I apply for housing?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 658,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-241",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar’s Office?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6408,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-242",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get from Laurel to the Learning Commons?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 6097,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-243",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Remind me, what’s the overnight guest policy?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5727,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-244",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a computer I can borrow?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5059,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-245",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my class schedule for tomorrow"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1269,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-246",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What date are finals?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 913,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-247",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline and what happens if I miss it?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5973,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-248",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Saturday shuttle stop at Garden State Plaza?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4587,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-249",
+      "kind": "independent",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club usually meet?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4746,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-003",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 231."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Does this class have a lab or nah?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4797,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-007",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Anything vegetarian on there?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 867,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-011",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Wait, is it required for the major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5072,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-030",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "And what’s their number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 6082,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-034",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the overnight guest policy?"
+        },
+        {
+          "role": "assistant",
+          "content": "campus_documents"
+        },
+        {
+          "role": "user",
+          "content": "Who can I talk to if I need an exception?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4701,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-076",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pizza station open right now?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Wait, is it open?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 638,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-078",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about CMPS 450."
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Is there an online section of this course?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4989,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-135",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you show me the next shuttle and library hours?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation\n\nhours"
+        },
+        {
+          "role": "user",
+          "content": "Actually, just the shuttle."
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1186,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-139",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why won’t my ID card scan at the lab?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "How much is it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4697,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-178",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any campus events happening later tonight?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "How do I join the group running the first one?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "events",
+        "clubs"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 5440,
+      "response": {
+        "answer": "events\n\nclubs",
+        "capabilities": [
+          "events",
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-187",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6260,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-191",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break?"
+        },
+        {
+          "role": "assistant",
+          "content": "academic_calendar"
+        },
+        {
+          "role": "user",
+          "content": "Do we have class the Friday before?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4676,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    },
+    {
+      "id": "case-199",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi won’t connect—what do I do?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Where do I go if restarting doesn’t fix it?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 7998,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-204",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        },
+        {
+          "role": "assistant",
+          "content": "general"
+        },
+        {
+          "role": "user",
+          "content": "Can I do this tomorrow or nah?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": false,
+      "httpStatus": 200,
+      "latencyMs": 5769,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-211",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you pull up my grades real quick?"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "What about my holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1575,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-231",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the prereqs for CMPS 361?"
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Is this class writing intensive?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 6870,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-238",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any events with free food today?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Can you help me with that real quick?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 5887,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "id": "case-250",
+      "kind": "multi_turn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club usually meet?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Wait, when does that happen?"
+        }
+      ],
+      "expected": [
+        "events"
+      ],
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4536,
+      "response": {
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
+      }
+    }
+  ],
+  "semanticFailures": [
+    {
+      "id": "case-016",
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "personal_account"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-020",
+      "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "general"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-041",
+      "expected": [
+        "dining"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-052",
+      "expected": [
+        "directory"
+      ],
+      "actual": [
+        "directory",
+        "clubs"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-175",
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-180",
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-242",
+      "expected": [
+        "locations"
+      ],
+      "actual": [
+        "transportation"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-178",
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "events",
+        "clubs"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-204",
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "httpStatus": 200
+    }
+  ],
+  "transportFailures": [
+    {
+      "id": "case-023",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-026",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-032",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-036",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-037",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-040",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-046",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-049",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-053",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-055",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-057",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-061",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-064",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-066",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-071",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-073",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-074",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-080",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-084",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-085",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-091",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-092",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-094",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-096",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-100",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-102",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-105",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-107",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-112",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-116",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-119",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-121",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-127",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-128",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-132",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-133",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-137",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-144",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-146",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-149",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-153",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-154",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-156",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-159",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-164",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-165",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-167",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-170",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-173",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-176",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-177",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-182",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-189",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-193",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-194",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-198",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-200",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-205",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-208",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-210",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-213",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-216",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-222",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-224",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-225",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-232",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-234",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-235",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-236",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-243",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-244",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-247",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-248",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-003",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-030",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-034",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-078",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-191",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-250",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    }
+  ]
+}

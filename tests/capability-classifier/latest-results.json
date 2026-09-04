@@ -1,26 +1,112 @@
 {
-  "generatedAt": "2026-09-02T03:02:06.980Z",
+  "generatedAt": "2026-09-02T14:21:13.519Z",
   "endpoint": "http://127.0.0.1:8000/v1/chat",
-  "concurrency": 2,
+  "concurrency": 1,
+  "minimumIntervalMs": 4000,
   "summary": {
     "total": 250,
-    "httpSuccess": 171,
-    "httpFailures": 79,
-    "semanticCorrect": 162,
-    "semanticIncorrect": 9,
-    "semanticAccuracy": 0.9473684210526315,
-    "endToEndPass": 162,
-    "endToEndPassRate": 0.648,
-    "independentCorrect": 152,
-    "independentClassified": 159,
-    "independentSemanticAccuracy": 0.9559748427672956,
-    "multiTurnCorrect": 10,
-    "multiTurnClassified": 12,
-    "multiTurnSemanticAccuracy": 0.8333333333333334,
-    "averageLatencyMs": 4291,
-    "minimumLatencyMs": 528,
-    "maximumLatencyMs": 7998
+    "httpSuccess": 250,
+    "httpFailures": 0,
+    "semanticCorrect": 242,
+    "semanticIncorrect": 8,
+    "semanticAccuracy": 0.968,
+    "endToEndPass": 242,
+    "endToEndPassRate": 0.968,
+    "independentCorrect": 225,
+    "independentClassified": 232,
+    "independentSemanticAccuracy": 0.9698275862068966,
+    "multiTurnCorrect": 17,
+    "multiTurnClassified": 18,
+    "multiTurnSemanticAccuracy": 0.9444444444444444,
+    "averageLatencyMs": 1199,
+    "minimumLatencyMs": 623,
+    "maximumLatencyMs": 8272
   },
+  "semanticFailures": [
+    {
+      "id": "case-062",
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-063",
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "general"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-146",
+      "expected": [
+        "student_services"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-176",
+      "expected": [
+        "clarification"
+      ],
+      "actual": [
+        "directory"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-224",
+      "expected": [
+        "courses"
+      ],
+      "actual": [
+        "programs"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-226",
+      "expected": [
+        "programs"
+      ],
+      "actual": [
+        "campus_documents"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-247",
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ],
+      "actual": [
+        "academic_calendar",
+        "campus_documents"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-204",
+      "expected": [
+        "general"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "httpStatus": 200
+    }
+  ],
+  "transportFailures": [],
   "results": [
     {
       "id": "case-001",
@@ -39,7 +125,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 719,
+      "latencyMs": 3980,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -65,7 +151,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 662,
+      "latencyMs": 6428,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -91,7 +177,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1644,
+      "latencyMs": 1369,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -117,7 +203,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1129,
+      "latencyMs": 1463,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -143,7 +229,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1048,
+      "latencyMs": 952,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -169,7 +255,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 810,
+      "latencyMs": 1100,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -195,7 +281,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 742,
+      "latencyMs": 1046,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -221,7 +307,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 782,
+      "latencyMs": 1876,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -247,7 +333,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 682,
+      "latencyMs": 683,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -273,7 +359,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 766,
+      "latencyMs": 1204,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -299,7 +385,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 636,
+      "latencyMs": 816,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -325,7 +411,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 670,
+      "latencyMs": 893,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -347,15 +433,15 @@
         "courses"
       ],
       "actual": [
-        "personal_account"
+        "courses"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 726,
+      "latencyMs": 1776,
       "response": {
-        "answer": "personal_account",
+        "answer": "courses",
         "capabilities": [
-          "personal_account"
+          "courses"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -377,7 +463,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 800,
+      "latencyMs": 1505,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -403,7 +489,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 644,
+      "latencyMs": 1280,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -429,7 +515,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 647,
+      "latencyMs": 2489,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -448,18 +534,18 @@
         }
       ],
       "expected": [
-        "campus_documents"
+        "locations"
       ],
       "actual": [
-        "general"
+        "locations"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 737,
+      "latencyMs": 1285,
       "response": {
-        "answer": "general",
+        "answer": "locations",
         "capabilities": [
-          "general"
+          "locations"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -481,7 +567,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 726,
+      "latencyMs": 698,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -509,7 +595,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 605,
+      "latencyMs": 924,
       "response": {
         "answer": "personal_account\n\ncourses",
         "capabilities": [
@@ -531,15 +617,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5490,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 2433,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -559,7 +648,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4711,
+      "latencyMs": 832,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -585,7 +674,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4962,
+      "latencyMs": 938,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -606,15 +695,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5899,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1507,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -636,7 +728,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 691,
+      "latencyMs": 967,
       "response": {
         "answer": "locations\n\ndirectory",
         "capabilities": [
@@ -663,7 +755,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5385,
+      "latencyMs": 817,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -689,7 +781,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5765,
+      "latencyMs": 1150,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -715,7 +807,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6412,
+      "latencyMs": 1340,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -736,15 +828,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4954,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 775,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -764,7 +859,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 599,
+      "latencyMs": 5123,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -790,7 +885,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 528,
+      "latencyMs": 1092,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -811,15 +906,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5304,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 780,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -834,15 +932,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4934,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 739,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -862,7 +963,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6480,
+      "latencyMs": 782,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -888,7 +989,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6228,
+      "latencyMs": 863,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -909,15 +1010,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6253,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 623,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -933,15 +1037,15 @@
         "dining"
       ],
       "actual": [
-        "clarification"
+        "dining"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6402,
+      "latencyMs": 1651,
       "response": {
-        "answer": "clarification",
+        "answer": "dining",
         "capabilities": [
-          "clarification"
+          "dining"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -965,7 +1069,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6422,
+      "latencyMs": 8272,
       "response": {
         "answer": "directory\n\nstudent_services",
         "capabilities": [
@@ -992,7 +1096,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1184,
+      "latencyMs": 1583,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1018,7 +1122,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6722,
+      "latencyMs": 1235,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -1044,7 +1148,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2600,
+      "latencyMs": 985,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -1065,15 +1169,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5072,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1459,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1093,7 +1200,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6292,
+      "latencyMs": 990,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -1119,7 +1226,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5849,
+      "latencyMs": 1606,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -1140,15 +1247,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4678,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 737,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1168,7 +1278,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6235,
+      "latencyMs": 777,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -1194,7 +1304,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5650,
+      "latencyMs": 1176,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -1216,17 +1326,15 @@
         "directory"
       ],
       "actual": [
-        "directory",
-        "clubs"
+        "directory"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 643,
+      "latencyMs": 922,
       "response": {
-        "answer": "directory\n\nclubs",
+        "answer": "directory",
         "capabilities": [
-          "directory",
-          "clubs"
+          "directory"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1243,15 +1351,18 @@
       "expected": [
         "clarification"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5305,
+      "actual": [
+        "clarification"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 825,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1271,7 +1382,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6728,
+      "latencyMs": 1176,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -1292,15 +1403,18 @@
       "expected": [
         "general"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6344,
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1300,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1320,7 +1434,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 716,
+      "latencyMs": 798,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -1341,15 +1455,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4708,
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 883,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1369,7 +1486,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4793,
+      "latencyMs": 1013,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -1395,7 +1512,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4975,
+      "latencyMs": 854,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1421,7 +1538,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 663,
+      "latencyMs": 1129,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1442,15 +1559,18 @@
       "expected": [
         "dining"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5812,
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 721,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1466,15 +1586,15 @@
         "student_services"
       ],
       "actual": [
-        "student_services"
+        "campus_documents"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 6891,
+      "latencyMs": 1363,
       "response": {
-        "answer": "student_services",
+        "answer": "campus_documents",
         "capabilities": [
-          "student_services"
+          "campus_documents"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1492,15 +1612,15 @@
         "student_services"
       ],
       "actual": [
-        "student_services"
+        "general"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 6839,
+      "latencyMs": 738,
       "response": {
-        "answer": "student_services",
+        "answer": "general",
         "capabilities": [
-          "student_services"
+          "general"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1517,15 +1637,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5241,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 691,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1545,7 +1668,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5219,
+      "latencyMs": 728,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -1566,15 +1689,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6433,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1405,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1594,7 +1720,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 617,
+      "latencyMs": 2165,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -1620,7 +1746,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5308,
+      "latencyMs": 688,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -1646,7 +1772,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6592,
+      "latencyMs": 7631,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1672,7 +1798,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 716,
+      "latencyMs": 1004,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1693,15 +1819,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5543,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1027,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1721,7 +1850,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6760,
+      "latencyMs": 838,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -1742,15 +1871,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4482,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 4088,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1765,15 +1897,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5304,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 3551,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1793,7 +1928,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 692,
+      "latencyMs": 1274,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -1819,7 +1954,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 566,
+      "latencyMs": 1251,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -1845,7 +1980,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6759,
+      "latencyMs": 817,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -1867,15 +2002,20 @@
         "personal_account",
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4694,
+      "actual": [
+        "personal_account",
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 897,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account\n\nstudent_services",
+        "capabilities": [
+          "personal_account",
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1895,7 +2035,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5773,
+      "latencyMs": 774,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -1921,7 +2061,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6519,
+      "latencyMs": 896,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -1947,7 +2087,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 744,
+      "latencyMs": 789,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -1969,15 +2109,20 @@
         "it_support",
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5357,
+      "actual": [
+        "it_support",
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1220,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support\n\nhours",
+        "capabilities": [
+          "it_support",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -1993,15 +2138,20 @@
         "transportation",
         "dining"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5253,
+      "actual": [
+        "transportation",
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 839,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation\n\ndining",
+        "capabilities": [
+          "transportation",
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2023,7 +2173,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6870,
+      "latencyMs": 889,
       "response": {
         "answer": "events\n\nclubs",
         "capabilities": [
@@ -2050,7 +2200,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5300,
+      "latencyMs": 915,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -2076,7 +2226,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1147,
+      "latencyMs": 873,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -2102,7 +2252,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6024,
+      "latencyMs": 1233,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -2128,7 +2278,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6545,
+      "latencyMs": 923,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2149,15 +2299,18 @@
       "expected": [
         "personal_account"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5445,
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1192,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2172,15 +2325,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5118,
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 836,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2200,7 +2356,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 840,
+      "latencyMs": 824,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2221,15 +2377,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6250,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1537,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2249,7 +2408,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 741,
+      "latencyMs": 910,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -2270,15 +2429,18 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5302,
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 771,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2298,7 +2460,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4892,
+      "latencyMs": 753,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2324,7 +2486,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5865,
+      "latencyMs": 851,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -2350,7 +2512,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 842,
+      "latencyMs": 1109,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2371,15 +2533,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4799,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 720,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2399,7 +2564,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6058,
+      "latencyMs": 850,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -2420,15 +2585,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5377,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 949,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2450,7 +2618,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 699,
+      "latencyMs": 763,
       "response": {
         "answer": "campus_documents\n\ndirectory",
         "capabilities": [
@@ -2477,7 +2645,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6605,
+      "latencyMs": 753,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -2498,15 +2666,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4773,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 785,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2526,7 +2697,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5682,
+      "latencyMs": 782,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -2547,15 +2718,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5335,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1929,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2575,7 +2749,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 611,
+      "latencyMs": 937,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -2601,7 +2775,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5535,
+      "latencyMs": 1134,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -2627,7 +2801,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6214,
+      "latencyMs": 1125,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -2653,7 +2827,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4923,
+      "latencyMs": 888,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2674,15 +2848,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4938,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1933,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2702,7 +2879,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 7208,
+      "latencyMs": 1181,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2730,7 +2907,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5744,
+      "latencyMs": 840,
       "response": {
         "answer": "dining\n\nevents",
         "capabilities": [
@@ -2759,7 +2936,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 677,
+      "latencyMs": 812,
       "response": {
         "answer": "academic_calendar\n\nstudent_services",
         "capabilities": [
@@ -2781,15 +2958,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4864,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1428,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2809,7 +2989,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6149,
+      "latencyMs": 2390,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -2835,7 +3015,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6179,
+      "latencyMs": 1109,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -2856,15 +3036,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5959,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 758,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2886,7 +3069,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5905,
+      "latencyMs": 1053,
       "response": {
         "answer": "hours\n\nlocations",
         "capabilities": [
@@ -2908,15 +3091,18 @@
       "expected": [
         "academic_calendar"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5944,
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 782,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -2936,7 +3122,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 615,
+      "latencyMs": 1004,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2962,7 +3148,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5796,
+      "latencyMs": 1144,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -2988,7 +3174,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5338,
+      "latencyMs": 1004,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3014,7 +3200,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 611,
+      "latencyMs": 1620,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3040,7 +3226,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 612,
+      "latencyMs": 715,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -3061,15 +3247,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5880,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1391,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3084,15 +3273,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5930,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1164,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3112,7 +3304,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6478,
+      "latencyMs": 797,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -3138,7 +3330,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 7317,
+      "latencyMs": 987,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3164,7 +3356,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 691,
+      "latencyMs": 962,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3185,15 +3377,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6245,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 879,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3208,15 +3403,18 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5953,
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1398,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3238,7 +3436,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5939,
+      "latencyMs": 925,
       "response": {
         "answer": "transportation\n\nhours",
         "capabilities": [
@@ -3265,7 +3463,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1916,
+      "latencyMs": 1347,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -3286,15 +3484,18 @@
       "expected": [
         "locations"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4884,
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 902,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3314,7 +3515,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6754,
+      "latencyMs": 1031,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -3340,7 +3541,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5535,
+      "latencyMs": 1403,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3366,7 +3567,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5278,
+      "latencyMs": 1152,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -3392,7 +3593,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6356,
+      "latencyMs": 1071,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -3418,7 +3619,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5141,
+      "latencyMs": 1191,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3439,15 +3640,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5732,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 815,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3467,7 +3671,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 545,
+      "latencyMs": 893,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -3488,15 +3692,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
+      "actual": [
+        "campus_documents"
+      ],
       "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4597,
+      "httpStatus": 200,
+      "latencyMs": 882,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3516,7 +3723,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4989,
+      "latencyMs": 1335,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3542,7 +3749,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5101,
+      "latencyMs": 776,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3563,15 +3770,18 @@
       "expected": [
         "academic_calendar"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5354,
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 999,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3591,7 +3801,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5611,
+      "latencyMs": 2173,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3617,7 +3827,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5449,
+      "latencyMs": 932,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3643,7 +3853,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5777,
+      "latencyMs": 936,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -3664,15 +3874,18 @@
       "expected": [
         "locations"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5503,
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 785,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3687,15 +3900,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4607,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 882,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3715,7 +3931,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 822,
+      "latencyMs": 860,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3737,15 +3953,20 @@
         "programs",
         "courses"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5905,
+      "actual": [
+        "programs",
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1233,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs\n\ncourses",
+        "capabilities": [
+          "programs",
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3765,7 +3986,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 987,
+      "latencyMs": 2116,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -3793,7 +4014,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6704,
+      "latencyMs": 1051,
       "response": {
         "answer": "transportation\n\nhours",
         "capabilities": [
@@ -3815,15 +4036,18 @@
       "expected": [
         "locations"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5303,
+      "actual": [
+        "locations"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 824,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3843,7 +4067,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 897,
+      "latencyMs": 936,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -3869,7 +4093,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 725,
+      "latencyMs": 709,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -3895,7 +4119,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6654,
+      "latencyMs": 781,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3921,7 +4145,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6447,
+      "latencyMs": 1024,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -3942,15 +4166,18 @@
       "expected": [
         "personal_account"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5287,
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 844,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3965,15 +4192,18 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4564,
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1538,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -3993,7 +4223,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5443,
+      "latencyMs": 1149,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -4015,15 +4245,20 @@
         "general",
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6413,
+      "actual": [
+        "general",
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 901,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "general\n\ntransportation",
+        "capabilities": [
+          "general",
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4043,7 +4278,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 663,
+      "latencyMs": 880,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -4069,7 +4304,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5316,
+      "latencyMs": 1898,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -4090,15 +4325,18 @@
       "expected": [
         "personal_account"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5477,
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 776,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4118,7 +4356,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 716,
+      "latencyMs": 784,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4144,7 +4382,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6241,
+      "latencyMs": 936,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -4165,15 +4403,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6270,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 866,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4193,7 +4434,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1028,
+      "latencyMs": 827,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4215,15 +4456,15 @@
         "events"
       ],
       "actual": [
-        "clarification"
+        "events"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 782,
+      "latencyMs": 1101,
       "response": {
-        "answer": "clarification",
+        "answer": "events",
         "capabilities": [
-          "clarification"
+          "events"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -4240,15 +4481,18 @@
       "expected": [
         "clarification"
       ],
-      "actual": null,
+      "actual": [
+        "directory"
+      ],
       "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5409,
+      "httpStatus": 200,
+      "latencyMs": 728,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4263,15 +4507,18 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5234,
+      "actual": [
+        "events"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 886,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4291,7 +4538,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5746,
+      "latencyMs": 798,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4313,15 +4560,15 @@
         "clubs"
       ],
       "actual": [
-        "student_services"
+        "clubs"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5176,
+      "latencyMs": 948,
       "response": {
-        "answer": "student_services",
+        "answer": "clubs",
         "capabilities": [
-          "student_services"
+          "clubs"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -4343,7 +4590,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 679,
+      "latencyMs": 809,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -4364,15 +4611,18 @@
       "expected": [
         "dining"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4726,
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 712,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4392,7 +4642,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6352,
+      "latencyMs": 776,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4418,7 +4668,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 7331,
+      "latencyMs": 855,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4444,7 +4694,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5602,
+      "latencyMs": 969,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4470,7 +4720,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5089,
+      "latencyMs": 859,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -4496,7 +4746,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5253,
+      "latencyMs": 1206,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -4517,15 +4767,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5462,
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 883,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4545,7 +4798,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5942,
+      "latencyMs": 2137,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -4571,7 +4824,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 722,
+      "latencyMs": 1211,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4590,17 +4843,20 @@
         }
       ],
       "expected": [
-        "student_services"
+        "directory"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5556,
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 743,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4615,15 +4871,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5516,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 720,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4643,7 +4902,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5640,
+      "latencyMs": 915,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -4669,7 +4928,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5387,
+      "latencyMs": 877,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -4695,7 +4954,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 879,
+      "latencyMs": 1867,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -4716,15 +4975,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5184,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 631,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4739,15 +5001,18 @@
       "expected": [
         "dining"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4513,
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 696,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4767,7 +5032,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6778,
+      "latencyMs": 1035,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -4793,7 +5058,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6334,
+      "latencyMs": 887,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -4819,7 +5084,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5321,
+      "latencyMs": 962,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -4840,15 +5105,18 @@
       "expected": [
         "personal_account"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6027,
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1068,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4868,7 +5136,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 674,
+      "latencyMs": 1181,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -4894,7 +5162,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5143,
+      "latencyMs": 655,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4915,15 +5183,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5479,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1886,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4943,7 +5214,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 717,
+      "latencyMs": 1421,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -4964,15 +5235,18 @@
       "expected": [
         "personal_account"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5777,
+      "actual": [
+        "personal_account"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 728,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -4992,7 +5266,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 795,
+      "latencyMs": 1284,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -5013,15 +5287,18 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4942,
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 895,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5041,7 +5318,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5770,
+      "latencyMs": 825,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5067,7 +5344,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6007,
+      "latencyMs": 899,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5088,15 +5365,18 @@
       "expected": [
         "general"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 7123,
+      "actual": [
+        "general"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1021,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5116,7 +5396,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5811,
+      "latencyMs": 693,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -5142,7 +5422,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1091,
+      "latencyMs": 1297,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -5168,7 +5448,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6847,
+      "latencyMs": 2034,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5194,7 +5474,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6062,
+      "latencyMs": 1160,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5220,7 +5500,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1670,
+      "latencyMs": 994,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5241,15 +5521,18 @@
       "expected": [
         "hours"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4516,
+      "actual": [
+        "hours"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1594,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5269,7 +5552,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5313,
+      "latencyMs": 825,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5290,15 +5573,18 @@
       "expected": [
         "courses"
       ],
-      "actual": null,
+      "actual": [
+        "programs"
+      ],
       "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4603,
+      "httpStatus": 200,
+      "latencyMs": 1570,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5313,15 +5599,18 @@
       "expected": [
         "courses"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4557,
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1402,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5337,15 +5626,15 @@
         "programs"
       ],
       "actual": [
-        "programs"
+        "campus_documents"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 865,
+      "latencyMs": 1052,
       "response": {
-        "answer": "programs",
+        "answer": "campus_documents",
         "capabilities": [
-          "programs"
+          "campus_documents"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -5367,7 +5656,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5995,
+      "latencyMs": 2262,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5393,7 +5682,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6381,
+      "latencyMs": 661,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -5419,7 +5708,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1208,
+      "latencyMs": 1432,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5445,7 +5734,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6208,
+      "latencyMs": 891,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -5466,15 +5755,18 @@
       "expected": [
         "dining"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5654,
+      "actual": [
+        "dining"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 886,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5494,7 +5786,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 683,
+      "latencyMs": 1347,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -5515,15 +5807,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5568,
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 925,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5538,15 +5833,18 @@
       "expected": [
         "programs"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5610,
+      "actual": [
+        "programs"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 780,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5562,15 +5860,20 @@
         "personal_account",
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6265,
+      "actual": [
+        "personal_account",
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 831,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "personal_account\n\ntransportation",
+        "capabilities": [
+          "personal_account",
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5590,7 +5893,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5027,
+      "latencyMs": 773,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -5616,7 +5919,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 662,
+      "latencyMs": 905,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -5642,7 +5945,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 658,
+      "latencyMs": 740,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5668,7 +5971,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6408,
+      "latencyMs": 815,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -5690,15 +5993,15 @@
         "locations"
       ],
       "actual": [
-        "transportation"
+        "locations"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6097,
+      "latencyMs": 985,
       "response": {
-        "answer": "transportation",
+        "answer": "locations",
         "capabilities": [
-          "transportation"
+          "locations"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -5715,15 +6018,18 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5727,
+      "actual": [
+        "campus_documents"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 951,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5738,15 +6044,18 @@
       "expected": [
         "it_support"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5059,
+      "actual": [
+        "it_support"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 2328,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5766,7 +6075,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1269,
+      "latencyMs": 729,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5792,7 +6101,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 913,
+      "latencyMs": 791,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -5814,15 +6123,20 @@
         "academic_calendar",
         "student_services"
       ],
-      "actual": null,
+      "actual": [
+        "academic_calendar",
+        "campus_documents"
+      ],
       "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 5973,
+      "httpStatus": 200,
+      "latencyMs": 860,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "academic_calendar\n\ncampus_documents",
+        "capabilities": [
+          "academic_calendar",
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5837,15 +6151,18 @@
       "expected": [
         "transportation"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4587,
+      "actual": [
+        "transportation"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 809,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5865,7 +6182,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4746,
+      "latencyMs": 751,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -5894,15 +6211,18 @@
       "expected": [
         "courses"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4797,
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1006,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -5930,7 +6250,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 867,
+      "latencyMs": 823,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5964,7 +6284,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5072,
+      "latencyMs": 826,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -5993,15 +6313,18 @@
       "expected": [
         "directory"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 6082,
+      "actual": [
+        "directory"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 870,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -6024,15 +6347,18 @@
       "expected": [
         "student_services"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4701,
+      "actual": [
+        "student_services"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1064,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -6060,7 +6386,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 638,
+      "latencyMs": 1291,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -6089,15 +6415,18 @@
       "expected": [
         "courses"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4989,
+      "actual": [
+        "courses"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 2886,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -6125,7 +6454,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1186,
+      "latencyMs": 812,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -6159,7 +6488,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4697,
+      "latencyMs": 2020,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -6189,16 +6518,14 @@
         "clubs"
       ],
       "actual": [
-        "events",
         "clubs"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5440,
+      "latencyMs": 826,
       "response": {
-        "answer": "events\n\nclubs",
+        "answer": "clubs",
         "capabilities": [
-          "events",
           "clubs"
         ],
         "model": "gpt-4o-2024-08-06"
@@ -6229,7 +6556,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6260,
+      "latencyMs": 801,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -6258,15 +6585,18 @@
       "expected": [
         "academic_calendar"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4676,
+      "actual": [
+        "academic_calendar"
+      ],
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1071,
       "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
       }
     },
     {
@@ -6294,7 +6624,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 7998,
+      "latencyMs": 839,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -6328,7 +6658,7 @@
       ],
       "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 5769,
+      "latencyMs": 1341,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -6362,7 +6692,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1575,
+      "latencyMs": 829,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -6396,7 +6726,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6870,
+      "latencyMs": 1019,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -6430,7 +6760,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5887,
+      "latencyMs": 956,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -6459,507 +6789,19 @@
       "expected": [
         "events"
       ],
-      "actual": null,
-      "semanticPass": false,
-      "httpStatus": 429,
-      "latencyMs": 4536,
-      "response": {
-        "error": "The classifier model is temporarily rate limited.",
-        "reason": "rate_limited",
-        "detail": "No classification was produced. Try this request again later.",
-        "retryable": true
-      }
-    }
-  ],
-  "semanticFailures": [
-    {
-      "id": "case-016",
-      "expected": [
-        "courses"
-      ],
       "actual": [
-        "personal_account"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-020",
-      "expected": [
-        "campus_documents"
-      ],
-      "actual": [
-        "general"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-041",
-      "expected": [
-        "dining"
-      ],
-      "actual": [
-        "clarification"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-052",
-      "expected": [
-        "directory"
-      ],
-      "actual": [
-        "directory",
-        "clubs"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-175",
-      "expected": [
         "events"
       ],
-      "actual": [
-        "clarification"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-180",
-      "expected": [
-        "clubs"
-      ],
-      "actual": [
-        "student_services"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-242",
-      "expected": [
-        "locations"
-      ],
-      "actual": [
-        "transportation"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-178",
-      "expected": [
-        "clubs"
-      ],
-      "actual": [
-        "events",
-        "clubs"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-204",
-      "expected": [
-        "general"
-      ],
-      "actual": [
-        "clarification"
-      ],
-      "httpStatus": 200
-    }
-  ],
-  "transportFailures": [
-    {
-      "id": "case-023",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-026",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-032",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-036",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-037",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-040",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-046",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-049",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-053",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-055",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-057",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-061",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-064",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-066",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-071",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-073",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-074",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-080",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-084",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-085",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-091",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-092",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-094",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-096",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-100",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-102",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-105",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-107",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-112",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-116",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-119",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-121",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-127",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-128",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-132",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-133",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-137",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-144",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-146",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-149",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-153",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-154",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-156",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-159",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-164",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-165",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-167",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-170",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-173",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-176",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-177",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-182",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-189",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-193",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-194",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-198",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-200",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-205",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-208",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-210",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-213",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-216",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-222",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-224",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-225",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-232",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-234",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-235",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-236",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-243",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-244",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-247",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-248",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-003",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-030",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-034",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-078",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-191",
-      "httpStatus": 429,
-      "reason": "rate_limited"
-    },
-    {
-      "id": "case-250",
-      "httpStatus": 429,
-      "reason": "rate_limited"
+      "semanticPass": true,
+      "httpStatus": 200,
+      "latencyMs": 1200,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
     }
   ]
 }

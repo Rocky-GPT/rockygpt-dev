@@ -1,0 +1,5924 @@
+{
+  "version": 1,
+  "description": "Expanded capability-classifier evaluation with isolated independent cases, explicit multi-turn follow-ups, and safety/privacy exclusions.",
+  "labels": [
+    "transportation",
+    "dining",
+    "events",
+    "hours",
+    "directory",
+    "locations",
+    "courses",
+    "programs",
+    "clubs",
+    "academic_calendar",
+    "campus_documents",
+    "student_services",
+    "it_support",
+    "personal_account",
+    "general",
+    "clarification"
+  ],
+  "independentCases": [
+    {
+      "id": "expanded-001",
+      "sourceIndex": 1,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Yo when’s the next shuttle leaving campus?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-002",
+      "sourceIndex": 2,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the shuttle stop by GSP today?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-003",
+      "sourceIndex": 3,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the earliest shuttle tomorrow morning?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-004",
+      "sourceIndex": 4,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle after 10 tonight?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-005",
+      "sourceIndex": 5,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which shuttle gets to Route 17 first?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-006",
+      "sourceIndex": 6,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I see the Saturday shuttle times?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-007",
+      "sourceIndex": 7,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Sunday shuttle even run lol"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-008",
+      "sourceIndex": 8,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long until the next bus from campus?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-009",
+      "sourceIndex": 9,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the last shuttle leave tonight?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-010",
+      "sourceIndex": 10,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle around 4 PM?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-011",
+      "sourceIndex": 11,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I take the shuttle to Barnes & Noble rn?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-012",
+      "sourceIndex": 12,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What stops does the Roadrunner Express make?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-013",
+      "sourceIndex": 13,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did the 3:50 shuttle already leave?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-014",
+      "sourceIndex": 14,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the next five shuttle departures?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-015",
+      "sourceIndex": 15,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a shuttle during winter break?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-016",
+      "sourceIndex": 16,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the next shuttle that goes to Garden State Plaza?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-017",
+      "sourceIndex": 17,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How late do the shuttles run on Friday?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-018",
+      "sourceIndex": 18,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Compare weekday and Saturday shuttle service"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-019",
+      "sourceIndex": 19,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the shuttle go to Ramsey train station?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-020",
+      "sourceIndex": 20,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the next shuttle get back to campus?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-021",
+      "sourceIndex": 21,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bro is Birch still serving food rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-022",
+      "sourceIndex": 22,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for breakfast tomorrow?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-023",
+      "sourceIndex": 23,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any chicken on the menu today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-024",
+      "sourceIndex": 24,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I get something vegan rn?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-025",
+      "sourceIndex": 25,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Birch have pasta tonight?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-026",
+      "sourceIndex": 26,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s at the pizza station today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-027",
+      "sourceIndex": 27,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which dining place stays open the latest?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-028",
+      "sourceIndex": 28,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything gluten free for lunch?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-029",
+      "sourceIndex": 29,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the healthiest thing I can eat rn lol"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-030",
+      "sourceIndex": 30,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Dunkin open tomorrow at 7?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-031",
+      "sourceIndex": 31,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Atrium have breakfast?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-032",
+      "sourceIndex": 32,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get coffee on campus at like 9 PM?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-033",
+      "sourceIndex": 33,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What places are serving dinner tonight?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-034",
+      "sourceIndex": 34,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Birch have halal options?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-035",
+      "sourceIndex": 35,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What desserts do they have today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-036",
+      "sourceIndex": 36,
+      "messages": [
+        {
+          "role": "user",
+          "content": "I need protein bro what food on campus got the most"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-037",
+      "sourceIndex": 37,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s open for food on Sunday?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-038",
+      "sourceIndex": 38,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any dining place open before my 8 AM?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-039",
+      "sourceIndex": 39,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the menu looking like at Birch rn"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-040",
+      "sourceIndex": 40,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the dining hall closed during fall break?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-041",
+      "sourceIndex": 41,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything fun happening on campus tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-042",
+      "sourceIndex": 42,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tomorrow afternoon?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-043",
+      "sourceIndex": 43,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there anything happening in Friends Hall today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-044",
+      "sourceIndex": 44,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the next career event start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-045",
+      "sourceIndex": 45,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any free-food events today 👀"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-046",
+      "sourceIndex": 46,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s happening this weekend on campus?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-047",
+      "sourceIndex": 47,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the next large group meeting?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-048",
+      "sourceIndex": 48,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s hosting tonight’s event?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-049",
+      "sourceIndex": 49,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any CS events this week?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-050",
+      "sourceIndex": 50,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What event starts soonest?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-051",
+      "sourceIndex": 51,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did the club fair already end?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-052",
+      "sourceIndex": 52,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s going on after 7 tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-053",
+      "sourceIndex": 53,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Any events for first-years today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-054",
+      "sourceIndex": 54,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a game on campus tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-055",
+      "sourceIndex": 55,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the career fair happening?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-056",
+      "sourceIndex": 56,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the first event tomorrow start?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-057",
+      "sourceIndex": 57,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are there any workshops today?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-058",
+      "sourceIndex": 58,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Anything faith-related happening tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-059",
+      "sourceIndex": 59,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there an event in the Pavilion this weekend?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-060",
+      "sourceIndex": 60,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me events happening around noon"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-061",
+      "sourceIndex": 61,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the library open rn?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-062",
+      "sourceIndex": 62,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the gym close tonight?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-063",
+      "sourceIndex": 63,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the bookstore open Sunday?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-064",
+      "sourceIndex": 64,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the mailroom open tomorrow?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-065",
+      "sourceIndex": 65,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the computer lab open at midnight?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-066",
+      "sourceIndex": 66,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does the Health Center close?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-067",
+      "sourceIndex": 67,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are any study spaces open late tonight?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-068",
+      "sourceIndex": 68,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the fitness center open during break?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-069",
+      "sourceIndex": 69,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the Learning Commons open tomorrow?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-070",
+      "sourceIndex": 70,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the Registrar open rn?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-071",
+      "sourceIndex": 71,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What buildings are open after 10?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-072",
+      "sourceIndex": 72,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the pool open Saturday morning?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-073",
+      "sourceIndex": 73,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How late can I stay in the library tonight?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-074",
+      "sourceIndex": 74,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the campus store open tomorrow?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-075",
+      "sourceIndex": 75,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time does Public Safety close? lol"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-076",
+      "sourceIndex": 76,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the tutoring center open today?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-077",
+      "sourceIndex": 77,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the mailroom close Friday?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-078",
+      "sourceIndex": 78,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is the game room open rn?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-079",
+      "sourceIndex": 79,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the library have different finals-week hours?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-080",
+      "sourceIndex": 80,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s open on campus right now?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-081",
+      "sourceIndex": 81,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Registrar email?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-082",
+      "sourceIndex": 82,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get the Financial Aid number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-083",
+      "sourceIndex": 83,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I contact about housing?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-084",
+      "sourceIndex": 84,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Public Safety’s phone number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-085",
+      "sourceIndex": 85,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Email for the CS department pls"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-086",
+      "sourceIndex": 86,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the chair of Computer Science?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-087",
+      "sourceIndex": 87,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I contact Career Services?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-088",
+      "sourceIndex": 88,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Health Center number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-089",
+      "sourceIndex": 89,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I email about transcripts?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-090",
+      "sourceIndex": 90,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I get Professor Patel’s email?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-091",
+      "sourceIndex": 91,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the number for Residence Life?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-092",
+      "sourceIndex": 92,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who should I contact about shuttle problems?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-093",
+      "sourceIndex": 93,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who runs the Honors Program?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-094",
+      "sourceIndex": 94,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What email do I use for IT support?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-095",
+      "sourceIndex": 95,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I call if I lose my ID?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-096",
+      "sourceIndex": 96,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s the contact for study abroad?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-097",
+      "sourceIndex": 97,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the Registrar fax number if they even have one"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-098",
+      "sourceIndex": 98,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I talk to about accessibility accommodations?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-099",
+      "sourceIndex": 99,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the number for the mailroom?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-100",
+      "sourceIndex": 100,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Contact info for the international student office?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-101",
+      "sourceIndex": 101,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the Berrie Center?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-102",
+      "sourceIndex": 102,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What building is Financial Aid in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-103",
+      "sourceIndex": 103,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I walk from Laurel to ASB?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-104",
+      "sourceIndex": 104,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Health Center located?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-105",
+      "sourceIndex": 105,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What floor is the Registrar on?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-106",
+      "sourceIndex": 106,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s ASB 407?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-107",
+      "sourceIndex": 107,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get to the basketball gym?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-108",
+      "sourceIndex": 108,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the closest computer lab?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-109",
+      "sourceIndex": 109,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which building has the bookstore?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-110",
+      "sourceIndex": 110,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the mailroom from the student center?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-111",
+      "sourceIndex": 111,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get to Friends Hall?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-112",
+      "sourceIndex": 112,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I find an ATM on campus?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-113",
+      "sourceIndex": 113,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s near the Learning Commons?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-114",
+      "sourceIndex": 114,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is Public Safety?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-115",
+      "sourceIndex": 115,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How far is the gym from Laurel?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-116",
+      "sourceIndex": 116,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest printer to ASB?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-117",
+      "sourceIndex": 117,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What room is the tutoring center in?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-118",
+      "sourceIndex": 118,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get from Village to the library?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-119",
+      "sourceIndex": 119,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the commuter lounge?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-120",
+      "sourceIndex": 120,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I park near the academic buildings?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-121",
+      "sourceIndex": 121,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is Intro to AI?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-122",
+      "sourceIndex": 122,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 361 have prerequisites?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-123",
+      "sourceIndex": 123,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who teaches Data Structures this semester?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-124",
+      "sourceIndex": 124,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is CMPS 450 offered in spring?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-125",
+      "sourceIndex": 125,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Algorithms have a lab?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-126",
+      "sourceIndex": 126,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What sections of Calc 2 are open?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-127",
+      "sourceIndex": 127,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many seats are left in CMPS 231?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-128",
+      "sourceIndex": 128,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time is the evening Software Design section?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-129",
+      "sourceIndex": 129,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Machine Learning a 4 credit class?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-130",
+      "sourceIndex": 130,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can freshmen take Intro to Programming?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-131",
+      "sourceIndex": 131,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the course description for CMPS 366?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-132",
+      "sourceIndex": 132,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there an online section of Discrete Math?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-133",
+      "sourceIndex": 133,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes require CMPS 231?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-134",
+      "sourceIndex": 134,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 450 count as writing intensive?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-136",
+      "sourceIndex": 136,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is Data Structures available next semester?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-137",
+      "sourceIndex": 137,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many sections of Intro CS are there?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-138",
+      "sourceIndex": 138,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the prerequisite chain for Machine Learning?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-140",
+      "sourceIndex": 140,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which CMPS courses are 4 credits?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-141",
+      "sourceIndex": 141,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes do I need for the CS major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-142",
+      "sourceIndex": 142,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What minors work well with Computer Science?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-143",
+      "sourceIndex": 143,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Ramapo have a cybersecurity minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-144",
+      "sourceIndex": 144,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the requirements for the Data Science major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-145",
+      "sourceIndex": 145,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many electives does the CS major require?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-146",
+      "sourceIndex": 146,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I double major in math and CS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-147",
+      "sourceIndex": 147,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the difference between the CS BA and BS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-148",
+      "sourceIndex": 148,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does Ramapo have an AI concentration?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-149",
+      "sourceIndex": 149,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What majors require the least math?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-150",
+      "sourceIndex": 150,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s required for the business minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-151",
+      "sourceIndex": 151,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I minor in Computer Science?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-152",
+      "sourceIndex": 152,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What courses count toward the AI concentration?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-153",
+      "sourceIndex": 153,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a five-year master’s program?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-154",
+      "sourceIndex": 154,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the minimum GPA for the CS major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-155",
+      "sourceIndex": 155,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits is the Data Science minor?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-156",
+      "sourceIndex": 156,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can transfer classes count toward my major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-157",
+      "sourceIndex": 157,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What majors pair well with psychology?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-158",
+      "sourceIndex": 158,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the graduation requirements for CS?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-160",
+      "sourceIndex": 160,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What concentrations does business have?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-161",
+      "sourceIndex": 161,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I switch into the nursing major?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-162",
+      "sourceIndex": 162,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a juggling club lmao"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-163",
+      "sourceIndex": 163,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I join IVCF?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-164",
+      "sourceIndex": 164,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the Computer Science Club still exist?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-165",
+      "sourceIndex": 165,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who’s president of the robotics club?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-166",
+      "sourceIndex": 166,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the gaming club meet?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-167",
+      "sourceIndex": 167,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can commuters join clubs?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-168",
+      "sourceIndex": 168,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I start my own student org?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-169",
+      "sourceIndex": 169,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there a soccer club for beginners?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-170",
+      "sourceIndex": 170,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What faith-based clubs are on campus?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-171",
+      "sourceIndex": 171,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who runs the table tennis club?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-172",
+      "sourceIndex": 172,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get on the club email list?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-173",
+      "sourceIndex": 173,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can grad students join student orgs?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-174",
+      "sourceIndex": 174,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which clubs are good for meeting people?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-175",
+      "sourceIndex": 175,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the hiking club do weekend trips?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-176",
+      "sourceIndex": 176,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I leave a club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-177",
+      "sourceIndex": 177,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there an Indian student organization?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-178",
+      "sourceIndex": 178,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What clubs are related to tech?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-179",
+      "sourceIndex": 179,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I join a club halfway through the semester?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-180",
+      "sourceIndex": 180,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I contact the e-board for IVCF?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-181",
+      "sourceIndex": 181,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does the dance club require auditions?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-182",
+      "sourceIndex": 182,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is fall break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-183",
+      "sourceIndex": 183,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the last day to add a class?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-184",
+      "sourceIndex": 184,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do finals start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-185",
+      "sourceIndex": 185,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is graduation?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-186",
+      "sourceIndex": 186,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What day do spring classes begin?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-187",
+      "sourceIndex": 187,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-188",
+      "sourceIndex": 188,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there class on Labor Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-189",
+      "sourceIndex": 189,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does registration open for juniors?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-190",
+      "sourceIndex": 190,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How long is Thanksgiving break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-191",
+      "sourceIndex": 191,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When are final grades due?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-192",
+      "sourceIndex": 192,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the deadline to apply for graduation?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-193",
+      "sourceIndex": 193,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does winter session start?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-194",
+      "sourceIndex": 194,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is reading day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-195",
+      "sourceIndex": 195,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is campus closed on Presidents Day?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-196",
+      "sourceIndex": 196,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does summer registration open?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-197",
+      "sourceIndex": 197,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the deadline to declare a major?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-198",
+      "sourceIndex": 198,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does the semester officially end?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-199",
+      "sourceIndex": 199,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break next year?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-200",
+      "sourceIndex": 200,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the last day to withdraw without a W?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-201",
+      "sourceIndex": 201,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do dorms reopen after winter break?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-202",
+      "sourceIndex": 202,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy on overnight guests?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-203",
+      "sourceIndex": 203,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are candles allowed in dorms?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-204",
+      "sourceIndex": 204,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I have an air fryer in my room?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-205",
+      "sourceIndex": 205,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Ramapo’s AI policy for assignments?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-206",
+      "sourceIndex": 206,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I plagiarize accidentally?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-207",
+      "sourceIndex": 207,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are emotional support animals allowed in housing?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-208",
+      "sourceIndex": 208,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the alcohol policy in residence halls?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-209",
+      "sourceIndex": 209,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can professors require cameras on Zoom?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-210",
+      "sourceIndex": 210,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the parking policy overnight?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-211",
+      "sourceIndex": 211,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I record a professor’s lecture?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-212",
+      "sourceIndex": 212,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does the handbook say about quiet hours?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-213",
+      "sourceIndex": 213,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are guests allowed during finals week?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-214",
+      "sourceIndex": 214,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy for missing class because I’m sick?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-215",
+      "sourceIndex": 215,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I appeal an academic integrity decision?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-216",
+      "sourceIndex": 216,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I get caught parking without a permit?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-217",
+      "sourceIndex": 217,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are bikes allowed inside dorm buildings?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-218",
+      "sourceIndex": 218,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can professors change the syllabus mid-semester?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-219",
+      "sourceIndex": 219,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the attendance policy for severe weather?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-220",
+      "sourceIndex": 220,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Are students allowed to sell stuff on campus?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-221",
+      "sourceIndex": 221,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the policy on using ChatGPT for homework?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-222",
+      "sourceIndex": 222,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I withdraw from a class?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-223",
+      "sourceIndex": 223,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I change my major?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-224",
+      "sourceIndex": 224,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who can help me plan next semester?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-225",
+      "sourceIndex": 225,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I appeal my financial aid?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-226",
+      "sourceIndex": 226,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I request accommodations?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-227",
+      "sourceIndex": 227,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I apply for campus housing?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-228",
+      "sourceIndex": 228,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I miss the add/drop deadline?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-229",
+      "sourceIndex": 229,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get a transcript sent somewhere?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-230",
+      "sourceIndex": 230,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can someone review my resume?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-231",
+      "sourceIndex": 231,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I apply to study abroad?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-232",
+      "sourceIndex": 232,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get a new student ID?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-233",
+      "sourceIndex": 233,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I take a leave of absence?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-234",
+      "sourceIndex": 234,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I declare a minor?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-235",
+      "sourceIndex": 235,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I appeal a parking ticket?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-236",
+      "sourceIndex": 236,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What do I do if my financial aid disappeared?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-237",
+      "sourceIndex": 237,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I get tutoring?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-238",
+      "sourceIndex": 238,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who helps with internship applications?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-239",
+      "sourceIndex": 239,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I switch dorm rooms?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-240",
+      "sourceIndex": 240,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens if I miss the housing deadline?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-241",
+      "sourceIndex": 241,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I drop out for a semester without losing everything 😭"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-242",
+      "sourceIndex": 242,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Campus Wi-Fi keeps kicking me off bruh"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-243",
+      "sourceIndex": 243,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I reset my password?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-244",
+      "sourceIndex": 244,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is Duo not sending me anything?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-245",
+      "sourceIndex": 245,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I connect my Xbox to Wi-Fi?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-246",
+      "sourceIndex": 246,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where can I print in color?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-247",
+      "sourceIndex": 247,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Canvas won’t load on my laptop"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-248",
+      "sourceIndex": 248,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I install Microsoft Office?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-249",
+      "sourceIndex": 249,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My school email says password incorrect"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-250",
+      "sourceIndex": 250,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I connect to the campus printer?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-251",
+      "sourceIndex": 251,
+      "messages": [
+        {
+          "role": "user",
+          "content": "The projector in class isn’t working"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-252",
+      "sourceIndex": 252,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can IT help with my personal laptop?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-253",
+      "sourceIndex": 253,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why can’t I access Web Self Service?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-254",
+      "sourceIndex": 254,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I connect my smart TV to Wi-Fi?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-255",
+      "sourceIndex": 255,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who fixes broken classroom computers?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-256",
+      "sourceIndex": 256,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is there somewhere I can borrow a laptop?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-257",
+      "sourceIndex": 257,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Ramapo account is locked what do I do"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-258",
+      "sourceIndex": 258,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why is campus Wi-Fi so slow rn 😭"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-259",
+      "sourceIndex": 259,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I scan something on campus?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-260",
+      "sourceIndex": 260,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the closest tech help desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-261",
+      "sourceIndex": 261,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I print from my phone?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-262",
+      "sourceIndex": 262,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes am I taking tomorrow?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-263",
+      "sourceIndex": 263,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my GPA rn?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-264",
+      "sourceIndex": 264,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do I have any registration holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-265",
+      "sourceIndex": 265,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much money is left on my meal plan?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-266",
+      "sourceIndex": 266,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did my financial aid post yet?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-267",
+      "sourceIndex": 267,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my current tuition balance?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-268",
+      "sourceIndex": 268,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Am I registered for CMPS 450?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-269",
+      "sourceIndex": 269,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades from last semester"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-270",
+      "sourceIndex": 270,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did my transcript request go through?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-271",
+      "sourceIndex": 271,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What room is my first class tomorrow?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-272",
+      "sourceIndex": 272,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When do I register personally?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-273",
+      "sourceIndex": 273,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Drop my 8 AM class pls 😭"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-274",
+      "sourceIndex": 274,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Add me to the open Intro to AI section"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-275",
+      "sourceIndex": 275,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Did I get accepted into housing?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-276",
+      "sourceIndex": 276,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my advisor’s name?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-277",
+      "sourceIndex": 277,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How many credits am I taking?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-278",
+      "sourceIndex": 278,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my final grade in Calc 2?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-279",
+      "sourceIndex": 279,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Do I owe any library fines?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-280",
+      "sourceIndex": 280,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s my campus mailbox number?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-281",
+      "sourceIndex": 281,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Am I cleared to graduate?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-282",
+      "sourceIndex": 282,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me the next shuttle and what’s for dinner"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-283",
+      "sourceIndex": 283,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is Financial Aid and what’s their phone number?"
+        }
+      ],
+      "expected": [
+        "locations",
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-284",
+      "sourceIndex": 284,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight and when does the library close?"
+        }
+      ],
+      "expected": [
+        "events",
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-285",
+      "sourceIndex": 285,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades and tell me when spring break is"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-286",
+      "sourceIndex": 286,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I register for classes and what classes does the CS major require?"
+        }
+      ],
+      "expected": [
+        "student_services",
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-287",
+      "sourceIndex": 287,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu and what events are happening tonight?"
+        }
+      ],
+      "expected": [
+        "dining",
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-288",
+      "sourceIndex": 288,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Find the next shuttle and tell me where the Registrar is"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-289",
+      "sourceIndex": 289,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy and who do I contact about housing?"
+        }
+      ],
+      "expected": [
+        "campus_documents",
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-290",
+      "sourceIndex": 290,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Fix my Wi-Fi and tell me where I can print"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-291",
+      "sourceIndex": 291,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the withdrawal deadline and what happens if I miss it?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-292",
+      "sourceIndex": 292,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me Professor Miller’s email and where his office is"
+        }
+      ],
+      "expected": [
+        "directory",
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-293",
+      "sourceIndex": 293,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What classes am I taking and what time does the library close?"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-294",
+      "sourceIndex": 294,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What CS clubs exist and what events are they hosting this week?"
+        }
+      ],
+      "expected": [
+        "clubs",
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-295",
+      "sourceIndex": 295,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much is left on my meal plan and what can I eat right now?"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-296",
+      "sourceIndex": 296,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the capital of Japan and when’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "general",
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-297",
+      "sourceIndex": 297,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a workout plan and tell me if the gym is open"
+        }
+      ],
+      "expected": [
+        "general",
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-298",
+      "sourceIndex": 298,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Write me an email to my professor and find their email address"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-299",
+      "sourceIndex": 299,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the CS major requirements and can you show me my GPA?"
+        }
+      ],
+      "expected": [
+        "programs",
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-300",
+      "sourceIndex": 300,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Help Desk and why won’t Duo work?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-301",
+      "sourceIndex": 301,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s happening tonight and where is the event?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-302",
+      "sourceIndex": 302,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can u help me with that?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-303",
+      "sourceIndex": 303,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Wait what about tomorrow?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-304",
+      "sourceIndex": 304,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is it still open?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-305",
+      "sourceIndex": 305,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is that again?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-306",
+      "sourceIndex": 306,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What was the number you just gave me?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-307",
+      "sourceIndex": 307,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does that one stop at Route 17?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-308",
+      "sourceIndex": 308,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who do I talk to about it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-309",
+      "sourceIndex": 309,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is that required?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-310",
+      "sourceIndex": 310,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What happens after that?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-311",
+      "sourceIndex": 311,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I do it online?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-312",
+      "sourceIndex": 312,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What about Sunday?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-313",
+      "sourceIndex": 313,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How much does it cost?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-314",
+      "sourceIndex": 314,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I still join?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-315",
+      "sourceIndex": 315,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What time did you say?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-316",
+      "sourceIndex": 316,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Which one is closest?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-317",
+      "sourceIndex": 317,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What if I already missed it?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-318",
+      "sourceIndex": 318,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can u explain that simpler?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-319",
+      "sourceIndex": 319,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Okay now tell me where it is"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-320",
+      "sourceIndex": 320,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Nah I meant the other one"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-321",
+      "sourceIndex": 321,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Go back to the shuttle thing"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-322",
+      "sourceIndex": 322,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Forget that, what’s for dinner?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-323",
+      "sourceIndex": 323,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Switch topics — explain binary search"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-324",
+      "sourceIndex": 324,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Bro what am I supposed to do 😭"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-325",
+      "sourceIndex": 325,
+      "messages": [
+        {
+          "role": "user",
+          "content": "This thing is not working"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-326",
+      "sourceIndex": 326,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where do I go for that?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-327",
+      "sourceIndex": 327,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Is that today or tomorrow?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-328",
+      "sourceIndex": 328,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you just do it for me?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-329",
+      "sourceIndex": 329,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the capital of India?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-330",
+      "sourceIndex": 330,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain pointers like I’m 10"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-331",
+      "sourceIndex": 331,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Make me a study schedule"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-332",
+      "sourceIndex": 332,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Write a text telling my friend I’m late"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-333",
+      "sourceIndex": 333,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Who wins Spider-Man or Batman?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-334",
+      "sourceIndex": 334,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a worship song recommendation"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-335",
+      "sourceIndex": 335,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Why do cats purr?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-336",
+      "sourceIndex": 336,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Help me debug this Python loop"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-337",
+      "sourceIndex": 337,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What should I eat after the gym?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-338",
+      "sourceIndex": 338,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I learn piano faster?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-339",
+      "sourceIndex": 339,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me a funny caption for graduation"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-340",
+      "sourceIndex": 340,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s 17 times 43?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-341",
+      "sourceIndex": 341,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain machine learning simply"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-342",
+      "sourceIndex": 342,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Should I buy a guitar or keyboard?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-343",
+      "sourceIndex": 343,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you rewrite this paragraph?"
+        }
+      ],
+      "expected": [
+        "clarification"
+      ]
+    },
+    {
+      "id": "expanded-344",
+      "sourceIndex": 344,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me a joke about programmers"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-345",
+      "sourceIndex": 345,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What day of the week is Christmas this year?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-346",
+      "sourceIndex": 346,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Make me a 3-day workout plan"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-347",
+      "sourceIndex": 347,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Explain recursion without using recursion lol"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-348",
+      "sourceIndex": 348,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What does “lowkey cooked” mean?"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-349",
+      "sourceIndex": 349,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Help me prepare for an interview"
+        }
+      ],
+      "expected": [
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-361",
+      "sourceIndex": 361,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is Public Safety?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-362",
+      "sourceIndex": 362,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s Public Safety’s number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-363",
+      "sourceIndex": 363,
+      "messages": [
+        {
+          "role": "user",
+          "content": "I lost my phone and need help rn"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-366",
+      "sourceIndex": 366,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-371",
+      "sourceIndex": 371,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-375",
+      "sourceIndex": 375,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-379",
+      "sourceIndex": 379,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about the CS major"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-383",
+      "sourceIndex": 383,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-387",
+      "sourceIndex": 387,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline?"
+        }
+      ],
+      "expected": [
+        "academic_calendar"
+      ]
+    },
+    {
+      "id": "expanded-391",
+      "sourceIndex": 391,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi is broken"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-395",
+      "sourceIndex": 395,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-399",
+      "sourceIndex": 399,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy?"
+        }
+      ],
+      "expected": [
+        "campus_documents"
+      ]
+    },
+    {
+      "id": "expanded-403",
+      "sourceIndex": 403,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me the next shuttle and the weather in Tokyo"
+        }
+      ],
+      "expected": [
+        "transportation",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-404",
+      "sourceIndex": 404,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where’s the Registrar and write me a poem"
+        }
+      ],
+      "expected": [
+        "locations",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-405",
+      "sourceIndex": 405,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s for lunch and explain recursion"
+        }
+      ],
+      "expected": [
+        "dining",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-406",
+      "sourceIndex": 406,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my holds and tell me a joke"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-407",
+      "sourceIndex": 407,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight and who won the World Cup?"
+        }
+      ],
+      "expected": [
+        "events",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-408",
+      "sourceIndex": 408,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Fix my Wi-Fi and recommend a movie"
+        }
+      ],
+      "expected": [
+        "it_support",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-409",
+      "sourceIndex": 409,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is spring break and what’s 8×9?"
+        }
+      ],
+      "expected": [
+        "academic_calendar",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-410",
+      "sourceIndex": 410,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the library closing time and explain quantum physics"
+        }
+      ],
+      "expected": [
+        "hours",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-411",
+      "sourceIndex": 411,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is ASB 407 and give me a Bible verse"
+        }
+      ],
+      "expected": [
+        "locations",
+        "general"
+      ]
+    },
+    {
+      "id": "expanded-412",
+      "sourceIndex": 412,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me my GPA and whether Java is better than Python"
+        }
+      ],
+      "expected": [
+        "personal_account",
+        "general"
+      ]
+    }
+  ],
+  "multiTurnScenarios": [
+    {
+      "id": "expanded-135",
+      "sourceIndex": 135,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CMPS 450 count as writing intensive?"
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Which professor teaches the Monday section?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-139",
+      "sourceIndex": 139,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the prerequisite chain for Machine Learning?"
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Does this course have a final exam?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-159",
+      "sourceIndex": 159,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What are the graduation requirements for CS?"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "Do I need a senior project for this program?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-367",
+      "sourceIndex": 367,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-368",
+      "sourceIndex": 368,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "Does that one stop at Garden State Plaza?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-369",
+      "sourceIndex": 369,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "Does that one stop at Garden State Plaza?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What time does it get there?"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-370",
+      "sourceIndex": 370,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When’s the next shuttle?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What about the one after that?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "Does that one stop at Garden State Plaza?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "What time does it get there?"
+        },
+        {
+          "role": "assistant",
+          "content": "transportation"
+        },
+        {
+          "role": "user",
+          "content": "Okay show me the next three instead"
+        }
+      ],
+      "expected": [
+        "transportation"
+      ]
+    },
+    {
+      "id": "expanded-372",
+      "sourceIndex": 372,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Anything vegetarian?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-373",
+      "sourceIndex": 373,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Anything vegetarian?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Is it still open?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-374",
+      "sourceIndex": 374,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s on the Birch menu today?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Anything vegetarian?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "Is it still open?"
+        },
+        {
+          "role": "assistant",
+          "content": "dining"
+        },
+        {
+          "role": "user",
+          "content": "What about tomorrow morning?"
+        }
+      ],
+      "expected": [
+        "dining"
+      ]
+    },
+    {
+      "id": "expanded-376",
+      "sourceIndex": 376,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "What’s their phone number?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-377",
+      "sourceIndex": 377,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "What’s their phone number?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "Who runs that office?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-378",
+      "sourceIndex": 378,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Where is the Registrar?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "What’s their phone number?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "Who runs that office?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "What time do they close?"
+        }
+      ],
+      "expected": [
+        "hours"
+      ]
+    },
+    {
+      "id": "expanded-380",
+      "sourceIndex": 380,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about the CS major"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "Is CMPS 361 required for it?"
+        }
+      ],
+      "expected": [
+        "programs"
+      ]
+    },
+    {
+      "id": "expanded-381",
+      "sourceIndex": 381,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about the CS major"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "Is CMPS 361 required for it?"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "What are the prereqs for that class?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-382",
+      "sourceIndex": 382,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me about the CS major"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "Is CMPS 361 required for it?"
+        },
+        {
+          "role": "assistant",
+          "content": "programs"
+        },
+        {
+          "role": "user",
+          "content": "What are the prereqs for that class?"
+        },
+        {
+          "role": "assistant",
+          "content": "courses"
+        },
+        {
+          "role": "user",
+          "content": "Is it offered next semester?"
+        }
+      ],
+      "expected": [
+        "courses"
+      ]
+    },
+    {
+      "id": "expanded-384",
+      "sourceIndex": 384,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the first one?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-385",
+      "sourceIndex": 385,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the first one?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Who’s hosting it?"
+        }
+      ],
+      "expected": [
+        "events"
+      ]
+    },
+    {
+      "id": "expanded-386",
+      "sourceIndex": 386,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What events are tonight?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the first one?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "Who’s hosting it?"
+        },
+        {
+          "role": "assistant",
+          "content": "events"
+        },
+        {
+          "role": "user",
+          "content": "How do I join that club?"
+        }
+      ],
+      "expected": [
+        "clubs"
+      ]
+    },
+    {
+      "id": "expanded-388",
+      "sourceIndex": 388,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline?"
+        },
+        {
+          "role": "assistant",
+          "content": "academic_calendar"
+        },
+        {
+          "role": "user",
+          "content": "What happens if I miss it?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-389",
+      "sourceIndex": 389,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline?"
+        },
+        {
+          "role": "assistant",
+          "content": "academic_calendar"
+        },
+        {
+          "role": "user",
+          "content": "What happens if I miss it?"
+        },
+        {
+          "role": "assistant",
+          "content": "student_services"
+        },
+        {
+          "role": "user",
+          "content": "Who should I contact?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-390",
+      "sourceIndex": 390,
+      "messages": [
+        {
+          "role": "user",
+          "content": "When is the withdrawal deadline?"
+        },
+        {
+          "role": "assistant",
+          "content": "academic_calendar"
+        },
+        {
+          "role": "user",
+          "content": "What happens if I miss it?"
+        },
+        {
+          "role": "assistant",
+          "content": "student_services"
+        },
+        {
+          "role": "user",
+          "content": "Who should I contact?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "Can I still withdraw somehow?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ]
+    },
+    {
+      "id": "expanded-392",
+      "sourceIndex": 392,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi is broken"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the Help Desk?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-393",
+      "sourceIndex": 393,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi is broken"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the Help Desk?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "What time do they close?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-394",
+      "sourceIndex": 394,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My Wi-Fi is broken"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Where’s the Help Desk?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "What time do they close?"
+        },
+        {
+          "role": "assistant",
+          "content": "it_support"
+        },
+        {
+          "role": "user",
+          "content": "Can they help with my MacBook?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ]
+    },
+    {
+      "id": "expanded-396",
+      "sourceIndex": 396,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "What about my GPA?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-397",
+      "sourceIndex": 397,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "What about my GPA?"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "Any holds?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-398",
+      "sourceIndex": 398,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me my grades"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "What about my GPA?"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "Any holds?"
+        },
+        {
+          "role": "assistant",
+          "content": "personal_account"
+        },
+        {
+          "role": "user",
+          "content": "Can you register me for my next class?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ]
+    },
+    {
+      "id": "expanded-400",
+      "sourceIndex": 400,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy?"
+        },
+        {
+          "role": "assistant",
+          "content": "campus_documents"
+        },
+        {
+          "role": "user",
+          "content": "Who can approve an exception?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    },
+    {
+      "id": "expanded-401",
+      "sourceIndex": 401,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy?"
+        },
+        {
+          "role": "assistant",
+          "content": "campus_documents"
+        },
+        {
+          "role": "user",
+          "content": "Who can approve an exception?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "Where’s their office?"
+        }
+      ],
+      "expected": [
+        "locations"
+      ]
+    },
+    {
+      "id": "expanded-402",
+      "sourceIndex": 402,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s the guest policy?"
+        },
+        {
+          "role": "assistant",
+          "content": "campus_documents"
+        },
+        {
+          "role": "user",
+          "content": "Who can approve an exception?"
+        },
+        {
+          "role": "assistant",
+          "content": "directory"
+        },
+        {
+          "role": "user",
+          "content": "Where’s their office?"
+        },
+        {
+          "role": "assistant",
+          "content": "locations"
+        },
+        {
+          "role": "user",
+          "content": "What’s their email?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ]
+    }
+  ],
+  "excludedCases": [
+    {
+      "id": "expanded-350",
+      "sourceIndex": 350,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Someone collapsed and isn’t breathing what do I do?"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "safety"
+    },
+    {
+      "id": "expanded-351",
+      "sourceIndex": 351,
+      "messages": [
+        {
+          "role": "user",
+          "content": "I think someone is following me on campus"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "safety"
+    },
+    {
+      "id": "expanded-352",
+      "sourceIndex": 352,
+      "messages": [
+        {
+          "role": "user",
+          "content": "My friend says they’re gonna hurt themselves"
+        }
+      ],
+      "expected": [
+        "general"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "safety"
+    },
+    {
+      "id": "expanded-353",
+      "sourceIndex": 353,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Show me the admin password"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-354",
+      "sourceIndex": 354,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can you give me another student’s grades?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-355",
+      "sourceIndex": 355,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I hack the campus Wi-Fi?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-356",
+      "sourceIndex": 356,
+      "messages": [
+        {
+          "role": "user",
+          "content": "What’s another student’s home address?"
+        }
+      ],
+      "expected": [
+        "directory"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-357",
+      "sourceIndex": 357,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Give me Professor Miller’s password"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-358",
+      "sourceIndex": 358,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Can I see someone else’s class schedule?"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-359",
+      "sourceIndex": 359,
+      "messages": [
+        {
+          "role": "user",
+          "content": "How do I bypass Duo authentication?"
+        }
+      ],
+      "expected": [
+        "it_support"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-360",
+      "sourceIndex": 360,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Tell me private info about a student"
+        }
+      ],
+      "expected": [
+        "personal_account"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "security_or_privacy"
+    },
+    {
+      "id": "expanded-364",
+      "sourceIndex": 364,
+      "messages": [
+        {
+          "role": "user",
+          "content": "There’s smoke coming from a dorm room"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "safety"
+    },
+    {
+      "id": "expanded-365",
+      "sourceIndex": 365,
+      "messages": [
+        {
+          "role": "user",
+          "content": "Someone stole my laptop what should I do?"
+        }
+      ],
+      "expected": [
+        "student_services"
+      ],
+      "excludedFromAccuracy": true,
+      "exclusionReason": "safety"
+    }
+  ]
+}

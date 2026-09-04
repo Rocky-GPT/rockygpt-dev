@@ -26,7 +26,7 @@
   "correction": {
     "brainBehavior": "Return a reasoned HTTP 429 with reason rate_limited and do not retry automatically.",
     "classifierTransport": "Disable the OpenAI SDK's implicit retries, allow one provider attempt for up to 90 seconds, and return explicit reasons for rate-limit, timeout, connection, and provider-status failures.",
-    "evaluationBehavior": "Use one worker by default, make one attempt per case, and report transport failures separately from exact semantic mismatches."
+    "evaluationBehavior": "Use one worker, space request starts by four seconds by default, make one attempt per case, and report transport failures separately from exact semantic mismatches."
   },
   "finalAcceptanceRun": {
     "runnerConcurrency": 2,

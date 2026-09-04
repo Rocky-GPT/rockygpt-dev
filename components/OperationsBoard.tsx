@@ -131,11 +131,11 @@ function ProbeCard({
 
 function CurrentSurfaceCard() {
   return (
-    <Card title="Current Brain surface" tone="idle" pill="Shell only">
+    <Card title="Current Brain surface" tone="idle" pill="Student assistant">
       <Row label="GET" value="/health" />
       <Row label="GET" value="/readiness" />
       <Row label="POST" value="/v1/chat" />
-      <p className="pt-1">Developer tools return as their clean-room contracts are rebuilt.</p>
+      <p className="pt-1">Inspect answers, sources, and tool calls in Ask &amp; Inspect.</p>
     </Card>
   );
 }

@@ -2,7 +2,7 @@
   "name": "@rockygpt/dev",
   "version": "0.1.0",
   "private": true,
-  "description": "The RockyGPT developer control room, connected to the clean-room Brain shell.",
+  "description": "The RockyGPT developer control room for answers, sources, and tool calls.",
   "engines": {
     "node": "22.x"
   },
@@ -11,8 +11,7 @@
     "build": "next build --webpack",
     "start": "next start -p 3100",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "test:classifier": "node tests/capability-classifier/evaluate.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

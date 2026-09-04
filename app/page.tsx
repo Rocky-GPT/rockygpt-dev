@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'RockyGPT Dev',
-  description: 'Clean-room Brain connection at a glance.',
+  description: 'Brain connection and student assistant tools at a glance.',
 };
 
 interface ProbeBody {
@@ -30,7 +30,7 @@ export default async function OverviewPage() {
     <>
       <PageHeader
         title="Overview"
-        subtitle="The current clean-room Brain shell over HTTP"
+        subtitle="The student assistant over HTTP"
         actions={<StatusPill tone={tone}>Brain · {ready ? 'Ready' : 'Unavailable'}</StatusPill>}
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
@@ -44,7 +44,7 @@ export default async function OverviewPage() {
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
           <Tile label="HTTP surface" value="3 endpoints" />
-          <Tile label="Build phase" value="Capability classifier" />
+          <Tile label="Assistant" value="Campus + study help" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -52,13 +52,13 @@ export default async function OverviewPage() {
             href="/operations/health"
             icon={<Gauge className="h-4 w-4" />}
             title="Service Health"
-            body="Watch the clean-room Brain’s liveness and readiness probes."
+            body="Watch the Brain’s liveness and readiness probes."
           />
           <Shortcut
             href="/brain/ask"
             icon={<MessageSquareCode className="h-4 w-4" />}
             title="Ask & Inspect"
-            body="Classify a conversation and inspect the exact model request and response."
+            body="Ask student questions and inspect answers, sources, and tool calls."
           />
         </div>
       </main>

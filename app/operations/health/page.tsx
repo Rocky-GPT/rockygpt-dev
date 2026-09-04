@@ -14,7 +14,7 @@ export default function HealthPage() {
     <>
       <PageHeader
         title="Service Health"
-        subtitle="Liveness and readiness from the current clean-room Brain shell"
+        subtitle="Liveness and readiness from the Brain"
       />
       <main className="min-w-0 px-6 py-6">
         <OperationsBoard />

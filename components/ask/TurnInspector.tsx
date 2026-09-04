@@ -28,11 +28,8 @@ export function TurnInspector({
 
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  const capabilities = Array.isArray(turn.raw?.capabilities)
-    ? turn.raw.capabilities.filter(
-        (capability): capability is string => typeof capability === 'string'
-      )
-    : [];
+  const responseStatus = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
+  const datasetVersion = typeof turn.raw?.datasetVersion === 'string' ? turn.raw.datasetVersion : undefined;
   const statusLabel =
     turn.status === 'ok'
       ? 'Answered'
@@ -56,10 +53,11 @@ export function TurnInspector({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium leading-5 text-foreground">{turn.question}</p>
           <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-            {statusLabel}
+            {responseStatus ? humanizeIdentifier(responseStatus) : statusLabel}
             {turn.httpStatus ? ` · HTTP ${turn.httpStatus}` : ''}
             {turn.latencyMs !== undefined ? ` · ${turn.latencyMs} ms` : ''}
             {model ? ` · ${model}` : ''}
+            {datasetVersion ? ` · dataset ${datasetVersion}` : ''}
             {turn.requestId ? ` · request ${turn.requestId}` : ''}
           </p>
         </div>
@@ -83,9 +81,6 @@ export function TurnInspector({
 
       <div className="min-h-0 flex-1 overflow-auto">
         <RequestConversationPanel messages={turn.request.messages} />
-        {capabilities.length > 0 && (
-          <CapabilitySelectionPanel capabilities={capabilities} />
-        )}
         {answer ? (
           <ResponsePanel answer={answer} />
         ) : turn.status === 'failed' ? (
@@ -93,33 +88,22 @@ export function TurnInspector({
         ) : (
           <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
         )}
+        {Array.isArray(turn.raw?.citations) && turn.raw.citations.length > 0 && (
+          <RawPanel title="SOURCES" text={JSON.stringify(turn.raw.citations, null, 2)} />
+        )}
+        {Array.isArray(turn.raw?.trace) && turn.raw.trace.length > 0 && (
+          <RawPanel title="TOOL CALLS" text={JSON.stringify(turn.raw.trace, null, 2)} />
+        )}
+        {answer && turn.rawText && (
+          <details>
+            <summary className="cursor-pointer px-5 py-3 text-xs text-muted-foreground">
+              Complete response JSON
+            </summary>
+            <RawPanel title="RESPONSE" text={turn.rawText} />
+          </details>
+        )}
       </div>
     </div>
-  );
-}
-
-function CapabilitySelectionPanel({ capabilities }: { capabilities: string[] }) {
-  return (
-    <section className="border-b border-border px-5 py-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          Selected capabilities
-        </h2>
-        <span className="font-mono text-[10px] text-muted-foreground">
-          {capabilities.length} selected
-        </span>
-      </div>
-      <ol className="mt-3 flex flex-wrap gap-2">
-        {capabilities.map((capability, index) => (
-          <li
-            key={capability}
-            className="rounded-lg border border-sky-500/25 bg-sky-500/10 px-2.5 py-1.5 font-mono text-xs text-sky-200"
-          >
-            {index + 1}. {capability}
-          </li>
-        ))}
-      </ol>
-    </section>
   );
 }
 

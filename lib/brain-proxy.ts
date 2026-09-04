@@ -1,4 +1,4 @@
-/** The minimal server-side connection to the clean-room Brain shell. */
+/** The server-side HTTP connection to the Brain. */
 
 import 'server-only';
 import { brainAddress } from './brain-address';
@@ -169,9 +169,12 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
   }
 
   try {
+    const headers = new Headers({ accept: 'application/json', 'content-type': 'application/json' });
+    const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
+    if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
     const upstream = await fetch(target, {
       method: 'POST',
-      headers: { accept: 'application/json', 'content-type': 'application/json' },
+      headers,
       body: await request.text(),
       cache: 'no-store',
       signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),

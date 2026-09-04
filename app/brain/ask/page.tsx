@@ -3,7 +3,7 @@ import { AskWorkbench } from '@/components/ask/AskWorkbench';
 
 export const metadata: Metadata = {
   title: 'Ask & Inspect | RockyGPT Dev',
-  description: 'Send a message through the current clean-room Brain chat shell.',
+  description: 'Inspect student conversations, answers, sources, and tool calls.',
 };
 
 export default function AskPage() {

@@ -57,7 +57,7 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/',
         label: 'Dashboard',
-        description: 'Clean-room Brain health and readiness at a glance',
+        description: 'Brain health and readiness at a glance',
         icon: LayoutDashboard,
         status: 'ready',
         upstream: 'GET /health + GET /readiness',
@@ -79,7 +79,7 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/brain/ask',
         label: 'Ask & Inspect',
-        description: 'Send a message through the clean-room chat shell',
+        description: 'Inspect student answers, trusted sources, and tool calls',
         icon: MessageSquareCode,
         status: 'ready',
         upstream: 'POST /v1/chat',

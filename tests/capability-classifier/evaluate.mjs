@@ -6,6 +6,10 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const dataset = JSON.parse(await readFile(join(directory, 'cases.json'), 'utf8'));
 const endpoint = process.env.ROCKYGPT_BRAIN_URL ?? 'http://127.0.0.1:8000/v1/chat';
 const concurrency = Number.parseInt(process.env.CLASSIFIER_EVAL_CONCURRENCY ?? '1', 10);
+const minimumIntervalMs = Number.parseInt(
+  process.env.CLASSIFIER_EVAL_MIN_INTERVAL_MS ?? '4000',
+  10
+);
 const cases = [
   ...dataset.independentCases.map((testCase) => ({ ...testCase, kind: 'independent' })),
   ...dataset.multiTurnScenarios.map((testCase) => ({ ...testCase, kind: 'multi_turn' })),
@@ -13,9 +17,13 @@ const cases = [
 const results = new Array(cases.length);
 let nextIndex = 0;
 let completed = 0;
+let nextRequestStart = Date.now();
 
 if (!Number.isInteger(concurrency) || concurrency < 1) {
   throw new Error('CLASSIFIER_EVAL_CONCURRENCY must be a positive integer');
+}
+if (!Number.isInteger(minimumIntervalMs) || minimumIntervalMs < 0) {
+  throw new Error('CLASSIFIER_EVAL_MIN_INTERVAL_MS must be a non-negative integer');
 }
 
 const allowedLabels = new Set(dataset.labels);
@@ -54,6 +62,12 @@ for (const testCase of cases) {
 }
 
 async function evaluateCase(testCase) {
+  const scheduledStart = Math.max(nextRequestStart, Date.now());
+  nextRequestStart = scheduledStart + minimumIntervalMs;
+  const waitMs = scheduledStart - Date.now();
+  if (waitMs > 0) {
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
   const startedAt = Date.now();
   try {
     const response = await fetch(endpoint, {
@@ -130,6 +144,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   endpoint,
   concurrency,
+  minimumIntervalMs,
   summary: {
     total: results.length,
     httpSuccess: classified.length,

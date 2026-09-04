@@ -1,42 +1,41 @@
 {
-  "generatedAt": "2026-09-02T14:21:13.519Z",
+  "generatedAt": "2026-09-02T03:35:11.962Z",
   "endpoint": "http://127.0.0.1:8000/v1/chat",
   "concurrency": 1,
-  "minimumIntervalMs": 4000,
   "summary": {
     "total": 250,
-    "httpSuccess": 250,
-    "httpFailures": 0,
-    "semanticCorrect": 242,
-    "semanticIncorrect": 8,
-    "semanticAccuracy": 0.968,
-    "endToEndPass": 242,
-    "endToEndPassRate": 0.968,
-    "independentCorrect": 225,
-    "independentClassified": 232,
-    "independentSemanticAccuracy": 0.9698275862068966,
-    "multiTurnCorrect": 17,
-    "multiTurnClassified": 18,
-    "multiTurnSemanticAccuracy": 0.9444444444444444,
-    "averageLatencyMs": 1199,
-    "minimumLatencyMs": 623,
-    "maximumLatencyMs": 8272
+    "httpSuccess": 240,
+    "httpFailures": 10,
+    "semanticCorrect": 230,
+    "semanticIncorrect": 10,
+    "semanticAccuracy": 0.9583333333333334,
+    "endToEndPass": 230,
+    "endToEndPassRate": 0.92,
+    "independentCorrect": 215,
+    "independentClassified": 223,
+    "independentSemanticAccuracy": 0.9641255605381166,
+    "multiTurnCorrect": 15,
+    "multiTurnClassified": 17,
+    "multiTurnSemanticAccuracy": 0.8823529411764706,
+    "averageLatencyMs": 3283,
+    "minimumLatencyMs": 582,
+    "maximumLatencyMs": 12214
   },
   "semanticFailures": [
     {
-      "id": "case-062",
+      "id": "case-016",
       "expected": [
-        "student_services"
+        "courses"
       ],
       "actual": [
-        "campus_documents"
+        "personal_account"
       ],
       "httpStatus": 200
     },
     {
-      "id": "case-063",
+      "id": "case-020",
       "expected": [
-        "student_services"
+        "campus_documents"
       ],
       "actual": [
         "general"
@@ -44,19 +43,49 @@
       "httpStatus": 200
     },
     {
-      "id": "case-146",
+      "id": "case-041",
       "expected": [
-        "student_services"
+        "dining"
       ],
       "actual": [
-        "campus_documents"
+        "clarification"
       ],
       "httpStatus": 200
     },
     {
-      "id": "case-176",
+      "id": "case-045",
       "expected": [
+        "campus_documents"
+      ],
+      "actual": [
+        "general"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-175",
+      "expected": [
+        "events"
+      ],
+      "actual": [
         "clarification"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-180",
+      "expected": [
+        "clubs"
+      ],
+      "actual": [
+        "student_services"
+      ],
+      "httpStatus": 200
+    },
+    {
+      "id": "case-193",
+      "expected": [
+        "student_services"
       ],
       "actual": [
         "directory"
@@ -64,34 +93,12 @@
       "httpStatus": 200
     },
     {
-      "id": "case-224",
+      "id": "case-242",
       "expected": [
-        "courses"
+        "locations"
       ],
       "actual": [
-        "programs"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-226",
-      "expected": [
-        "programs"
-      ],
-      "actual": [
-        "campus_documents"
-      ],
-      "httpStatus": 200
-    },
-    {
-      "id": "case-247",
-      "expected": [
-        "academic_calendar",
-        "student_services"
-      ],
-      "actual": [
-        "academic_calendar",
-        "campus_documents"
+        "transportation"
       ],
       "httpStatus": 200
     },
@@ -104,9 +111,70 @@
         "clarification"
       ],
       "httpStatus": 200
+    },
+    {
+      "id": "case-250",
+      "expected": [
+        "events"
+      ],
+      "actual": [
+        "clarification"
+      ],
+      "httpStatus": 200
     }
   ],
-  "transportFailures": [],
+  "transportFailures": [
+    {
+      "id": "case-049",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-057",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-085",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-101",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-117",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-147",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-196",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-213",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-240",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    },
+    {
+      "id": "case-135",
+      "httpStatus": 429,
+      "reason": "rate_limited"
+    }
+  ],
   "results": [
     {
       "id": "case-001",
@@ -125,7 +193,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 3980,
+      "latencyMs": 1962,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -151,7 +219,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 6428,
+      "latencyMs": 2582,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -177,7 +245,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1369,
+      "latencyMs": 710,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -203,7 +271,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1463,
+      "latencyMs": 828,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -229,7 +297,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 952,
+      "latencyMs": 934,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -255,7 +323,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1100,
+      "latencyMs": 708,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -281,7 +349,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1046,
+      "latencyMs": 643,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -307,7 +375,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1876,
+      "latencyMs": 842,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -333,7 +401,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 683,
+      "latencyMs": 598,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -359,7 +427,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1204,
+      "latencyMs": 946,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -385,7 +453,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 816,
+      "latencyMs": 701,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -411,7 +479,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 893,
+      "latencyMs": 1353,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -433,15 +501,15 @@
         "courses"
       ],
       "actual": [
-        "courses"
+        "personal_account"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1776,
+      "latencyMs": 813,
       "response": {
-        "answer": "courses",
+        "answer": "personal_account",
         "capabilities": [
-          "courses"
+          "personal_account"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -463,7 +531,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1505,
+      "latencyMs": 652,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -489,7 +557,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1280,
+      "latencyMs": 1015,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -515,7 +583,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2489,
+      "latencyMs": 672,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -534,18 +602,18 @@
         }
       ],
       "expected": [
-        "locations"
+        "campus_documents"
       ],
       "actual": [
-        "locations"
+        "general"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1285,
+      "latencyMs": 672,
       "response": {
-        "answer": "locations",
+        "answer": "general",
         "capabilities": [
-          "locations"
+          "general"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -567,7 +635,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 698,
+      "latencyMs": 587,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -595,7 +663,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 924,
+      "latencyMs": 770,
       "response": {
         "answer": "personal_account\n\ncourses",
         "capabilities": [
@@ -622,7 +690,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2433,
+      "latencyMs": 677,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -648,7 +716,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 832,
+      "latencyMs": 907,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -674,7 +742,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 938,
+      "latencyMs": 5875,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -700,7 +768,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1507,
+      "latencyMs": 661,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -728,7 +796,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 967,
+      "latencyMs": 6559,
       "response": {
         "answer": "locations\n\ndirectory",
         "capabilities": [
@@ -755,7 +823,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 817,
+      "latencyMs": 4939,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -781,7 +849,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1150,
+      "latencyMs": 983,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -807,7 +875,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1340,
+      "latencyMs": 5895,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -833,7 +901,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 775,
+      "latencyMs": 884,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -859,7 +927,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 5123,
+      "latencyMs": 5154,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -885,7 +953,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1092,
+      "latencyMs": 716,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -911,7 +979,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 780,
+      "latencyMs": 5112,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -937,7 +1005,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 739,
+      "latencyMs": 6976,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -963,7 +1031,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 782,
+      "latencyMs": 704,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -989,7 +1057,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 863,
+      "latencyMs": 6558,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -1015,7 +1083,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 623,
+      "latencyMs": 639,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -1037,15 +1105,15 @@
         "dining"
       ],
       "actual": [
-        "dining"
+        "clarification"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1651,
+      "latencyMs": 693,
       "response": {
-        "answer": "dining",
+        "answer": "clarification",
         "capabilities": [
-          "dining"
+          "clarification"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1069,7 +1137,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 8272,
+      "latencyMs": 6269,
       "response": {
         "answer": "directory\n\nstudent_services",
         "capabilities": [
@@ -1096,7 +1164,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1583,
+      "latencyMs": 6315,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1122,7 +1190,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1235,
+      "latencyMs": 619,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -1144,15 +1212,15 @@
         "campus_documents"
       ],
       "actual": [
-        "campus_documents"
+        "general"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 985,
+      "latencyMs": 5315,
       "response": {
-        "answer": "campus_documents",
+        "answer": "general",
         "capabilities": [
-          "campus_documents"
+          "general"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1174,7 +1242,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1459,
+      "latencyMs": 5954,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -1200,7 +1268,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 990,
+      "latencyMs": 588,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -1226,7 +1294,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1606,
+      "latencyMs": 653,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -1247,18 +1315,15 @@
       "expected": [
         "hours"
       ],
-      "actual": [
-        "hours"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 737,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5256,
       "response": {
-        "answer": "hours",
-        "capabilities": [
-          "hours"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -1278,7 +1343,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 777,
+      "latencyMs": 735,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -1304,7 +1369,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1176,
+      "latencyMs": 5357,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -1330,7 +1395,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 922,
+      "latencyMs": 6146,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -1356,7 +1421,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 825,
+      "latencyMs": 1093,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -1382,7 +1447,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1176,
+      "latencyMs": 5768,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -1408,7 +1473,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1300,
+      "latencyMs": 613,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -1434,7 +1499,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 798,
+      "latencyMs": 672,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -1455,18 +1520,15 @@
       "expected": [
         "student_services"
       ],
-      "actual": [
-        "student_services"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 883,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4999,
       "response": {
-        "answer": "student_services",
-        "capabilities": [
-          "student_services"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -1486,7 +1548,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1013,
+      "latencyMs": 750,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -1512,7 +1574,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 854,
+      "latencyMs": 6862,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1538,7 +1600,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1129,
+      "latencyMs": 699,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1564,7 +1626,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 721,
+      "latencyMs": 12214,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -1586,15 +1648,15 @@
         "student_services"
       ],
       "actual": [
-        "campus_documents"
+        "student_services"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1363,
+      "latencyMs": 681,
       "response": {
-        "answer": "campus_documents",
+        "answer": "student_services",
         "capabilities": [
-          "campus_documents"
+          "student_services"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1612,15 +1674,15 @@
         "student_services"
       ],
       "actual": [
-        "general"
+        "student_services"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 738,
+      "latencyMs": 685,
       "response": {
-        "answer": "general",
+        "answer": "student_services",
         "capabilities": [
-          "general"
+          "student_services"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -1642,7 +1704,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 691,
+      "latencyMs": 5501,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1668,7 +1730,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 728,
+      "latencyMs": 957,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -1694,7 +1756,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1405,
+      "latencyMs": 5318,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -1720,7 +1782,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2165,
+      "latencyMs": 1492,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -1746,7 +1808,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 688,
+      "latencyMs": 6387,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -1772,7 +1834,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 7631,
+      "latencyMs": 634,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1798,7 +1860,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1004,
+      "latencyMs": 5180,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -1824,7 +1886,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1027,
+      "latencyMs": 656,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -1850,7 +1912,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 838,
+      "latencyMs": 5409,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -1876,7 +1938,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 4088,
+      "latencyMs": 707,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -1902,7 +1964,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 3551,
+      "latencyMs": 6567,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -1928,7 +1990,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1274,
+      "latencyMs": 5275,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -1954,7 +2016,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1251,
+      "latencyMs": 897,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -1980,7 +2042,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 817,
+      "latencyMs": 6101,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -2008,7 +2070,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 897,
+      "latencyMs": 5017,
       "response": {
         "answer": "personal_account\n\nstudent_services",
         "capabilities": [
@@ -2035,7 +2097,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 774,
+      "latencyMs": 643,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -2061,7 +2123,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 896,
+      "latencyMs": 657,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -2087,7 +2149,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 789,
+      "latencyMs": 6254,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -2115,7 +2177,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1220,
+      "latencyMs": 741,
       "response": {
         "answer": "it_support\n\nhours",
         "capabilities": [
@@ -2138,20 +2200,15 @@
         "transportation",
         "dining"
       ],
-      "actual": [
-        "transportation",
-        "dining"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 839,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5598,
       "response": {
-        "answer": "transportation\n\ndining",
-        "capabilities": [
-          "transportation",
-          "dining"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -2173,7 +2230,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 889,
+      "latencyMs": 649,
       "response": {
         "answer": "events\n\nclubs",
         "capabilities": [
@@ -2200,7 +2257,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 915,
+      "latencyMs": 6655,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -2226,7 +2283,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 873,
+      "latencyMs": 1026,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -2252,7 +2309,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1233,
+      "latencyMs": 5628,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -2278,7 +2335,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 923,
+      "latencyMs": 5493,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2304,7 +2361,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1192,
+      "latencyMs": 721,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -2330,7 +2387,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 836,
+      "latencyMs": 7066,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -2356,7 +2413,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 824,
+      "latencyMs": 784,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2382,7 +2439,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1537,
+      "latencyMs": 6270,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2408,7 +2465,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 910,
+      "latencyMs": 658,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -2434,7 +2491,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 771,
+      "latencyMs": 679,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -2460,7 +2517,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 753,
+      "latencyMs": 6211,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2486,7 +2543,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 851,
+      "latencyMs": 660,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -2512,7 +2569,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1109,
+      "latencyMs": 6581,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2538,7 +2595,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 720,
+      "latencyMs": 624,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -2559,18 +2616,15 @@
       "expected": [
         "locations"
       ],
-      "actual": [
-        "locations"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 850,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4701,
       "response": {
-        "answer": "locations",
-        "capabilities": [
-          "locations"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -2590,7 +2644,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 949,
+      "latencyMs": 5443,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -2618,7 +2672,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 763,
+      "latencyMs": 702,
       "response": {
         "answer": "campus_documents\n\ndirectory",
         "capabilities": [
@@ -2645,7 +2699,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 753,
+      "latencyMs": 5011,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -2671,7 +2725,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 785,
+      "latencyMs": 4740,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -2697,7 +2751,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 782,
+      "latencyMs": 917,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -2723,7 +2777,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1929,
+      "latencyMs": 769,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -2749,7 +2803,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 937,
+      "latencyMs": 6772,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -2775,7 +2829,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1134,
+      "latencyMs": 6064,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -2801,7 +2855,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1125,
+      "latencyMs": 726,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -2827,7 +2881,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 888,
+      "latencyMs": 5367,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2853,7 +2907,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1933,
+      "latencyMs": 5142,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -2879,7 +2933,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1181,
+      "latencyMs": 695,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -2907,7 +2961,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 840,
+      "latencyMs": 643,
       "response": {
         "answer": "dining\n\nevents",
         "capabilities": [
@@ -2936,7 +2990,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 812,
+      "latencyMs": 6197,
       "response": {
         "answer": "academic_calendar\n\nstudent_services",
         "capabilities": [
@@ -2963,7 +3017,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1428,
+      "latencyMs": 1502,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -2984,18 +3038,15 @@
       "expected": [
         "academic_calendar"
       ],
-      "actual": [
-        "academic_calendar"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 2390,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4731,
       "response": {
-        "answer": "academic_calendar",
-        "capabilities": [
-          "academic_calendar"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -3015,7 +3066,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1109,
+      "latencyMs": 864,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -3041,7 +3092,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 758,
+      "latencyMs": 5767,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3069,7 +3120,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1053,
+      "latencyMs": 5430,
       "response": {
         "answer": "hours\n\nlocations",
         "capabilities": [
@@ -3096,7 +3147,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 782,
+      "latencyMs": 688,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3122,7 +3173,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1004,
+      "latencyMs": 6838,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3148,7 +3199,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1144,
+      "latencyMs": 771,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3174,7 +3225,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1004,
+      "latencyMs": 4918,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3200,7 +3251,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1620,
+      "latencyMs": 6388,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3226,7 +3277,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 715,
+      "latencyMs": 791,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -3252,7 +3303,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1391,
+      "latencyMs": 6790,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3278,7 +3329,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1164,
+      "latencyMs": 761,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -3304,7 +3355,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 797,
+      "latencyMs": 728,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -3330,7 +3381,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 987,
+      "latencyMs": 5834,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3356,7 +3407,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 962,
+      "latencyMs": 5935,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3382,7 +3433,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 879,
+      "latencyMs": 853,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -3408,7 +3459,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1398,
+      "latencyMs": 6316,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -3436,7 +3487,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 925,
+      "latencyMs": 668,
       "response": {
         "answer": "transportation\n\nhours",
         "capabilities": [
@@ -3463,7 +3514,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1347,
+      "latencyMs": 5378,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -3489,7 +3540,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 902,
+      "latencyMs": 5379,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3515,7 +3566,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1031,
+      "latencyMs": 704,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -3541,7 +3592,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1403,
+      "latencyMs": 5492,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3567,7 +3618,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1152,
+      "latencyMs": 713,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -3593,7 +3644,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1071,
+      "latencyMs": 7779,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -3619,7 +3670,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1191,
+      "latencyMs": 680,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3645,7 +3696,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 815,
+      "latencyMs": 5858,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3671,7 +3722,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 893,
+      "latencyMs": 732,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -3693,15 +3744,15 @@
         "student_services"
       ],
       "actual": [
-        "campus_documents"
+        "student_services"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 882,
+      "latencyMs": 648,
       "response": {
-        "answer": "campus_documents",
+        "answer": "student_services",
         "capabilities": [
-          "campus_documents"
+          "student_services"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -3718,18 +3769,15 @@
       "expected": [
         "general"
       ],
-      "actual": [
-        "general"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 1335,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5473,
       "response": {
-        "answer": "general",
-        "capabilities": [
-          "general"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -3749,7 +3797,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 776,
+      "latencyMs": 638,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3775,7 +3823,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 999,
+      "latencyMs": 4918,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3801,7 +3849,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2173,
+      "latencyMs": 6761,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -3827,7 +3875,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 932,
+      "latencyMs": 642,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -3853,7 +3901,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 936,
+      "latencyMs": 5219,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -3879,7 +3927,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 785,
+      "latencyMs": 5073,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -3905,7 +3953,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 882,
+      "latencyMs": 624,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -3931,7 +3979,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 860,
+      "latencyMs": 5729,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -3959,7 +4007,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1233,
+      "latencyMs": 632,
       "response": {
         "answer": "programs\n\ncourses",
         "capabilities": [
@@ -3986,7 +4034,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2116,
+      "latencyMs": 5800,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -4014,7 +4062,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1051,
+      "latencyMs": 6443,
       "response": {
         "answer": "transportation\n\nhours",
         "capabilities": [
@@ -4041,7 +4089,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 824,
+      "latencyMs": 695,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -4067,7 +4115,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 936,
+      "latencyMs": 629,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -4093,7 +4141,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 709,
+      "latencyMs": 6619,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -4119,7 +4167,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 781,
+      "latencyMs": 6027,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -4145,7 +4193,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1024,
+      "latencyMs": 648,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4171,7 +4219,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 844,
+      "latencyMs": 5850,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -4197,7 +4245,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1538,
+      "latencyMs": 614,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -4223,7 +4271,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1149,
+      "latencyMs": 6155,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -4251,7 +4299,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 901,
+      "latencyMs": 689,
       "response": {
         "answer": "general\n\ntransportation",
         "capabilities": [
@@ -4278,7 +4326,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 880,
+      "latencyMs": 6150,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -4304,7 +4352,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1898,
+      "latencyMs": 5817,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -4330,7 +4378,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 776,
+      "latencyMs": 1223,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -4356,7 +4404,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 784,
+      "latencyMs": 6602,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4382,7 +4430,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 936,
+      "latencyMs": 840,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -4408,7 +4456,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 866,
+      "latencyMs": 7208,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -4434,7 +4482,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 827,
+      "latencyMs": 657,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4456,15 +4504,15 @@
         "events"
       ],
       "actual": [
-        "events"
+        "clarification"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1101,
+      "latencyMs": 5443,
       "response": {
-        "answer": "events",
+        "answer": "clarification",
         "capabilities": [
-          "events"
+          "clarification"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -4482,15 +4530,15 @@
         "clarification"
       ],
       "actual": [
-        "directory"
+        "clarification"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 728,
+      "latencyMs": 818,
       "response": {
-        "answer": "directory",
+        "answer": "clarification",
         "capabilities": [
-          "directory"
+          "clarification"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -4512,7 +4560,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 886,
+      "latencyMs": 6503,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -4538,7 +4586,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 798,
+      "latencyMs": 1039,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4560,15 +4608,15 @@
         "clubs"
       ],
       "actual": [
-        "clubs"
+        "student_services"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 948,
+      "latencyMs": 5871,
       "response": {
-        "answer": "clubs",
+        "answer": "student_services",
         "capabilities": [
-          "clubs"
+          "student_services"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -4590,7 +4638,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 809,
+      "latencyMs": 1582,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -4616,7 +4664,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 712,
+      "latencyMs": 6140,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4642,7 +4690,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 776,
+      "latencyMs": 981,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4668,7 +4716,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 855,
+      "latencyMs": 5061,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4694,7 +4742,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 969,
+      "latencyMs": 806,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -4720,7 +4768,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 859,
+      "latencyMs": 5854,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -4746,7 +4794,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1206,
+      "latencyMs": 4888,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -4772,7 +4820,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 883,
+      "latencyMs": 1222,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -4798,7 +4846,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2137,
+      "latencyMs": 6500,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -4824,7 +4872,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1211,
+      "latencyMs": 783,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4843,14 +4891,14 @@
         }
       ],
       "expected": [
-        "directory"
+        "student_services"
       ],
       "actual": [
         "directory"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 743,
+      "latencyMs": 5662,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -4876,7 +4924,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 720,
+      "latencyMs": 811,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -4902,7 +4950,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 915,
+      "latencyMs": 722,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -4923,18 +4971,15 @@
       "expected": [
         "general"
       ],
-      "actual": [
-        "general"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 877,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5833,
       "response": {
-        "answer": "general",
-        "capabilities": [
-          "general"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -4954,7 +4999,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1867,
+      "latencyMs": 817,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -4980,7 +5025,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 631,
+      "latencyMs": 6575,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -5006,7 +5051,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 696,
+      "latencyMs": 790,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5032,7 +5077,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1035,
+      "latencyMs": 6663,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -5058,7 +5103,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 887,
+      "latencyMs": 837,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -5084,7 +5129,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 962,
+      "latencyMs": 6035,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -5110,7 +5155,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1068,
+      "latencyMs": 657,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5136,7 +5181,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1181,
+      "latencyMs": 5171,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -5162,7 +5207,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 655,
+      "latencyMs": 5629,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5188,7 +5233,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1886,
+      "latencyMs": 725,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -5214,7 +5259,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1421,
+      "latencyMs": 707,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -5240,7 +5285,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 728,
+      "latencyMs": 6451,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5266,7 +5311,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1284,
+      "latencyMs": 910,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -5287,18 +5332,15 @@
       "expected": [
         "campus_documents"
       ],
-      "actual": [
-        "campus_documents"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 895,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 5542,
       "response": {
-        "answer": "campus_documents",
-        "capabilities": [
-          "campus_documents"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -5318,7 +5360,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 825,
+      "latencyMs": 856,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5344,7 +5386,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 899,
+      "latencyMs": 5504,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5370,7 +5412,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1021,
+      "latencyMs": 5066,
       "response": {
         "answer": "general",
         "capabilities": [
@@ -5396,7 +5438,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 693,
+      "latencyMs": 971,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -5422,7 +5464,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1297,
+      "latencyMs": 5867,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -5448,7 +5490,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2034,
+      "latencyMs": 677,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -5474,7 +5516,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1160,
+      "latencyMs": 6772,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5500,7 +5542,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 994,
+      "latencyMs": 808,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5526,7 +5568,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1594,
+      "latencyMs": 5842,
       "response": {
         "answer": "hours",
         "capabilities": [
@@ -5552,7 +5594,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 825,
+      "latencyMs": 1327,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5574,15 +5616,15 @@
         "courses"
       ],
       "actual": [
-        "programs"
+        "courses"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1570,
+      "latencyMs": 5534,
       "response": {
-        "answer": "programs",
+        "answer": "courses",
         "capabilities": [
-          "programs"
+          "courses"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -5604,7 +5646,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1402,
+      "latencyMs": 6082,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -5626,15 +5668,15 @@
         "programs"
       ],
       "actual": [
-        "campus_documents"
+        "programs"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1052,
+      "latencyMs": 775,
       "response": {
-        "answer": "campus_documents",
+        "answer": "programs",
         "capabilities": [
-          "campus_documents"
+          "programs"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -5656,7 +5698,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2262,
+      "latencyMs": 716,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5682,7 +5724,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 661,
+      "latencyMs": 6054,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -5708,7 +5750,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1432,
+      "latencyMs": 7711,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5734,7 +5776,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 891,
+      "latencyMs": 677,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -5760,7 +5802,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 886,
+      "latencyMs": 6559,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -5786,7 +5828,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1347,
+      "latencyMs": 887,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -5812,7 +5854,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 925,
+      "latencyMs": 6177,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -5838,7 +5880,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 780,
+      "latencyMs": 750,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -5866,7 +5908,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 831,
+      "latencyMs": 6528,
       "response": {
         "answer": "personal_account\n\ntransportation",
         "capabilities": [
@@ -5893,7 +5935,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 773,
+      "latencyMs": 804,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -5919,7 +5961,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 905,
+      "latencyMs": 690,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -5940,18 +5982,15 @@
       "expected": [
         "student_services"
       ],
-      "actual": [
-        "student_services"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 740,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4636,
       "response": {
-        "answer": "student_services",
-        "capabilities": [
-          "student_services"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -5971,7 +6010,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 815,
+      "latencyMs": 672,
       "response": {
         "answer": "locations",
         "capabilities": [
@@ -5993,15 +6032,15 @@
         "locations"
       ],
       "actual": [
-        "locations"
+        "transportation"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 985,
+      "latencyMs": 5941,
       "response": {
-        "answer": "locations",
+        "answer": "transportation",
         "capabilities": [
-          "locations"
+          "transportation"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -6023,7 +6062,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 951,
+      "latencyMs": 5635,
       "response": {
         "answer": "campus_documents",
         "capabilities": [
@@ -6049,7 +6088,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2328,
+      "latencyMs": 718,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -6075,7 +6114,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 729,
+      "latencyMs": 6511,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -6101,7 +6140,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 791,
+      "latencyMs": 758,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -6125,16 +6164,16 @@
       ],
       "actual": [
         "academic_calendar",
-        "campus_documents"
+        "student_services"
       ],
-      "semanticPass": false,
+      "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 860,
+      "latencyMs": 5664,
       "response": {
-        "answer": "academic_calendar\n\ncampus_documents",
+        "answer": "academic_calendar\n\nstudent_services",
         "capabilities": [
           "academic_calendar",
-          "campus_documents"
+          "student_services"
         ],
         "model": "gpt-4o-2024-08-06"
       }
@@ -6156,7 +6195,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 809,
+      "latencyMs": 703,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -6182,7 +6221,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 751,
+      "latencyMs": 5755,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -6216,7 +6255,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1006,
+      "latencyMs": 4839,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -6250,7 +6289,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 823,
+      "latencyMs": 795,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -6284,7 +6323,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 826,
+      "latencyMs": 6454,
       "response": {
         "answer": "programs",
         "capabilities": [
@@ -6318,7 +6357,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 870,
+      "latencyMs": 814,
       "response": {
         "answer": "directory",
         "capabilities": [
@@ -6352,7 +6391,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1064,
+      "latencyMs": 6463,
       "response": {
         "answer": "student_services",
         "capabilities": [
@@ -6386,7 +6425,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1291,
+      "latencyMs": 694,
       "response": {
         "answer": "dining",
         "capabilities": [
@@ -6420,7 +6459,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2886,
+      "latencyMs": 1037,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -6449,18 +6488,15 @@
       "expected": [
         "transportation"
       ],
-      "actual": [
-        "transportation"
-      ],
-      "semanticPass": true,
-      "httpStatus": 200,
-      "latencyMs": 812,
+      "actual": null,
+      "semanticPass": false,
+      "httpStatus": 429,
+      "latencyMs": 4708,
       "response": {
-        "answer": "transportation",
-        "capabilities": [
-          "transportation"
-        ],
-        "model": "gpt-4o-2024-08-06"
+        "error": "The classifier model is temporarily rate limited.",
+        "reason": "rate_limited",
+        "detail": "No classification was produced. Try this request again later.",
+        "retryable": true
       }
     },
     {
@@ -6488,7 +6524,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 2020,
+      "latencyMs": 5326,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -6522,7 +6558,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 826,
+      "latencyMs": 827,
       "response": {
         "answer": "clubs",
         "capabilities": [
@@ -6556,7 +6592,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 801,
+      "latencyMs": 5507,
       "response": {
         "answer": "transportation",
         "capabilities": [
@@ -6590,7 +6626,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1071,
+      "latencyMs": 739,
       "response": {
         "answer": "academic_calendar",
         "capabilities": [
@@ -6624,7 +6660,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 839,
+      "latencyMs": 6093,
       "response": {
         "answer": "it_support",
         "capabilities": [
@@ -6658,7 +6694,7 @@
       ],
       "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1341,
+      "latencyMs": 4922,
       "response": {
         "answer": "clarification",
         "capabilities": [
@@ -6692,7 +6728,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 829,
+      "latencyMs": 930,
       "response": {
         "answer": "personal_account",
         "capabilities": [
@@ -6726,7 +6762,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 1019,
+      "latencyMs": 6597,
       "response": {
         "answer": "courses",
         "capabilities": [
@@ -6760,7 +6796,7 @@
       ],
       "semanticPass": true,
       "httpStatus": 200,
-      "latencyMs": 956,
+      "latencyMs": 713,
       "response": {
         "answer": "events",
         "capabilities": [
@@ -6790,15 +6826,15 @@
         "events"
       ],
       "actual": [
-        "events"
+        "clarification"
       ],
-      "semanticPass": true,
+      "semanticPass": false,
       "httpStatus": 200,
-      "latencyMs": 1200,
+      "latencyMs": 582,
       "response": {
-        "answer": "events",
+        "answer": "clarification",
         "capabilities": [
-          "events"
+          "clarification"
         ],
         "model": "gpt-4o-2024-08-06"
       }

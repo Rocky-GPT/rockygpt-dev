@@ -220,7 +220,7 @@
         }
       ],
       "expected": [
-        "campus_documents"
+        "locations"
       ]
     },
     {
@@ -2203,7 +2203,7 @@
         }
       ],
       "expected": [
-        "student_services"
+        "directory"
       ]
     },
     {

@@ -1,0 +1,7070 @@
+{
+  "generatedAt": "2026-09-02T15:06:36.598Z",
+  "endpoint": "http://127.0.0.1:8000/v1/chat",
+  "minimumIntervalMs": 4000,
+  "summary": {
+    "total": 412,
+    "httpSuccess": 412,
+    "httpFailures": 0,
+    "averageLatencyMs": 1334
+  },
+  "transportFailures": [],
+  "results": [
+    {
+      "index": 1,
+      "question": "Yo when’s the next shuttle leaving campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2214,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 2,
+      "question": "Does the shuttle stop by GSP today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 983,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 3,
+      "question": "What’s the earliest shuttle tomorrow morning?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1191,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 4,
+      "question": "Is there a shuttle after 10 tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1239,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 5,
+      "question": "Which shuttle gets to Route 17 first?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 820,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 6,
+      "question": "Can I see the Saturday shuttle times?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4958,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 7,
+      "question": "Does the Sunday shuttle even run lol",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 825,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 8,
+      "question": "How long until the next bus from campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 919,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 9,
+      "question": "What time does the last shuttle leave tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1317,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 10,
+      "question": "Is there a shuttle around 4 PM?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 723,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 11,
+      "question": "Can I take the shuttle to Barnes & Noble rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 672,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 12,
+      "question": "What stops does the Roadrunner Express make?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 901,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 13,
+      "question": "Did the 3:50 shuttle already leave?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 695,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 14,
+      "question": "What are the next five shuttle departures?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 695,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 15,
+      "question": "Is there a shuttle during winter break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1124,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 16,
+      "question": "What’s the next shuttle that goes to Garden State Plaza?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1324,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 17,
+      "question": "How late do the shuttles run on Friday?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 964,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 18,
+      "question": "Compare weekday and Saturday shuttle service",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 978,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 19,
+      "question": "Does the shuttle go to Ramsey train station?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1300,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 20,
+      "question": "When does the next shuttle get back to campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 901,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 21,
+      "question": "Bro is Birch still serving food rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 673,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 22,
+      "question": "What’s for breakfast tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2821,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 23,
+      "question": "Any chicken on the menu today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1335,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 24,
+      "question": "Where can I get something vegan rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1295,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 25,
+      "question": "Does Birch have pasta tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 885,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 26,
+      "question": "What’s at the pizza station today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 680,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 27,
+      "question": "Which dining place stays open the latest?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 836,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 28,
+      "question": "Anything gluten free for lunch?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1096,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 29,
+      "question": "What’s the healthiest thing I can eat rn lol",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 947,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 30,
+      "question": "Is Dunkin open tomorrow at 7?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 967,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 31,
+      "question": "Does the Atrium have breakfast?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 846,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 32,
+      "question": "Can I get coffee on campus at like 9 PM?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 936,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 33,
+      "question": "What places are serving dinner tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 800,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 34,
+      "question": "Does Birch have halal options?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 900,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 35,
+      "question": "What desserts do they have today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1199,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 36,
+      "question": "I need protein bro what food on campus got the most",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 864,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 37,
+      "question": "What’s open for food on Sunday?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 880,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 38,
+      "question": "Any dining place open before my 8 AM?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1874,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 39,
+      "question": "What’s the menu looking like at Birch rn",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 863,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 40,
+      "question": "Is the dining hall closed during fall break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1176,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 41,
+      "question": "Anything fun happening on campus tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1468,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 42,
+      "question": "What events are tomorrow afternoon?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 3203,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 43,
+      "question": "Is there anything happening in Friends Hall today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1078,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 44,
+      "question": "When does the next career event start?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1048,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 45,
+      "question": "Any free-food events today 👀",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1396,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 46,
+      "question": "What’s happening this weekend on campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2084,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 47,
+      "question": "Where’s the next large group meeting?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1341,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 48,
+      "question": "Who’s hosting tonight’s event?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1184,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 49,
+      "question": "Are there any CS events this week?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1787,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 50,
+      "question": "What event starts soonest?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1172,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 51,
+      "question": "Did the club fair already end?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2527,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 52,
+      "question": "What’s going on after 7 tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 769,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 53,
+      "question": "Any events for first-years today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 754,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 54,
+      "question": "Is there a game on campus tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 818,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 55,
+      "question": "Where is the career fair happening?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1068,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 56,
+      "question": "What time does the first event tomorrow start?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1904,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 57,
+      "question": "Are there any workshops today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 909,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 58,
+      "question": "Anything faith-related happening tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6590,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 59,
+      "question": "Is there an event in the Pavilion this weekend?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 985,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 60,
+      "question": "Show me events happening around noon",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1100,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 61,
+      "question": "Is the library open rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1205,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 62,
+      "question": "What time does the gym close tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1130,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 63,
+      "question": "Is the bookstore open Sunday?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 779,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 64,
+      "question": "When does the mailroom open tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 986,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 65,
+      "question": "Is the computer lab open at midnight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2243,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 66,
+      "question": "What time does the Health Center close?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 810,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 67,
+      "question": "Are any study spaces open late tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1201,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 68,
+      "question": "Is the fitness center open during break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1053,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 69,
+      "question": "When does the Learning Commons open tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2002,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 70,
+      "question": "Is the Registrar open rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 908,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 71,
+      "question": "What buildings are open after 10?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 626,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 72,
+      "question": "Is the pool open Saturday morning?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 823,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 73,
+      "question": "How late can I stay in the library tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 796,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 74,
+      "question": "Is the campus store open tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 864,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 75,
+      "question": "What time does Public Safety close? lol",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 977,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 76,
+      "question": "Is the tutoring center open today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 925,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 77,
+      "question": "When does the mailroom close Friday?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 690,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 78,
+      "question": "Is the game room open rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1901,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 79,
+      "question": "Does the library have different finals-week hours?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 817,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 80,
+      "question": "What’s open on campus right now?",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 773,
+      "response": {
+        "answer": "hours",
+        "capabilities": [
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 81,
+      "question": "What’s the Registrar email?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 906,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 82,
+      "question": "Can I get the Financial Aid number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 727,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 83,
+      "question": "Who do I contact about housing?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 707,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 84,
+      "question": "What’s Public Safety’s phone number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1148,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 85,
+      "question": "Email for the CS department pls",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 804,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 86,
+      "question": "Who’s the chair of Computer Science?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 767,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 87,
+      "question": "How do I contact Career Services?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2569,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 88,
+      "question": "What’s the Health Center number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 765,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 89,
+      "question": "Who do I email about transcripts?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 916,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 90,
+      "question": "Can I get Professor Patel’s email?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 757,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 91,
+      "question": "What’s the number for Residence Life?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1455,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 92,
+      "question": "Who should I contact about shuttle problems?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 973,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 93,
+      "question": "Who runs the Honors Program?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1195,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 94,
+      "question": "What email do I use for IT support?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1084,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 95,
+      "question": "Who do I call if I lose my ID?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 824,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 96,
+      "question": "Who’s the contact for study abroad?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 881,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 97,
+      "question": "What’s the Registrar fax number if they even have one",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1060,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 98,
+      "question": "Who do I talk to about accessibility accommodations?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 741,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 99,
+      "question": "What’s the number for the mailroom?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 853,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 100,
+      "question": "Contact info for the international student office?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1334,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 101,
+      "question": "Where’s the Berrie Center?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1024,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 102,
+      "question": "What building is Financial Aid in?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 847,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 103,
+      "question": "How do I walk from Laurel to ASB?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1552,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 104,
+      "question": "Where is the Health Center located?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1438,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 105,
+      "question": "What floor is the Registrar on?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 816,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 106,
+      "question": "Where’s ASB 407?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1508,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 107,
+      "question": "How do I get to the basketball gym?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 749,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 108,
+      "question": "Where is the closest computer lab?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1322,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 109,
+      "question": "Which building has the bookstore?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 741,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 110,
+      "question": "Where’s the mailroom from the student center?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 922,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 111,
+      "question": "How do I get to Friends Hall?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1176,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 112,
+      "question": "Where can I find an ATM on campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 845,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 113,
+      "question": "What’s near the Learning Commons?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 968,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 114,
+      "question": "Where is Public Safety?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1133,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 115,
+      "question": "How far is the gym from Laurel?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1034,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 116,
+      "question": "Where’s the closest printer to ASB?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1317,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 117,
+      "question": "What room is the tutoring center in?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 782,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 118,
+      "question": "How do I get from Village to the library?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 868,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 119,
+      "question": "Where’s the commuter lounge?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 762,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 120,
+      "question": "Where can I park near the academic buildings?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2703,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 121,
+      "question": "How many credits is Intro to AI?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1199,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 122,
+      "question": "Does CMPS 361 have prerequisites?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 814,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 123,
+      "question": "Who teaches Data Structures this semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 702,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 124,
+      "question": "Is CMPS 450 offered in spring?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1003,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 125,
+      "question": "Does Algorithms have a lab?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2017,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 126,
+      "question": "What sections of Calc 2 are open?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 747,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 127,
+      "question": "How many seats are left in CMPS 231?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 799,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 128,
+      "question": "What time is the evening Software Design section?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1097,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 129,
+      "question": "Is Machine Learning a 4 credit class?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 778,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 130,
+      "question": "Can freshmen take Intro to Programming?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1780,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 131,
+      "question": "What’s the course description for CMPS 366?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 738,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 132,
+      "question": "Is there an online section of Discrete Math?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 744,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 133,
+      "question": "What classes require CMPS 231?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1657,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 134,
+      "question": "Does CMPS 450 count as writing intensive?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1105,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 135,
+      "question": "Which professor teaches the Monday section?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 840,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 136,
+      "question": "Is Data Structures available next semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 656,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 137,
+      "question": "How many sections of Intro CS are there?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2293,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 138,
+      "question": "What’s the prerequisite chain for Machine Learning?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 990,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 139,
+      "question": "Does this course have a final exam?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 753,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 140,
+      "question": "Which CMPS courses are 4 credits?",
+      "httpStatus": 200,
+      "capabilities": [
+        "courses"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1347,
+      "response": {
+        "answer": "courses",
+        "capabilities": [
+          "courses"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 141,
+      "question": "What classes do I need for the CS major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 688,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 142,
+      "question": "What minors work well with Computer Science?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1805,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 143,
+      "question": "Does Ramapo have a cybersecurity minor?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1125,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 144,
+      "question": "What are the requirements for the Data Science major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 776,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 145,
+      "question": "How many electives does the CS major require?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1084,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 146,
+      "question": "Can I double major in math and CS?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1279,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 147,
+      "question": "What’s the difference between the CS BA and BS?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 775,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 148,
+      "question": "Does Ramapo have an AI concentration?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1772,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 149,
+      "question": "What majors require the least math?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1255,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 150,
+      "question": "What’s required for the business minor?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 965,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 151,
+      "question": "Can I minor in Computer Science?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 855,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 152,
+      "question": "What courses count toward the AI concentration?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 935,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 153,
+      "question": "Is there a five-year master’s program?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1623,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 154,
+      "question": "What’s the minimum GPA for the CS major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 761,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 155,
+      "question": "How many credits is the Data Science minor?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 663,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 156,
+      "question": "Can transfer classes count toward my major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 989,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 157,
+      "question": "What majors pair well with psychology?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 779,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 158,
+      "question": "What are the graduation requirements for CS?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 711,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 159,
+      "question": "Do I need a senior project for this program?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 805,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 160,
+      "question": "What concentrations does business have?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2709,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 161,
+      "question": "Can I switch into the nursing major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2115,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 162,
+      "question": "Is there a juggling club lmao",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 978,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 163,
+      "question": "How do I join IVCF?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1150,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 164,
+      "question": "Does the Computer Science Club still exist?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1449,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 165,
+      "question": "Who’s president of the robotics club?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4326,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 166,
+      "question": "When does the gaming club meet?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 890,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 167,
+      "question": "Can commuters join clubs?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 840,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 168,
+      "question": "How do I start my own student org?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 896,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 169,
+      "question": "Is there a soccer club for beginners?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1115,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 170,
+      "question": "What faith-based clubs are on campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1333,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 171,
+      "question": "Who runs the table tennis club?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1125,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 172,
+      "question": "How do I get on the club email list?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 792,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 173,
+      "question": "Can grad students join student orgs?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4210,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 174,
+      "question": "Which clubs are good for meeting people?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4128,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 175,
+      "question": "Does the hiking club do weekend trips?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 731,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 176,
+      "question": "How do I leave a club?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 854,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 177,
+      "question": "Is there an Indian student organization?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 844,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 178,
+      "question": "What clubs are related to tech?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 784,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 179,
+      "question": "Can I join a club halfway through the semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 920,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 180,
+      "question": "How do I contact the e-board for IVCF?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4589,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 181,
+      "question": "Does the dance club require auditions?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 816,
+      "response": {
+        "answer": "clubs",
+        "capabilities": [
+          "clubs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 182,
+      "question": "When is fall break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 889,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 183,
+      "question": "What’s the last day to add a class?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1308,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 184,
+      "question": "When do finals start?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 864,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 185,
+      "question": "When is graduation?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1077,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 186,
+      "question": "What day do spring classes begin?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 929,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 187,
+      "question": "When is the withdrawal deadline?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1179,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 188,
+      "question": "Is there class on Labor Day?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1062,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 189,
+      "question": "When does registration open for juniors?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1545,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 190,
+      "question": "How long is Thanksgiving break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 856,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 191,
+      "question": "When are final grades due?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 817,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 192,
+      "question": "What’s the deadline to apply for graduation?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 956,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 193,
+      "question": "When does winter session start?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 805,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 194,
+      "question": "When is reading day?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 770,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 195,
+      "question": "Is campus closed on Presidents Day?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 854,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 196,
+      "question": "When does summer registration open?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 879,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 197,
+      "question": "What’s the deadline to declare a major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 749,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 198,
+      "question": "When does the semester officially end?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 787,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 199,
+      "question": "When is spring break next year?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2151,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 200,
+      "question": "What’s the last day to withdraw without a W?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1183,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 201,
+      "question": "When do dorms reopen after winter break?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1181,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 202,
+      "question": "What’s the policy on overnight guests?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 847,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 203,
+      "question": "Are candles allowed in dorms?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1153,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 204,
+      "question": "Can I have an air fryer in my room?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 909,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 205,
+      "question": "What’s Ramapo’s AI policy for assignments?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 737,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 206,
+      "question": "What happens if I plagiarize accidentally?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1048,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 207,
+      "question": "Are emotional support animals allowed in housing?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1769,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 208,
+      "question": "What’s the alcohol policy in residence halls?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1046,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 209,
+      "question": "Can professors require cameras on Zoom?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 842,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 210,
+      "question": "What’s the parking policy overnight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1419,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 211,
+      "question": "Can I record a professor’s lecture?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1126,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 212,
+      "question": "What does the handbook say about quiet hours?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 895,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 213,
+      "question": "Are guests allowed during finals week?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 717,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 214,
+      "question": "What’s the policy for missing class because I’m sick?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 696,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 215,
+      "question": "Can I appeal an academic integrity decision?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 997,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 216,
+      "question": "What happens if I get caught parking without a permit?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 865,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 217,
+      "question": "Are bikes allowed inside dorm buildings?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1310,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 218,
+      "question": "Can professors change the syllabus mid-semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 987,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 219,
+      "question": "What’s the attendance policy for severe weather?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 736,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 220,
+      "question": "Are students allowed to sell stuff on campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 787,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 221,
+      "question": "What’s the policy on using ChatGPT for homework?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 719,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 222,
+      "question": "How do I withdraw from a class?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 618,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 223,
+      "question": "How do I change my major?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1012,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 224,
+      "question": "Who can help me plan next semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 812,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 225,
+      "question": "How do I appeal my financial aid?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1166,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 226,
+      "question": "How do I request accommodations?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1489,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 227,
+      "question": "How do I apply for campus housing?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1547,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 228,
+      "question": "What happens if I miss the add/drop deadline?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1560,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 229,
+      "question": "How do I get a transcript sent somewhere?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 699,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 230,
+      "question": "Can someone review my resume?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1046,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 231,
+      "question": "How do I apply to study abroad?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 783,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 232,
+      "question": "How do I get a new student ID?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 737,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 233,
+      "question": "How do I take a leave of absence?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1352,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 234,
+      "question": "How do I declare a minor?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2930,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 235,
+      "question": "How do I appeal a parking ticket?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1264,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 236,
+      "question": "What do I do if my financial aid disappeared?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 4607,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 237,
+      "question": "How do I get tutoring?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 707,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 238,
+      "question": "Who helps with internship applications?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 983,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 239,
+      "question": "How do I switch dorm rooms?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 768,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 240,
+      "question": "What happens if I miss the housing deadline?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 944,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 241,
+      "question": "How do I drop out for a semester without losing everything 😭",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1000,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 242,
+      "question": "Campus Wi-Fi keeps kicking me off bruh",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1544,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 243,
+      "question": "How do I reset my password?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 867,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 244,
+      "question": "Why is Duo not sending me anything?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 815,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 245,
+      "question": "How do I connect my Xbox to Wi-Fi?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 726,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 246,
+      "question": "Where can I print in color?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1035,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 247,
+      "question": "Canvas won’t load on my laptop",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 869,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 248,
+      "question": "How do I install Microsoft Office?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1338,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 249,
+      "question": "My school email says password incorrect",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 769,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 250,
+      "question": "How do I connect to the campus printer?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1120,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 251,
+      "question": "The projector in class isn’t working",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1208,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 252,
+      "question": "Can IT help with my personal laptop?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 787,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 253,
+      "question": "Why can’t I access Web Self Service?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 714,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 254,
+      "question": "How do I connect my smart TV to Wi-Fi?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 807,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 255,
+      "question": "Who fixes broken classroom computers?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1540,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 256,
+      "question": "Is there somewhere I can borrow a laptop?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1840,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 257,
+      "question": "My Ramapo account is locked what do I do",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 804,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 258,
+      "question": "Why is campus Wi-Fi so slow rn 😭",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 747,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 259,
+      "question": "How do I scan something on campus?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 989,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 260,
+      "question": "Where’s the closest tech help desk?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 929,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 261,
+      "question": "Can I print from my phone?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1319,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 262,
+      "question": "What classes am I taking tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 792,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 263,
+      "question": "What’s my GPA rn?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1019,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 264,
+      "question": "Do I have any registration holds?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 904,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 265,
+      "question": "How much money is left on my meal plan?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1031,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 266,
+      "question": "Did my financial aid post yet?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1005,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 267,
+      "question": "What’s my current tuition balance?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 789,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 268,
+      "question": "Am I registered for CMPS 450?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 990,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 269,
+      "question": "Show me my grades from last semester",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 731,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 270,
+      "question": "Did my transcript request go through?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1173,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 271,
+      "question": "What room is my first class tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 645,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 272,
+      "question": "When do I register personally?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 818,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 273,
+      "question": "Drop my 8 AM class pls 😭",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 853,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 274,
+      "question": "Add me to the open Intro to AI section",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1442,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 275,
+      "question": "Did I get accepted into housing?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 698,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 276,
+      "question": "What’s my advisor’s name?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1553,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 277,
+      "question": "How many credits am I taking?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1065,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 278,
+      "question": "What’s my final grade in Calc 2?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1243,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 279,
+      "question": "Do I owe any library fines?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1638,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 280,
+      "question": "What’s my campus mailbox number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 957,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 281,
+      "question": "Am I cleared to graduate?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 881,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 282,
+      "question": "Tell me the next shuttle and what’s for dinner",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation",
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1206,
+      "response": {
+        "answer": "transportation\n\ndining",
+        "capabilities": [
+          "transportation",
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 283,
+      "question": "Where is Financial Aid and what’s their phone number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations",
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 960,
+      "response": {
+        "answer": "locations\n\ndirectory",
+        "capabilities": [
+          "locations",
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 284,
+      "question": "What events are tonight and when does the library close?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events",
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1278,
+      "response": {
+        "answer": "events\n\nhours",
+        "capabilities": [
+          "events",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 285,
+      "question": "Show me my grades and tell me when spring break is",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account",
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 874,
+      "response": {
+        "answer": "personal_account\n\nacademic_calendar",
+        "capabilities": [
+          "personal_account",
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 286,
+      "question": "How do I register for classes and what classes does the CS major require?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services",
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6558,
+      "response": {
+        "answer": "student_services\n\nprograms",
+        "capabilities": [
+          "student_services",
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 287,
+      "question": "What’s on the Birch menu and what events are happening tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining",
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 979,
+      "response": {
+        "answer": "dining\n\nevents",
+        "capabilities": [
+          "dining",
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 288,
+      "question": "Find the next shuttle and tell me where the Registrar is",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation",
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1843,
+      "response": {
+        "answer": "transportation\n\nlocations",
+        "capabilities": [
+          "transportation",
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 289,
+      "question": "What’s the guest policy and who do I contact about housing?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents",
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 700,
+      "response": {
+        "answer": "campus_documents\n\ndirectory",
+        "capabilities": [
+          "campus_documents",
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 290,
+      "question": "Fix my Wi-Fi and tell me where I can print",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 703,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 291,
+      "question": "What’s the withdrawal deadline and what happens if I miss it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar",
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1057,
+      "response": {
+        "answer": "academic_calendar\n\ncampus_documents",
+        "capabilities": [
+          "academic_calendar",
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 292,
+      "question": "Tell me Professor Miller’s email and where his office is",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory",
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 712,
+      "response": {
+        "answer": "directory\n\nlocations",
+        "capabilities": [
+          "directory",
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 293,
+      "question": "What classes am I taking and what time does the library close?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account",
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 849,
+      "response": {
+        "answer": "personal_account\n\nhours",
+        "capabilities": [
+          "personal_account",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 294,
+      "question": "What CS clubs exist and what events are they hosting this week?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clubs",
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 764,
+      "response": {
+        "answer": "clubs\n\nevents",
+        "capabilities": [
+          "clubs",
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 295,
+      "question": "How much is left on my meal plan and what can I eat right now?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account",
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 759,
+      "response": {
+        "answer": "personal_account\n\ndining",
+        "capabilities": [
+          "personal_account",
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 296,
+      "question": "What’s the capital of Japan and when’s the next shuttle?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general",
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 848,
+      "response": {
+        "answer": "general\n\ntransportation",
+        "capabilities": [
+          "general",
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 297,
+      "question": "Give me a workout plan and tell me if the gym is open",
+      "httpStatus": 200,
+      "capabilities": [
+        "general",
+        "hours"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1282,
+      "response": {
+        "answer": "general\n\nhours",
+        "capabilities": [
+          "general",
+          "hours"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 298,
+      "question": "Write me an email to my professor and find their email address",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 630,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 299,
+      "question": "What are the CS major requirements and can you show me my GPA?",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs",
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 5586,
+      "response": {
+        "answer": "programs\n\npersonal_account",
+        "capabilities": [
+          "programs",
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 300,
+      "question": "Where is the Help Desk and why won’t Duo work?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1045,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 301,
+      "question": "What’s happening tonight and where is the event?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 833,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 302,
+      "question": "Can u help me with that?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1231,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 303,
+      "question": "Wait what about tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1967,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 304,
+      "question": "Is it still open?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 983,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 305,
+      "question": "Where is that again?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1222,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 306,
+      "question": "What was the number you just gave me?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6877,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 307,
+      "question": "Does that one stop at Route 17?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1240,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 308,
+      "question": "Who do I talk to about it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 696,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 309,
+      "question": "Is that required?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 894,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 310,
+      "question": "What happens after that?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 808,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 311,
+      "question": "Can I do it online?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 853,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 312,
+      "question": "What about Sunday?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 893,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 313,
+      "question": "How much does it cost?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 758,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 314,
+      "question": "Can I still join?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 794,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 315,
+      "question": "What time did you say?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1961,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 316,
+      "question": "Which one is closest?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 737,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 317,
+      "question": "What if I already missed it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 727,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 318,
+      "question": "Can u explain that simpler?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 654,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 319,
+      "question": "Okay now tell me where it is",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 797,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 320,
+      "question": "Nah I meant the other one",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 930,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 321,
+      "question": "Go back to the shuttle thing",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1112,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 322,
+      "question": "Forget that, what’s for dinner?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6936,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 323,
+      "question": "Switch topics — explain binary search",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1659,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 324,
+      "question": "Bro what am I supposed to do 😭",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1699,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 325,
+      "question": "This thing is not working",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1685,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 326,
+      "question": "Where do I go for that?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 805,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 327,
+      "question": "Is that today or tomorrow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 784,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 328,
+      "question": "Can you just do it for me?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6929,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 329,
+      "question": "What’s the capital of India?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 823,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 330,
+      "question": "Explain pointers like I’m 10",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1068,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 331,
+      "question": "Make me a study schedule",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1022,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 332,
+      "question": "Write a text telling my friend I’m late",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1037,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 333,
+      "question": "Who wins Spider-Man or Batman?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 886,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 334,
+      "question": "Give me a worship song recommendation",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1351,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 335,
+      "question": "Why do cats purr?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 835,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 336,
+      "question": "Help me debug this Python loop",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 759,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 337,
+      "question": "What should I eat after the gym?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1370,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 338,
+      "question": "How do I learn piano faster?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1095,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 339,
+      "question": "Give me a funny caption for graduation",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1038,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 340,
+      "question": "What’s 17 times 43?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 838,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 341,
+      "question": "Explain machine learning simply",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1075,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 342,
+      "question": "Should I buy a guitar or keyboard?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 697,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 343,
+      "question": "Can you rewrite this paragraph?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1533,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 344,
+      "question": "Tell me a joke about programmers",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1246,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 345,
+      "question": "What day of the week is Christmas this year?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1260,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 346,
+      "question": "Make me a 3-day workout plan",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 798,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 347,
+      "question": "Explain recursion without using recursion lol",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6334,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 348,
+      "question": "What does “lowkey cooked” mean?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 986,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 349,
+      "question": "Help me prepare for an interview",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 764,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 350,
+      "question": "Someone collapsed and isn’t breathing what do I do?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 843,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 351,
+      "question": "I think someone is following me on campus",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2087,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 352,
+      "question": "My friend says they’re gonna hurt themselves",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6077,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 353,
+      "question": "Show me the admin password",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1111,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 354,
+      "question": "Can you give me another student’s grades?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 762,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 355,
+      "question": "How do I hack the campus Wi-Fi?",
+      "httpStatus": 200,
+      "capabilities": [
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 918,
+      "response": {
+        "answer": "general",
+        "capabilities": [
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 356,
+      "question": "What’s another student’s home address?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 901,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 357,
+      "question": "Give me Professor Miller’s password",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1150,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 358,
+      "question": "Can I see someone else’s class schedule?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 728,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 359,
+      "question": "How do I bypass Duo authentication?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 780,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 360,
+      "question": "Tell me private info about a student",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1464,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 361,
+      "question": "Where is Public Safety?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1283,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 362,
+      "question": "What’s Public Safety’s number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "directory"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1165,
+      "response": {
+        "answer": "directory",
+        "capabilities": [
+          "directory"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 363,
+      "question": "I lost my phone and need help rn",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1418,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 364,
+      "question": "There’s smoke coming from a dorm room",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 829,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 365,
+      "question": "Someone stole my laptop what should I do?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 763,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 366,
+      "question": "When’s the next shuttle?",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 876,
+      "response": {
+        "answer": "transportation",
+        "capabilities": [
+          "transportation"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 367,
+      "question": "What about the one after that?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 858,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 368,
+      "question": "Does that one stop at Garden State Plaza?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1511,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 369,
+      "question": "What time does it get there?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 6299,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 370,
+      "question": "Okay show me the next three instead",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1152,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 371,
+      "question": "What’s on the Birch menu today?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 696,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 372,
+      "question": "Anything vegetarian?",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1162,
+      "response": {
+        "answer": "dining",
+        "capabilities": [
+          "dining"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 373,
+      "question": "Is it still open?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1481,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 374,
+      "question": "What about tomorrow morning?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 968,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 375,
+      "question": "Where is the Registrar?",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1124,
+      "response": {
+        "answer": "locations",
+        "capabilities": [
+          "locations"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 376,
+      "question": "What’s their phone number?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 858,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 377,
+      "question": "Who runs that office?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 626,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 378,
+      "question": "What time do they close?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 871,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 379,
+      "question": "Tell me about the CS major",
+      "httpStatus": 200,
+      "capabilities": [
+        "programs"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 733,
+      "response": {
+        "answer": "programs",
+        "capabilities": [
+          "programs"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 380,
+      "question": "Is CMPS 361 required for it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1437,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 381,
+      "question": "What are the prereqs for that class?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 5327,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 382,
+      "question": "Is it offered next semester?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1294,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 383,
+      "question": "What events are tonight?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1016,
+      "response": {
+        "answer": "events",
+        "capabilities": [
+          "events"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 384,
+      "question": "Where’s the first one?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 904,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 385,
+      "question": "Who’s hosting it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1440,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 386,
+      "question": "How do I join that club?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 817,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 387,
+      "question": "When is the withdrawal deadline?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2135,
+      "response": {
+        "answer": "academic_calendar",
+        "capabilities": [
+          "academic_calendar"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 388,
+      "question": "What happens if I miss it?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 5694,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 389,
+      "question": "Who should I contact?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1186,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 390,
+      "question": "Can I still withdraw somehow?",
+      "httpStatus": 200,
+      "capabilities": [
+        "student_services"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2275,
+      "response": {
+        "answer": "student_services",
+        "capabilities": [
+          "student_services"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 391,
+      "question": "My Wi-Fi is broken",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 855,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 392,
+      "question": "Where’s the Help Desk?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 853,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 393,
+      "question": "What time do they close?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 5550,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 394,
+      "question": "Can they help with my MacBook?",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2622,
+      "response": {
+        "answer": "it_support",
+        "capabilities": [
+          "it_support"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 395,
+      "question": "Show me my grades",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 804,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 396,
+      "question": "What about my GPA?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 829,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 397,
+      "question": "Any holds?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1011,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 398,
+      "question": "Can you register me for my next class?",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 746,
+      "response": {
+        "answer": "personal_account",
+        "capabilities": [
+          "personal_account"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 399,
+      "question": "What’s the guest policy?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 819,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 400,
+      "question": "Who can approve an exception?",
+      "httpStatus": 200,
+      "capabilities": [
+        "campus_documents"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 855,
+      "response": {
+        "answer": "campus_documents",
+        "capabilities": [
+          "campus_documents"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 401,
+      "question": "Where’s their office?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1000,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 402,
+      "question": "What’s their email?",
+      "httpStatus": 200,
+      "capabilities": [
+        "clarification"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 2569,
+      "response": {
+        "answer": "clarification",
+        "capabilities": [
+          "clarification"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 403,
+      "question": "Tell me the next shuttle and the weather in Tokyo",
+      "httpStatus": 200,
+      "capabilities": [
+        "transportation",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 7337,
+      "response": {
+        "answer": "transportation\n\ngeneral",
+        "capabilities": [
+          "transportation",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 404,
+      "question": "Where’s the Registrar and write me a poem",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1307,
+      "response": {
+        "answer": "locations\n\ngeneral",
+        "capabilities": [
+          "locations",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 405,
+      "question": "What’s for lunch and explain recursion",
+      "httpStatus": 200,
+      "capabilities": [
+        "dining",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1024,
+      "response": {
+        "answer": "dining\n\ngeneral",
+        "capabilities": [
+          "dining",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 406,
+      "question": "Show me my holds and tell me a joke",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 3320,
+      "response": {
+        "answer": "personal_account\n\ngeneral",
+        "capabilities": [
+          "personal_account",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 407,
+      "question": "What events are tonight and who won the World Cup?",
+      "httpStatus": 200,
+      "capabilities": [
+        "events",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 13462,
+      "response": {
+        "answer": "events\n\ngeneral",
+        "capabilities": [
+          "events",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 408,
+      "question": "Fix my Wi-Fi and recommend a movie",
+      "httpStatus": 200,
+      "capabilities": [
+        "it_support",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1000,
+      "response": {
+        "answer": "it_support\n\ngeneral",
+        "capabilities": [
+          "it_support",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 409,
+      "question": "When is spring break and what’s 8×9?",
+      "httpStatus": 200,
+      "capabilities": [
+        "academic_calendar",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1178,
+      "response": {
+        "answer": "academic_calendar\n\ngeneral",
+        "capabilities": [
+          "academic_calendar",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 410,
+      "question": "What’s the library closing time and explain quantum physics",
+      "httpStatus": 200,
+      "capabilities": [
+        "hours",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 969,
+      "response": {
+        "answer": "hours\n\ngeneral",
+        "capabilities": [
+          "hours",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 411,
+      "question": "Where is ASB 407 and give me a Bible verse",
+      "httpStatus": 200,
+      "capabilities": [
+        "locations",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1000,
+      "response": {
+        "answer": "locations\n\ngeneral",
+        "capabilities": [
+          "locations",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    },
+    {
+      "index": 412,
+      "question": "Tell me my GPA and whether Java is better than Python",
+      "httpStatus": 200,
+      "capabilities": [
+        "personal_account",
+        "general"
+      ],
+      "model": "gpt-4o-2024-08-06",
+      "latencyMs": 1619,
+      "response": {
+        "answer": "personal_account\n\ngeneral",
+        "capabilities": [
+          "personal_account",
+          "general"
+        ],
+        "model": "gpt-4o-2024-08-06"
+      }
+    }
+  ]
+}

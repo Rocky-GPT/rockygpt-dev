@@ -336,8 +336,39 @@ export function RecordTable({
             {rows.map((row, index) => (
               <tr key={index} className="border-t border-white/5 hover:bg-white/5">
                 {columns.map((column) => (
-                  <td key={column} className="max-w-[22rem] truncate px-3 py-2 text-foreground/70">
-                    {column === 'preferred_contact' && row[column] === 'email' ? (
+                  <td
+                    key={column}
+                    className={`px-3 py-2 text-foreground/70 ${
+                      column === 'phones' ? 'max-w-[28rem]' : 'max-w-[22rem] truncate'
+                    }`}
+                  >
+                    {column === 'phones' && Array.isArray(row[column]) ? (
+                      row[column].length === 0 ? (
+                        <span className="font-mono text-[11px] text-muted-foreground/40">—</span>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {(row[column] as Record<string, unknown>[]).map((phone, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-sky-400/20 bg-sky-400/10 px-2 py-0.5 font-mono text-[11px] text-sky-200"
+                            >
+                              <span>
+                                {'number' in phone
+                                  ? String(phone.number)
+                                  : 'extension' in phone
+                                  ? `Ext. ${phone.extension}`
+                                  : JSON.stringify(phone)}
+                              </span>
+                              {'type' in phone && Boolean(phone.type) && (
+                                <span className="rounded border border-sky-400/30 bg-sky-400/20 px-1 py-0.2 text-[9px] font-semibold uppercase tracking-wider text-sky-300">
+                                  {String(phone.type)}
+                                </span>
+                              )}
+                            </span>
+                          ))}
+                        </div>
+                      )
+                    ) : column === 'preferred_contact' && row[column] === 'email' ? (
                       <span className="inline-flex items-center rounded-full border border-amber-400/25 bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
                         Email
                       </span>

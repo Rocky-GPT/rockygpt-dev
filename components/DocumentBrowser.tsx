@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   FileText,
   ExternalLink,
@@ -12,7 +15,59 @@ import {
   ShieldCheck,
   RefreshCw,
   Hash,
+  Eye,
+  Code,
 } from 'lucide-react';
+
+const markdownComponents: Components = {
+  h1: ({ ...props }) => (
+    <h1 className="text-base font-bold text-foreground mt-6 mb-3 first:mt-0 border-b border-white/10 pb-2" {...props} />
+  ),
+  h2: ({ ...props }) => (
+    <h2 className="text-sm font-semibold text-sky-300 mt-5 mb-2 first:mt-0 border-b border-white/5 pb-1" {...props} />
+  ),
+  h3: ({ ...props }) => (
+    <h3 className="text-xs font-semibold uppercase tracking-wider text-sky-200 mt-4 mb-1.5 first:mt-0" {...props} />
+  ),
+  h4: ({ ...props }) => (
+    <h4 className="text-xs font-semibold text-neutral-300 mt-3 mb-1 first:mt-0" {...props} />
+  ),
+  p: ({ ...props }) => <p className="text-xs leading-relaxed text-foreground/85 my-2" {...props} />,
+  ul: ({ ...props }) => <ul className="text-xs list-disc space-y-1 pl-5 my-2 text-foreground/80" {...props} />,
+  ol: ({ ...props }) => <ol className="text-xs list-decimal space-y-1 pl-5 my-2 text-foreground/80" {...props} />,
+  li: ({ ...props }) => <li className="leading-relaxed" {...props} />,
+  strong: ({ ...props }) => <strong className="font-semibold text-foreground" {...props} />,
+  em: ({ ...props }) => <em className="italic text-neutral-300" {...props} />,
+  hr: () => <hr className="my-4 border-white/10" />,
+  a: ({ href, children, ...props }) => (
+    <a
+      href={href}
+      className="text-sky-400 underline hover:text-sky-300 transition-colors"
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+  code: ({ ...props }) => (
+    <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-sky-200" {...props} />
+  ),
+  pre: ({ ...props }) => (
+    <pre className="my-3 overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-3.5 font-mono text-xs text-neutral-200 [&>code]:bg-transparent [&>code]:p-0" {...props} />
+  ),
+  table: ({ ...props }) => (
+    <div className="my-3 overflow-x-auto rounded-xl border border-white/10">
+      <table className="w-full border-collapse text-xs text-left" {...props} />
+    </div>
+  ),
+  thead: ({ ...props }) => <thead className="bg-white/5 border-b border-white/10" {...props} />,
+  th: ({ ...props }) => <th className="px-3 py-2 font-semibold text-foreground/90 border border-white/10" {...props} />,
+  td: ({ ...props }) => <td className="px-3 py-2 text-foreground/75 border border-white/10" {...props} />,
+  blockquote: ({ ...props }) => (
+    <blockquote className="my-2 border-l-2 border-sky-400/50 bg-sky-500/5 pl-3 py-1.5 text-xs text-neutral-300 rounded-r-lg" {...props} />
+  ),
+};
 
 interface DocumentSummary {
   id: string;

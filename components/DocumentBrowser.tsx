@@ -412,6 +412,33 @@ export function DocumentBrowser() {
                           </div>
 
                           <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-black/20 p-0.5">
+                              <button
+                                type="button"
+                                onClick={() => setRenderMarkdown(true)}
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-colors ${
+                                  renderMarkdown
+                                    ? 'bg-sky-500/20 text-sky-200 font-medium'
+                                    : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                              >
+                                <Eye className="h-3 w-3" />
+                                Formatted
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setRenderMarkdown(false)}
+                                className={`flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-colors ${
+                                  !renderMarkdown
+                                    ? 'bg-sky-500/20 text-sky-200 font-medium'
+                                    : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                              >
+                                <Code className="h-3 w-3" />
+                                Raw
+                              </button>
+                            </div>
+
                             <div className="relative">
                               <Search className="absolute left-2.5 top-2 h-3 w-3 text-muted-foreground" />
                               <input
@@ -419,45 +446,58 @@ export function DocumentBrowser() {
                                 placeholder="Find in document…"
                                 value={textFilter}
                                 onChange={(e) => setTextFilter(e.target.value)}
-                          className="rounded-lg border border-white/10 bg-black/20 pl-7 pr-2.5 py-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-sky-400/50 w-44"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => void handleCopyText()}
-                        className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-foreground hover:bg-white/10 transition-colors"
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="h-3 w-3 text-emerald-400" />
-                            <span className="text-emerald-300 font-mono">Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3 w-3 text-muted-foreground" />
-                            <span>Copy Text</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                                className="rounded-lg border border-white/10 bg-black/20 pl-7 pr-2.5 py-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-sky-400/50 w-44"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => void handleCopyText()}
+                              className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-foreground hover:bg-white/10 transition-colors"
+                            >
+                              {copied ? (
+                                <>
+                                  <Check className="h-3 w-3 text-emerald-400" />
+                                  <span className="text-emerald-300 font-mono">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-3 w-3 text-muted-foreground" />
+                                  <span>Copy Text</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
 
-                  <div className="overflow-y-auto max-h-[560px] rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs text-foreground/90 whitespace-pre-wrap leading-relaxed select-text">
-                    {textFilter ? (
-                      selectedDoc.content
-                        .split('\n')
-                        .filter((line) => line.toLowerCase().includes(textFilter.toLowerCase()))
-                        .join('\n') || (
-                        <span className="text-muted-foreground italic">
-                          No lines matching &quot;{textFilter}&quot;
-                        </span>
-                      )
-                    ) : (
-                      selectedDoc.content
+                        {renderMarkdown ? (
+                          <div className="overflow-y-auto max-h-[580px] rounded-xl border border-white/10 bg-black/30 p-6 text-foreground/90 leading-relaxed select-text space-y-1">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                              {textFilter
+                                ? selectedDoc.content
+                                    .split('\n')
+                                    .filter((line) => line.toLowerCase().includes(textFilter.toLowerCase()))
+                                    .join('\n') || '*No lines matching search query*'
+                                : selectedDoc.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <pre className="overflow-y-auto max-h-[580px] rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs text-foreground/90 whitespace-pre-wrap leading-relaxed select-text">
+                            {textFilter ? (
+                              selectedDoc.content
+                                .split('\n')
+                                .filter((line) => line.toLowerCase().includes(textFilter.toLowerCase()))
+                                .join('\n') || (
+                                <span className="text-muted-foreground italic">
+                                  No lines matching &quot;{textFilter}&quot;
+                                </span>
+                              )
+                            ) : (
+                              selectedDoc.content
+                            )}
+                          </pre>
+                        )}
+                      </div>
                     )}
-                  </div>
-                </div>
-              )}
 
               {/* View Mode 2: Indexed Chunks */}
               {viewMode === 'chunks' && (
@@ -478,7 +518,7 @@ export function DocumentBrowser() {
                     </div>
                   </div>
 
-                  <div className="overflow-y-auto max-h-[560px] space-y-3 pr-1">
+                  <div className="overflow-y-auto max-h-[580px] space-y-3 pr-1">
                     {filteredChunks.length === 0 ? (
                       <p className="p-4 text-xs text-muted-foreground text-center">
                         No chunks match your search query.
@@ -487,7 +527,7 @@ export function DocumentBrowser() {
                       filteredChunks.map((chunk) => (
                         <div
                           key={chunk.id}
-                          className="rounded-xl border border-white/10 bg-black/20 p-3.5 space-y-2"
+                          className="rounded-xl border border-white/10 bg-black/20 p-4 space-y-2.5"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2">
@@ -505,8 +545,10 @@ export function DocumentBrowser() {
                               {chunk.content.length} chars
                             </span>
                           </div>
-                          <div className="rounded-lg bg-black/40 p-3 font-mono text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed select-text">
-                            {chunk.content}
+                          <div className="rounded-lg bg-black/35 p-3.5 text-xs text-foreground/85 leading-relaxed select-text border border-white/5">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                              {chunk.content}
+                            </ReactMarkdown>
                           </div>
                         </div>
                       ))

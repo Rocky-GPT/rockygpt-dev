@@ -16,7 +16,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronDown, Filter as FilterIcon, ListOrdered } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  Filter as FilterIcon,
+  ListOrdered,
+  X,
+} from 'lucide-react';
 
 /**
  * One way a lookup can be narrowed.
@@ -136,6 +144,22 @@ export function RecordTable({
   failed: string | null;
 }) {
   const [search, setSearch] = useState('');
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else {
+        setSortColumn(null);
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
 
   if (failed) {
     return (
@@ -161,11 +185,18 @@ export function RecordTable({
   // Filtered here rather than upstream because the brain's records route takes
   // no parameters at all — no limit, no offset, no filter. Everything arrives
   // or nothing does.
-  const rows = needle
+  const filteredRows = needle
     ? state.records.filter((row) =>
         columns.some((column) => format(row[column]).toLowerCase().includes(needle))
       )
     : state.records;
+
+  const rows = sortColumn
+    ? [...filteredRows].sort((rowA, rowB) => {
+        const cmp = compareValues(rowA[sortColumn], rowB[sortColumn]);
+        return sortDirection === 'asc' ? cmp : -cmp;
+      })
+    : filteredRows;
 
   return (
     <div className="min-w-0 space-y-2">
@@ -174,6 +205,22 @@ export function RecordTable({
           {state.returned.toLocaleString()} record{state.returned === 1 ? '' : 's'}
           {needle && rows.length !== state.records.length && ` · ${rows.length} shown`}
         </p>
+        {sortColumn && (
+          <div className="flex items-center gap-1.5 rounded-full border border-sky-400/30 bg-sky-400/10 px-2.5 py-0.5 font-mono text-[11px] text-sky-200">
+            <span>
+              Sorted by <strong className="font-semibold text-white">{sortColumn}</strong> ({sortDirection === 'asc' ? 'Asc ↑' : 'Desc ↓'})
+            </span>
+            <button
+              type="button"
+              onClick={() => setSortColumn(null)}
+              className="ml-0.5 rounded p-0.5 text-sky-400 hover:bg-sky-400/20 hover:text-white"
+              title="Clear sorting"
+              aria-label="Clear sorting"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        )}
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -185,14 +232,50 @@ export function RecordTable({
         <table className="w-full border-collapse text-left text-xs">
           <thead className="bg-white/10">
             <tr>
-              {columns.map((column) => (
-                <th
-                  key={column}
-                  className="whitespace-nowrap px-3 py-2 font-mono font-semibold text-foreground/70"
-                >
-                  {column}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const isSorted = sortColumn === column;
+                return (
+                  <th
+                    key={column}
+                    aria-sort={
+                      isSorted
+                        ? sortDirection === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                    }
+                    className="whitespace-nowrap px-3 py-2 font-mono font-semibold"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleSort(column)}
+                      className={`group inline-flex items-center gap-1.5 transition-colors ${
+                        isSorted
+                          ? 'text-sky-300 font-bold'
+                          : 'text-foreground/70 hover:text-foreground'
+                      }`}
+                      title={`Sort by ${column} (${
+                        isSorted
+                          ? sortDirection === 'asc'
+                            ? 'currently ascending, click for descending'
+                            : 'currently descending, click to clear'
+                          : 'click to sort ascending'
+                      })`}
+                    >
+                      <span>{column}</span>
+                      {isSorted ? (
+                        sortDirection === 'asc' ? (
+                          <ArrowUp className="h-3.5 w-3.5 text-sky-400" />
+                        ) : (
+                          <ArrowDown className="h-3.5 w-3.5 text-sky-400" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 text-muted-foreground/30 transition-opacity group-hover:text-muted-foreground" />
+                      )}
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -292,4 +375,47 @@ function format(value: unknown): string {
   if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
+}
+
+function compareValues(a: unknown, b: unknown): number {
+  if (a === b) return 0;
+  if (a === null || a === undefined) return 1;
+  if (b === null || b === undefined) return -1;
+
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  }
+
+  if (
+    typeof a === 'string' &&
+    typeof b === 'string' &&
+    /^-?\d+(\.\d+)?$/.test(a.trim()) &&
+    /^-?\d+(\.\d+)?$/.test(b.trim())
+  ) {
+    const numA = Number(a);
+    const numB = Number(b);
+    if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+      return numA - numB;
+    }
+  }
+
+  if (typeof a === 'string' && typeof b === 'string') {
+    const isDateA = /^\d{4}-\d{2}-\d{2}/.test(a);
+    const isDateB = /^\d{4}-\d{2}-\d{2}/.test(b);
+    if (isDateA && isDateB) {
+      const dateA = Date.parse(a);
+      const dateB = Date.parse(b);
+      if (!Number.isNaN(dateA) && !Number.isNaN(dateB)) {
+        return dateA - dateB;
+      }
+    }
+  }
+
+  if (typeof a === 'boolean' && typeof b === 'boolean') {
+    return a === b ? 0 : a ? 1 : -1;
+  }
+
+  const strA = typeof a === 'object' ? JSON.stringify(a) : String(a);
+  const strB = typeof b === 'object' ? JSON.stringify(b) : String(b);
+  return strA.localeCompare(strB, undefined, { numeric: true, sensitivity: 'base' });
 }

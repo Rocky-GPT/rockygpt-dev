@@ -382,7 +382,24 @@ function FieldChips({ names }: { names: string[] }) {
 
 function format(value: unknown): string {
   if (value === null || value === undefined) return '—';
-  if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
+  if (Array.isArray(value)) {
+    if (!value.length) return '—';
+    if (typeof value[0] === 'object' && value[0] !== null) {
+      return value
+        .map((item) => {
+          if (typeof item === 'object' && item !== null) {
+            const p = item as Record<string, unknown>;
+            if (p.number && p.type) return `${p.number} (${p.type})`;
+            if (p.number) return String(p.number);
+            if (p.extension) return `Ext. ${p.extension}`;
+            return JSON.stringify(p);
+          }
+          return String(item);
+        })
+        .join(', ');
+    }
+    return value.join(', ');
+  }
   if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
 }

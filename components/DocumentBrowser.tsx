@@ -106,6 +106,7 @@ export function DocumentBrowser() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'text' | 'chunks' | 'metadata'>('text');
+  const [renderMarkdown, setRenderMarkdown] = useState(true);
   const [chunkFilter, setChunkFilter] = useState('');
   const [textFilter, setTextFilter] = useState('');
   const [copied, setCopied] = useState(false);

@@ -283,10 +283,14 @@ export function RecordTable({
               <tr key={index} className="border-t border-white/5 hover:bg-white/5">
                 {columns.map((column) => (
                   <td key={column} className="max-w-[22rem] truncate px-3 py-2 text-foreground/70">
-                    {typeof row[column] === 'boolean' ? (
+                    {column === 'preferred_contact' && row[column] === 'email' ? (
+                      <span className="inline-flex items-center rounded-full border border-amber-400/25 bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                        Email
+                      </span>
+                    ) : typeof row[column] === 'boolean' ? (
                       row[column] ? (
-                        <span className="inline-flex items-center rounded-full border border-amber-400/25 bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
-                          Prefers Email
+                        <span className="inline-flex items-center rounded-full border border-emerald-400/25 bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                          Yes
                         </span>
                       ) : (
                         <span className="font-mono text-[11px] text-muted-foreground/40">No</span>

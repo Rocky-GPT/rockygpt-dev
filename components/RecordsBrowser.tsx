@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   Download,
   FileJson,
@@ -87,8 +88,57 @@ function downloadCsv(records: Record<string, unknown>[], filename: string) {
 /**
  * Every capability's executor output, one at a time, with data export and ChatGPT analysis capabilities.
  */
-export function RecordsBrowser({ capabilities }: { capabilities: string[] }) {
-  const [chosen, setChosen] = useState(capabilities[0] ?? '');
+export function RecordsBrowser({
+  capabilities,
+  initialCapability,
+}: {
+  capabilities: string[];
+  initialCapability?: string;
+}) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const urlCapability =
+    searchParams.get('capability') || searchParams.get('tag') || initialCapability;
+
+  const [chosen, setChosen] = useState(() => {
+    if (urlCapability && capabilities.includes(urlCapability)) {
+      return urlCapability;
+    }
+    return capabilities[0] ?? '';
+  });
+
+  // Sync state if URL changes externally (e.g. back/forward navigation)
+  useEffect(() => {
+    if (urlCapability && capabilities.includes(urlCapability) && urlCapability !== chosen) {
+      setChosen(urlCapability);
+    }
+  }, [urlCapability, capabilities, chosen]);
+
+  // Support #hash navigation fallback on initial mount
+  useEffect(() => {
+    if (!urlCapability && typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.replace(/^#/, '');
+      if (capabilities.includes(hash)) {
+        setChosen(hash);
+        const params = new URLSearchParams(window.location.search);
+        params.set('capability', hash);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+  }, [urlCapability, capabilities, pathname, router]);
+
+  const handleSelectCapability = useCallback(
+    (cap: string) => {
+      setChosen(cap);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('capability', cap);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams]
+  );
+
   const [state, setState] = useState<{ returned: number; records: Record<string, unknown>[] } | null>(
     null
   );
@@ -325,7 +375,7 @@ export function RecordsBrowser({ capabilities }: { capabilities: string[] }) {
             <button
               key={capability}
               type="button"
-              onClick={() => setChosen(capability)}
+              onClick={() => handleSelectCapability(capability)}
               aria-pressed={capability === chosen}
               className={`rounded-full border px-3 py-1.5 font-mono text-xs transition-colors ${
                 capability === chosen

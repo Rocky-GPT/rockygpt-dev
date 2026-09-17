@@ -11,6 +11,7 @@ import { buildSecurityHeaders } from './lib/security-headers';
  */
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  agentRules: false,
   async headers() {
     return [
       {

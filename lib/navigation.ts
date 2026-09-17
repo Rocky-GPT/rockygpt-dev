@@ -17,6 +17,7 @@
 import {
   Boxes,
   Database,
+  FileText,
   FlaskConical,
   Gauge,
   LayoutDashboard,
@@ -132,6 +133,14 @@ export const NAVIGATION: NavSection[] = [
         icon: Table2,
         status: 'ready',
         upstream: 'GET /v1/capabilities/{name}/records',
+      },
+      {
+        href: '/data/documents',
+        label: 'Documents',
+        description: 'Full campus policies, handbooks, and source documents',
+        icon: FileText,
+        status: 'ready',
+        upstream: 'GET /v1/documents',
       },
       {
         href: '/data/endpoints',

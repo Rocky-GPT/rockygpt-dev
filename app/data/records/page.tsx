@@ -16,7 +16,9 @@ async function getCapabilities(): Promise<string[]> {
     const res = await fetch(`${url}/v1/capabilities`, { cache: 'no-store' });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.capabilities || []).map((c: { capability: string }) => c.capability);
+    return (data.capabilities || [])
+      .map((c: { capability: string }) => c.capability)
+      .filter((capability: string) => capability !== 'documents');
   } catch {
     return [];
   }

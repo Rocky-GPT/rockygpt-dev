@@ -19,6 +19,31 @@ It does not depend on internal classifier labels or pipeline stages.
 
 Answer-quality evaluation lives in the sibling `rockygpt-evals` repository.
 
+## Identity Explorer
+
+Open **Data → Identity Explorer** (`/data/entities`) to inspect the active
+identity release. Search names, aliases or persistent IDs and filter by kind.
+The diagram separates linked original records from explicit relationships;
+click a source to inspect its section or a related person/program to navigate.
+Selections are addressable with `?entity=<persistent-id>`.
+
+The evidence inspector preserves source IDs, timestamps and conflicting values.
+Missing sections remain unknown. Faculty course lists are undated; operating
+hours do not establish staff or phone availability. Apply a campus date and meal
+to inspect dining evidence; menus show a labelled sample of up to 12 records.
+The Unresolved view explains links that still need evidence. Both the identity
+and the exact assembled profile can be downloaded as JSON.
+
+This read-only view uses `GET /v1/dev/identities` and
+`GET /v1/dev/identities/{id}` through the server-side Brain proxy. The Brain only
+exposes these routes when `BRAIN_ENVIRONMENT=development`. It uses the existing
+identity artifact and profile lookup without model calls or a second database.
+Release/hash checks prevent mixing an identity map with a different profile
+release. The Student UI is unchanged.
+
+Verify changes with `npm run test:identities`, `npm run typecheck`,
+`npm run lint`, and `npm run build`.
+
 ## Running
 
 ```bash

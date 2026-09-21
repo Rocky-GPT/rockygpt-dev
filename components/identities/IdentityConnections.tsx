@@ -2,11 +2,11 @@
 
 import { useId, useState, type CSSProperties } from 'react';
 import {
-  ArrowDown, ArrowUpRight, BookOpen, Building2, ChevronDown, ChevronUp,
+  ArrowDown, ArrowUpRight, BookOpen, Building2, CalendarDays, ChevronDown, ChevronUp,
   Clock3, ContactRound, Database, Fingerprint, GraduationCap, Landmark,
-  Link2, Network, UserRound, Utensils, type LucideIcon,
+  Link2, Network, UserRound, UsersRound, Utensils, type LucideIcon,
 } from 'lucide-react';
-import type { Identity, ProfileSection } from '@/lib/identities';
+import { relatedIdentityNodes, type Identity, type ProfileSection, type RelatedIdentityNode } from '@/lib/identities';
 
 type Props = {
   entity: Identity;
@@ -21,60 +21,19 @@ const COLLECTIONS: Record<string, { label: string; section: ProfileSection; icon
   campus_hours: { label: 'Campus schedules', section: 'hours', icon: Clock3 },
   dining_hours: { label: 'Dining schedules', section: 'hours', icon: Clock3 },
   menu: { label: 'Menu offerings', section: 'menu', icon: Utensils },
-  programs: { label: 'Program records', section: 'program', icon: BookOpen },
+  programs: { label: 'Academic program records', section: 'program', icon: BookOpen },
   courses: { label: 'Catalog courses', section: 'courses', icon: BookOpen },
+  clubs: { label: 'Club records', section: 'club', icon: UsersRound },
+  events: { label: 'Event occurrences', section: 'event', icon: CalendarDays },
 };
 const KIND_ICONS: Record<string, LucideIcon> = {
   person: UserRound, office: Landmark, facility: Building2, venue: Utensils, program: GraduationCap,
+  club: UsersRound, event: CalendarDays, course: BookOpen,
 };
 const VISIBLE_RELATIONSHIPS = 6;
 const NODE_HEIGHT = 76;
 const NODE_GAP = 12;
 const number = (value: number) => value.toLocaleString('en-US');
-
-type RelatedNode = {
-  key: string;
-  name: string;
-  label: string;
-  detail: string;
-  entityId?: string;
-  section: ProfileSection;
-  icon: LucideIcon;
-};
-
-function relatedNodes(entity: Identity, identities: Identity[]): RelatedNode[] {
-  const byId = new Map(identities.map((identity) => [identity.id, identity]));
-  const nodes = new Map<string, RelatedNode>();
-  for (const relationship of entity.relationships ?? []) {
-    if (relationship.type === 'convener' && relationship.target_entity_id) {
-      const target = byId.get(relationship.target_entity_id);
-      const key = `convener:${relationship.target_entity_id}`;
-      nodes.set(key, {
-        key, name: target?.name ?? 'Person identity unavailable', label: 'Has convener',
-        detail: target ? 'Person identity' : 'View published relationship evidence',
-        entityId: target?.id, section: 'conveners', icon: UserRound,
-      });
-    } else if (relationship.type === 'profile_course' && relationship.target_record) {
-      const target = relationship.target_record;
-      const key = `course:${target.source_key}:${target.source_record_key}`;
-      nodes.set(key, {
-        key, name: target.source_record_key, label: 'Profile-listed course',
-        detail: 'Undated list · catalog link', section: 'courses', icon: BookOpen,
-      });
-    }
-  }
-  for (const candidate of identities) {
-    if ((candidate.relationships ?? []).some((relationship) =>
-      relationship.type === 'convener' && relationship.target_entity_id === entity.id)) {
-      const key = `convener-of:${candidate.id}`;
-      nodes.set(key, {
-        key, name: candidate.name, label: 'Convener of', detail: 'Program identity',
-        entityId: candidate.id, section: 'conveners', icon: GraduationCap,
-      });
-    }
-  }
-  return [...nodes.values()];
-}
 
 function ConnectorRail({ count, height, side }: { count: number; height: number; side: 'source' | 'relationship' }) {
   if (!count) return <div className="hidden @min-[740px]:block" />;
@@ -109,15 +68,15 @@ export function IdentityConnections({ entity, identities, onSection, onSelectEnt
     collections.set(link.collection, group);
   }
   const sources = [...collections.entries()];
-  const relationships = relatedNodes(entity, identities);
+  const relationships = relatedIdentityNodes(entity, identities);
   const visible = relationships.slice(0, VISIBLE_RELATIONSHIPS);
   const remaining = relationships.slice(VISIBLE_RELATIONSHIPS);
   const height = Math.max(350, Math.max(sources.length, visible.length) * (NODE_HEIGHT + NODE_GAP) - NODE_GAP);
   const IdentityIcon = KIND_ICONS[entity.kind] ?? Network;
   const recordCount = sources.reduce((total, [, group]) => total + group.records.size, 0);
 
-  const renderRelationship = (node: RelatedNode) => {
-    const Icon = node.icon;
+  const renderRelationship = (node: RelatedIdentityNode) => {
+    const Icon = KIND_ICONS[node.kind] ?? Network;
     return (
       <button key={node.key} type="button"
         onClick={() => node.entityId ? onSelectEntity(node.entityId) : onSection(node.section)}
@@ -185,7 +144,7 @@ export function IdentityConnections({ entity, identities, onSection, onSelectEnt
             <div className="relative rounded-2xl border border-sky-300/40 bg-gradient-to-b from-sky-950/70 to-neutral-950 p-5 shadow-[0_0_45px_-20px_rgba(56,189,248,0.45)]">
               <div className="mb-4 flex items-center justify-between gap-2">
                 <span className="rounded-lg border border-sky-300/20 bg-sky-400/10 p-2"><IdentityIcon className="h-5 w-5 text-sky-200" aria-hidden="true" /></span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-sky-200">{entity.kind}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-sky-200">{entity.kind === 'program' ? 'Academic program' : entity.kind}</span>
               </div>
               <h3 className="break-words text-lg leading-6 font-semibold tracking-tight text-white">{entity.name}</h3>
               <div className="mt-4 border-t border-sky-300/10 pt-3">

@@ -46,6 +46,12 @@ export function ProfileEvidence({ data, section, onSection }: {
       </div>
       {section === 'hours' && <p className="rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs leading-5 text-sky-100/80">Operating hours do not establish staff or phone availability. Missing hours mean unknown, not closed.</p>}
       {section === 'courses' && <p className="rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs leading-5 text-sky-100/80">Faculty course lists are undated. A catalog link does not establish a current-semester teaching assignment.</p>}
+      {section === 'event' && <p className="rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs leading-5 text-sky-100/80">Dates and times describe this published event occurrence, not operating hours or an academic program. Missing time, location, or organizer details remain unknown; a text mention alone does not establish an identity relationship.</p>}
+      {section === 'club' && <p className="rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs leading-5 text-sky-100/80">Club records retain their published details. An adviser, organizer, or venue relationship is shown only when explicitly supported; missing details remain unknown.</p>}
+      {section === 'event' && component && <div className="space-y-1 text-xs text-muted-foreground">
+        <p>{component.requested_date ? 'Matching occurrence dates' : 'Published occurrence date'}: <span className="text-foreground">{component.occurrence_dates?.length ? component.occurrence_dates.join(', ') : component.requested_date ? 'None returned' : 'Not published'}</span>{component.timezone ? ` · ${component.timezone}` : ''}</p>
+        {component.requested_date && <p>Date filter: <span className="text-foreground">{component.requested_date}</span></p>}
+      </div>}
       {component?.service_date && <p className="text-xs text-muted-foreground">Service date: <span className="text-foreground">{component.service_date}</span> · America/New_York{component.meal ? ` · ${component.meal}` : ' · All meals'}</p>}
       {!!component?.omitted_count && <p className="text-xs text-amber-200">Showing a sample: {component.omitted_count} matching records are omitted. This is not the full menu.</p>}
       {!!component && (component.failed_links > 0 || component.linked_records_missing > 0 || component.relationships_missing > 0) && <p role="status" className="flex gap-2 rounded-lg bg-amber-500/10 p-3 text-xs text-amber-200"><AlertTriangle className="h-4 w-4 shrink-0" />{component.linked_records_missing} missing records · {component.relationships_missing} unresolved relationships · {component.failed_links} failed lookups. Available evidence is shown below.</p>}
@@ -61,7 +67,7 @@ export function ProfileEvidence({ data, section, onSection }: {
       </div>)}
       {!records.length && <div className="rounded-xl border border-dashed border-white/15 px-5 py-8 text-center">
         <FileText className="mx-auto mb-3 h-6 w-6 text-neutral-500" />
-        <p className="text-sm">No linked evidence for this section{component?.service_date ? ' on the selected date' : ''}.</p>
+        <p className="text-sm">No linked evidence for this section{component?.service_date || component?.requested_date ? ' on the selected date' : ''}.</p>
         <p className="mt-1 text-xs text-muted-foreground">Other available sections remain usable. This does not prove the information does not exist.</p>
         {component?.reason && <p className="mt-3 font-mono text-[11px] text-muted-foreground">{component.reason}</p>}
       </div>}

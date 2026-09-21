@@ -34,6 +34,14 @@ to inspect dining evidence; menus show a labelled sample of up to 12 records.
 The Unresolved view explains links that still need evidence. Both the identity
 and the exact assembled profile can be downloaded as JSON.
 
+Clubs and event occurrences appear alongside people, offices, facilities, dining
+venues and academic programs. Event identities retain their published dates;
+the optional occurrence-date filter does not default to today or inherit a dining
+meal selection. Explicit organizer links can be followed in either direction.
+An organizer or location mentioned only by name remains source information, not
+an inferred identity relationship. Administrative entries in a club directory
+are not automatically treated as student clubs.
+
 This read-only view uses `GET /v1/dev/identities` and
 `GET /v1/dev/identities/{id}` through the server-side Brain proxy. The Brain only
 exposes these routes when `BRAIN_ENVIRONMENT=development`. It uses the existing

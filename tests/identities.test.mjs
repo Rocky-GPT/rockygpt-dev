@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { componentState, displayValue, publishedMealLabels, recordsForSection, safeSourceUrl } from '../lib/identities.ts';
+import {
+  componentState, defaultProfileSection, displayValue, KIND_LABELS, profileQueryParams,
+  publishedMealLabels, recordsForSection, relatedIdentityNodes, safeSourceUrl, sectionForCollection,
+} from '../lib/identities.ts';
 
 const component = {
   status: 'available', evidence_ids: ['contacts:a'], conflicts: {}, fields: {},
@@ -55,4 +58,84 @@ test('meal controls preserve unusual published meal labels instead of inventing 
     { collection: 'menu', fields: { meal: 'Lunch' } },
   ] }), ['Continental', 'Lite Lunch', 'Lunch']);
   assert.deepEqual(publishedMealLabels(), []);
+});
+
+test('clubs and event occurrences open their own evidence while programs remain academic', () => {
+  assert.equal(defaultProfileSection('club'), 'club');
+  assert.equal(defaultProfileSection('event'), 'event');
+  assert.equal(defaultProfileSection('program'), 'conveners');
+  assert.equal(sectionForCollection('clubs'), 'club');
+  assert.equal(sectionForCollection('events'), 'event');
+  assert.equal(KIND_LABELS.program, 'Academic programs');
+});
+
+test('an event profile has no implicit today or meal filter, and an explicit date remains optional', () => {
+  const all = profileQueryParams('event', 'release-a', '', 'Dinner');
+  assert.equal(all.has('date'), false);
+  assert.equal(all.has('meal'), false);
+  assert.equal(all.get('dataset_version'), 'release-a');
+  assert.equal(profileQueryParams('event', 'release-a', '2026-09-26', '').get('date'), '2026-09-26');
+  const dining = profileQueryParams('venue', 'release-a', '2026-09-21', ' Lite Lunch ');
+  assert.equal(dining.get('date'), '2026-09-21');
+  assert.equal(dining.get('meal'), 'Lite Lunch');
+});
+
+test('event evidence preserves occurrence dates, missing times and original source timestamps', () => {
+  const event = {
+    id: 'events:row-1', collection: 'events', collected_at: '2026-09-21T15:00:00Z',
+    fields: { title: 'Club gathering', occurrence_date: '2026-09-26', start_time: null, starts_at: '2026-09-26T04:00:00Z' },
+  };
+  const organizer = { id: 'clubs:row-2', collection: 'clubs', fields: { name: 'Published club' } };
+  const profile = { records: [event, organizer], components: { event: { ...component, evidence_ids: [event.id] } } };
+  assert.deepEqual(recordsForSection(profile, 'event'), [event]);
+  assert.equal(displayValue(recordsForSection(profile, 'event')[0].fields.start_time), 'Not published');
+  assert.equal(event.collected_at, '2026-09-21T15:00:00Z');
+});
+
+const identity = (id, kind, relationships = []) => ({
+  id, kind, name: `${kind} ${id}`, aliases: [], links: [], relationships,
+});
+
+test('organizer links use stored IDs in both directions, never matching names or shared records', () => {
+  const club = identity('club-1', 'club');
+  const event = identity('event-1', 'event', [{
+    type: 'organized_by', target_entity_id: club.id, target_record: null, evidence: [],
+  }]);
+  const unrelated = { ...identity('event-2', 'event'), name: club.name, aliases: [club.id], links: club.links };
+  const entities = [club, event, unrelated];
+  const outgoing = relatedIdentityNodes(event, entities);
+  assert.equal(outgoing.length, 1);
+  assert.equal(outgoing[0].label, 'Organized by');
+  assert.equal(outgoing[0].entityId, club.id);
+  const incoming = relatedIdentityNodes(club, entities);
+  assert.equal(incoming.length, 1);
+  assert.equal(incoming[0].label, 'Organizes event');
+  assert.equal(incoming[0].entityId, event.id);
+  assert.deepEqual(relatedIdentityNodes(unrelated, entities), []);
+});
+
+test('a missing organizer target remains evidence navigation rather than a guessed identity', () => {
+  const event = identity('event-1', 'event', [{
+    type: 'organized_by', target_entity_id: 'missing-club', target_record: null, evidence: [],
+  }]);
+  const [node] = relatedIdentityNodes(event, [event]);
+  assert.equal(node.entityId, undefined);
+  assert.equal(node.section, 'event');
+  assert.equal(node.name, 'Related identity unavailable');
+});
+
+test('existing convener and undated catalog-course relationships retain their meaning', () => {
+  const person = identity('person-1', 'person', [{
+    type: 'profile_course', target_entity_id: null,
+    target_record: { collection: 'courses', source_key: 'catalog', source_record_key: 'MUSI 101' }, evidence: [],
+  }]);
+  const program = identity('program-1', 'program', [{
+    type: 'convener', target_entity_id: person.id, target_record: null, evidence: [],
+  }]);
+  const nodes = relatedIdentityNodes(person, [person, program]);
+  assert.equal(nodes.find(node => node.section === 'courses').detail, 'Undated list · catalog link');
+  const convener = nodes.find(node => node.entityId === program.id);
+  assert.equal(convener.label, 'Convener of');
+  assert.equal(convener.detail, 'Academic program identity');
+  assert.equal(relatedIdentityNodes(program, [person, program])[0].label, 'Has convener');
 });

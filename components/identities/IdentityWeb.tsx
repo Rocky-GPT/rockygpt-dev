@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useId, useMemo, useState, type ReactNode, type KeyboardEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { RecordGraph } from './RecordGraph';
+import type { GraphScope } from '@/lib/campus-graph';
 import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Focus, Home, Minus, Network, Plus, Search, X } from 'lucide-react';
 import {
   identityNeighborhood, KIND_LABELS, safeSourceUrl, type Identity, type IdentityKind,
@@ -10,6 +11,9 @@ import {
 
 type Props = {
   search: ReactNode;
+  datasetVersion: string;
+  identityHash: string;
+  navigationEpoch: number;
   entity?: Identity;
   identities: Identity[];
   profile?: ProfileResponse;
@@ -55,8 +59,8 @@ function sectionForEdge(edge: IdentityWebEdge): ProfileSection {
   return edge.type === 'organized_by' ? 'event' : edge.type === 'convener' ? 'conveners' : 'courses';
 }
 
-export function IdentityWeb({ search, entity, identities, profile, onSection, onSelectEntity, onClearSelection }: Props) {
-  const router = useRouter();
+export function IdentityWeb({ search, datasetVersion, identityHash, navigationEpoch, entity, identities, profile, onSection, onSelectEntity, onClearSelection }: Props) {
+  const [recordScope, setRecordScope] = useState<GraphScope>();
   const [mode, setMode] = useState<Mode>(entity ? 'identity' : 'campus');
   const [category, setCategory] = useState<IdentityKind>('person');
   const [categoryQuery, setCategoryQuery] = useState('');
@@ -65,6 +69,7 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
   const [edgeId, setEdgeId] = useState<string>();
   const markerId = useId().replaceAll(':', '');
   const selectedId = entity?.id;
+  useEffect(() => { setRecordScope(undefined); }, [navigationEpoch, selectedId]);
   useEffect(() => {
     if (!selectedId) return;
     setMode('identity'); setEdgeId(undefined);
@@ -81,12 +86,13 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
   const selectedEdge = neighborhood.edges.find(edge => edge.id === edgeId);
 
   function home() {
-    setMode('campus'); setExpandedIds([]); setEdgeId(undefined); setCategoryQuery(''); setPage(0); onClearSelection();
+    setRecordScope(undefined); setMode('campus'); setExpandedIds([]); setEdgeId(undefined); setCategoryQuery(''); setPage(0); onClearSelection();
   }
   function browse(kind: IdentityKind) {
-    setCategory(kind); setMode('category'); setCategoryQuery(''); setPage(0); setEdgeId(undefined); onClearSelection();
+    setRecordScope(undefined); setCategory(kind); setMode('category'); setCategoryQuery(''); setPage(0); setEdgeId(undefined); onClearSelection();
   }
   function openIdentity(id: string) {
+    setRecordScope(undefined);
     setExpandedIds(ids => [id, ...ids.filter(value => value !== id)]);
     setMode('identity'); setEdgeId(undefined); onSelectEntity(id);
   }
@@ -96,7 +102,7 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
   }
   function activateRecord(node: IdentityWebNode) {
     if (node.type === 'identity') { openIdentity(node.entity.id); return; }
-    inspectSection(node.ownerId, node.section);
+    setRecordScope({ collection: node.type === 'sources' ? node.collection : node.reference.collection, entityId: node.type === 'sources' ? node.ownerId : undefined, ownerName: byId.get(node.ownerId)?.name, ...(node.type === 'course' ? { reference: node.reference } : {}) });
   }
 
   const nodes: VisualNode[] = [];
@@ -108,7 +114,7 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
       nodes.push({ id: `kind:${kind}`, label, detail: `${counts[kind]} identities · browse`, type: 'category', ...position(index, kinds.length + 1, 360, 260), activate: () => browse(kind) });
       edges.push({ id: `browse:${kind}`, from: 'campus', to: `kind:${kind}`, label: 'browse category', type: 'browse' });
     });
-    nodes.push({ id: 'records', label: 'All source records', detail: 'Including unlinked data ↗', type: 'records', ...position(kinds.length, kinds.length + 1, 360, 260), activate: () => router.push('/data/records') });
+    nodes.push({ id: 'records', label: 'All source records', detail: 'Including unlinked data · expand', type: 'records', ...position(kinds.length, kinds.length + 1, 360, 260), activate: () => setRecordScope({}) });
     edges.push({ id: 'browse:records', from: 'campus', to: 'records', label: 'browse records', type: 'browse' });
   } else if (mode === 'category') {
     nodes.push({ id: 'category', label: KIND_LABELS[category], detail: `${counts[category]} curated identities`, type: 'category', ...CENTER, active: true, activate: () => setCategoryQuery('') });
@@ -149,10 +155,11 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
       </div>
       {search}
     </div>
+    {recordScope ? <RecordGraph key={JSON.stringify([recordScope, datasetVersion, identityHash])} scope={recordScope} datasetVersion={datasetVersion} identityHash={identityHash} onClose={() => setRecordScope(undefined)} /> : <>
     <div className="space-y-3 px-4 pt-4 sm:px-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h2 className="flex items-center gap-2 text-sm font-semibold"><Network className="h-4 w-4 text-sky-300" />{mode === 'campus' ? 'Explore campus connections' : mode === 'category' ? KIND_LABELS[category] : entity?.name}</h2>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">{mode === 'identity' ? 'Select an identity to expand its neighborhood. Select a record group to inspect its sourced facts, or an edge to inspect its evidence.' : 'Browse a category, or use identity search to jump directly to a person, place, club, or event. Categories organize this view; they do not assert factual relationships.'}</p></div>
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">{mode === 'identity' ? 'Select an identity to expand its neighborhood. Select a record group to expand its records and fields, or an edge to inspect its evidence.' : 'Browse a category, or use identity search to jump directly to a person, place, club, or event. Categories organize this view; they do not assert factual relationships.'}</p></div>
         {mode === 'identity' && entity && <div className="flex flex-wrap gap-2 text-[11px]">
           <button type="button" onClick={() => setExpandedIds(ids => ids.includes(entity.id) ? ids.filter(id => id !== entity.id) : [entity.id, ...ids])} className="flex items-center gap-1 rounded-lg border border-white/15 px-2.5 py-2 hover:bg-white/5">{expandedIds.includes(entity.id) ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}{expandedIds.includes(entity.id) ? 'Collapse selection' : 'Expand selection'}</button>
           <button type="button" onClick={() => { setExpandedIds([entity.id]); setEdgeId(undefined); }} className="flex items-center gap-1 rounded-lg border border-white/15 px-2.5 py-2 hover:bg-white/5"><Focus className="h-3 w-3" />Focus selection</button>
@@ -224,6 +231,7 @@ export function IdentityWeb({ search, entity, identities, profile, onSection, on
       </div>}
       {!edges.length && <p className="text-xs text-muted-foreground">No connections are expanded. Expand the selection to see published links.</p>}
     </div>}
+    </>}
     <p className="border-t border-white/10 bg-black/10 px-5 py-3 text-[10px] leading-5 text-muted-foreground">Ramapo College and category nodes provide navigation within this campus dataset. Factual relationships use explicit stored evidence; identity links do not rank source authority or establish shared availability.</p>
   </section>;
 }

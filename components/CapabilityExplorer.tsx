@@ -181,7 +181,8 @@ export function CapabilityExplorer({
 }
 
 /**
- * The records, as a table whose columns are the union of every row's keys.
+ * The records, as a table whose columns are the union of every row's keys,
+ * excluding the internal record ID.
  *
  * Exported because the Records page browses the same executor output for every
  * capability at once, and a second table that derived its columns differently
@@ -230,7 +231,9 @@ export function RecordTable({
     );
   }
 
-  const columns = [...new Set(state.records.flatMap((row) => Object.keys(row)))];
+  const columns = [...new Set(state.records.flatMap((row) => Object.keys(row)))].filter(
+    (column) => column !== 'id'
+  );
   const needle = search.trim().toLowerCase();
   // Filtered here rather than upstream because the brain's records route takes
   // no parameters at all — no limit, no offset, no filter. Everything arrives

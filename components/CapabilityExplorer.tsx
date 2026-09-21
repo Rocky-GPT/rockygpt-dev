@@ -72,30 +72,15 @@ export function CapabilityExplorer({
   const urlCapability =
     searchParams.get('capability') || searchParams.get('tag') || initialCapability;
 
-  const [chosen, setChosen] = useState(() => {
-    if (urlCapability && capabilities.some((c) => c.capability === urlCapability)) {
-      return urlCapability;
-    }
-    return capabilities[0]?.capability ?? '';
-  });
-
-  // Sync state if URL changes externally (e.g. back/forward navigation)
-  useEffect(() => {
-    if (
-      urlCapability &&
-      capabilities.some((c) => c.capability === urlCapability) &&
-      urlCapability !== chosen
-    ) {
-      setChosen(urlCapability);
-    }
-  }, [urlCapability, capabilities, chosen]);
+  const chosen = urlCapability && capabilities.some((c) => c.capability === urlCapability)
+    ? urlCapability
+    : capabilities[0]?.capability ?? '';
 
   // Support #hash navigation fallback on initial mount
   useEffect(() => {
     if (!urlCapability && typeof window !== 'undefined' && window.location.hash) {
       const hash = window.location.hash.replace(/^#/, '');
       if (capabilities.some((c) => c.capability === hash)) {
-        setChosen(hash);
         const params = new URLSearchParams(window.location.search);
         params.set('capability', hash);
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -105,7 +90,6 @@ export function CapabilityExplorer({
 
   const handleSelectCapability = useCallback(
     (cap: string) => {
-      setChosen(cap);
       const params = new URLSearchParams(searchParams.toString());
       params.set('capability', cap);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -113,37 +97,49 @@ export function CapabilityExplorer({
     [pathname, router, searchParams]
   );
 
-  const [state, setState] = useState<Records | null>(null);
-  const [failed, setFailed] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    capability: string;
+    data: Records | null;
+    error: string | null;
+  } | null>(null);
+  const state = result?.capability === chosen ? result.data : null;
+  const failed = result?.capability === chosen ? result.error : null;
 
   const entry = useMemo(
     () => capabilities.find((one) => one.capability === chosen),
     [capabilities, chosen]
   );
 
-  const load = useCallback(async () => {
-    if (!chosen) return;
-    // Cleared first, so the table never shows one capability's rows under
-    // another's heading while the next lookup is in flight.
-    setState(null);
-    setFailed(null);
-    try {
-      const response = await fetch(`/api/brain/capabilities/${chosen}/records`, {
-        cache: 'no-store',
-      });
-      const body = await response.json();
-      if (!response.ok || body?.error) {
-        throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
-      }
-      setState(body as Records);
-    } catch (error) {
-      setFailed(error instanceof Error ? error.message : 'The lookup did not answer.');
-    }
-  }, [chosen]);
-
   useEffect(() => {
+    if (!chosen) return;
+    const controller = new AbortController();
+    setResult(null);
+    async function load() {
+      try {
+        const response = await fetch(`/api/brain/capabilities/${chosen}/records`, {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        const body = await response.json();
+        if (!response.ok || body?.error) {
+          throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
+        }
+        if (!controller.signal.aborted) {
+          setResult({ capability: chosen, data: body as Records, error: null });
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setResult({
+            capability: chosen,
+            data: null,
+            error: error instanceof Error ? error.message : 'The lookup did not answer.',
+          });
+        }
+      }
+    }
     void load();
-  }, [load]);
+    return () => controller.abort();
+  }, [chosen]);
 
   return (
     <div className="space-y-6">

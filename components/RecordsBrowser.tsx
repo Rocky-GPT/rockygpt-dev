@@ -102,26 +102,15 @@ export function RecordsBrowser({
   const urlCapability =
     searchParams.get('capability') || searchParams.get('tag') || initialCapability;
 
-  const [chosen, setChosen] = useState(() => {
-    if (urlCapability && capabilities.includes(urlCapability)) {
-      return urlCapability;
-    }
-    return capabilities[0] ?? '';
-  });
-
-  // Sync state if URL changes externally (e.g. back/forward navigation)
-  useEffect(() => {
-    if (urlCapability && capabilities.includes(urlCapability) && urlCapability !== chosen) {
-      setChosen(urlCapability);
-    }
-  }, [urlCapability, capabilities, chosen]);
+  const chosen = urlCapability && capabilities.includes(urlCapability)
+    ? urlCapability
+    : capabilities[0] ?? '';
 
   // Support #hash navigation fallback on initial mount
   useEffect(() => {
     if (!urlCapability && typeof window !== 'undefined' && window.location.hash) {
       const hash = window.location.hash.replace(/^#/, '');
       if (capabilities.includes(hash)) {
-        setChosen(hash);
         const params = new URLSearchParams(window.location.search);
         params.set('capability', hash);
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -131,7 +120,6 @@ export function RecordsBrowser({
 
   const handleSelectCapability = useCallback(
     (cap: string) => {
-      setChosen(cap);
       const params = new URLSearchParams(searchParams.toString());
       params.set('capability', cap);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -139,10 +127,13 @@ export function RecordsBrowser({
     [pathname, router, searchParams]
   );
 
-  const [state, setState] = useState<{ returned: number; records: Record<string, unknown>[] } | null>(
-    null
-  );
-  const [failed, setFailed] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    capability: string;
+    data: { returned: number; records: Record<string, unknown>[] } | null;
+    error: string | null;
+  } | null>(null);
+  const state = result?.capability === chosen ? result.data : null;
+  const failed = result?.capability === chosen ? result.error : null;
 
   // Export states
   const [isExportingAll, setIsExportingAll] = useState(false);
@@ -150,27 +141,36 @@ export function RecordsBrowser({
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!chosen) return;
-    setState(null);
-    setFailed(null);
-    try {
-      const response = await fetch(`/api/brain/capabilities/${chosen}/records`, {
-        cache: 'no-store',
-      });
-      const body = await response.json();
-      if (!response.ok || body?.error) {
-        throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
-      }
-      setState(body);
-    } catch (error) {
-      setFailed(error instanceof Error ? error.message : 'The lookup did not answer.');
-    }
-  }, [chosen]);
-
   useEffect(() => {
+    if (!chosen) return;
+    const controller = new AbortController();
+    setResult(null);
+    async function load() {
+      try {
+        const response = await fetch(`/api/brain/capabilities/${chosen}/records`, {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        const body = await response.json();
+        if (!response.ok || body?.error) {
+          throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
+        }
+        if (!controller.signal.aborted) {
+          setResult({ capability: chosen, data: body, error: null });
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setResult({
+            capability: chosen,
+            data: null,
+            error: error instanceof Error ? error.message : 'The lookup did not answer.',
+          });
+        }
+      }
+    }
     void load();
-  }, [load]);
+    return () => controller.abort();
+  }, [chosen]);
 
   // Export currently selected capability
   const handleExportCurrentJson = () => {

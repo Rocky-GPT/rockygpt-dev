@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, ArrowRight, GitBranch, Loader2, RefreshCw, Search } from 'lucide-react';
+import { AlertTriangle, GitBranch, Loader2, RefreshCw, Search } from 'lucide-react';
 import { IdentityConnections } from './IdentityConnections';
 import { IdentityWeb } from './IdentityWeb';
 import { ProfileEvidence } from './ProfileEvidence';
 import { JsonViewer } from '@/components/JsonViewer';
-import { defaultProfileSection, KIND_LABELS, profileQueryParams, profileSelectionFilters, publishedMealLabels, type IdentityIndex, type IdentityKind, type ProfileResponse, type ProfileSection } from '@/lib/identities';
+import { defaultProfileSection, KIND_LABELS, profileQueryParams, profileSelectionFilters, publishedMealLabels, type IdentityIndex, type ProfileResponse, type ProfileSection } from '@/lib/identities';
 
 async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   const response = await fetch(url, { signal, cache: 'no-store' });
@@ -23,7 +23,7 @@ export function IdentityExplorer() {
   const [reload, setReload] = useState(0);
   const [selectedId, setSelectedId] = useState('');
   const [query, setQuery] = useState('');
-  const [kind, setKind] = useState<IdentityKind | ''>('');
+  const [searchFocused, setSearchFocused] = useState(false);
   const [identityLimit, setIdentityLimit] = useState(40);
   const [tab, setTab] = useState<'connections' | 'unresolved'>('connections');
   const [issueLimit, setIssueLimit] = useState(50);
@@ -75,9 +75,8 @@ export function IdentityExplorer() {
 
   const identities = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (index?.identities ?? []).filter(entity => (!kind || entity.kind === kind)
-      && [entity.name, entity.id, ...entity.aliases].some(value => value.toLowerCase().includes(q)));
-  }, [index, query, kind]);
+    return (index?.identities ?? []).filter(entity => [entity.name, entity.id, ...entity.aliases].some(value => value.toLowerCase().includes(q)));
+  }, [index, query]);
   const issues = (index?.coverage?.unresolved ?? []).filter(issue =>
     [issue.entity, issue.collection, issue.record, issue.reason].join(' ').toLowerCase().includes(query.trim().toLowerCase()));
   const selectedIssues = index?.coverage?.unresolved.filter(issue => issue.entity === selected?.name) ?? [];
@@ -126,25 +125,21 @@ export function IdentityExplorer() {
       </div>
       <p className="flex items-center gap-2 text-[11px] text-muted-foreground"><GitBranch className="h-3.5 w-3.5" />Identity links are not an authority ranking</p>
     </div>
-    {tab === 'connections' ? <div id="connections-panel" role="tabpanel" aria-labelledby="connections-tab" className="grid items-start gap-5 2xl:grid-cols-[260px_minmax(0,1fr)]">
-      <aside className="overflow-hidden rounded-xl border border-white/10 bg-neutral-950/30">
-        <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-3 2xl:block 2xl:space-y-3">
-          <label className="flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Search identities" placeholder="Search names, aliases, IDs…" value={query} onChange={event => { setQuery(event.target.value); setIdentityLimit(40); }} className="min-w-0 flex-1 bg-transparent py-2.5 text-xs outline-none" /></label>
-          <select aria-label="Identity type" value={kind} onChange={event => { setKind(event.target.value as IdentityKind | ''); setIdentityLimit(40); }} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-xs 2xl:w-full"><option value="">All types</option>{Object.entries(KIND_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
-          <p className="text-[11px] text-muted-foreground">{Math.min(identityLimit, identities.length)} shown · {identities.length} matching / {index.identities.length}</p>
-        </div>
-        <div className="max-h-32 overflow-y-auto 2xl:max-h-[650px]" aria-label="Identities">
-          {identities.slice(0, identityLimit).map(entity => <button key={entity.id} type="button" onClick={() => selectEntity(entity.id)} aria-pressed={selectedId === entity.id} className={`flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left ${selectedId === entity.id ? 'bg-sky-400/10 text-sky-200' : 'hover:bg-white/5'}`}>
-            <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{entity.name}</span><span className="mt-1 block text-[10px] capitalize text-muted-foreground">{entity.kind === 'program' ? 'Academic program' : entity.kind} · {entity.links.length} source links</span></span>{selectedId === entity.id && <ArrowRight className="h-3 w-3 shrink-0" />}
-          </button>)}
-          {identities.length > identityLimit && <button type="button" onClick={() => setIdentityLimit(value => value + 40)} className="w-full border-t border-white/10 px-4 py-3 text-left text-xs text-sky-200 hover:bg-white/5">Show 40 more identities</button>}
-          {!identities.length && <p className="p-5 text-xs leading-5 text-muted-foreground">No matching curated identity. Unlinked records may still be available in Records or Ask & Inspect.</p>}
-        </div>
-      </aside>
+    {tab === 'connections' ? <div id="connections-panel" role="tabpanel" aria-labelledby="connections-tab" className="grid min-w-0 items-start gap-5">
       <div className="min-w-0 space-y-5">
-        <IdentityWeb entity={selected} identities={index.identities} profile={profile && profileKey === selectionKey ? profile : undefined} onSelectEntity={id => { setQuery(''); setKind(''); selectEntity(id); }} onSection={inspectSection} onClearSelection={clearSelection} />
+        <IdentityWeb entity={selected} identities={index.identities} profile={profile && profileKey === selectionKey ? profile : undefined} onSelectEntity={id => { setQuery(''); selectEntity(id); }} onSection={inspectSection} onClearSelection={clearSelection} search={
+          <div className="relative w-full sm:w-80" onFocus={() => setSearchFocused(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setSearchFocused(false); }}>
+            <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Search identities" placeholder="Search names, aliases, IDs…" value={query} onChange={event => { setQuery(event.target.value); setIdentityLimit(40); }} onKeyDown={event => { if (event.key === 'Escape') { setQuery(''); setSearchFocused(false); } }} className="min-w-0 flex-1 bg-transparent py-2.5 text-xs outline-none" /></label>
+            {searchFocused && query.trim() && <div role="region" aria-label="Identity search results" className="absolute inset-x-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-xl border border-white/15 bg-neutral-950 shadow-xl">
+              <p className="border-b border-white/10 px-3 py-2 text-[11px] text-muted-foreground">{identities.length} matching identities</p>
+              {identities.slice(0, identityLimit).map(entity => <button key={entity.id} type="button" onClick={() => { selectEntity(entity.id); setQuery(''); setSearchFocused(false); }} className="block w-full border-b border-white/5 px-3 py-2.5 text-left hover:bg-white/5 focus-visible:bg-white/10"><span className="block truncate text-xs font-medium">{entity.name}</span><span className="mt-1 block text-[10px] text-muted-foreground">{KIND_LABELS[entity.kind]}</span></button>)}
+              {identities.length > identityLimit && <button type="button" onClick={() => setIdentityLimit(value => value + 40)} className="w-full px-3 py-2.5 text-left text-xs text-sky-200 hover:bg-white/5">Show 40 more identities</button>}
+              {!identities.length && <p className="p-3 text-xs text-muted-foreground">No matching identity.</p>}
+            </div>}
+          </div>
+        } />
         {selected ? <>
-        <details className="rounded-xl border border-white/10"><summary className="cursor-pointer px-4 py-3 text-xs text-muted-foreground">Record and relationship list for {selected.name}</summary><IdentityConnections entity={selected} identities={index.identities} onSelectEntity={id => { setQuery(''); setKind(''); selectEntity(id); }} onSection={inspectSection} /></details>
+        <details className="rounded-xl border border-white/10"><summary className="cursor-pointer px-4 py-3 text-xs text-muted-foreground">Record and relationship list for {selected.name}</summary><IdentityConnections entity={selected} identities={index.identities} onSelectEntity={id => { setQuery(''); selectEntity(id); }} onSection={inspectSection} /></details>
         {selectedIssues.length > 0 && <details className="rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-xs"><summary className="cursor-pointer text-amber-200">{selectedIssues.length} unresolved issue{selectedIssues.length === 1 ? '' : 's'} for this identity</summary><ul className="mt-3 space-y-3">{selectedIssues.map((issue, position) => <li key={position}><p className="font-medium">{issue.record}</p><p className="mt-1 leading-5 text-muted-foreground">{issue.reason}</p></li>)}</ul></details>}
         <div ref={evidence} className="scroll-mt-24 space-y-4">
           <form key={`${selectedId}|${profileDate}|${profileMeal}`} onSubmit={event => {

@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, ArrowRight, GitBranch, Loader2, RefreshCw, Search } from 'lucide-react';
 import { IdentityConnections } from './IdentityConnections';
+import { IdentityWeb } from './IdentityWeb';
 import { ProfileEvidence } from './ProfileEvidence';
 import { JsonViewer } from '@/components/JsonViewer';
-import { defaultProfileSection, KIND_LABELS, profileQueryParams, publishedMealLabels, type IdentityIndex, type IdentityKind, type ProfileResponse, type ProfileSection } from '@/lib/identities';
+import { defaultProfileSection, KIND_LABELS, profileQueryParams, profileSelectionFilters, publishedMealLabels, type IdentityIndex, type IdentityKind, type ProfileResponse, type ProfileSection } from '@/lib/identities';
 
 async function getJson<T>(url: string, signal: AbortSignal): Promise<T> {
   const response = await fetch(url, { signal, cache: 'no-store' });
@@ -23,6 +24,7 @@ export function IdentityExplorer() {
   const [selectedId, setSelectedId] = useState('');
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<IdentityKind | ''>('');
+  const [identityLimit, setIdentityLimit] = useState(40);
   const [tab, setTab] = useState<'connections' | 'unresolved'>('connections');
   const [issueLimit, setIssueLimit] = useState(50);
   const [date, setDate] = useState('');
@@ -37,8 +39,9 @@ export function IdentityExplorer() {
   const selected = index?.identities.find(entity => entity.id === selectedId);
   const selectedKind = selected?.kind;
   const isEvent = selectedKind === 'event';
-  const profileDate = isEvent ? eventDate : date;
-  const profileMeal = isEvent ? '' : meal;
+  const usesEventDate = isEvent || selectedKind === 'club';
+  const dateLabel = isEvent ? 'Occurrence date filter' : usesEventDate ? 'Event date filter' : 'Campus service date';
+  const { date: profileDate, meal: profileMeal } = profileSelectionFilters(selectedKind, date, meal, eventDate);
   const selectionKey = JSON.stringify([selectedId, profileDate, profileMeal, index?.identity_hash]);
   const mealOptions = [...new Set([...publishedMealLabels(profile?.profile), ...(meal ? [meal] : [])])];
 
@@ -49,16 +52,15 @@ export function IdentityExplorer() {
       if (controller.signal.aborted) return;
       setIndex(data); setDate(data.campus_date);
       const requested = new URLSearchParams(window.location.search).get('entity');
-      const initial = data.identities.find(entity => entity.id === requested)
-        ?? data.identities.find(entity => entity.aliases.some(alias => alias.toLowerCase() === 'csi'))
-        ?? data.identities[0];
+      const initial = data.identities.find(entity => entity.id === requested);
       if (initial) { setSelectedId(initial.id); setSection(defaultProfileSection(initial.kind)); setEventDate(''); }
+      else setSelectedId('');
     }).catch(error => { if (!controller.signal.aborted) setIndexError(error instanceof Error ? error.message : 'Could not load identities.'); });
     return () => controller.abort();
   }, [reload]);
 
   useEffect(() => {
-    if (!index || !selectedId || !selectedKind || (selectedKind !== 'event' && !profileDate)) return;
+    if (!index || !selectedId || !selectedKind || (!usesEventDate && !profileDate)) return;
     const controller = new AbortController();
     setProfile(undefined); setProfileError(''); setProfileLoading(true);
     const params = profileQueryParams(selectedKind, index.dataset_version, profileDate, profileMeal);
@@ -69,7 +71,7 @@ export function IdentityExplorer() {
     }).catch(error => { if (!controller.signal.aborted) setProfileError(error instanceof Error ? error.message : 'Could not load profile.'); })
       .finally(() => { if (!controller.signal.aborted) setProfileLoading(false); });
     return () => controller.abort();
-  }, [index, selectedId, selectedKind, profileDate, profileMeal, selectionKey]);
+  }, [index, selectedId, selectedKind, usesEventDate, profileDate, profileMeal, selectionKey]);
 
   const identities = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -91,8 +93,18 @@ export function IdentityExplorer() {
     window.history.replaceState(null, '', url);
   }
 
+  function clearSelection() {
+    setSelectedId(''); setProfile(undefined); setProfileError(''); setProfileLoading(false); setEventDate('');
+    const url = new URL(window.location.href); url.searchParams.delete('entity');
+    window.history.replaceState(null, '', url);
+  }
+
+  function inspectSection(value: ProfileSection) {
+    setSection(value); evidence.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   if (indexError) return <div role="alert" className="rounded-2xl border border-amber-400/25 bg-amber-400/5 p-6">
-    <h2 className="font-semibold">Identity explorer is unavailable</h2><p className="mt-2 text-sm text-muted-foreground">{indexError}</p>
+    <h2 className="font-semibold">Campus Graph is unavailable</h2><p className="mt-2 text-sm text-muted-foreground">{indexError}</p>
     <p className="mt-2 text-xs text-muted-foreground">This view requires the development Brain and an identity data release.</p>
     <button type="button" onClick={() => setReload(value => value + 1)} className="mt-4 rounded-lg border border-white/20 px-3 py-2 text-sm">Try again</button>
   </div>;
@@ -117,39 +129,43 @@ export function IdentityExplorer() {
     {tab === 'connections' ? <div id="connections-panel" role="tabpanel" aria-labelledby="connections-tab" className="grid items-start gap-5 2xl:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="overflow-hidden rounded-xl border border-white/10 bg-neutral-950/30">
         <div className="flex flex-wrap items-center gap-3 border-b border-white/10 p-3 2xl:block 2xl:space-y-3">
-          <label className="flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Search identities" placeholder="Search names, aliases, IDs…" value={query} onChange={event => setQuery(event.target.value)} className="min-w-0 flex-1 bg-transparent py-2.5 text-xs outline-none" /></label>
-          <select aria-label="Identity type" value={kind} onChange={event => setKind(event.target.value as IdentityKind | '')} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-xs 2xl:w-full"><option value="">All types</option>{Object.entries(KIND_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
-          <p className="text-[11px] text-muted-foreground">{identities.length} / {index.identities.length}</p>
+          <label className="flex min-w-[180px] flex-1 items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Search identities" placeholder="Search names, aliases, IDs…" value={query} onChange={event => { setQuery(event.target.value); setIdentityLimit(40); }} className="min-w-0 flex-1 bg-transparent py-2.5 text-xs outline-none" /></label>
+          <select aria-label="Identity type" value={kind} onChange={event => { setKind(event.target.value as IdentityKind | ''); setIdentityLimit(40); }} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-xs 2xl:w-full"><option value="">All types</option>{Object.entries(KIND_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
+          <p className="text-[11px] text-muted-foreground">{Math.min(identityLimit, identities.length)} shown · {identities.length} matching / {index.identities.length}</p>
         </div>
         <div className="max-h-32 overflow-y-auto 2xl:max-h-[650px]" aria-label="Identities">
-          {identities.map(entity => <button key={entity.id} type="button" onClick={() => selectEntity(entity.id)} aria-pressed={selectedId === entity.id} className={`flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left ${selectedId === entity.id ? 'bg-sky-400/10 text-sky-200' : 'hover:bg-white/5'}`}>
+          {identities.slice(0, identityLimit).map(entity => <button key={entity.id} type="button" onClick={() => selectEntity(entity.id)} aria-pressed={selectedId === entity.id} className={`flex w-full items-center gap-3 border-b border-white/5 px-4 py-3 text-left ${selectedId === entity.id ? 'bg-sky-400/10 text-sky-200' : 'hover:bg-white/5'}`}>
             <span className="min-w-0 flex-1"><span className="block truncate text-xs font-medium">{entity.name}</span><span className="mt-1 block text-[10px] capitalize text-muted-foreground">{entity.kind === 'program' ? 'Academic program' : entity.kind} · {entity.links.length} source links</span></span>{selectedId === entity.id && <ArrowRight className="h-3 w-3 shrink-0" />}
           </button>)}
+          {identities.length > identityLimit && <button type="button" onClick={() => setIdentityLimit(value => value + 40)} className="w-full border-t border-white/10 px-4 py-3 text-left text-xs text-sky-200 hover:bg-white/5">Show 40 more identities</button>}
           {!identities.length && <p className="p-5 text-xs leading-5 text-muted-foreground">No matching curated identity. Unlinked records may still be available in Records or Ask & Inspect.</p>}
         </div>
       </aside>
-      {selected ? <div className="min-w-0 space-y-5">
-        <IdentityConnections entity={selected} identities={index.identities} onSelectEntity={id => { setQuery(''); setKind(''); selectEntity(id); }} onSection={value => { setSection(value); evidence.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
+      <div className="min-w-0 space-y-5">
+        <IdentityWeb entity={selected} identities={index.identities} profile={profile && profileKey === selectionKey ? profile : undefined} onSelectEntity={id => { setQuery(''); setKind(''); selectEntity(id); }} onSection={inspectSection} onClearSelection={clearSelection} />
+        {selected ? <>
+        <details className="rounded-xl border border-white/10"><summary className="cursor-pointer px-4 py-3 text-xs text-muted-foreground">Record and relationship list for {selected.name}</summary><IdentityConnections entity={selected} identities={index.identities} onSelectEntity={id => { setQuery(''); setKind(''); selectEntity(id); }} onSection={inspectSection} /></details>
         {selectedIssues.length > 0 && <details className="rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-xs"><summary className="cursor-pointer text-amber-200">{selectedIssues.length} unresolved issue{selectedIssues.length === 1 ? '' : 's'} for this identity</summary><ul className="mt-3 space-y-3">{selectedIssues.map((issue, position) => <li key={position}><p className="font-medium">{issue.record}</p><p className="mt-1 leading-5 text-muted-foreground">{issue.reason}</p></li>)}</ul></details>}
         <div ref={evidence} className="scroll-mt-24 space-y-4">
           <form key={`${selectedId}|${profileDate}|${profileMeal}`} onSubmit={event => {
             event.preventDefault();
             const form = new FormData(event.currentTarget);
             const nextDate = String(form.get('date') ?? '');
-            if (isEvent) setEventDate(nextDate);
+            if (usesEventDate) setEventDate(nextDate);
             else if (nextDate) { setDate(nextDate); setMeal(String(form.get('meal') ?? '')); }
           }} className="flex flex-wrap items-end gap-3 rounded-xl border border-white/10 p-4">
-            <label className="space-y-1.5 text-xs text-muted-foreground"><span className="block">{isEvent ? 'Occurrence date filter (optional)' : 'Campus service date'}</span><input type="date" name="date" required={!isEvent} aria-label={isEvent ? 'Occurrence date filter' : 'Campus service date'} defaultValue={profileDate} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-foreground [color-scheme:dark]" /></label>
-            {!isEvent && <label className="space-y-1.5 text-xs text-muted-foreground"><span className="block">Meal</span><select name="meal" aria-label="Meal" defaultValue={meal} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-foreground"><option value="">All meals</option>{mealOptions.map(label => <option key={label}>{label}</option>)}</select></label>}
-            <button type="submit" className="rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-xs text-sky-200 hover:bg-sky-400/20">{isEvent ? 'Apply occurrence date' : 'Apply date & meal'}</button>
-            <p className="pb-2 text-[11px] text-muted-foreground">{isEvent ? 'America/New_York · Leave blank to show this occurrence’s published date' : 'America/New_York · Applies to hours and menus'}</p>
+            <label className="space-y-1.5 text-xs text-muted-foreground"><span className="block">{dateLabel}{usesEventDate ? ' (optional)' : ''}</span><input type="date" name="date" required={!usesEventDate} aria-label={dateLabel} defaultValue={profileDate} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-foreground [color-scheme:dark]" /></label>
+            {!usesEventDate && <label className="space-y-1.5 text-xs text-muted-foreground"><span className="block">Meal</span><select name="meal" aria-label="Meal" defaultValue={meal} className="rounded-lg border border-white/15 bg-neutral-900 px-3 py-2 text-foreground"><option value="">All meals</option>{mealOptions.map(label => <option key={label}>{label}</option>)}</select></label>}
+            <button type="submit" className="rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-xs text-sky-200 hover:bg-sky-400/20">{isEvent ? 'Apply occurrence date' : usesEventDate ? 'Apply event date' : 'Apply date & meal'}</button>
+            <p className="pb-2 text-[11px] text-muted-foreground">{usesEventDate ? 'America/New_York · Leave blank to include linked occurrences across dates' : 'America/New_York · Applies to hours and menus'}</p>
           </form>
           {profileLoading && <p role="status" className="flex items-center gap-2 p-5 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Assembling linked evidence…</p>}
           {profileError && <div role="alert" className="flex gap-2 rounded-xl border border-amber-400/25 bg-amber-400/5 p-4 text-sm text-amber-200"><AlertTriangle className="h-4 w-4 shrink-0" />{profileError}</div>}
           {profile && profileKey === selectionKey && !profileLoading && <ProfileEvidence data={profile} section={section} onSection={setSection} />}
         </div>
         <JsonViewer data={selected} title="Identity links and relationship evidence" downloadFileName={`identity-${selected.id}.json`} />
-      </div> : <p className="p-8 text-sm text-muted-foreground">This release has no identities to inspect.</p>}
+        </> : <p className="rounded-xl border border-dashed border-white/10 p-5 text-xs text-muted-foreground">Select a campus identity to inspect its original source records and selectively assembled profile.</p>}
+      </div>
     </div> : <section id="unresolved-panel" role="tabpanel" aria-labelledby="unresolved-tab" className="space-y-4">
       <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4"><h2 className="text-sm font-semibold text-amber-100">Connections that need more evidence</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">These are issue entries, not missing people. Undated course titles stay usable as lists even when a catalog link cannot be approved. Original unlinked records remain searchable.</p></div>
       <input aria-label="Search unresolved issues" value={query} onChange={event => { setQuery(event.target.value); setIssueLimit(50); }} placeholder="Search an identity, record or reason…" className="w-full rounded-lg border border-white/15 bg-neutral-950/40 px-4 py-3 text-sm" />

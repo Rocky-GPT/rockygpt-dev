@@ -160,8 +160,8 @@ export const NAVIGATION: NavSection[] = [
       },
       {
         href: '/data/entities',
-        label: 'Identity Explorer',
-        description: 'Visualize identities, linked evidence and explicit relationships',
+        label: 'Campus Graph',
+        description: 'Explore Ramapo College identities, original records and evidenced connections',
         icon: Tags,
         status: 'ready',
         upstream: 'GET /v1/dev/identities + GET /v1/dev/identities/{id}',

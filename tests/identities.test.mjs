@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  componentState, defaultProfileSection, displayValue, KIND_LABELS, profileQueryParams,
+  componentState, defaultProfileSection, displayValue, identityNeighborhood, KIND_LABELS, profileQueryParams, profileSelectionFilters,
   publishedMealLabels, recordsForSection, relatedIdentityNodes, safeSourceUrl, sectionForCollection,
 } from '../lib/identities.ts';
 
@@ -80,6 +80,18 @@ test('an event profile has no implicit today or meal filter, and an explicit dat
   assert.equal(dining.get('meal'), 'Lite Lunch');
 });
 
+test('selecting a club after dining cannot inherit its service date or meal', () => {
+  const dining = profileSelectionFilters('venue', '2026-09-21', 'Dinner', '');
+  assert.deepEqual(dining, { date: '2026-09-21', meal: 'Dinner' });
+  const club = profileSelectionFilters('club', '2026-09-21', 'Dinner', '');
+  assert.deepEqual(club, { date: '', meal: '' });
+  const params = profileQueryParams('club', 'release-a', club.date, club.meal);
+  assert.equal(params.has('date'), false);
+  assert.equal(params.has('meal'), false);
+  assert.deepEqual(profileSelectionFilters('club', '2026-09-21', 'Dinner', '2026-09-26'), { date: '2026-09-26', meal: '' });
+  assert.equal(profileQueryParams('club', 'release-a', '', 'Dinner').has('meal'), false);
+});
+
 test('event evidence preserves occurrence dates, missing times and original source timestamps', () => {
   const event = {
     id: 'events:row-1', collection: 'events', collected_at: '2026-09-21T15:00:00Z',
@@ -138,4 +150,64 @@ test('existing convener and undated catalog-course relationships retain their me
   assert.equal(convener.label, 'Convener of');
   assert.equal(convener.detail, 'Academic program identity');
   assert.equal(relatedIdentityNodes(program, [person, program])[0].label, 'Has convener');
+});
+
+test('graph expands explicit incoming relationships and preserves their exact source references', () => {
+  const club = identity('club-1', 'club');
+  const reference = { collection: 'events', source_key: 'archway-events', source_record_key: 'original:key', source_record_id: 'original-row', field: 'organizer_group_id', source_url: 'https://example.edu/event' };
+  const event = identity('event-1', 'event', [{ type: 'organized_by', target_entity_id: club.id, target_record: null, evidence: [reference] }]);
+  const sameName = { ...identity('unrelated', 'event'), name: club.name };
+  const graph = identityNeighborhood([club, event, sameName], club.id, [club.id]);
+  assert.deepEqual(graph.nodes.map(node => node.id), [club.id, event.id]);
+  assert.equal(graph.edges.length, 1);
+  assert.equal(graph.edges[0].from, event.id);
+  assert.equal(graph.edges[0].to, club.id);
+  assert.deepEqual(graph.edges[0].evidence, [reference]);
+  assert.equal(graph.nodes.some(node => node.id === 'campus' || node.id.startsWith('kind:')), false);
+});
+
+test('record groups keep large menus compact while preserving all original keys', () => {
+  const venue = identity('venue-1', 'venue');
+  const keys = Array.from({ length: 900 }, (_, index) => `menu-${index}`);
+  venue.links = [{ collection: 'menu', source_key: 'dining', source_record_keys: keys }];
+  const graph = identityNeighborhood([venue], venue.id, [venue.id]);
+  assert.equal(graph.nodes.length, 2);
+  const source = graph.nodes.find(node => node.type === 'sources');
+  assert.equal(source.count, 900);
+  assert.deepEqual(source.links[0].source_record_keys, keys);
+  assert.equal(source.section, 'menu');
+  assert.equal(graph.edges[0].type, 'source');
+});
+
+test('shared catalog records have multiple evidenced edges without becoming identities', () => {
+  const relation = { type: 'profile_course', target_entity_id: null, target_record: { collection: 'courses', source_key: 'catalog', source_record_key: 'MUSI 101' }, evidence: [{ collection: 'faculty', source_key: 'faculty', source_record_key: 'prof', field: 'courses' }] };
+  const first = identity('person-1', 'person', [relation]);
+  const second = identity('person-2', 'person', [relation]);
+  const graph = identityNeighborhood([first, second], second.id, [second.id, first.id]);
+  assert.equal(graph.nodes.filter(node => node.type === 'course').length, 1);
+  assert.equal(graph.edges.filter(edge => edge.type === 'profile_course').length, 2);
+  assert.equal(graph.nodes.filter(node => node.type === 'identity').length, 2);
+});
+
+test('neighborhood limits report omitted identities and record groups and retain the focus', () => {
+  const club = identity('club-1', 'club');
+  club.links = ['clubs', 'contacts', 'campus_hours'].map(collection => ({ collection, source_key: collection, source_record_keys: ['key'] }));
+  const events = Array.from({ length: 12 }, (_, index) => identity(`event-${index}`, 'event', [{ type: 'organized_by', target_entity_id: club.id, target_record: null, evidence: [] }]));
+  const graph = identityNeighborhood([club, ...events], club.id, [club.id], { identities: 3, records: 1 });
+  assert.equal(graph.nodes[0].id, club.id);
+  assert.equal(graph.nodes.filter(node => node.type === 'identity').length, 3);
+  assert.equal(graph.omittedIdentities, 10);
+  assert.equal(graph.omittedRecordGroups, 2);
+  assert.equal(graph.edges.every(edge => graph.nodes.some(node => node.id === edge.from) && graph.nodes.some(node => node.id === edge.to)), true);
+});
+
+test('collapsing all expansions removes inferred neighbors and missing targets are reported', () => {
+  const event = identity('event-1', 'event', [{ type: 'organized_by', target_entity_id: 'missing', target_record: null, evidence: [] }]);
+  const graph = identityNeighborhood([event], event.id, [event.id]);
+  assert.equal(graph.unavailableTargets, 1);
+  assert.equal(graph.edges.length, 0);
+  const collapsed = identityNeighborhood([event], event.id, []);
+  assert.deepEqual(collapsed.nodes.map(node => node.id), [event.id]);
+  assert.equal(collapsed.edges.length, 0);
+  assert.equal(event.relationships.length, 1);
 });

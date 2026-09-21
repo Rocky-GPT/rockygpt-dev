@@ -337,7 +337,24 @@ export function RecordTable({
                       column === 'phones' ? 'max-w-[28rem]' : 'max-w-[22rem] truncate'
                     }`}
                   >
-                    {column === 'phones' && Array.isArray(row[column]) ? (
+                    {column === 'hours' ? (
+                      Array.isArray(row[column]) ? (
+                        row[column].length === 0 ? (
+                          <span className="text-muted-foreground">Closed</span>
+                        ) : (
+                          <div className="flex flex-col gap-1 font-mono text-[11px]">
+                            {(row[column] as { open: string; close: string; close_day_offset?: number }[]).map((interval, i) => (
+                              <span key={i}>
+                                {interval.open}–{interval.close}
+                                {interval.close_day_offset === 1 && (
+                                  <span className="ml-1 text-muted-foreground">(next day)</span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        )
+                      ) : <span className="text-muted-foreground">Unknown</span>
+                    ) : column === 'phones' && Array.isArray(row[column]) ? (
                       row[column].length === 0 ? (
                         <span className="font-mono text-[11px] text-muted-foreground/40">—</span>
                       ) : (

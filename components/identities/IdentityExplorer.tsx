@@ -22,6 +22,7 @@ export function IdentityExplorer() {
   const [indexError, setIndexError] = useState('');
   const [reload, setReload] = useState(0);
   const [selectedId, setSelectedId] = useState('');
+  const [navigationEpoch, setNavigationEpoch] = useState(0);
   const [query, setQuery] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
   const [identityLimit, setIdentityLimit] = useState(40);
@@ -84,6 +85,7 @@ export function IdentityExplorer() {
   const relationshipCount = index?.identities.reduce((sum, entity) => sum + entity.relationships.length, 0) ?? 0;
 
   function selectEntity(id: string) {
+    setNavigationEpoch(value => value + 1);
     if (id === selectedId) return;
     const entity = index?.identities.find(item => item.id === id);
     if (!entity) return;
@@ -127,7 +129,7 @@ export function IdentityExplorer() {
     </div>
     {tab === 'connections' ? <div id="connections-panel" role="tabpanel" aria-labelledby="connections-tab" className="grid min-w-0 items-start gap-5">
       <div className="min-w-0 space-y-5">
-        <IdentityWeb entity={selected} identities={index.identities} profile={profile && profileKey === selectionKey ? profile : undefined} onSelectEntity={id => { setQuery(''); selectEntity(id); }} onSection={inspectSection} onClearSelection={clearSelection} search={
+        <IdentityWeb datasetVersion={index.dataset_version} identityHash={index.identity_hash} navigationEpoch={navigationEpoch} entity={selected} identities={index.identities} profile={profile && profileKey === selectionKey ? profile : undefined} onSelectEntity={id => { setQuery(''); selectEntity(id); }} onSection={inspectSection} onClearSelection={clearSelection} search={
           <div className="relative w-full sm:w-80" onFocus={() => setSearchFocused(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setSearchFocused(false); }}>
             <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search className="h-4 w-4 shrink-0 text-muted-foreground" /><input aria-label="Search identities" placeholder="Search names, aliases, IDs…" value={query} onChange={event => { setQuery(event.target.value); setIdentityLimit(40); }} onKeyDown={event => { if (event.key === 'Escape') { setQuery(''); setSearchFocused(false); } }} className="min-w-0 flex-1 bg-transparent py-2.5 text-xs outline-none" /></label>
             {searchFocused && query.trim() && <div role="region" aria-label="Identity search results" className="absolute inset-x-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-xl border border-white/15 bg-neutral-950 shadow-xl">

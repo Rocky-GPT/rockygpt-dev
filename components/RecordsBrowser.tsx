@@ -159,7 +159,7 @@ export function RecordsBrowser({
         cache: 'no-store',
       });
       const body = await response.json();
-      if (!response.ok) {
+      if (!response.ok || body?.error) {
         throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
       }
       setState(body);

@@ -26,6 +26,9 @@ export async function GET(request: NextRequest) {
         );
       }
       const data = await res.json();
+      if (data?.error) {
+        return NextResponse.json({ error: data.error }, { status: 502 });
+      }
       return NextResponse.json(data);
     }
 
@@ -56,6 +59,14 @@ export async function GET(request: NextRequest) {
           };
         }
         const rData = await rRes.json();
+        if (rData?.error) {
+          return {
+            capability: cap.capability,
+            records: [],
+            describes: cap.describes,
+            error: rData.error,
+          };
+        }
         return {
           capability: cap.capability,
           records: rData.records || [],
@@ -72,6 +83,16 @@ export async function GET(request: NextRequest) {
     });
 
     const results = await Promise.all(recordPromises);
+    const failures = results.filter((result) => result.error);
+    if (failures.length) {
+      return NextResponse.json(
+        {
+          error: `Export failed for: ${failures.map((result) => result.capability).join(', ')}.`,
+          failures: failures.map(({ capability, error }) => ({ capability, error })),
+        },
+        { status: 502 }
+      );
+    }
 
     const summary: Record<string, number> = {};
     const capabilitiesMap: Record<

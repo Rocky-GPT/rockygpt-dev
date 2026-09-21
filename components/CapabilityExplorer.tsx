@@ -132,10 +132,7 @@ export function CapabilityExplorer({
         cache: 'no-store',
       });
       const body = await response.json();
-      if (!response.ok) {
-        // The brain's own refusal, unreworded. Its "There is no 'shuttle'
-        // capability." is the fastest way to learn that the registry name is
-        // `transportation` and the alias does not resolve on this route.
+      if (!response.ok || body?.error) {
         throw new Error(body?.error?.message ?? body?.error ?? `HTTP ${response.status}`);
       }
       setState(body as Records);
@@ -228,8 +225,7 @@ export function RecordTable({
   if (state.records.length === 0) {
     return (
       <p className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-muted-foreground">
-        The lookup ran and returned nothing. That is an answer rather than a
-        failure — there is none of this right now.
+        No records were returned from the active dataset for this capability.
       </p>
     );
   }

@@ -236,7 +236,7 @@ export function RecordsBrowser({
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-foreground">Data Export & Analysis</h3>
               <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-400 border border-sky-500/20">
-                14 Capabilities
+                {capabilities.length} Capabilities
               </span>
             </div>
             <p className="text-xs text-muted-foreground">

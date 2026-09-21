@@ -19,12 +19,22 @@ It does not depend on internal classifier labels or pipeline stages.
 
 Answer-quality evaluation lives in the sibling `rockygpt-evals` repository.
 
-## Identity Explorer
+## Campus Graph
 
-Open **Data → Identity Explorer** (`/data/entities`) to inspect the active
-identity release. Search names, aliases or persistent IDs and filter by kind.
-The diagram separates linked original records from explicit relationships;
-click a source to inspect its section or a related person/program to navigate.
+Open **Data → Campus Graph** (`/data/entities`) to inspect the active
+identity release. Start at Ramapo College, browse a category, or search names,
+aliases or persistent IDs to jump directly to an identity. Category navigation
+uses gray dotted edges; it does not assert an organizational or location fact.
+Identity relationships use teal dashed edges and original records use solid sky
+edges. Selecting identities expands their immediate connections while retaining
+the visited neighborhood. Focus, collapse, clear, or return to Ramapo College to
+reduce the view. The graph shows at most eight identities and twelve record
+groups, reports omitted counts, and pages category results eight at a time.
+All source records, including data without identities, remain accessible from
+the graph. Edge inspectors expose exact evidence references and safe source
+links; source capture timestamps are shown when available in the loaded profile.
+Click a source group to inspect its section. The original connection list remains
+available below the graph.
 Selections are addressable with `?entity=<persistent-id>`.
 
 The evidence inspector preserves source IDs, timestamps and conflicting values.
@@ -35,9 +45,9 @@ The Unresolved view explains links that still need evidence. Both the identity
 and the exact assembled profile can be downloaded as JSON.
 
 Clubs and event occurrences appear alongside people, offices, facilities, dining
-venues and academic programs. Event identities retain their published dates;
-the optional occurrence-date filter does not default to today or inherit a dining
-meal selection. Explicit organizer links can be followed in either direction.
+venues and academic programs. Events and club-linked occurrences retain their
+published dates; optional event-date filters do not default to today or inherit
+a dining meal selection. Explicit organizer links can be followed in either direction.
 An organizer or location mentioned only by name remains source information, not
 an inferred identity relationship. Administrative entries in a club directory
 are not automatically treated as student clubs.

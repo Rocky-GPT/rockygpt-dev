@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
-import Link from 'next/link';
+import { useEffect, useId, useMemo, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Focus, Home, Minus, Network, Plus, Search, X } from 'lucide-react';
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/lib/identities';
 
 type Props = {
+  search: ReactNode;
   entity?: Identity;
   identities: Identity[];
   profile?: ProfileResponse;
@@ -55,7 +55,7 @@ function sectionForEdge(edge: IdentityWebEdge): ProfileSection {
   return edge.type === 'organized_by' ? 'event' : edge.type === 'convener' ? 'conveners' : 'courses';
 }
 
-export function IdentityWeb({ entity, identities, profile, onSection, onSelectEntity, onClearSelection }: Props) {
+export function IdentityWeb({ search, entity, identities, profile, onSection, onSelectEntity, onClearSelection }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(entity ? 'identity' : 'campus');
   const [category, setCategory] = useState<IdentityKind>('person');
@@ -147,7 +147,7 @@ export function IdentityWeb({ entity, identities, profile, onSection, onSelectEn
         {mode === 'category' && <><ChevronRight className="h-3 w-3 text-neutral-500" /><span className="truncate text-xs text-neutral-300">{KIND_LABELS[category]}</span></>}
         {mode === 'identity' && entity && <><ChevronRight className="h-3 w-3 shrink-0 text-neutral-500" /><button type="button" onClick={() => browse(entity.kind)} className="text-xs text-neutral-300 hover:text-white">{KIND_LABELS[entity.kind]}</button></>}
       </div>
-      <Link href="/data/records" className="flex items-center gap-1.5 rounded-md text-xs text-neutral-300 hover:text-white">All source records<ExternalLink className="h-3 w-3" /></Link>
+      {search}
     </div>
     <div className="space-y-3 px-4 pt-4 sm:px-5">
       <div className="flex flex-wrap items-start justify-between gap-3">

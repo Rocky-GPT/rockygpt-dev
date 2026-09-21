@@ -1,18 +1,20 @@
-export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu';
-export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program';
+export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event';
+export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'event';
 
 export interface RecordReference {
   collection: string;
   source_key: string;
   source_record_key: string;
+  source_record_id?: string;
 }
 export interface IdentityLink {
   collection: string;
   source_key: string;
   source_record_keys: string[];
+  source_record_ids?: string[];
 }
 export interface IdentityRelationship {
-  type: 'convener' | 'profile_course';
+  type: 'convener' | 'profile_course' | 'organized_by';
   target_entity_id: string | null;
   target_record: RecordReference | null;
   evidence: (RecordReference & { field: string; source_url?: string | null })[];
@@ -73,6 +75,9 @@ export interface ProfileComponent {
   meal?: string | null;
   availability_scope?: string;
   temporal_scope?: string;
+  timezone?: string;
+  requested_date?: string | null;
+  occurrence_dates?: string[];
 }
 export interface ProfileResponse {
   dataset_version: string;
@@ -92,18 +97,89 @@ export const SECTIONS: { key: ProfileSection; label: string }[] = [
   { key: 'hours', label: 'Hours' },
   { key: 'faculty', label: 'Faculty profile' },
   { key: 'courses', label: 'Profile courses' },
-  { key: 'program', label: 'Program' },
+  { key: 'program', label: 'Academic program' },
   { key: 'conveners', label: 'Conveners' },
   { key: 'menu', label: 'Menu' },
+  { key: 'club', label: 'Club' },
+  { key: 'event', label: 'Event occurrence' },
 ];
 export const KIND_LABELS: Record<IdentityKind, string> = {
-  person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining venues', program: 'Programs',
+  person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining venues', program: 'Academic programs',
+  club: 'Clubs', event: 'Events',
 };
+
+export interface RelatedIdentityNode {
+  key: string;
+  name: string;
+  label: string;
+  detail: string;
+  entityId?: string;
+  section: ProfileSection;
+  kind: IdentityKind | 'course';
+}
+
+export function relatedIdentityNodes(entity: Identity, identities: Identity[]): RelatedIdentityNode[] {
+  const byId = new Map(identities.map(identity => [identity.id, identity]));
+  const nodes = new Map<string, RelatedIdentityNode>();
+  const definitions = {
+    convener: { label: 'Has convener', reverse: 'Convener of', section: 'conveners', kind: 'person' },
+    organized_by: { label: 'Organized by', reverse: 'Organizes event', section: 'event', kind: 'club' },
+  } as const;
+  for (const relationship of entity.relationships ?? []) {
+    if (relationship.type === 'profile_course' && relationship.target_record) {
+      const target = relationship.target_record;
+      const key = `course:${target.source_key}:${target.source_record_key}`;
+      nodes.set(key, {
+        key, name: target.source_record_key, label: 'Profile-listed course',
+        detail: 'Undated list · catalog link', section: 'courses', kind: 'course',
+      });
+    } else if (relationship.type !== 'profile_course' && relationship.target_entity_id) {
+      const definition = definitions[relationship.type];
+      if (!definition) continue;
+      const target = byId.get(relationship.target_entity_id);
+      const key = `${relationship.type}:${relationship.target_entity_id}`;
+      nodes.set(key, {
+        key, name: target?.name ?? 'Related identity unavailable', label: definition.label,
+        detail: target ? 'Explicit identity relationship' : 'View published relationship evidence',
+        entityId: target?.id, section: definition.section, kind: target?.kind ?? definition.kind,
+      });
+    }
+  }
+  for (const candidate of identities) {
+    for (const relationship of candidate.relationships ?? []) {
+      if (relationship.type === 'profile_course' || relationship.target_entity_id !== entity.id) continue;
+      const definition = definitions[relationship.type];
+      if (!definition) continue;
+      const key = `${relationship.type}-of:${candidate.id}`;
+      nodes.set(key, {
+        key, name: candidate.name, label: definition.reverse,
+        detail: candidate.kind === 'program' ? 'Academic program identity' : 'Event occurrence identity',
+        entityId: candidate.id, section: definition.section, kind: candidate.kind,
+      });
+    }
+  }
+  return [...nodes.values()];
+}
+
+export function defaultProfileSection(kind: IdentityKind): ProfileSection {
+  if (kind === 'program') return 'conveners';
+  if (kind === 'venue' || kind === 'facility') return 'hours';
+  if (kind === 'club' || kind === 'event') return kind;
+  return 'contact';
+}
+
+export function profileQueryParams(kind: IdentityKind, datasetVersion: string, date: string, meal: string): URLSearchParams {
+  const params = new URLSearchParams({ dataset_version: datasetVersion, menu_limit: '12' });
+  // An event identity is an occurrence. An empty date must not become campus today.
+  if (date) params.set('date', date);
+  if (kind !== 'event' && meal.trim()) params.set('meal', meal.trim());
+  return params;
+}
 
 export function sectionForCollection(collection: string): ProfileSection {
   const sections: Record<string, ProfileSection> = {
     contacts: 'contact', campus_hours: 'hours', dining_hours: 'hours', faculty: 'faculty',
-    courses: 'courses', programs: 'program', menu: 'menu',
+    courses: 'courses', programs: 'program', menu: 'menu', clubs: 'club', events: 'event',
   };
   return sections[collection] ?? 'contact';
 }

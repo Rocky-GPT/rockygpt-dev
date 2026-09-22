@@ -47,7 +47,8 @@ export function fieldPreview(value: unknown): string {
 export type TraversalStep =
   | { type: 'campus'; label: string }
   | { type: 'category'; label: string; kind: string; query: string }
-  | { type: 'entity'; label: string; id: string; via?: string };
+  | { type: 'entity'; label: string; id: string; via?: string }
+  | { type: 'attachment'; label: string; entityId: string; nodeId: string };
 export const CAMPUS: TraversalStep = { type: 'campus', label: 'Ramapo College' };
 const labels: Record<string, string> = { person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining locations', program: 'Programs', club: 'Clubs', event: 'Events', course: 'Courses' };
 export function kindLabel(kind: string) { return labels[kind] ?? `${kind.replaceAll('_', ' ')}s`; }

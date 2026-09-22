@@ -2,7 +2,7 @@ import { proxyBrainProbe } from '@/lib/brain-proxy';
 
 export const dynamic = 'force-dynamic';
 
-/** Additive inspection path; the current explorer continues using /properties. */
+/** Additive inspection path used by the opt-in projection explorer. */
 export async function GET(request: Request) {
   const incoming = new URL(request.url).searchParams;
   const query = new URLSearchParams();

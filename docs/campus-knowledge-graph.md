@@ -16,7 +16,7 @@ reported as ambiguous and do not produce a course identity or a guessed edge.
 Profile-to-course relationships resolve only through exact published references.
 They retain the label “lists course (undated)”; they do not establish `teaches`.
 
-Source records never become traversal nodes. Scalar fields, arrays, and structured
+In the default legacy projection, source records never become traversal nodes. Scalar fields, arrays, and structured
 properties appear as attached field nodes around their entity, preserving separate source values,
 provenance, collection dates, validity, limitations, false, zero, and missing data.
 Leaf nodes are green and non-clickable; their complete values and source details
@@ -61,3 +61,72 @@ Validation: `npm run typecheck`, `npm run lint`, `npm run test:graph`,
 `npm run test:identities`; Brain tests in `tests/test_knowledge_graph.py` and the
 existing graph/identity API suites. Browser checks cover entity/course navigation,
 reverse relationships, properties, category restoration, and the single breadcrumb.
+
+## Stage 2: opt-in projection explorer
+
+Open `/data/entities?projection=v1` to use the versioned projection in this visit.
+An `entity` query parameter can be combined with the flag. The server setting
+`DEV_GRAPH_PROJECTION_V1=true` enables it for the Dev Explorer; its default is off.
+`?projection=legacy` explicitly restores the old path. No student-facing UI,
+Brain query behavior, source mappings, or database schemas change in this stage.
+
+`lib/graph-projection.ts` validates and consumes the v1 contract. The generic
+`ProjectionGraph` canvas handles three attachment types:
+
+- Direct properties retain every assertion and its provenance; conflicting
+  scalar assertions remain separate values in one non-clickable leaf.
+- Contextual groups contain individual record nodes identified by published IDs,
+  never by names. Each record owns its context fields, properties and explicit
+  relationships. Repeated dish names and seasonal schedules stay separate.
+- Explicit relationships resolve canonical IDs against the knowledge index,
+  preserving direction, predicate, exact evidence and registry locator. Plain
+  property values never create links. Unresolved IDs are not guessed.
+
+Groups, records and structured property children extend the Explorer's existing
+breadcrumb. There is no second path or bottom Properties panel. Green leaves
+remain non-clickable and scrollable, with complete value and source text; blue
+nodes navigate to their children or a canonical entity. Source limitations,
+publication status, collection time, freshness, validity, original row ID and
+field path stay attached to each assertion. Relationship evidence has a separate
+accessible dialog. Search is labelled as search, not a factual edge. Back and
+ancestor clicks retain the original journey even across projection/legacy views.
+Deep links restore the owning entity; attachment traversal remains session state.
+
+Record groups load sequentially in pages of 100 and append automatically into one
+continuous list, with progress counts and no Previous/Next controls. Requests bind
+the dataset, identity hash, entity, group, filters and page size; merging also
+checks mapping version, ordering, total and duplicate IDs. A continuation cannot
+replace direct properties or entity relationships. Repeated cursors stop loading.
+Unmounting an entity aborts pending requests; stale responses cannot update a
+different entity. A request times out rather than waiting indefinitely.
+
+Fallback is deliberately explicit:
+
+- Any `collection_not_migrated` coverage issue uses the unchanged `EntityGraph`
+  for the entire entity. This preserves existing course, faculty, club, event and
+  program data without merging incompatible projection semantics.
+- Dining can have incomplete contact fields while its contextual records are
+  mapped. Show projected content with coverage details and a link to the existing
+  projection; do not silently imply completeness or expose omitted storage fields.
+- An unavailable endpoint or unsupported initial response uses the existing view.
+- A page failure retains already loaded records, an explicit partial-state error,
+  and a retry action. A release/identity/mapping mismatch requires a graph reload
+  and never silently falls back across snapshots.
+
+The flag can be disabled without rollback or data migration. The existing index
+download remains an index export, not an export of attachment pages.
+
+Validation adds `tests/graph-projection.test.mjs` to `npm run test:graph`:
+record boundaries, provenance, scalar/structured leaves, conflicts, directional
+and record-subject relationships, breadcrumb traversal, continuation scope,
+malformed contracts, missing records, fallback and request cancellation.
+A synthetic requirement-group fixture checks generic renderer support; actual
+program requirement publication and cross-domain proof remain Stage 3.
+
+Stage-two verification: 38 graph tests and 19 identity tests pass, along with
+typecheck, lint and the production build. Live browser checks on the published
+local release loaded all 887 Birch offerings and 21 hours records; checked
+separate same-name offerings, schedule validity, nested allergen provenance,
+non-clickable green leaves, ancestor navigation, Sports Club/event fallback and
+relationship traversal, and Back restoration of the original hours record.
+Flag-off behavior continues to render only the legacy graph.

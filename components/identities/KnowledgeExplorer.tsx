@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronRight, Download, Home, RefreshCw, Search } from 'lucide-react';
 import { EntityGraph } from './EntityGraph';
+import { ProjectionGraph } from './ProjectionGraph';
 import { CAMPUS, kindLabel, traverse, type CampusEntity, type KnowledgeIndex, type TraversalStep } from '@/lib/knowledge-graph';
 
 async function read<T>(operation: string, params: URLSearchParams, signal?: AbortSignal): Promise<T> {
@@ -14,7 +15,7 @@ async function read<T>(operation: string, params: URLSearchParams, signal?: Abor
 const button = 'rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5 disabled:opacity-30';
 const PAGE_SIZE = 8;
 
-export function KnowledgeExplorer() {
+export function KnowledgeExplorer({ projectionEnabled = false }: { projectionEnabled?: boolean }) {
   const [graph, setGraph] = useState<KnowledgeIndex>();
   const [error, setError] = useState('');
   const [reload, setReload] = useState(0);
@@ -27,10 +28,10 @@ export function KnowledgeExplorer() {
   }, [reload]);
   if (error) return <div role="alert" className="space-y-4 rounded-xl border border-amber-400/30 p-6"><p>{error}</p><button className={button} onClick={() => setReload(value => value + 1)}>Retry loading graph</button></div>;
   if (!graph) return <p role="status" className="p-8 text-sm text-muted-foreground">Loading campus knowledge…</p>;
-  return <Explorer key={`${graph.dataset_version}:${graph.identity_hash}`} graph={graph} reload={() => setReload(value => value + 1)} />;
+  return <Explorer key={`${graph.dataset_version}:${graph.identity_hash}:${projectionEnabled}`} graph={graph} projectionEnabled={projectionEnabled} reload={() => setReload(value => value + 1)} />;
 }
 
-function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void }) {
+function Explorer({ graph, reload, projectionEnabled }: { graph: KnowledgeIndex; reload: () => void; projectionEnabled: boolean }) {
   const [path, setPath] = useState<TraversalStep[]>(() => {
     const id = typeof window === 'undefined' ? null : new URL(window.location.href).searchParams.get('entity');
     const node = graph.nodes.find(item => item.id === id);
@@ -39,7 +40,7 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
   const [search, setSearch] = useState('');
   const [searchLimit, setSearchLimit] = useState(PAGE_SIZE);
   const current = path.at(-1)!;
-  const entity = current.type === 'entity' ? graph.nodes.find(node => node.id === current.id) : undefined;
+  const entity = current.type === 'entity' || current.type === 'attachment' ? graph.nodes.find(node => node.id === (current.type === 'entity' ? current.id : current.entityId)) : undefined;
   const categories = useMemo(() => [...new Set(graph.nodes.map(node => node.kind))].map(kind => ({ kind, label: kindLabel(kind), count: graph.nodes.filter(node => node.kind === kind).length })), [graph]);
   const categoryNodes = current.type === 'category' ? graph.nodes.filter(node => node.kind === current.kind && matches(node, current.query)) : [];
   const searchResults = search.trim() ? graph.nodes.filter(node => matches(node, search)) : [];
@@ -47,7 +48,7 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
     setPath(next); setSearch('');
     const last = next.at(-1)!;
     const url = new URL(window.location.href);
-    if (last.type === 'entity') url.searchParams.set('entity', last.id); else url.searchParams.delete('entity');
+    if (last.type === 'entity' || last.type === 'attachment') url.searchParams.set('entity', last.type === 'entity' ? last.id : last.entityId); else url.searchParams.delete('entity');
     window.history.replaceState(null, '', url);
   }
   function open(node: CampusEntity, via?: string) { navigate(traverse(path, node, via)); }
@@ -82,7 +83,11 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
       <div className="space-y-6 p-5">
         {current.type === 'campus' && <><div><h2 className="text-lg font-semibold">Explore Ramapo College</h2><p className="mt-2 text-sm text-muted-foreground">Choose a starting point, then follow the connections.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.map(item => <button key={item.kind} onClick={() => category(item.kind)} className="rounded-xl border border-sky-400/20 bg-sky-950/20 p-5 text-left hover:border-sky-300"><span className="block font-medium text-sky-100">{item.label}</span><span className="mt-2 block text-xs text-muted-foreground">{item.count.toLocaleString()} entities <ArrowRight className="ml-2 inline" size={13} /></span></button>)}</div></>}
         {current.type === 'category' && <><h2 className="text-lg font-semibold">{current.label}</h2><input aria-label={`Filter ${current.label}`} value={current.query} onChange={event => updateCategory({ query: event.target.value })} placeholder={`Find in ${current.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{categoryNodes.map(node => <EntityButton key={node.id} node={node} onClick={() => open(node)} />)}</div><p className="text-xs text-muted-foreground">{categoryNodes.length.toLocaleString()} {current.query.trim() ? 'matching entities' : 'entities'}</p></>}
-        {entity && <EntityGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} onOpen={open} />}
+        {entity && (projectionEnabled ? <ProjectionGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} onOpen={open}
+          attachmentId={current.type === 'attachment' ? current.nodeId : undefined}
+          onAttachment={(nodeId, label) => navigate([...path, { type: 'attachment', label, entityId: entity.id, nodeId }])}
+          onRoot={() => { const index = path.findLastIndex(step => step.type === 'entity' && step.id === entity.id); navigate(path.slice(0, index + 1)); }} />
+          : <EntityGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} onOpen={open} />)}
       </div>
     </section>
     {graph.diagnostics.length > 0 && <details className="rounded-xl border border-amber-400/20 p-4 text-xs"><summary className="cursor-pointer text-amber-200">{graph.diagnostics.length} data coverage issues</summary><p className="mt-3 text-muted-foreground">Unresolved references remain unlinked. Categories are entry points, not factual relationships.</p><ul className="mt-3 max-h-64 space-y-2 overflow-auto">{graph.diagnostics.map((issue, index) => <li key={index}>{[issue.entity, issue.record, issue.reason].filter(Boolean).map(String).join(' · ')}</li>)}</ul></details>}

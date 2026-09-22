@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CAMPUS, connections, relationshipLabel, traverse } from '../lib/knowledge-graph.ts';
+import { CAMPUS, attachedFields, connections, fieldPreview, relationshipLabel, traverse } from '../lib/knowledge-graph.ts';
 
 const event = { id: 'event', name: 'Hackathon', kind: 'event', aliases: [] };
 const club = { id: 'club', name: 'Computing Club', kind: 'club', aliases: [] };
@@ -40,4 +40,33 @@ test('revisits preserve the journey and missing targets never become guessed ent
   assert.equal(traverse(path, event), path);
   assert.equal(connections({ nodes: [event], edges: graph.edges }, event.id).length, 0);
   assert.equal(relationshipLabel('profile_course'), 'lists course (undated)');
+});
+
+
+test('visual field attachments retain all source values without turning names into entities', () => {
+  const first = { id: 'contacts:one', fields: { phone: 'x123', office: 'Room 10', enabled: false, count: 0, empty: '', missing: null } };
+  const second = { id: 'faculty:one', fields: { phone: 'x456', office: 'Room 10' } };
+  const groups = [{ collection: 'contacts', records: [first] }, { collection: 'faculty', records: [second] }];
+  const before = structuredClone(groups);
+  const fields = attachedFields(groups);
+  assert.deepEqual(fields.find(field => field.key === 'phone').values.map(item => item.value), ['x123', 'x456']);
+  assert.deepEqual(fields.find(field => field.key === 'office').values.map(item => item.record.id), ['contacts:one', 'faculty:one']);
+  assert.equal(fields.find(field => field.key === 'enabled').values[0].value, false);
+  assert.equal(fields.find(field => field.key === 'count').values[0].value, 0);
+  assert.equal(fields.find(field => field.key === 'empty').values[0].value, '');
+  assert.equal(fields.find(field => field.key === 'missing').values[0].value, null);
+  assert.deepEqual(groups, before);
+  assert.equal(fields.some(field => 'target_entity_id' in field), false);
+});
+
+test('node previews distinguish falsy and structured values while preserving full underlying content', () => {
+  assert.equal(fieldPreview(false), 'false');
+  assert.equal(fieldPreview(0), '0');
+  assert.equal(fieldPreview(''), 'Empty value');
+  assert.equal(fieldPreview(null), 'Not published');
+  assert.equal(fieldPreview([]), 'None listed');
+  assert.equal(fieldPreview(['a', 'b']), '2 items · open to explore');
+  assert.equal(fieldPreview({ name: 'Long biography' }), '1 details · open to explore');
+  const text = 'Full biography '.repeat(1000);
+  assert.equal(fieldPreview(text), text);
 });

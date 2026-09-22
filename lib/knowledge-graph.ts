@@ -18,6 +18,32 @@ export interface EntityProperties {
   dataset_version: string; identity_hash: string; entity_id: string;
   groups: PropertyGroup[]; diagnostics: Record<string, unknown>[];
 }
+
+export interface AttachedField {
+  key: string;
+  label: string;
+  values: { value: unknown; record: PropertyRecord; collection: string }[];
+}
+
+/** Fields are visual attachments, never inferred campus identities or relationships. */
+export function attachedFields(groups: PropertyGroup[]): AttachedField[] {
+  const fields = new Map<string, AttachedField>();
+  for (const group of groups) for (const record of group.records) {
+    for (const [key, value] of Object.entries(record.fields)) {
+      const field = fields.get(key) ?? { key, label: key.replaceAll('_', ' '), values: [] };
+      field.values.push({ value, record, collection: group.collection });
+      fields.set(key, field);
+    }
+  }
+  return [...fields.values()];
+}
+
+export function fieldPreview(value: unknown): string {
+  if (value === null || value === undefined) return 'Not published';
+  if (Array.isArray(value)) return value.length ? `${value.length} items · open to explore` : 'None listed';
+  if (typeof value === 'object') return `${Object.keys(value).length} details · open to explore`;
+  return String(value) === '' ? 'Empty value' : String(value);
+}
 export type TraversalStep =
   | { type: 'campus'; label: string }
   | { type: 'category'; label: string; kind: string; query: string }

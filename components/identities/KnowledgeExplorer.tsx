@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronRight, Download, Home, RefreshCw, Search } from 'lucide-react';
-import { safeSourceUrl } from '@/lib/identities';
-import { CAMPUS, connections, kindLabel, traverse, type CampusEntity, type EntityProperties, type KnowledgeIndex, type PropertyGroup, type TraversalStep } from '@/lib/knowledge-graph';
+import { EntityGraph } from './EntityGraph';
+import { CAMPUS, kindLabel, traverse, type CampusEntity, type KnowledgeIndex, type TraversalStep } from '@/lib/knowledge-graph';
 
 async function read<T>(operation: string, params: URLSearchParams, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`/api/brain/graph/${operation}?${params}`, { signal, cache: 'no-store' });
@@ -38,18 +38,13 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
   });
   const [search, setSearch] = useState('');
   const [searchLimit, setSearchLimit] = useState(PAGE_SIZE);
-  const [relationFilter, setRelationFilter] = useState('');
-  const [relationPage, setRelationPage] = useState(0);
   const current = path.at(-1)!;
   const entity = current.type === 'entity' ? graph.nodes.find(node => node.id === current.id) : undefined;
   const categories = useMemo(() => [...new Set(graph.nodes.map(node => node.kind))].map(kind => ({ kind, label: kindLabel(kind), count: graph.nodes.filter(node => node.kind === kind).length })), [graph]);
-  const adjacent = useMemo(() => entity ? connections(graph, entity.id) : [], [graph, entity]);
-  const filteredRelations = adjacent.filter(item => !relationFilter || item.edge.type === relationFilter);
-  const visibleRelations = filteredRelations.slice(relationPage * PAGE_SIZE, (relationPage + 1) * PAGE_SIZE);
   const categoryNodes = current.type === 'category' ? graph.nodes.filter(node => node.kind === current.kind && matches(node, current.query)) : [];
   const searchResults = search.trim() ? graph.nodes.filter(node => matches(node, search)) : [];
   function navigate(next: TraversalStep[]) {
-    setPath(next); setSearch(''); setRelationFilter(''); setRelationPage(0);
+    setPath(next); setSearch('');
     const last = next.at(-1)!;
     const url = new URL(window.location.href);
     if (last.type === 'entity') url.searchParams.set('entity', last.id); else url.searchParams.delete('entity');
@@ -87,92 +82,12 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
       <div className="space-y-6 p-5">
         {current.type === 'campus' && <><div><h2 className="text-lg font-semibold">Explore Ramapo College</h2><p className="mt-2 text-sm text-muted-foreground">Choose a starting point, then follow the connections.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.map(item => <button key={item.kind} onClick={() => category(item.kind)} className="rounded-xl border border-sky-400/20 bg-sky-950/20 p-5 text-left hover:border-sky-300"><span className="block font-medium text-sky-100">{item.label}</span><span className="mt-2 block text-xs text-muted-foreground">{item.count.toLocaleString()} entities <ArrowRight className="ml-2 inline" size={13} /></span></button>)}</div></>}
         {current.type === 'category' && <><h2 className="text-lg font-semibold">{current.label}</h2><input aria-label={`Filter ${current.label}`} value={current.query} onChange={event => updateCategory({ query: event.target.value })} placeholder={`Find in ${current.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{categoryNodes.map(node => <EntityButton key={node.id} node={node} onClick={() => open(node)} />)}</div><p className="text-xs text-muted-foreground">{categoryNodes.length.toLocaleString()} {current.query.trim() ? 'matching entities' : 'entities'}</p></>}
-        {entity && <>
-          <div><p className="text-xs uppercase tracking-wider text-teal-300">{entity.kind.replaceAll('_', ' ')}</p><h2 className="mt-2 text-xl font-semibold">{entity.name}</h2>{entity.aliases.length > 0 && <p className="mt-2 text-xs text-muted-foreground">Also known as: {entity.aliases.join(' · ')}</p>}</div>
-          <section aria-label="Entity relationships" className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-sm font-semibold">Connections <span className="text-muted-foreground">({adjacent.length})</span></h3>{adjacent.length > 0 && <select aria-label="Filter relationships" value={relationFilter} onChange={event => { setRelationFilter(event.target.value); setRelationPage(0); }} className="rounded-lg border border-white/15 bg-neutral-900 p-2 text-xs"><option value="">All relationships</option>{[...new Set(adjacent.map(item => item.edge.type))].map(type => <option key={type} value={type}>{type.replaceAll('_', ' ')}</option>)}</select>}</div>
-            {visibleRelations.length > 0 && <ConnectionMap entity={entity} items={visibleRelations} onOpen={open} />}
-            {visibleRelations.length > 0 ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{visibleRelations.map(item => <article key={item.key} className="rounded-xl border border-teal-400/25 bg-teal-950/10 p-4"><button onClick={() => open(item.target, item.label)} className="w-full text-left"><span className="flex items-center gap-2 text-xs text-teal-300">{item.label}<ArrowRight size={13} /></span><span className="mt-3 block text-sm font-medium text-white">{item.target.name}</span><span className="mt-1 block text-xs text-muted-foreground">{item.target.kind.replaceAll('_', ' ')}</span></button><details className="mt-3 border-t border-white/10 pt-3 text-[11px] text-muted-foreground"><summary className="cursor-pointer">Relationship evidence</summary>{item.edge.evidence.map((ref, index) => <p key={index} className="mt-2 break-words">{ref.source_key} · {ref.source_record_key} · {ref.field}{ref.source_url && <SourceLink url={ref.source_url} />}</p>)}</details></article>)}</div> : <p className="text-sm text-muted-foreground">No published relationships in this scope. Properties may contain names that have not yet been linked to an entity.</p>}
-            {filteredRelations.length > PAGE_SIZE && <Pagination page={relationPage} total={filteredRelations.length} onPage={setRelationPage} />}
-          </section>
-          <Properties key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} />
-        </>}
+        {entity && <EntityGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} onOpen={open} />}
       </div>
     </section>
     {graph.diagnostics.length > 0 && <details className="rounded-xl border border-amber-400/20 p-4 text-xs"><summary className="cursor-pointer text-amber-200">{graph.diagnostics.length} data coverage issues</summary><p className="mt-3 text-muted-foreground">Unresolved references remain unlinked. Categories are entry points, not factual relationships.</p><ul className="mt-3 max-h-64 space-y-2 overflow-auto">{graph.diagnostics.map((issue, index) => <li key={index}>{[issue.entity, issue.record, issue.reason].filter(Boolean).map(String).join(' · ')}</li>)}</ul></details>}
   </div>;
 }
 
-function ConnectionMap({ entity, items, onOpen }: { entity: CampusEntity; items: ReturnType<typeof connections>; onOpen: (node: CampusEntity, via: string) => void }) {
-  const marker = useId().replaceAll(':', '');
-  const words = (text: string) => text.length > 28 ? `${text.slice(0, 26)}…` : text;
-  return <div className="hidden overflow-hidden rounded-xl border border-white/10 bg-black/10 lg:block">
-    <svg viewBox="0 0 1120 680" className="max-h-[65vh] min-h-[400px] w-full" role="group" aria-label="Connected campus entities">
-      <defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2dd4bf" /></marker></defs>
-      {items.map((item, index) => {
-        const angle = -Math.PI / 2 + index * Math.PI * 2 / Math.max(items.length, 3);
-        const x = 560 + Math.cos(angle) * 390; const y = 340 + Math.sin(angle) * 260;
-        const centerX = 560 + Math.cos(angle) * 115; const centerY = 340 + Math.sin(angle) * 50;
-        const endX = x - Math.cos(angle) * 110; const endY = y - Math.sin(angle) * 45;
-        return <g key={item.key}>
-          <line x1={item.incoming ? endX : centerX} y1={item.incoming ? endY : centerY} x2={item.incoming ? centerX : endX} y2={item.incoming ? centerY : endY} stroke="#2dd4bf" strokeOpacity="0.65" markerEnd={`url(#${marker})`} />
-          <g role="button" tabIndex={0} aria-label={`${item.label}: ${item.target.name}`} onClick={() => onOpen(item.target, item.label)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onOpen(item.target, item.label); } }} className="cursor-pointer">
-            <title>{item.label}: {item.target.name}</title><rect x={x - 110} y={y - 45} width="220" height="90" rx="14" fill="#102f30" stroke="#2dd4bf" />
-            <text x={x} y={y - 18} textAnchor="middle" fill="#5eead4" fontSize="11">{words(item.label)}</text>
-            <text x={x} y={y + 4} textAnchor="middle" fill="#f0fdfa" fontSize="12">{words(item.target.name)}</text>
-            <text x={x} y={y + 25} textAnchor="middle" fill="#94a3b8" fontSize="11">{item.target.kind.replaceAll('_', ' ')}</text>
-          </g>
-        </g>;
-      })}
-      <g><title>{entity.name}</title><rect x="440" y="294" width="240" height="92" rx="16" fill="#0a3048" stroke="#7dd3fc" /><text x="560" y="338" textAnchor="middle" fill="#e0f2fe" fontSize="13">{words(entity.name)}</text><text x="560" y="361" textAnchor="middle" fill="#94a3b8" fontSize="11">{entity.kind.replaceAll('_', ' ')}</text></g>
-    </svg>
-  </div>;
-}
-
 function matches(node: CampusEntity, query: string) { const q = query.trim().toLowerCase(); return [node.name, node.id, ...node.aliases].some(value => value.toLowerCase().includes(q)); }
 function EntityButton({ node, onClick }: { node: CampusEntity; onClick: () => void }) { return <button onClick={onClick} className="flex items-center justify-between gap-3 rounded-xl border border-white/15 p-4 text-left hover:border-sky-300/70 hover:bg-sky-400/5"><span><span className="block text-sm text-sky-100">{node.name}</span><span className="mt-1 block text-xs text-muted-foreground">{node.kind.replaceAll('_', ' ')}</span></span><ArrowRight size={14} className="shrink-0 text-sky-300" /></button>; }
-function Pagination({ page, total, onPage }: { page: number; total: number; onPage: (page: number) => void }) { return <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{total ? page * PAGE_SIZE + 1 : 0}–{Math.min((page + 1) * PAGE_SIZE, total)} of {total}</span><button aria-label="Previous entities" className={button} disabled={page === 0} onClick={() => onPage(page - 1)}>Previous</button><button aria-label="Next entities" className={button} disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => onPage(page + 1)}>Next</button></div>; }
-function SourceLink({ url }: { url: string }) { const safe = safeSourceUrl(url); return safe ? <a href={safe} target="_blank" rel="noopener noreferrer" className="ml-2 text-sky-300 underline">Source</a> : null; }
-
-function Properties({ graph, entity }: { graph: KnowledgeIndex; entity: CampusEntity }) {
-  const [groups, setGroups] = useState<PropertyGroup[]>([]);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [pending, setPending] = useState('');
-  const [diagnostics, setDiagnostics] = useState<Record<string, unknown>[]>([]);
-  const [retry, setRetry] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController(); setLoading(true); setError('');
-    read<EntityProperties>('properties', new URLSearchParams({ entity_id: entity.id, dataset_version: graph.dataset_version }), controller.signal).then(result => {
-      if (controller.signal.aborted) return;
-      if (result.identity_hash !== graph.identity_hash) throw new Error('Identity links changed. Reload the graph.');
-      setGroups(result.groups); setDiagnostics(result.diagnostics);
-    }).catch(reason => { if (!controller.signal.aborted) setError(reason.message); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
-  }, [entity.id, graph.dataset_version, graph.identity_hash, retry]);
-  async function more(group: PropertyGroup) {
-    setPending(group.collection); setError('');
-    try {
-      const result = await read<EntityProperties>('properties', new URLSearchParams({ entity_id: entity.id, dataset_version: graph.dataset_version, collection: group.collection, offset: String(group.next_offset) }));
-      if (result.identity_hash !== graph.identity_hash) throw new Error('Identity links changed. Reload the graph.');
-      setGroups(previous => previous.map(item => item.collection === group.collection ? { ...result.groups[0], records: [...item.records, ...result.groups[0].records] } : item));
-      setDiagnostics(previous => [...previous, ...result.diagnostics]);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not load properties.'); }
-    finally { setPending(''); }
-  }
-  return <section aria-label="Entity properties" className="space-y-4 border-t border-white/10 pt-6"><h3 className="text-sm font-semibold">Properties</h3><p className="text-xs text-muted-foreground">Published values are shown with their sources. Different source values are kept separate.</p>
-    {loading && <p role="status" className="text-sm text-muted-foreground">Loading properties…</p>}
-    {error && <div role="alert" className="space-y-2 text-sm text-amber-200"><p>{error}</p><button className={button} onClick={() => setRetry(value => value + 1)}>Retry properties</button></div>}
-    {!loading && groups.map(group => <div key={group.collection} className="space-y-3">{group.records.map(record => <article key={record.id} className="rounded-xl border border-white/10 p-4"><dl className="grid gap-x-6 gap-y-4 md:grid-cols-2">{Object.entries(record.fields).map(([key, value]) => <div key={key} className="min-w-0"><dt className="mb-1 text-xs text-muted-foreground">{key.replaceAll('_', ' ')}</dt><dd className="break-words text-sm leading-6"><PropertyValue value={value} /></dd></div>)}</dl>{record.limitations?.map((text, index) => <p key={index} className="mt-3 text-xs text-amber-200">{text}</p>)}<details className="mt-4 border-t border-white/10 pt-3 text-xs text-muted-foreground"><summary className="cursor-pointer">Source: {record.source_title ?? record.source_key ?? group.collection}</summary><p className="mt-2">{record.title}<SourceLink url={record.url ?? ''} /></p>{record.freshness && <p className="mt-2">Freshness: {record.freshness}</p>}{record.collected_at && <p className="mt-2">Collected: {record.collected_at}</p>}{(record.valid_from || record.valid_until) && <p className="mt-2">Published validity: {record.valid_from ?? 'Not specified'} – {record.valid_until ?? 'Not specified'}</p>}<p className="mt-2 break-all">Reference: {record.id}</p></details></article>)}{group.next_offset !== null && <button disabled={!!pending} onClick={() => more(group)} className={button}>{pending === group.collection ? 'Loading…' : `Load more properties (${group.records.length} of ${group.total} sources)`}</button>}</div>)}
-    {diagnostics.length > 0 && <p className="text-xs text-amber-200">Some linked properties could not be resolved: {[...new Set(diagnostics.map(item => String(item.reason)))].join(', ')}.</p>}
-    {!loading && !error && !groups.some(group => group.records.length) && <p className="text-sm text-muted-foreground">No linked properties available.</p>}
-  </section>;
-}
-function PropertyValue({ value }: { value: unknown }) {
-  if (value === null || value === undefined) return <span className="text-muted-foreground">Not published</span>;
-  if (Array.isArray(value)) return value.length ? <ul className="space-y-2">{value.map((item, index) => <li key={index}><PropertyValue value={item} /></li>)}</ul> : <span className="text-muted-foreground">None listed</span>;
-  if (typeof value === 'object') return <dl className="space-y-2 border-l border-white/15 pl-3">{Object.entries(value).map(([key, item]) => <div key={key}><dt className="text-xs text-muted-foreground">{key.replaceAll('_', ' ')}</dt><dd><PropertyValue value={item} /></dd></div>)}</dl>;
-  const text = String(value);
-  if (/^https?:\/\//.test(text) && safeSourceUrl(text)) return <a href={text} target="_blank" rel="noopener noreferrer" className="break-all text-sky-300 underline">{text}</a>;
-  return <span className="whitespace-pre-wrap">{text === '' ? 'Empty value' : text}</span>;
-}

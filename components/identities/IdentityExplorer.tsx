@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, GitBranch, Loader2, RefreshCw, Search } from 'lucide-react';
 import { IdentityConnections } from './IdentityConnections';
 import { IdentityWeb } from './IdentityWeb';
+import { GraphDownload } from './GraphDownload';
 import { ProfileEvidence } from './ProfileEvidence';
 import { JsonViewer } from '@/components/JsonViewer';
 import { defaultProfileSection, KIND_LABELS, profileQueryParams, profileSelectionFilters, publishedMealLabels, type IdentityIndex, type ProfileResponse, type ProfileSection } from '@/lib/identities';
@@ -114,7 +115,10 @@ export function IdentityExplorer() {
   return <div className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="min-w-0"><p className="flex items-center gap-2 text-xs text-emerald-300"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Live development data</p><p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">{index.dataset_version}</p></div>
-      <button type="button" onClick={() => setReload(value => value + 1)} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-muted-foreground hover:bg-white/5"><RefreshCw className="h-3.5 w-3.5" />Reload identities</button>
+      <div className="flex flex-wrap items-start gap-3">
+        <GraphDownload index={index} />
+        <button type="button" onClick={() => setReload(value => value + 1)} className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs text-muted-foreground hover:bg-white/5"><RefreshCw className="h-3.5 w-3.5" />Reload identities</button>
+      </div>
     </div>
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {[['Identities', index.identities.length, 'Persistent campus identities'], ['Linked records', links, 'Original records, kept separate'], ['Relationships', relationshipCount, 'Explicit, evidence-backed links'], ['Unresolved issues', index.coverage?.unresolved.length ?? '—', 'Evidence still needed']].map(([label, count, description]) =>

@@ -1,17 +1,22 @@
+import os from 'node:os';
 import type { NextConfig } from 'next';
 import { buildSecurityHeaders } from './lib/security-headers';
 
-/**
- * Everything this app shows arrives over HTTP from the brain, so Next needs no
- * sibling tracing, transpilation, or database-driver exceptions.
- *
- * The student UI's `allowedDevOrigins` is deliberately absent: that exists so a
- * phone on the local network can open the chat page, and it puts an interface
- * enumeration in the config load path. Nobody opens a control room on a phone.
- */
+function devOrigins(): string[] {
+  const localIps = Object.values(os.networkInterfaces())
+    .flat()
+    .flatMap((details) =>
+      details && !details.internal && details.family === 'IPv4'
+        ? [details.address, `${details.address}:3100`]
+        : []
+    );
+  return ['127.0.0.1', '127.0.0.1:3100', 'localhost', 'localhost:3100', ...localIps];
+}
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   agentRules: false,
+  allowedDevOrigins: devOrigins(),
   async headers() {
     return [
       {

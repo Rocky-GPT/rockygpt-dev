@@ -39,6 +39,8 @@ function Explorer({ graph, reload, projectionEnabled }: { graph: KnowledgeIndex;
   });
   const [search, setSearch] = useState('');
   const [searchLimit, setSearchLimit] = useState(PAGE_SIZE);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
   const current = path.at(-1)!;
   const entity = current.type === 'entity' || current.type === 'attachment' ? graph.nodes.find(node => node.id === (current.type === 'entity' ? current.id : current.entityId)) : undefined;
   const categories = useMemo(() => [...new Set(graph.nodes.map(node => node.kind))].map(kind => ({ kind, label: kindLabel(kind), count: graph.nodes.filter(node => node.kind === kind).length })), [graph]);
@@ -56,16 +58,24 @@ function Explorer({ graph, reload, projectionEnabled }: { graph: KnowledgeIndex;
   function updateCategory(change: { query: string }) {
     setPath(previous => previous.map((step, index) => index === previous.length - 1 && step.type === 'category' ? { ...step, ...change } : step));
   }
-  function download() {
-    const url = URL.createObjectURL(new Blob([JSON.stringify(graph, null, 2)], { type: 'application/json' }));
-    const link = document.createElement('a'); link.href = url; link.download = 'campus-knowledge-graph.json'; link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  async function download() {
+    setDownloading(true); setDownloadError('');
+    try {
+      const response = await fetch('/api/brain/graph/export', { cache: 'no-store', signal: AbortSignal.timeout(35_000) });
+      if (!response.ok) throw new Error(response.status === 409 ? 'The release changed during export. Please retry.' : 'Could not export the complete published graph. Please retry.');
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a'); link.href = url; link.download = 'campus-knowledge-graph.json'; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (reason) {
+      setDownloadError(reason instanceof Error ? reason.message : 'Could not download the graph.');
+    } finally { setDownloading(false); }
   }
   return <div className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
       <p>{graph.nodes.length.toLocaleString()} entities · {graph.edges.length.toLocaleString()} published relationships · {graph.dataset_version}</p>
-      <div className="flex gap-2"><button onClick={download} className={`${button} flex items-center gap-2`}><Download size={14} />Download graph</button><button onClick={reload} className={`${button} flex items-center gap-2`}><RefreshCw size={14} />Reload graph</button></div>
+      <div className="flex gap-2"><button onClick={download} disabled={downloading} className={`${button} flex items-center gap-2`}><Download size={14} />{downloading ? 'Exporting graph…' : 'Download graph'}</button><button onClick={reload} className={`${button} flex items-center gap-2`}><RefreshCw size={14} />Reload graph</button></div>
     </div>
+    {downloadError && <p role="alert" className="text-xs text-amber-200">{downloadError}</p>}
     <section aria-label="Campus knowledge graph" className="overflow-hidden rounded-2xl border border-sky-400/20 bg-[#101820]">
       <header className="space-y-4 border-b border-white/10 p-5">
         <div className="flex items-start gap-3">

@@ -143,7 +143,7 @@ function upstreamFailure(
   );
 }
 
-export async function proxyBrainProbe(path: string): Promise<Response> {
+export async function proxyBrainProbe(path: string, timeoutMs = PROBE_TIMEOUT_MS): Promise<Response> {
   const target = targetFor(path);
   if (target === null) {
     return misconfigured();
@@ -153,12 +153,12 @@ export async function proxyBrainProbe(path: string): Promise<Response> {
     const upstream = await fetch(target, {
       headers: { accept: 'application/json' },
       cache: 'no-store',
-      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
 
     return proxyResponse(upstream, `GET ${path}`);
   } catch (error) {
-    return upstreamFailure(error, `GET ${path}`);
+    return upstreamFailure(error, `GET ${path}`, timeoutMs);
   }
 }
 

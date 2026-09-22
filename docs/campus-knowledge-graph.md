@@ -40,7 +40,8 @@ keyboard-accessible buttons for field and relationship nodes. All loaded fields
 and relationships remain attached, including for entities without relationship edges.
 Incoming connections keep their original direction and evidence. Unknown edge
 labels have a generic fallback; new kinds do not need separate UI pages. Downloads
-contain the complete loaded entity index, edges, evidence, and coverage issues.
+request the complete authoritative published graph, identity bindings, evidence and
+coverage from the Brain; see [the export contract](campus-graph-export.md).
 
 ## Coverage and limits
 
@@ -113,8 +114,8 @@ Fallback is deliberately explicit:
   and a retry action. A release/identity/mapping mismatch requires a graph reload
   and never silently falls back across snapshots.
 
-The flag can be disabled without rollback or data migration. The existing index
-download remains an index export, not an export of attachment pages.
+The flag can be disabled without rollback or data migration. The graph
+download uses the authoritative server export, independently of attachment pages.
 
 Validation adds `tests/graph-projection.test.mjs` to `npm run test:graph`:
 record boundaries, provenance, scalar/structured leaves, conflicts, directional

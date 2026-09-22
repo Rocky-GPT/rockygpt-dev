@@ -20,7 +20,7 @@ export interface EntityProperties {
 }
 export type TraversalStep =
   | { type: 'campus'; label: string }
-  | { type: 'category'; label: string; kind: string; query: string; page: number }
+  | { type: 'category'; label: string; kind: string; query: string }
   | { type: 'entity'; label: string; id: string; via?: string };
 export const CAMPUS: TraversalStep = { type: 'campus', label: 'Ramapo College' };
 const labels: Record<string, string> = { person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining locations', program: 'Programs', club: 'Clubs', event: 'Events', course: 'Courses' };

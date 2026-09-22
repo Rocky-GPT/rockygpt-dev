@@ -11,7 +11,7 @@ const graph = { nodes: [event, club, person], edges: [
 ] };
 
 test('one continuous entity traversal follows both directions and retains the category scope', () => {
-  const category = { type: 'category', kind: 'event', label: 'Events', query: 'Hack', page: 2 };
+  const category = { type: 'category', kind: 'event', label: 'Events', query: 'Hack' };
   let path = traverse([CAMPUS, category], event);
   const organizer = connections(graph, event.id)[0];
   path = traverse(path, organizer.target, organizer.label);

@@ -10,6 +10,8 @@ import {
 
 type Connection = ReturnType<typeof connections>[number];
 type Selection = { kind: 'field'; field: AttachedField } | { kind: 'relationship'; item: Connection };
+const branchStyle = 'border-sky-400/60 bg-[#12283b] text-sky-100 hover:border-sky-200 focus-visible:outline-sky-200';
+const leafStyle = 'border-green-400/60 bg-[#123322] text-green-100';
 const control = 'rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5 disabled:opacity-30';
 
 async function readProperties(graph: KnowledgeIndex, entityId: string, signal: AbortSignal, group?: PropertyGroup) {
@@ -77,50 +79,64 @@ export function EntityGraph({ graph, entity, onOpen }: {
   // All loaded information stays attached to the entity, including when there are no relationships.
   const nodes = [
     ...related.map(item => ({ kind: 'relationship' as const, key: `relationship:${item.key}`, item })),
-    ...fields.map(field => ({ kind: 'field' as const, key: `field:${field.key}`, field })),
+    ...fields.map(field => ({ kind: 'field' as const, key: `field:${field.key}`, field,
+      hasChildren: field.values.some(({ value }) => value !== null && typeof value === 'object' && Object.keys(value).length > 0),
+    })),
     ...groups.filter(group => group.next_offset !== null).map(group => ({ kind: 'more' as const, key: `more:${group.collection}`, group })),
   ];
   const height = Math.max(460, Math.ceil(nodes.length / 2) * 144 + 190);
-  const positions = nodes.map((node, index) => ({ ...node, x: index % 2 === 0 ? 30 : 650, y: 200 + Math.floor(index / 2) * 144 }));
+  const positions = nodes.map((node, index) => ({ ...node, hasChildren: node.kind !== 'field' || node.hasChildren, x: index % 2 === 0 ? 30 : 650, y: 200 + Math.floor(index / 2) * 144 }));
 
   return <section aria-label={`Visual graph for ${entity.name}`} className="space-y-3">
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-      <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-teal-300" />Related entities · {related.length}</span>
-      <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-300" />Attached information · {fields.length}</span>
-      <span>Select a node to explore</span>
+      <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-300" />No children</span>
+      <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-300" />Has children</span>
+      <span>Related entities · {related.length} · Attached information · {fields.length}</span>
+      <span>Select a blue node to explore</span>
     </div>
     {loading && <p role="status" className="text-xs text-muted-foreground">Loading attached information…</p>}
     {error && <div role="alert" className="flex flex-wrap items-center gap-3 text-xs text-amber-200"><p>{error}</p><button className={control} onClick={() => setRetry(value => value + 1)}>Retry attached information</button></div>}
     <div ref={canvas} role="region" aria-label="Entity graph canvas" tabIndex={0} className="max-h-[75vh] min-h-96 overflow-auto rounded-xl border border-white/10 bg-[#0d171e] outline-offset-2">
       <div className="relative min-w-[1100px]" style={{ height, backgroundImage: 'radial-gradient(circle, #52606b50 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
         <svg aria-hidden="true" width="1100" height={height} className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
-          <defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2dd4bf" /></marker></defs>
+          <defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7dd3fc" /></marker></defs>
           {positions.map(node => {
             const endX = node.x === 30 ? 420 : 650;
             const endY = node.y + 52;
             const relationship = node.kind === 'relationship';
             const incoming = relationship && node.item.incoming;
-            return <path key={node.key} d={`M 550 145 C 550 ${endY}, 550 ${endY}, ${endX} ${endY}`} fill="none" stroke={relationship ? '#2dd4bf' : '#7dd3fc'} strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray={relationship ? undefined : '4 5'} markerEnd={relationship && !incoming ? `url(#${marker})` : undefined} markerStart={incoming ? `url(#${marker})` : undefined} />;
+            return <path key={node.key} d={`M 550 145 C 550 ${endY}, 550 ${endY}, ${endX} ${endY}`} fill="none" stroke={node.hasChildren ? '#7dd3fc' : '#86efac'} strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray={relationship ? undefined : '4 5'} markerEnd={relationship && !incoming ? `url(#${marker})` : undefined} markerStart={incoming ? `url(#${marker})` : undefined} />;
           })}
         </svg>
-        <div className="absolute left-1/2 top-8 z-10 flex min-h-28 w-80 -translate-x-1/2 flex-col items-center justify-center rounded-2xl border border-sky-200 bg-[#0a3048] p-4 text-center shadow-lg">
-          <p className="text-[10px] uppercase tracking-wider text-sky-300">{entity.kind.replaceAll('_', ' ')}</p>
-          <h2 className="mt-2 text-base font-semibold text-sky-50">{entity.name}</h2>
-          {entity.aliases.length > 0 && <p className="mt-2 line-clamp-2 text-[11px] text-sky-200" title={entity.aliases.join(' · ')}>{entity.aliases.join(' · ')}</p>}
+        <div data-has-children={nodes.length > 0} className={`absolute left-1/2 top-8 z-10 flex min-h-28 w-80 -translate-x-1/2 flex-col items-center justify-center rounded-2xl border p-4 text-center shadow-lg ${nodes.length ? branchStyle : loading || error ? 'border-slate-400/40 bg-slate-800 text-slate-100' : leafStyle}`}>
+          <p className="text-[10px] uppercase tracking-wider opacity-80">{entity.kind.replaceAll('_', ' ')}</p>
+          <h2 className="mt-2 text-base font-semibold">{entity.name}</h2>
+          {entity.aliases.length > 0 && <p className="mt-2 line-clamp-2 text-[11px] opacity-80" title={entity.aliases.join(' · ')}>{entity.aliases.join(' · ')}</p>}
         </div>
         {positions.map(node => <div key={node.key} className="absolute w-[390px]" style={{ left: `calc(50% - 550px + ${node.x}px)`, top: node.y }}>
-          {node.kind === 'relationship' ? <div className="relative h-[112px] rounded-xl border border-teal-400/60 bg-[#102f30] shadow-md">
-            <button className="h-full w-full rounded-xl p-4 pr-12 text-left hover:bg-teal-400/10 focus-visible:outline-2 focus-visible:outline-teal-200" onClick={() => onOpen(node.item.target, node.item.label)}>
-              <span className="flex items-center gap-2 text-[11px] text-teal-300">{node.item.label}<ArrowRight size={12} /></span>
-              <span className="mt-2 block truncate text-sm font-medium text-teal-50" title={node.item.target.name}>{node.item.target.name}</span>
-              <span className="mt-1 block text-[11px] text-teal-200/70">{node.item.target.kind.replaceAll('_', ' ')}</span>
+          {node.kind === 'relationship' ? <div data-has-children="true" className={`relative h-[112px] rounded-xl border shadow-md ${branchStyle}`}>
+            <button className="h-full w-full rounded-xl p-4 pr-12 text-left hover:bg-sky-400/10 focus-visible:outline-2 focus-visible:outline-sky-200" onClick={() => onOpen(node.item.target, node.item.label)}>
+              <span className="flex items-center gap-2 text-[11px] text-sky-300">{node.item.label}<ArrowRight size={12} /></span>
+              <span className="mt-2 block truncate text-sm font-medium text-sky-50" title={node.item.target.name}>{node.item.target.name}</span>
+              <span className="mt-1 block text-[11px] text-sky-200/70">{node.item.target.kind.replaceAll('_', ' ')}</span>
             </button>
-            <button aria-label={`Evidence for ${node.item.label}: ${node.item.target.name}`} title="Relationship evidence" className="absolute right-3 top-3 rounded p-1 text-teal-200 hover:bg-white/10" onClick={() => setSelection({ kind: 'relationship', item: node.item })}><FileText size={15} /></button>
-          </div> : node.kind === 'field' ? <button onClick={() => setSelection({ kind: 'field', field: node.field })} aria-label={`Open ${node.field.label}`} className="h-[112px] w-full rounded-xl border border-sky-400/40 bg-[#12283b] p-4 text-left shadow-md hover:border-sky-200 focus-visible:outline-2 focus-visible:outline-sky-200">
-            <span className="block text-xs font-medium text-sky-200">{node.field.label}</span>
-            <span className="mt-2 line-clamp-2 break-words text-sm leading-5 text-sky-50">{fieldPreview(node.field.values[0].value)}</span>
-            {node.field.values.length > 1 && <span className="mt-1 block text-[10px] text-sky-300">{node.field.values.length} source values · open to compare</span>}
-          </button> : <button disabled={!!pending} onClick={() => more(node.group)} className="h-[112px] w-full rounded-xl border border-dashed border-sky-400/40 bg-[#12283b] p-4 text-left text-xs text-sky-200 hover:border-sky-200 disabled:opacity-50">{pending === node.group.collection ? 'Loading…' : `Load more ${node.group.collection.replaceAll('_', ' ')} information`}<span className="mt-2 block text-muted-foreground">{node.group.records.length} of {node.group.total} sources loaded</span></button>}
+            <button aria-label={`Evidence for ${node.item.label}: ${node.item.target.name}`} title="Relationship evidence" className="absolute right-3 top-3 rounded p-1 text-sky-200 hover:bg-white/10" onClick={() => setSelection({ kind: 'relationship', item: node.item })}><FileText size={15} /></button>
+          </div> : node.kind === 'field' ? node.hasChildren ? <button onClick={() => setSelection({ kind: 'field', field: node.field })} aria-label={`Open ${node.field.label}`} data-has-children={node.hasChildren} title={node.hasChildren ? 'Has children' : 'No children'} className={`h-[112px] w-full rounded-xl border p-4 text-left shadow-md focus-visible:outline-2 ${node.hasChildren ? branchStyle : leafStyle}`}>
+            <span className="block text-xs font-medium opacity-80">{node.field.label}</span>
+            <span className="mt-2 line-clamp-2 break-words text-sm leading-5">{fieldPreview(node.field.values[0].value)}</span>
+            {node.field.values.length > 1 && <span className="mt-1 block text-[10px] opacity-80">{node.field.values.length} source values · open to compare</span>}
+          </button> : <div role="group" aria-label={`${node.field.label} leaf`} data-has-children="false" className={`h-[112px] w-full rounded-xl border p-4 text-left shadow-md ${leafStyle}`}>
+            <span className="block text-xs font-medium text-green-200">{node.field.label}</span>
+            <div tabIndex={0} aria-label={`${node.field.label} value`} className="mt-2 h-14 overflow-auto whitespace-pre-wrap break-words text-sm leading-5 outline-offset-2">
+              {node.field.values.map(({ value, record, collection }, index) => <div key={`${record.id}:${index}`} className={index ? 'mt-3 border-t border-green-300/20 pt-3' : ''}>
+                <p>{fieldPreview(value)}</p>
+                <p className="mt-2 text-[10px] leading-4 text-green-200/70">Source: {record.source_title ?? record.source_key ?? collection}{record.collected_at ? ` · Collected: ${record.collected_at}` : ''}{record.freshness ? ` · ${record.freshness}` : ''}</p>
+                {(record.valid_from || record.valid_until) && <p className="text-[10px] leading-4 text-green-200/70">Published validity: {record.valid_from ?? 'Not specified'} – {record.valid_until ?? 'Not specified'}</p>}
+                {record.limitations?.map((text, i) => <p key={i} className="mt-1 text-[10px] leading-4 text-green-200/70">{text}</p>)}
+                <p className="text-[10px] leading-4 text-green-200/70">Reference: {record.id}{record.url ? ` · ${record.url}` : ''}</p>
+              </div>)}
+            </div>
+          </div> : <button disabled={!!pending} onClick={() => more(node.group)} className="h-[112px] w-full rounded-xl border border-dashed border-sky-400/40 bg-[#12283b] p-4 text-left text-xs text-sky-200 hover:border-sky-200 disabled:opacity-50">{pending === node.group.collection ? 'Loading…' : `Load more ${node.group.collection.replaceAll('_', ' ')} information`}<span className="mt-2 block text-muted-foreground">{node.group.records.length} of {node.group.total} sources loaded</span></button>}
         </div>)}
         {!loading && !nodes.length && <p className="absolute top-52 w-full text-center text-sm text-muted-foreground">No linked information is published for this entity yet.</p>}
       </div>

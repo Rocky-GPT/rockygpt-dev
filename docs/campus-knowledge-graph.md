@@ -19,7 +19,12 @@ They retain the label “lists course (undated)”; they do not establish `teach
 Source records never become traversal nodes. Scalar fields, arrays, and structured
 properties appear as attached field nodes around their entity, preserving separate source values,
 provenance, collection dates, validity, limitations, false, zero, and missing data.
-Selecting a field opens its full value and provenance in an accessible dialog.
+Leaf nodes are green and non-clickable; their complete values and source details
+remain readable inside the node, with scrolling for long text. Nodes with children
+are blue. Non-empty structured fields open their contents and provenance in an
+accessible dialog; related entities continue graph traversal. Empty lists/objects
+and scalar values (including false, zero, and null) are leaves. Multiple scalar
+source values alone do not create children.
 There is no separate Properties panel or duplicate relationship card list. More
 source properties can be loaded from an attached node without changing the breadcrumb. Existing
 low-level source APIs remain available for operational inspection.

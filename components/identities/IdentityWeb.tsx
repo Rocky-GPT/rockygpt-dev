@@ -2,6 +2,9 @@
 
 import { useEffect, useId, useMemo, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { RecordGraph } from './RecordGraph';
+import { TopicSources } from './TopicSources';
+import { JsonViewer } from '@/components/JsonViewer';
+import { CAMPUS_DATA_TOPICS, CAMPUS_GRAPH_SOURCES, IDENTITY_TOPIC_SOURCES } from '@/lib/campus-topics';
 import type { GraphScope } from '@/lib/campus-graph';
 import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Focus, Home, Minus, Network, Plus, Search, X } from 'lucide-react';
 import {
@@ -110,12 +113,15 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
   if (mode === 'campus' || (mode === 'identity' && !entity)) {
     nodes.push({ id: 'campus', label: 'Ramapo College', detail: 'Campus data · start here', type: 'root', ...CENTER, activate: home });
     const kinds = Object.entries(KIND_LABELS) as [IdentityKind, string][];
+    const categoryCount = kinds.length + CAMPUS_DATA_TOPICS.length;
     kinds.forEach(([kind, label], index) => {
-      nodes.push({ id: `kind:${kind}`, label, detail: `${counts[kind]} identities · browse`, type: 'category', ...position(index, kinds.length + 1, 360, 260), activate: () => browse(kind) });
+      nodes.push({ id: `kind:${kind}`, label, detail: `${counts[kind]} identities · browse`, type: 'category', ...position(index, categoryCount, 410, 290), activate: () => browse(kind) });
       edges.push({ id: `browse:${kind}`, from: 'campus', to: `kind:${kind}`, label: 'browse category', type: 'browse' });
     });
-    nodes.push({ id: 'records', label: 'All source records', detail: 'Including unlinked data · expand', type: 'records', ...position(kinds.length, kinds.length + 1, 360, 260), activate: () => setRecordScope({}) });
-    edges.push({ id: 'browse:records', from: 'campus', to: 'records', label: 'browse records', type: 'browse' });
+    CAMPUS_DATA_TOPICS.forEach((topic, index) => {
+      nodes.push({ id: `topic:${topic.id}`, label: topic.label, detail: topic.description, type: 'category', ...position(kinds.length + index, categoryCount, 410, 290), activate: () => setRecordScope({ collection: topic.collection, ownerName: 'Ramapo College' }) });
+      edges.push({ id: `browse:${topic.id}`, from: 'campus', to: `topic:${topic.id}`, label: 'browse category', type: 'browse' });
+    });
   } else if (mode === 'category') {
     nodes.push({ id: 'category', label: KIND_LABELS[category], detail: `${counts[category]} curated identities`, type: 'category', ...CENTER, active: true, activate: () => setCategoryQuery('') });
     pageItems.forEach((item, index) => {
@@ -212,7 +218,7 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
     <div className="grid gap-2 p-4 sm:grid-cols-2 @min-[700px]:hidden" aria-label="Campus graph nodes">
       {nodes.map(node => <button key={node.id} type="button" onClick={node.activate} className={`flex items-center gap-3 rounded-xl border p-3 text-left ${node.active || node.type === 'root' ? 'border-sky-400/60 bg-sky-950/40' : node.type === 'identity' ? 'border-teal-400/30 bg-teal-950/20' : 'border-white/15 bg-white/[0.02]'}`}><span className="min-w-0 flex-1"><span className="block text-xs font-medium">{node.label}</span><span className="mt-1 block text-[10px] text-muted-foreground">{node.detail}</span></span><ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" /></button>)}
     </div>
-    {mode === 'category' && !categoryItems.length && <p className="px-5 pb-5 text-sm text-muted-foreground">No identities match this category search. All original data remains available in source records.</p>}
+    {mode === 'category' && !categoryItems.length && <p className="px-5 pb-5 text-sm text-muted-foreground">No identities match this category search. Use View source below to inspect original entries without identity links.</p>}
     {mode === 'identity' && entity && <div className="space-y-3 border-t border-white/10 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-[11px] text-muted-foreground">{neighborhood.nodes.filter(node => node.type === 'identity').length} identities · {neighborhood.nodes.filter(node => node.type !== 'identity').length} record groups · {expandedIds.length} expanded</p><p className="text-[10px] text-muted-foreground">Record groups keep menus and other large collections compact.</p></div>
       <div className="flex flex-wrap gap-2" aria-label="Inspect graph edges">{edges.filter(edge => edge.original).map(edge => <button key={edge.id} type="button" aria-pressed={edgeId === edge.id} onClick={() => setEdgeId(edge.id)} className={`max-w-full truncate rounded-full border px-3 py-1.5 text-[10px] ${edgeId === edge.id ? 'border-teal-300/50 bg-teal-400/10 text-teal-100' : 'border-white/15 text-neutral-300 hover:bg-white/5'}`} title={`${coordinates.get(edge.from)?.label} → ${edge.label} → ${coordinates.get(edge.to)?.label}`}>{coordinates.get(edge.from)?.label} <span className="text-teal-300">· {edge.label} ·</span> {coordinates.get(edge.to)?.label}</button>)}</div>
@@ -231,6 +237,11 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
       </div>}
       {!edges.length && <p className="text-xs text-muted-foreground">No connections are expanded. Expand the selection to see published links.</p>}
     </div>}
+    <div className="px-4 pb-4 sm:px-5">
+      {mode === 'identity' && entity
+        ? <details className="rounded-xl border border-white/10 p-3 text-xs" aria-label="Identity source"><summary className="cursor-pointer text-sky-200">View source</summary><div className="mt-3"><JsonViewer alwaysOpen data={entity} title="Identity links and evidence" downloadFileName={`identity-${entity.id}.json`} /></div></details>
+        : <TopicSources sources={mode === 'category' ? IDENTITY_TOPIC_SOURCES[category] : CAMPUS_GRAPH_SOURCES} ownerName={mode === 'category' ? KIND_LABELS[category] : 'Ramapo College'} onOpen={setRecordScope} />}
+    </div>
     </>}
     <p className="border-t border-white/10 bg-black/10 px-5 py-3 text-[10px] leading-5 text-muted-foreground">Ramapo College and category nodes provide navigation within this campus dataset. Factual relationships use explicit stored evidence; identity links do not rank source authority or establish shared availability.</p>
   </section>;

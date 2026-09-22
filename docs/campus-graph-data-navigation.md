@@ -12,7 +12,9 @@ inside the graph and includes records without approved identity links.
   All seven stored menu dates are available, independently of the profile preview's
   selected date and result limit.
 - Every collection exposes original records, nested objects/arrays, and complete
-  scalar values. Eight visible nodes per page keep the graph readable; Next,
+  scalar values. Leaf nodes display complete values in place and do not expand or
+  act as buttons, including empty containers. Long text can be scrolled with the
+  keyboard. Only nodes with children expand. Eight visible nodes per page keep the graph readable; Next,
   Previous, Back, and breadcrumbs retain access to all pages.
 - Documents expose their ordered passages. Shuttle routes expose their trips through
   original foreign keys. Raw release artifacts expose paginated JSON subtrees.
@@ -29,9 +31,9 @@ inside the graph and includes records without approved identity links.
 
 ## Active local development
 
-- Brain commit: `2a0d4d9da6c8c51ac1a3d1769f5cdb52984f78f1`, pushed to `dev`.
+- Brain commit: `be7baedf2807e21f16ea24bdc4356a9455d2ef99`, pushed to `dev`.
 - Brain configuration hash:
-  `3425edc96b31b3674314279dc2aa47467cf2c0520b8c22dbec970b98e119bb5d`.
+  `0d06740588816ab74b48736817df90748625e659709056b07a0956fbd5063a9e`.
 - Dataset: `dev-profiles-clubs-events-20260921` (unchanged; no new publication needed).
 - Identity hash:
   `d89a6a6f70a8fcbc340028654b40d43e34b3cf17dfd887a4e98ce8f0218ad53c`.
@@ -68,8 +70,8 @@ also has structured projections; they are not 9,906 distinct campus facts.
 
 ## Verification actually performed
 
-- Brain full pytest: **568 passed, 37 skipped**. Focused graph suite including the
-  actual read-only local database: **47 passed**. Traversed all pages of all 17
+- Brain full pytest: **577 passed, 37 skipped**. Focused graph suite including the
+  actual read-only local database: **56 passed**. Traversed all pages of all 17
   collections, matched totals and unique original IDs, and loaded record detail
   in every collection. New modules pass Ruff and mypy.
 - Dev UI: **30 helper tests passed**, ESLint, TypeScript, and production build.
@@ -100,10 +102,22 @@ also has structured projections; they are not 9,906 distinct campus facts.
 - Local receipts: `.local-logs/profile-feature/full-graph-api.json`,
   `graph-active-http.json`, and `active-brain.json` in the root workspace.
 
+### Non-clickable leaf follow-up
+
+Browser verification after the follow-up: Marinara Sauce's eight visible scalar
+and empty-array/null fields contain **zero buttons**; clicking `calories` leaves
+the path unchanged. In the original `programs` artifact, all five scalar values
+are visible and inert; only the `schools` array is expandable. Leaf text remains
+complete, selectable, and scrollable. The older click-through traces above record
+the initial checkpoint; terminal values now appear directly in their parent graph.
+
 ## Rollback
 
-Revert the Dev UI commit introducing this document on `dev` and push normally;
-the prior UI checkpoint was `68b3139ed1f17c6b1f6a3999d3f3ba5437b270ac`.
+For a leaf-only rollback, revert the Dev UI leaf-display follow-up and restore
+Brain `2a0d4d9da6c8c51ac1a3d1769f5cdb52984f78f1` using the deployment tool
+below with that revision. For a complete source-navigation rollback, revert the
+Dev UI graph commits in reverse order on `dev` and push normally; the prior UI
+checkpoint was `68b3139ed1f17c6b1f6a3999d3f3ba5437b270ac`.
 Keep unrelated `next.config.ts` work untouched. Restore the UI first so it no longer
 requests graph endpoints, then restore the prior Brain using the established tool:
 

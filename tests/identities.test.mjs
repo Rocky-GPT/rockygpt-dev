@@ -211,3 +211,12 @@ test('collapsing all expansions removes inferred neighbors and missing targets a
   assert.equal(collapsed.edges.length, 0);
   assert.equal(event.relationships.length, 1);
 });
+
+test('organizations behave like clubs: directory profile first, occurrence dates, no meal filter', () => {
+  assert.equal(KIND_LABELS.organization, 'Organizations');
+  assert.equal(defaultProfileSection('organization'), 'club');
+  assert.deepEqual(profileSelectionFilters('organization', '2026-09-21', 'Dinner', ''), { date: '', meal: '' });
+  const params = profileQueryParams('organization', 'release-a', '', 'Dinner');
+  assert.equal(params.get('meal'), null);
+  assert.equal(params.get('date'), null);
+});

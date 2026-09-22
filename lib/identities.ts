@@ -1,5 +1,5 @@
 export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event';
-export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'event';
+export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'organization' | 'event';
 
 export interface RecordReference {
   collection: string;
@@ -107,7 +107,7 @@ export const SECTIONS: { key: ProfileSection; label: string }[] = [
 ];
 export const KIND_LABELS: Record<IdentityKind, string> = {
   person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining venues', program: 'Academic programs',
-  club: 'Clubs', event: 'Events',
+  club: 'Clubs', organization: 'Organizations', event: 'Events',
 };
 
 export interface RelatedIdentityNode {
@@ -166,12 +166,14 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
 export function defaultProfileSection(kind: IdentityKind): ProfileSection {
   if (kind === 'program') return 'conveners';
   if (kind === 'venue' || kind === 'facility') return 'hours';
-  if (kind === 'club' || kind === 'event') return kind;
+  // Clubs and other Archway organizations open on their directory profile.
+  if (kind === 'club' || kind === 'organization') return 'club';
+  if (kind === 'event') return 'event';
   return 'contact';
 }
 
 export function profileSelectionFilters(kind: IdentityKind | undefined, serviceDate: string, meal: string, occurrenceDate: string): { date: string; meal: string } {
-  return kind === 'event' || kind === 'club'
+  return kind === 'event' || kind === 'club' || kind === 'organization'
     ? { date: occurrenceDate, meal: '' }
     : { date: serviceDate, meal };
 }
@@ -180,7 +182,7 @@ export function profileQueryParams(kind: IdentityKind, datasetVersion: string, d
   const params = new URLSearchParams({ dataset_version: datasetVersion, menu_limit: '12' });
   // An event identity is an occurrence. An empty date must not become campus today.
   if (date) params.set('date', date);
-  if (kind !== 'event' && kind !== 'club' && meal.trim()) params.set('meal', meal.trim());
+  if (kind !== 'event' && kind !== 'club' && kind !== 'organization' && meal.trim()) params.set('meal', meal.trim());
   return params;
 }
 

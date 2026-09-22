@@ -50,7 +50,7 @@ export type TraversalStep =
   | { type: 'entity'; label: string; id: string; via?: string }
   | { type: 'attachment'; label: string; entityId: string; nodeId: string };
 export const CAMPUS: TraversalStep = { type: 'campus', label: 'Ramapo College' };
-const labels: Record<string, string> = { person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining locations', program: 'Programs', club: 'Clubs', event: 'Events', course: 'Courses' };
+const labels: Record<string, string> = { person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining locations', program: 'Programs', club: 'Clubs', organization: 'Organizations', event: 'Events', course: 'Courses' };
 export function kindLabel(kind: string) { return labels[kind] ?? `${kind.replaceAll('_', ' ')}s`; }
 export function relationshipLabel(type: string, incoming = false): string {
   const names: Record<string, [string, string]> = {

@@ -1,3 +1,5 @@
+> The Campus Graph UI now downloads the entity graph described in [campus-knowledge-graph.md](campus-knowledge-graph.md). This document describes the earlier source-navigation export utility.
+
 # Campus Graph JSON export
 
 Use **Download graph** at the top of the Campus Graph page. The JSON includes the

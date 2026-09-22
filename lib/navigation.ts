@@ -161,10 +161,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/data/entities',
         label: 'Campus Graph',
-        description: 'Explore Ramapo College identities, original records and evidenced connections',
+        description: 'Explore campus entities, relationships, and source-backed properties',
         icon: Tags,
         status: 'ready',
-        upstream: 'GET /v1/dev/identities + GET /v1/dev/identities/{id}',
+        upstream: 'GET /v1/dev/graph/knowledge + GET /v1/dev/graph/properties',
       },
     ],
   },

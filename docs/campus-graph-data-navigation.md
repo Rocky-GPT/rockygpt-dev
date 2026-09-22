@@ -1,3 +1,5 @@
+> Superseded for the Campus Graph UI by [the entity-first explorer](campus-knowledge-graph.md). The source browsing API remains available for operational inspection.
+
 # Campus Graph source navigation — development checkpoint
 
 Verified September 21, 2026. Campus Graph now expands original records and their

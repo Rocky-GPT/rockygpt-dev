@@ -1,15 +1,15 @@
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { IdentityExplorer } from '@/components/identities/IdentityExplorer';
+import { KnowledgeExplorer } from '@/components/identities/KnowledgeExplorer';
 
 export const metadata: Metadata = {
   title: 'Campus Graph | RockyGPT Dev',
-  description: 'Explore campus identities, original source records and explicit relationships.',
+  description: 'Explore campus entities, their properties and published relationships.',
 };
 
 export default function EntitiesPage() {
   return <>
-    <PageHeader title="Campus Graph" subtitle="Explore Ramapo College through identities, explicit relationships, and original source records." />
-    <main className="min-w-0 p-4 lg:p-6"><IdentityExplorer /></main>
+    <PageHeader title="Campus Graph" subtitle="Explore the people, places, courses, and communities connected across Ramapo College." />
+    <main className="min-w-0 p-4 lg:p-6"><KnowledgeExplorer /></main>
   </>;
 }

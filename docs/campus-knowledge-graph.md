@@ -22,7 +22,7 @@ provenance, collection dates, validity, limitations, false, zero, and missing da
 More source properties can be loaded without changing the breadcrumb. Existing
 low-level source APIs remain available for operational inspection.
 
-The explorer owns one ordered traversal. Category filters and pages stay in the
+The explorer owns one ordered traversal. Categories show their full entity list, and their filters stay in the
 path, relationships carry their direction, revisits stay visible, and Back or an
 ancestor click trims the same path. Search appends an explicit search step; it
 never asserts a relationship. A deep link restores the selected entity under its

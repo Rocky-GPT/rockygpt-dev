@@ -34,7 +34,7 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
   const [path, setPath] = useState<TraversalStep[]>(() => {
     const id = typeof window === 'undefined' ? null : new URL(window.location.href).searchParams.get('entity');
     const node = graph.nodes.find(item => item.id === id);
-    return node ? [CAMPUS, { type: 'category', kind: node.kind, label: kindLabel(node.kind), query: '', page: 0 }, { type: 'entity', id: node.id, label: node.name }] : [CAMPUS];
+    return node ? [CAMPUS, { type: 'category', kind: node.kind, label: kindLabel(node.kind), query: '' }, { type: 'entity', id: node.id, label: node.name }] : [CAMPUS];
   });
   const [search, setSearch] = useState('');
   const [searchLimit, setSearchLimit] = useState(PAGE_SIZE);
@@ -56,8 +56,8 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
     window.history.replaceState(null, '', url);
   }
   function open(node: CampusEntity, via?: string) { navigate(traverse(path, node, via)); }
-  function category(kind: string) { navigate([...path, { type: 'category', kind, label: kindLabel(kind), query: '', page: 0 }]); }
-  function updateCategory(change: { query?: string; page?: number }) {
+  function category(kind: string) { navigate([...path, { type: 'category', kind, label: kindLabel(kind), query: '' }]); }
+  function updateCategory(change: { query: string }) {
     setPath(previous => previous.map((step, index) => index === previous.length - 1 && step.type === 'category' ? { ...step, ...change } : step));
   }
   function download() {
@@ -86,7 +86,7 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
       </header>
       <div className="space-y-6 p-5">
         {current.type === 'campus' && <><div><h2 className="text-lg font-semibold">Explore Ramapo College</h2><p className="mt-2 text-sm text-muted-foreground">Choose a starting point, then follow the connections.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.map(item => <button key={item.kind} onClick={() => category(item.kind)} className="rounded-xl border border-sky-400/20 bg-sky-950/20 p-5 text-left hover:border-sky-300"><span className="block font-medium text-sky-100">{item.label}</span><span className="mt-2 block text-xs text-muted-foreground">{item.count.toLocaleString()} entities <ArrowRight className="ml-2 inline" size={13} /></span></button>)}</div></>}
-        {current.type === 'category' && <><h2 className="text-lg font-semibold">{current.label}</h2><input aria-label={`Filter ${current.label}`} value={current.query} onChange={event => updateCategory({ query: event.target.value, page: 0 })} placeholder={`Find in ${current.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{categoryNodes.slice(current.page * PAGE_SIZE, (current.page + 1) * PAGE_SIZE).map(node => <EntityButton key={node.id} node={node} onClick={() => open(node)} />)}</div><Pagination page={current.page} total={categoryNodes.length} onPage={page => updateCategory({ page })} /></>}
+        {current.type === 'category' && <><h2 className="text-lg font-semibold">{current.label}</h2><input aria-label={`Filter ${current.label}`} value={current.query} onChange={event => updateCategory({ query: event.target.value })} placeholder={`Find in ${current.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{categoryNodes.map(node => <EntityButton key={node.id} node={node} onClick={() => open(node)} />)}</div><p className="text-xs text-muted-foreground">{categoryNodes.length.toLocaleString()} {current.query.trim() ? 'matching entities' : 'entities'}</p></>}
         {entity && <>
           <div><p className="text-xs uppercase tracking-wider text-teal-300">{entity.kind.replaceAll('_', ' ')}</p><h2 className="mt-2 text-xl font-semibold">{entity.name}</h2>{entity.aliases.length > 0 && <p className="mt-2 text-xs text-muted-foreground">Also known as: {entity.aliases.join(' · ')}</p>}</div>
           <section aria-label="Entity relationships" className="space-y-4">

@@ -59,5 +59,3 @@ gating and no model calls. The opt-in Brain test reads the local published datas
 with `GRAPH_TEST_DATABASE_URL` and compares every node and edge with the authoritative
 graph. Existing Explorer rendering/navigation is unchanged.
 
-The older `lib/campus-graph-export.ts` utility is a historical source-navigation
-export and is not used by this button or endpoint.

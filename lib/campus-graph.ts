@@ -28,7 +28,7 @@ export interface GraphBrowse extends GraphSnapshot {
   records?: GraphRecordSummary[];
   diagnostics?: unknown[];
 }
-export type GraphScope = { collection?: string; entityId?: string; ownerName?: string; reference?: { source_key: string; source_record_key: string; source_record_id?: string } };
+export type GraphScope = { recordId?: string; label?: string; collection?: string; entityId?: string; ownerName?: string; reference?: { source_key: string; source_record_key: string; source_record_id?: string } };
 
 export function graphUrl(operation: string, version: string, params: Record<string, unknown> = {}): string {
   const query = new URLSearchParams({ dataset_version: version });

@@ -17,9 +17,11 @@ Profile-to-course relationships resolve only through exact published references.
 They retain the label “lists course (undated)”; they do not establish `teaches`.
 
 Source records never become traversal nodes. Scalar fields, arrays, and structured
-properties render inline on their entity, preserving separate source values,
+properties appear as attached field nodes around their entity, preserving separate source values,
 provenance, collection dates, validity, limitations, false, zero, and missing data.
-More source properties can be loaded without changing the breadcrumb. Existing
+Selecting a field opens its full value and provenance in an accessible dialog.
+There is no separate Properties panel or duplicate relationship card list. More
+source properties can be loaded from an attached node without changing the breadcrumb. Existing
 low-level source APIs remain available for operational inspection.
 
 The explorer owns one ordered traversal. Categories show their full entity list, and their filters stay in the
@@ -28,7 +30,9 @@ ancestor click trims the same path. Search appends an explicit search step; it
 never asserts a relationship. A deep link restores the selected entity under its
 category. Traversal itself is session state, not a browser-history replay.
 
-The desktop map and responsive relationship cards use the same directed edges.
+The scrollable graph canvas works at every viewport width and uses native
+keyboard-accessible buttons for field and relationship nodes. All loaded fields
+and relationships remain attached, including for entities without relationship edges.
 Incoming connections keep their original direction and evidence. Unknown edge
 labels have a generic fallback; new kinds do not need separate UI pages. Downloads
 contain the complete loaded entity index, edges, evidence, and coverage issues.

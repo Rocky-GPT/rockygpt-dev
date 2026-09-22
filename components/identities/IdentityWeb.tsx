@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useId, useMemo, useState, type ReactNode, type KeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { RecordGraph } from './RecordGraph';
 import { TopicSources } from './TopicSources';
 import { JsonViewer } from '@/components/JsonViewer';
 import { CAMPUS_DATA_TOPICS, CAMPUS_GRAPH_SOURCES, IDENTITY_TOPIC_SOURCES } from '@/lib/campus-topics';
-import type { GraphScope } from '@/lib/campus-graph';
-import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Focus, Home, Minus, Network, Plus, Search, X } from 'lucide-react';
+import type { GraphCollection, GraphScope } from '@/lib/campus-graph';
+import {
+  appendFrame, campusFrame, initialRecordFrame, isRecordFrame, replaceCurrent, visitAncestor,
+  type GraphFrame, type RecordFrame,
+} from '@/lib/graph-traversal';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Focus, Home, Minus, Network, Plus, Search, X } from 'lucide-react';
 import {
   identityNeighborhood, KIND_LABELS, safeSourceUrl, type Identity, type IdentityKind,
   type IdentityWebEdge, type IdentityWebNode, type ProfileResponse, type ProfileSection,
@@ -24,7 +28,6 @@ type Props = {
   onSelectEntity: (id: string) => void;
   onClearSelection: () => void;
 };
-type Mode = 'campus' | 'category' | 'identity';
 type VisualNode = {
   id: string; label: string; detail: string; type: 'root' | 'category' | 'identity' | 'sources' | 'course' | 'records';
   x: number; y: number; active?: boolean; expanded?: boolean; activate: () => void;
@@ -63,19 +66,46 @@ function sectionForEdge(edge: IdentityWebEdge): ProfileSection {
 }
 
 export function IdentityWeb({ search, datasetVersion, identityHash, navigationEpoch, entity, identities, profile, onSection, onSelectEntity, onClearSelection }: Props) {
-  const [recordScope, setRecordScope] = useState<GraphScope>();
-  const [mode, setMode] = useState<Mode>(entity ? 'identity' : 'campus');
-  const [category, setCategory] = useState<IdentityKind>('person');
-  const [categoryQuery, setCategoryQuery] = useState('');
-  const [page, setPage] = useState(0);
+  function identityPath(item?: Identity): GraphFrame[] {
+    return item ? [campusFrame,
+      { kind: 'category', category: item.kind, label: KIND_LABELS[item.kind], query: '', page: 0 },
+      { kind: 'identity', entityId: item.id, label: item.name },
+    ] : [campusFrame];
+  }
+  const [traversal, setTraversal] = useState<GraphFrame[]>(() => identityPath(entity));
+  const [collections, setCollections] = useState<GraphCollection[]>([]);
+  const observedEpoch = useRef(navigationEpoch);
+  const current = traversal[traversal.length - 1];
+  const recordFrame = isRecordFrame(current) ? current : undefined;
+  const campusView = traversal.findLast(frame => !isRecordFrame(frame)) ?? campusFrame;
+  const mode = campusView.kind;
+  const categoryFrame = traversal.findLast(frame => frame.kind === 'category');
+  const category = categoryFrame?.category ?? 'person';
+  const categoryQuery = categoryFrame?.query ?? '';
+  const page = categoryFrame?.page ?? 0;
+  function updateCategory(change: { query?: string; page?: number }) {
+    setTraversal(previous => previous.map((frame, index) => index === previous.length - 1 && frame.kind === 'category' ? { ...frame, ...change } : frame));
+  }
+  function setCategoryQuery(query: string) { updateCategory({ query }); }
+  function setPage(page: number) { updateCategory({ page }); }
   const [expandedIds, setExpandedIds] = useState<string[]>(entity ? [entity.id] : []);
   const [edgeId, setEdgeId] = useState<string>();
   const markerId = useId().replaceAll(':', '');
   const selectedId = entity?.id;
-  useEffect(() => { setRecordScope(undefined); }, [navigationEpoch, selectedId]);
+  useEffect(() => {
+    // Search and external identity links begin a fresh traversal. Graph-owned
+    // navigation changes selection without incrementing this epoch.
+    if (observedEpoch.current === navigationEpoch) return;
+    observedEpoch.current = navigationEpoch;
+    setTraversal(entity ? [campusFrame,
+      { kind: 'category', category: entity.kind, label: KIND_LABELS[entity.kind], query: '', page: 0 },
+      { kind: 'identity', entityId: entity.id, label: entity.name },
+    ] : [campusFrame]);
+    setEdgeId(undefined);
+  }, [navigationEpoch, entity]);
   useEffect(() => {
     if (!selectedId) return;
-    setMode('identity'); setEdgeId(undefined);
+    setEdgeId(undefined);
     setExpandedIds(ids => [selectedId, ...ids.filter(id => id !== selectedId)]);
   }, [selectedId]);
   const neighborhood = useMemo(() => identityNeighborhood(identities, selectedId ?? '', expandedIds), [identities, selectedId, expandedIds]);
@@ -89,23 +119,55 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
   const selectedEdge = neighborhood.edges.find(edge => edge.id === edgeId);
 
   function home() {
-    setRecordScope(undefined); setMode('campus'); setExpandedIds([]); setEdgeId(undefined); setCategoryQuery(''); setPage(0); onClearSelection();
+    setTraversal([campusFrame]); setExpandedIds([]); setEdgeId(undefined); onClearSelection();
   }
   function browse(kind: IdentityKind) {
-    setRecordScope(undefined); setCategory(kind); setMode('category'); setCategoryQuery(''); setPage(0); setEdgeId(undefined); onClearSelection();
+    setTraversal([campusFrame, { kind: 'category', category: kind, label: KIND_LABELS[kind], query: '', page: 0 }]);
+    setEdgeId(undefined); onClearSelection();
   }
   function openIdentity(id: string) {
-    setRecordScope(undefined);
+    const item = byId.get(id);
+    if (!item) return;
+    setTraversal(previous => appendFrame(previous, { kind: 'identity', entityId: id, label: item.name }));
     setExpandedIds(ids => [id, ...ids.filter(value => value !== id)]);
-    setMode('identity'); setEdgeId(undefined); onSelectEntity(id);
+    setEdgeId(undefined); onSelectEntity(id);
+  }
+  function returnTo(index: number) {
+    const next = visitAncestor(traversal, index);
+    setTraversal(next); setEdgeId(undefined);
+    const owner = next.findLast(frame => frame.kind === 'identity');
+    if (owner) {
+      if (owner.entityId !== selectedId) onSelectEntity(owner.entityId);
+    } else if (selectedId) onClearSelection();
+    if (next.length === 1) setExpandedIds([]);
+  }
+  function pushRecord(frame: RecordFrame) {
+    setTraversal(previous => appendFrame(previous, frame));
+  }
+  function openRecords(scope: GraphScope, ownerId?: string) {
+    const owner = ownerId ? byId.get(ownerId) : undefined;
+    setTraversal(previous => {
+      const lastIdentity = previous.findLast(frame => frame.kind === 'identity');
+      const base = owner && lastIdentity?.entityId !== owner.id
+        ? appendFrame(previous, { kind: 'identity', entityId: owner.id, label: owner.name }) : previous;
+      return appendFrame(base, initialRecordFrame(scope));
+    });
+    if (owner && selectedId !== owner.id) onSelectEntity(owner.id);
   }
   function inspectSection(ownerId: string, section: ProfileSection) {
-    if (selectedId !== ownerId) onSelectEntity(ownerId);
+    if (selectedId !== ownerId) openIdentity(ownerId);
     onSection(section);
   }
   function activateRecord(node: IdentityWebNode) {
     if (node.type === 'identity') { openIdentity(node.entity.id); return; }
-    setRecordScope({ collection: node.type === 'sources' ? node.collection : node.reference.collection, entityId: node.type === 'sources' ? node.ownerId : undefined, ownerName: byId.get(node.ownerId)?.name, ...(node.type === 'course' ? { reference: node.reference } : {}) });
+    openRecords({ collection: node.type === 'sources' ? node.collection : node.reference.collection,
+      entityId: node.type === 'sources' ? node.ownerId : undefined,
+      label: node.type === 'sources' ? COLLECTION_LABELS[node.collection] ?? node.collection : undefined,
+      ...(node.type === 'course' ? { reference: node.reference } : {}) }, node.ownerId);
+  }
+  function breadcrumbLabel(frame: GraphFrame) {
+    return frame.kind === 'browse' && !Object.keys(frame.filters).length && frame.label === frame.collection
+      ? collections.find(item => item.id === frame.collection)?.label ?? frame.label : frame.label;
   }
 
   const nodes: VisualNode[] = [];
@@ -119,7 +181,7 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
       edges.push({ id: `browse:${kind}`, from: 'campus', to: `kind:${kind}`, label: 'browse category', type: 'browse' });
     });
     CAMPUS_DATA_TOPICS.forEach((topic, index) => {
-      nodes.push({ id: `topic:${topic.id}`, label: topic.label, detail: topic.description, type: 'category', ...position(kinds.length + index, categoryCount, 410, 290), activate: () => setRecordScope({ collection: topic.collection, ownerName: 'Ramapo College' }) });
+      nodes.push({ id: `topic:${topic.id}`, label: topic.label, detail: topic.description, type: 'category', ...position(kinds.length + index, categoryCount, 410, 290), activate: () => openRecords({ collection: topic.collection, label: topic.label }) });
       edges.push({ id: `browse:${topic.id}`, from: 'campus', to: `topic:${topic.id}`, label: 'browse category', type: 'browse' });
     });
   } else if (mode === 'category') {
@@ -154,14 +216,22 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
 
   return <section className="@container overflow-hidden rounded-2xl border border-sky-400/20 bg-[#101820]" aria-label="Campus Graph">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-4 sm:px-5">
-      <div className="flex min-w-0 items-center gap-2 text-sm">
-        <button type="button" onClick={home} className="flex shrink-0 items-center gap-2 rounded-md text-sky-200 hover:text-white" aria-label="Ramapo College home"><Home className="h-4 w-4" />Ramapo College</button>
-        {mode === 'category' && <><ChevronRight className="h-3 w-3 text-neutral-500" /><span className="truncate text-xs text-neutral-300">{KIND_LABELS[category]}</span></>}
-        {mode === 'identity' && entity && <><ChevronRight className="h-3 w-3 shrink-0 text-neutral-500" /><button type="button" onClick={() => browse(entity.kind)} className="text-xs text-neutral-300 hover:text-white">{KIND_LABELS[entity.kind]}</button></>}
-      </div>
+      <nav className="min-w-0 flex-1 text-xs" aria-label="Graph traversal">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          {traversal.map((frame, index) => <li key={index} className="flex min-w-0 items-center gap-2">
+            {index > 0 && <ChevronRight aria-hidden="true" className="h-3 w-3 shrink-0 text-slate-500" />}
+            <button type="button" onClick={() => returnTo(index)} aria-current={index === traversal.length - 1 ? 'location' : undefined}
+              aria-label={index === 0 ? 'Ramapo College home' : undefined} title={breadcrumbLabel(frame)}
+              className="flex min-w-0 items-center gap-2 rounded px-1 py-1 text-sky-200 hover:bg-white/5 hover:text-white aria-[current=location]:text-white">
+              {index === 0 && <Home aria-hidden="true" className="h-4 w-4 shrink-0" />}<span className="max-w-64 truncate">{breadcrumbLabel(frame)}</span>
+            </button>
+          </li>)}
+        </ol>
+      </nav>
+      {traversal.length > 1 && <button type="button" onClick={() => returnTo(traversal.length - 2)} className="flex shrink-0 items-center gap-1 rounded-lg border border-white/15 px-2 py-2 text-xs text-sky-200 hover:bg-white/5"><ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />Back</button>}
       {search}
     </div>
-    {recordScope ? <RecordGraph key={JSON.stringify([recordScope, datasetVersion, identityHash])} scope={recordScope} datasetVersion={datasetVersion} identityHash={identityHash} onClose={() => setRecordScope(undefined)} /> : <>
+    {recordFrame ? <RecordGraph frame={recordFrame} datasetVersion={datasetVersion} identityHash={identityHash} onPush={pushRecord} onReplace={frame => setTraversal(previous => replaceCurrent(previous, frame))} onCollections={setCollections} /> : <>
     <div className="space-y-3 px-4 pt-4 sm:px-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><h2 className="flex items-center gap-2 text-sm font-semibold"><Network className="h-4 w-4 text-sky-300" />{mode === 'campus' ? 'Explore campus connections' : mode === 'category' ? KIND_LABELS[category] : entity?.name}</h2>
@@ -240,7 +310,7 @@ export function IdentityWeb({ search, datasetVersion, identityHash, navigationEp
     <div className="px-4 pb-4 sm:px-5">
       {mode === 'identity' && entity
         ? <details className="rounded-xl border border-white/10 p-3 text-xs" aria-label="Identity source"><summary className="cursor-pointer text-sky-200">View source</summary><div className="mt-3"><JsonViewer alwaysOpen data={entity} title="Identity links and evidence" downloadFileName={`identity-${entity.id}.json`} /></div></details>
-        : <TopicSources sources={mode === 'category' ? IDENTITY_TOPIC_SOURCES[category] : CAMPUS_GRAPH_SOURCES} ownerName={mode === 'category' ? KIND_LABELS[category] : 'Ramapo College'} onOpen={setRecordScope} />}
+        : <TopicSources sources={mode === 'category' ? IDENTITY_TOPIC_SOURCES[category] : CAMPUS_GRAPH_SOURCES} ownerName={mode === 'category' ? KIND_LABELS[category] : 'Ramapo College'} onOpen={openRecords} />}
     </div>
     </>}
     <p className="border-t border-white/10 bg-black/10 px-5 py-3 text-[10px] leading-5 text-muted-foreground">Ramapo College and category nodes provide navigation within this campus dataset. Factual relationships use explicit stored evidence; identity links do not rank source authority or establish shared availability.</p>

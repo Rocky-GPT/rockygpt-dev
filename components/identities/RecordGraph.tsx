@@ -1,23 +1,18 @@
 'use client';
 
 import { useEffect, useId, useState, type KeyboardEvent } from 'react';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, Loader2 } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import { JsonViewer } from '@/components/JsonViewer';
 import { TopicSources } from './TopicSources';
 import { CAMPUS_DATA_TOPICS } from '@/lib/campus-topics';
 import {
   GRAPH_PAGE_SIZE, childCount, graphUrl, nextGroupField, valueAtPath, valueChildren, valuePreview,
-  type GraphBrowse, type GraphCollection, type GraphFilters, type GraphScope, type GraphSnapshot, type JsonPath,
+  type GraphBrowse, type GraphCollection, type GraphFilters, type GraphSnapshot, type JsonPath,
 } from '@/lib/campus-graph';
 
-type Frame = { label: string; offset: number } & (
-  | { kind: 'collections' }
-  | { kind: 'browse'; collection: string; filters: GraphFilters; entityId?: string }
-  | { kind: 'record'; collection: string; recordId?: string; reference?: GraphScope['reference']; entityId?: string }
-  | { kind: 'value'; value: unknown; path: JsonPath; provenance?: Record<string, unknown> }
-  | { kind: 'remote'; collection: string; recordId: string; path: JsonPath }
-);
+import type { RecordFrame } from '@/lib/graph-traversal';
+
 type Navigation = { label: string; collection: string; filters: GraphFilters };
 type RecordResult = GraphSnapshot & { record: Record<string, unknown> & { navigation?: Navigation[] }; diagnostics?: unknown[] };
 type RemoteValue = GraphSnapshot & {
@@ -27,7 +22,12 @@ type RemoteValue = GraphSnapshot & {
 };
 type ResponseData = GraphBrowse | RecordResult | RemoteValue;
 type Child = { id: string; label: string; detail: string; activate?: () => void };
-type Props = { scope: GraphScope; datasetVersion: string; identityHash: string; onClose: () => void };
+type Props = {
+  frame: RecordFrame; datasetVersion: string; identityHash: string;
+  onPush: (frame: RecordFrame) => void;
+  onReplace: (frame: RecordFrame) => void;
+  onCollections: (collections: GraphCollection[]) => void;
+};
 
 async function readGraph<T extends GraphSnapshot>(url: string, signal: AbortSignal, hash: string): Promise<T> {
   const response = await fetch(url, { signal, cache: 'no-store' });
@@ -37,13 +37,6 @@ async function readGraph<T extends GraphSnapshot>(url: string, signal: AbortSign
     : body.error ?? body.detail ?? `Could not load this node (HTTP ${response.status}).`);
   if (body.identity_hash !== hash) throw new Error('The identity map changed. Reload identities before continuing.');
   return body as T;
-}
-
-function initialFrame(scope: GraphScope): Frame {
-  if (scope.collection === 'artifacts' && scope.recordId) return { kind: 'remote', collection: 'artifacts', recordId: scope.recordId, path: [], label: scope.label ?? scope.recordId, offset: 0 };
-  if (scope.collection && scope.reference) return { kind: 'record', collection: scope.collection, reference: scope.reference, label: scope.reference.source_record_key, offset: 0 };
-  if (scope.collection) return { kind: 'browse', collection: scope.collection, entityId: scope.entityId, filters: {}, label: scope.collection, offset: 0 };
-  return { kind: 'collections', label: 'All source data', offset: 0 };
 }
 
 function nodeLines(label: string): string[] {
@@ -62,15 +55,13 @@ function LeafNode({ label, value }: { label: string; value: string }) {
   </div>;
 }
 
-export function RecordGraph({ scope, datasetVersion, identityHash, onClose }: Props) {
-  const [frames, setFrames] = useState<Frame[]>(() => [initialFrame(scope)]);
+export function RecordGraph({ frame, datasetVersion, identityHash, onPush: push, onReplace, onCollections }: Props) {
   const [catalogue, setCatalogue] = useState<GraphCollection[]>();
   const [data, setData] = useState<ResponseData>();
   const [error, setError] = useState('');
   const [catalogueError, setCatalogueError] = useState('');
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
-  const frame = frames[frames.length - 1];
   const marker = useId().replaceAll(':', '');
   const collection = 'collection' in frame ? catalogue?.find(item => item.id === frame.collection) : undefined;
   const groupBy = frame.kind === 'browse' ? nextGroupField(collection, frame.filters) : undefined;
@@ -80,10 +71,10 @@ export function RecordGraph({ scope, datasetVersion, identityHash, onClose }: Pr
     const controller = new AbortController();
     setCatalogueError('');
     readGraph<GraphSnapshot & { collections: GraphCollection[] }>(graphUrl('collections', datasetVersion), controller.signal, identityHash)
-      .then(result => { if (!controller.signal.aborted) setCatalogue(result.collections); })
+      .then(result => { if (!controller.signal.aborted) { setCatalogue(result.collections); onCollections(result.collections); } })
       .catch(reason => { if (!controller.signal.aborted) setCatalogueError(reason instanceof Error ? reason.message : 'Could not load source collections.'); });
     return () => controller.abort();
-  }, [datasetVersion, identityHash, retry]);
+  }, [datasetVersion, identityHash, retry, onCollections]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -101,8 +92,7 @@ export function RecordGraph({ scope, datasetVersion, identityHash, onClose }: Pr
     return () => controller.abort();
   }, [frame, catalogue, groupBy, datasetVersion, identityHash, retry]);
 
-  function push(next: Frame) { setFrames(previous => [...previous, next]); }
-  function page(offset: number) { setFrames(previous => [...previous.slice(0, -1), { ...previous[previous.length - 1], offset }]); }
+  function page(offset: number) { onReplace({ ...frame, offset }); }
   function openRecord(collectionId: string, id: string, title: string, entityId?: string) {
     if (collectionId === 'artifacts') push({ kind: 'remote', collection: collectionId, recordId: id, path: [], label: title, offset: 0 });
     else push({ kind: 'record', collection: collectionId, recordId: id, entityId, label: title, offset: 0 });
@@ -168,14 +158,9 @@ export function RecordGraph({ scope, datasetVersion, identityHash, onClose }: Pr
   const handleKey = (event: KeyboardEvent<SVGGElement>, activate: () => void) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(); } };
 
   return <div className="space-y-4 p-4 sm:p-5" aria-label="Source data graph">
-    <nav className="flex flex-wrap items-center gap-2 text-xs" aria-label="Source data path">
-      <button type="button" onClick={onClose} className="flex items-center gap-1 rounded-md text-sky-200 hover:text-white"><ArrowLeft className="h-3.5 w-3.5" />{scope.ownerName ?? 'Campus connections'}</button>
-      {frames.map((item, index) => <span key={index} className="flex min-w-0 items-center gap-2"><ChevronRight className="h-3 w-3 shrink-0 text-slate-500" /><button type="button" aria-current={index === frames.length - 1 ? 'location' : undefined} onClick={() => setFrames(previous => previous.slice(0, index + 1))} className="max-w-52 truncate rounded px-1 py-1 text-neutral-300 hover:bg-white/5 aria-[current=location]:text-white" title={item.label}>{item.kind === 'browse' && !Object.keys(item.filters).length ? catalogue?.find(collection => collection.id === item.collection)?.label ?? item.label : item.label}</button></span>)}
-    </nav>
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0"><h2 className="break-words text-sm font-semibold text-sky-100">{label}</h2>{!hasExactValue && <p className="mt-1 text-xs leading-5 text-muted-foreground">Select a node with children to expand it. Leaf nodes show their values directly. Lines here show stored records and fields.</p>}</div>
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {frames.length > 1 && <button type="button" onClick={() => setFrames(previous => previous.slice(0, -1))} className="flex items-center gap-1 rounded-lg border border-white/15 px-2 py-2"><ArrowLeft className="h-3.5 w-3.5" />Back</button>}
         {!busy && !problem && total > 0 && <><span aria-live="polite">{frame.offset + 1}–{Math.min(frame.offset + children.length, total)} of {total.toLocaleString()}</span><button type="button" aria-label="Previous data nodes" disabled={!frame.offset} onClick={() => page(Math.max(0, frame.offset - GRAPH_PAGE_SIZE))} className="rounded-lg border border-white/15 p-2 disabled:opacity-30"><ChevronLeft className="h-3.5 w-3.5" /></button><button type="button" aria-label="Next data nodes" disabled={nextOffset === null} onClick={() => nextOffset !== null && page(nextOffset)} className="rounded-lg border border-white/15 p-2 disabled:opacity-30"><ChevronRight className="h-3.5 w-3.5" /></button></>}
       </div>
     </div>

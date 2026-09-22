@@ -4,6 +4,48 @@ import {
   GRAPH_PAGE_SIZE, childCount, graphUrl, nextGroupField, valueAtPath,
   valueChildren, valueKind, valuePreview,
 } from '../lib/campus-graph.ts';
+import {
+  appendFrame, campusFrame, initialRecordFrame, isRecordFrame, replaceCurrent, visitAncestor,
+} from '../lib/graph-traversal.ts';
+
+test('one traversal returns from nested source fields to the exact identity and category scope', () => {
+  const category = { kind: 'category', label: 'Events', category: 'event', query: 'Mutual Aid', page: 2 };
+  const identity = { kind: 'identity', label: 'Mutual Aid Network', entityId: 'event-1' };
+  let path = [campusFrame, category, identity];
+  path = appendFrame(path, initialRecordFrame({ collection: 'events', entityId: 'event-1', label: 'Event occurrences' }));
+  path = replaceCurrent(path, { ...path.at(-1), offset: 8 });
+  path = appendFrame(path, { ...path.at(-1), filters: { date: '2026-12-02' }, label: '2026-12-02', offset: 0 });
+  const reference = { source_key: 'events', source_record_key: 'Mutual Aid', source_record_id: 'row-1' };
+  path = appendFrame(path, initialRecordFrame({ collection: 'events', reference, label: 'Mutual Aid Network' }));
+  path = appendFrame(path, { kind: 'value', label: 'tags', value: { tags: ['Meeting'] }, path: ['tags'], offset: 0 });
+  assert.deepEqual(path.map(frame => frame.label), ['Ramapo College', 'Events', 'Mutual Aid Network', 'Event occurrences', '2026-12-02', 'Mutual Aid Network', 'tags']);
+  assert.deepEqual(visitAncestor(path, 5).at(-1).reference, reference);
+  assert.deepEqual(visitAncestor(path, 4).at(-1).filters, { date: '2026-12-02' });
+  assert.equal(visitAncestor(path, 3).at(-1).entityId, 'event-1');
+  assert.equal(visitAncestor(path, 3).at(-1).offset, 8);
+  assert.deepEqual(visitAncestor(path, 2).at(-1), identity);
+  assert.equal(isRecordFrame(visitAncestor(path, 2).at(-1)), false);
+  assert.deepEqual(visitAncestor(path, 1), [campusFrame, category]);
+  assert.deepEqual(visitAncestor(path, 0), [campusFrame]);
+});
+
+test('returning to an identity removes its descendants without merging distinct identities with matching names', () => {
+  const first = { kind: 'identity', label: 'Same name', entityId: 'one' };
+  const second = { ...first, entityId: 'two' };
+  let path = appendFrame([campusFrame, first], second);
+  assert.equal(path.length, 3);
+  path = appendFrame(path, initialRecordFrame({ collection: 'faculty', entityId: 'two' }));
+  assert.deepEqual(appendFrame(path, first), [campusFrame, first]);
+});
+
+test('artifact traversal preserves the selected source and parent page when returning from a nested path', () => {
+  let path = appendFrame([campusFrame], initialRecordFrame({ collection: 'artifacts', recordId: 'source.json', label: 'Published source' }));
+  path = replaceCurrent(path, { ...path.at(-1), offset: 16 });
+  path = appendFrame(path, { ...path.at(-1), path: ['a/b', 0], label: 'Nested record', offset: 0 });
+  assert.deepEqual(visitAncestor(path, 1).at(-1), {
+    kind: 'remote', collection: 'artifacts', recordId: 'source.json', label: 'Published source', path: [], offset: 16,
+  });
+});
 
 test('graph request roundtrips release, arbitrary source keys, and JSON filters without query injection', () => {
   const reference = {

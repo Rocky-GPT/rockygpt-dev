@@ -1,4 +1,4 @@
-import { valueText, type AttachmentNode } from './graph-projection.ts';
+import { valueText, type AttachedValue, type AttachmentNode } from './graph-projection.ts';
 
 /** Empty values may be summarized, but false/zero and structured records are
  * still facts. An array containing null is not the same as an empty array. */
@@ -23,10 +23,66 @@ function isContactRecordType(node: AttachmentNode): boolean {
       assertion.field_path.length === 1 && assertion.field_path[0] === 'type');
 }
 
+/** The contact parser's false flag means that no email note was detected. It
+ * does not establish a negative preference. Leave every other boolean alone. */
+export function contactPreferenceText(attached: AttachedValue): string | undefined {
+  if (attached.source?.collection !== 'contacts' || attached.assertion.field_path.length !== 1 ||
+    attached.assertion.field_path[0] !== 'prefers_email') return;
+  if (attached.value === false) return 'Preference not specified';
+  if (attached.value === true) return 'Email note present';
+}
+
 export function fieldLabel(node: AttachmentNode): string {
   if (isContactRecordType(node)) return 'Source record type';
+  if (node.kind === 'property' && node.values?.length && node.values.every(value => contactPreferenceText(value) !== undefined)) return 'Email preference';
   const label = node.label.replaceAll('_', ' ');
   return label ? label[0].toUpperCase() + label.slice(1) : label;
+}
+
+export interface DetailCard {
+  field: AttachmentNode;
+  related: AttachmentNode[];
+}
+export interface DetailSection {
+  label: string;
+  cards: DetailCard[];
+}
+
+function topLevelField(node: AttachmentNode, key: string, collections: string[]): boolean {
+  return node.kind === 'property' && !!node.values?.length && node.values.every(({ assertion, source }) =>
+    !!source && collections.includes(source.collection) && assertion.field_path.length === 1 && assertion.field_path[0] === key);
+}
+
+/** Group source fields visually, retaining every original node. A structured
+ * list is a related representation, never asserted to equal the scalar value. */
+export function detailSections(owner: AttachmentNode, fields: AttachmentNode[]): DetailSection[] {
+  if (owner.kind !== 'entity') return [{ label: owner.kind === 'property' || owner.kind === 'value' ? 'Values' : 'Details', cards: fields.map(field => ({ field, related: [] })) }];
+  const paired = new Map<AttachmentNode, AttachmentNode[]>();
+  const secondary = new Set<AttachmentNode>();
+  for (const [scalar, list] of [['phone', 'phones'], ['office', 'offices']]) {
+    const primary = fields.find(field => topLevelField(field, scalar, ['contacts', 'faculty']));
+    const related = fields.find(field => topLevelField(field, list, ['contacts']));
+    if (primary && related && !isEmptyValue(primary.values?.[0]?.value)) {
+      paired.set(primary, [related]);
+      secondary.add(related);
+    }
+  }
+  const sections: DetailSection[] = [];
+  const academic = fields.some(field => field.values?.some(value => value.source?.collection === 'faculty'));
+  const contactKeys = new Set(['email', 'phone', 'phones', 'office', 'offices', 'preferred_contact', 'prefers_email', 'contact_note', 'aliases']);
+  for (const field of fields) {
+    if (secondary.has(field)) continue;
+    const sourceFields = field.values?.map(value => value.assertion.field_path) ?? [];
+    const contact = field.values?.length && field.values.every(value => value.source && ['contacts', 'faculty'].includes(value.source.collection)) &&
+      sourceFields.every(path => path.length === 1 && contactKeys.has(String(path[0])));
+    const links = sourceFields.length > 0 && sourceFields.every(path => path.length === 1 && ['profileUrl', 'imageUrl'].includes(String(path[0])));
+    const label = contact ? 'Contact' : links ? 'Links' : academic ? 'Academic profile' : 'Details';
+    let section = sections.find(section => section.label === label);
+    if (!section) { section = { label, cards: [] }; sections.push(section); }
+    section.cards.push({ field, related: paired.get(field) ?? [] });
+  }
+  const order = ['Contact', 'Academic profile', 'Details', 'Links'];
+  return sections.sort((a, b) => order.indexOf(a.label) - order.indexOf(b.label));
 }
 
 /** Partition presentation only. Return the original nodes so assertion IDs,

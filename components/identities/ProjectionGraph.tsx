@@ -4,7 +4,9 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronDown, FileText, Layers3, Network, Search, X } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
-import { collectionDescription, fieldLabel, nodeSummary, partitionFields } from '@/lib/graph-presentation';
+import { collectionDescription, contactPreferenceText, detailSections, fieldLabel, nodeSummary, partitionFields } from '@/lib/graph-presentation';
+import { groupAttachedValues } from '@/lib/graph-value-groups';
+import { groupConnections } from '@/lib/graph-connection-groups';
 import {
   appendProjectionPage, findAttachment, hasChildren, ProjectionError,
   projectionTree, readProjection, valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
@@ -68,10 +70,12 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
   const fields = partitionFields(node);
   const collections = node.children.filter(child => child.kind === 'group');
   const relationships = node.children.filter(child => child.kind === 'relationship');
+  const connectionGroups = groupConnections(relationships);
   const records = node.children.filter(child => child.kind === 'record');
   const sourceCaveats = [...new Set(node.children.flatMap(child => child.values?.flatMap(value => value.source?.limitations ?? []) ?? []))];
   const propertyChildren = node.kind === 'property' || node.kind === 'value';
   const displayFields = propertyChildren ? node.children.filter(child => child.kind === 'value') : fields.details;
+  const sections = detailSections(node, displayFields);
   return <section aria-label={`Details for ${node.label}`} className="min-w-0 space-y-6">
     <header className="rounded-2xl border border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-transparent p-5 sm:p-6">
       <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-sky-200">
@@ -95,18 +99,20 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
       </button>)}</div>
     </section>}
 
-    {displayFields.length > 0 && <section aria-label="Available details" className="space-y-3">
-      <SectionLabel label={propertyChildren ? 'Values' : 'Details'} count={displayFields.length} />
-      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{displayFields.map(child => <PropertyCard key={child.id} node={child} onSelect={onSelect} />)}</div>
-    </section>}
+    {sections.filter(section => section.cards.length > 0).map(section => <section key={section.label} aria-label={section.label} className="space-y-3">
+      <SectionLabel label={section.label} count={section.cards.length} />
+      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{section.cards.map(card => <PropertyCard key={card.field.id} node={card.field} related={card.related} onSelect={onSelect} />)}</div>
+    </section>)}
 
     {relationships.length > 0 && <section aria-label="Entity connections" className="space-y-3">
       <SectionLabel label="Connections" count={relationships.length} />
-      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{relationships.map(child => <div key={child.id} className="min-w-0 rounded-xl border border-sky-300/20 bg-[#12202c] p-4">
-        <p className="flex items-center gap-2 text-xs text-sky-300"><Network size={13} aria-hidden="true" />{child.subtitle}</p>
-        {child.target ? <button aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} className="mt-2 flex w-full items-start justify-between gap-3 text-left text-sm font-medium text-slate-100 hover:text-sky-200"><span className="break-words">{child.label}</span><ArrowRight size={15} className="mt-0.5 shrink-0" aria-hidden="true" /></button> : <p className="mt-2 text-sm text-amber-200">{child.label}</p>}
-        <button aria-label={`Evidence for ${child.subtitle}: ${child.label}`} onClick={() => setEvidence(child)} className="mt-4 flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-200"><FileText size={12} aria-hidden="true" />View evidence</button>
-      </div>)}</div>
+      <div className="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3">{connectionGroups.map(group => <section key={group.key} aria-label={`${group.label} connections`} className="min-w-0 overflow-hidden rounded-xl border border-sky-300/20 bg-[#12202c]">
+        <h4 className="flex items-center gap-2 border-b border-sky-300/10 px-4 py-3 text-sm font-medium text-sky-200"><Network size={14} className="shrink-0" aria-hidden="true" /><span className="first-letter:uppercase">{group.label}</span><span className="ml-auto rounded-md bg-sky-300/10 px-2 py-0.5 text-xs tabular-nums">{group.nodes.length}</span></h4>
+        <ul className="divide-y divide-white/10">{group.nodes.map(child => <li key={child.id} className="px-4 py-3">
+          {child.target ? <button aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} className="flex w-full items-start justify-between gap-3 text-left text-sm font-medium text-slate-100 hover:text-sky-200"><span className="break-words">{child.label}</span><ArrowRight size={15} className="mt-0.5 shrink-0" aria-hidden="true" /></button> : <p className="text-sm text-amber-200">{child.label}</p>}
+          {child.relationship && <button aria-label={`Evidence for ${child.subtitle}: ${child.label}`} onClick={() => setEvidence(child)} className="mt-2 flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-200"><FileText size={12} aria-hidden="true" />View evidence</button>}
+        </li>)}</ul>
+      </section>)}</div>
     </section>}
 
     {(records.length > 0 || node.kind === 'group') && <RecordList node={node} records={records} onSelect={onSelect} />}
@@ -131,20 +137,69 @@ function SectionLabel({ label, count }: { label: string; count: number }) {
   return <h3 className="flex items-center gap-2 text-sm font-medium text-slate-200">{label}<span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-500">{count.toLocaleString()}</span></h3>;
 }
 
-function PropertyCard({ node, onSelect }: { node: AttachmentNode; onSelect: (node: AttachmentNode) => void }) {
+function PropertyCard({ node, related = [], onSelect }: { node: AttachmentNode; related?: AttachmentNode[]; onSelect: (node: AttachmentNode) => void }) {
   return <div data-node-kind={node.kind} className="min-w-0 rounded-xl border border-white/10 bg-white/[0.02] p-4">
     <p className="text-xs font-medium text-slate-400">{fieldLabel(node)}</p>
-    <div className="mt-2 space-y-3">{node.values?.map((attached, index) => <div key={`${attached.assertion.id}:${index}`} className={index ? 'border-t border-white/10 pt-3' : undefined}>
-      {(node.values?.length ?? 0) > 1 && <p className="mb-1 text-[10px] uppercase tracking-wide text-slate-500">Source value {index + 1}</p>}
-      <ValueContent value={attached.value} label={fieldLabel(node)} />
-      {attached.source?.freshness === 'stale' && <p className="mt-2 text-xs text-amber-200">Source is stale</p>}
-      {!attached.source && <p className="mt-2 text-xs text-amber-200">Source record unavailable</p>}
-      {attached.assertion.publication_status === 'not_published' && <p className="mt-2 text-xs text-amber-200">Not published by the source</p>}
-      {attached.assertion.limitations.map((text, i) => <p key={i} className="mt-2 text-xs leading-5 text-amber-200">{text}</p>)}
-      <AssertionSource attached={attached} />
-    </div>)}</div>
+    <PropertyValues node={node} />
     {hasChildren(node) && <button aria-label={`Open ${node.label}`} onClick={() => onSelect(node)} className="mt-3 flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
+    {related.map(field => <div key={field.id} className="mt-4 border-t border-white/10 pt-3">
+      <ValueWarnings values={field.values ?? []} />
+      <details className="text-xs text-slate-400">
+        <summary className="cursor-pointer leading-5 text-sky-300">{field.label === 'phones' ? 'Structured phone entries' : 'Structured office entries'} <span className="text-slate-500">· {structuredCount(field)}</span></summary>
+        <p className="mt-2 text-xs leading-5 text-slate-500">Separate source field; inspect all entries and their evidence.</p>
+        <PropertyValues node={field} />
+        {hasChildren(field) && <button aria-label={`Open ${field.label}`} onClick={() => onSelect(field)} className="mt-3 flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore entries <ArrowRight size={12} aria-hidden="true" /></button>}
+      </details>
+    </div>)}
   </div>;
+}
+
+function structuredCount(node: AttachmentNode): string {
+  const values = node.values ?? [];
+  if (values.length === 1 && Array.isArray(values[0].value)) {
+    const count = values[0].value.length;
+    return `${count} ${count === 1 ? 'entry' : 'entries'}`;
+  }
+  const groups = groupAttachedValues(values);
+  return groups.length > 1 ? `${groups.length} distinct values across sources` : `${values.length} source values`;
+}
+
+function PropertyValues({ node }: { node: AttachmentNode }) {
+  const groups = groupAttachedValues(node.values ?? []);
+  return <div className="mt-2 space-y-3">
+    {groups.length > 1 && <p className="text-xs text-amber-200">Sources contain {groups.length} distinct values</p>}
+    {groups.map((group, index) => {
+      const preference = contactPreferenceText(group.assertions[0]);
+      const text = preference && group.assertions.every(value => contactPreferenceText(value) === preference) ? preference : undefined;
+      return <div key={group.assertions[0].assertion.id + ':' + index} className={index ? 'border-t border-white/10 pt-3' : undefined}>
+        <ValueContent value={group.value} label={fieldLabel(node)} text={text} />
+        {text && <p className="mt-1 text-xs leading-5 text-slate-400">{group.value === false ? 'No email preference was detected in the contact text.' : 'The contact text contains an email note; see the source for its wording.'}</p>}
+        <ValueWarnings values={group.assertions} />
+        <details className="mt-3 text-xs text-slate-400">
+          <summary className="w-fit cursor-pointer text-sky-300 hover:text-sky-100">{group.sourceCount > 1 ? `${group.sourceCount} sources` : 'Source details'}</summary>
+          <div className="mt-3 space-y-4">{group.assertions.map((attached, sourceIndex) => <div key={`${attached.assertion.id}:${sourceIndex}`} className={sourceIndex ? 'border-t border-white/10 pt-3' : undefined}>
+            {group.assertions.length > 1 && <p className="mb-2 text-xs font-medium text-slate-300">{sourceLabel(attached)}</p>}
+            <AssertionSource attached={attached} />
+          </div>)}</div>
+        </details>
+      </div>;
+    })}
+  </div>;
+}
+
+function sourceLabel({ source }: AttachedValue): string {
+  if (!source) return 'Source record unavailable';
+  return `${source.source_key ?? source.collection} · ${source.collection}`;
+}
+
+function ValueWarnings({ values }: { values: AttachedValue[] }) {
+  const warnings = new Set(values.flatMap(attached => [
+    ...(attached.source?.freshness === 'stale' ? ['A source is stale'] : []),
+    ...(!attached.source ? ['A source record is unavailable'] : []),
+    ...(attached.assertion.publication_status === 'not_published' ? ['A source does not mark this field as published'] : []),
+    ...attached.assertion.limitations,
+  ]));
+  return <>{[...warnings].map(text => <p key={text} className="mt-2 text-xs leading-5 text-amber-200">{text}</p>)}</>;
 }
 
 function displayValue(value: unknown): string {
@@ -155,9 +210,9 @@ function displayValue(value: unknown): string {
   return valueText(value);
 }
 
-function ValueContent({ value, label }: { value: unknown; label: string }) {
+function ValueContent({ value, label, text: override }: { value: unknown; label: string; text?: string }) {
   const [expanded, setExpanded] = useState(false);
-  const text = displayValue(value);
+  const text = override ?? displayValue(value);
   const long = text.length > 350;
   return <>
     <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-100">{long && !expanded ? `${text.slice(0, 280)}…` : text}</p>
@@ -181,9 +236,9 @@ function RecordList({ node, records, onSelect }: { node: AttachmentNode; records
 
 function AssertionSource({ attached: { assertion, source } }: { attached: AttachedValue }) {
   const url = source?.source_url ? safeSourceUrl(source.source_url) : undefined;
-  return <details className="mt-3 text-xs text-slate-400">
-    <summary className="w-fit cursor-pointer text-slate-500 hover:text-sky-200">Source details</summary>
-    <dl className="mt-3 space-y-2 border-l border-sky-300/20 pl-3 leading-5 [overflow-wrap:anywhere]">
+  return <dl className="space-y-2 border-l border-sky-300/20 pl-3 leading-5 [overflow-wrap:anywhere]">
+      {contactPreferenceText({ assertion, source, value: assertion.value }) && <div><dt className="text-slate-500">Stored parser flag</dt><dd>{String(assertion.value)}</dd></div>}
+      {assertion.limitations.map((text, index) => <div key={index} className="text-amber-200"><dt className="sr-only">Field limitation</dt><dd>{text}</dd></div>)}
       <div><dt className="text-slate-500">Field publication</dt><dd>{assertion.publication_status === 'unspecified' ? 'Not specified for this field' : assertion.publication_status.replaceAll('_', ' ')}</dd></div>
       {source ? <>
         <div><dt className="text-slate-500">Source</dt><dd>{source.source_key ?? 'Unknown'} · {source.source_record_key ?? source.row_id}</dd></div>
@@ -195,8 +250,7 @@ function AssertionSource({ attached: { assertion, source } }: { attached: Attach
         {source.limitations.map((text, i) => <div key={i} className="text-amber-200"><dt className="sr-only">Source limitation</dt><dd>{text}</dd></div>)}
         {url && <div><dt className="sr-only">Source link</dt><dd><a href={url} target="_blank" rel="noopener noreferrer" className="text-sky-300 underline underline-offset-2">{source.source_url}</a></dd></div>}
       </> : <div><dt className="sr-only">Source availability</dt><dd>Source record not listed in this response.</dd></div>}
-    </dl>
-  </details>;
+    </dl>;
 }
 function RelationshipEvidence({ node, close }: { node: AttachmentNode; close: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);

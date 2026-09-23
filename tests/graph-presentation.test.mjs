@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { collectionDescription, fieldLabel, isEmptyValue, nodeSummary, partitionFields } from '../lib/graph-presentation.ts';
+import { collectionDescription, contactPreferenceText, detailSections, fieldLabel, isEmptyValue, nodeSummary, partitionFields } from '../lib/graph-presentation.ts';
 
 const source = (id = 'contacts:one', overrides = {}) => ({ id, collection: 'contacts', row_id: id.split(':')[1],
   source_key: 'campus-directory', source_record_key: 'office:birch', source_url: 'https://example.edu/directory',
@@ -55,7 +55,7 @@ test('canonical entity kind stays separate from contact source record type and r
   const root = entity([name, type, field('prefers_email', false)]);
   assert.equal(root.subtitle, 'venue');
   assert.equal(fieldLabel(type), 'Source record type');
-  assert.equal(fieldLabel(root.children[2]), 'Prefers email');
+  assert.equal(fieldLabel(root.children[2]), 'Email preference');
   assert.deepEqual(partitionFields(root).sourceFields, [name, type]);
   const unrelatedType = field('type', 'elective', { source: { collection: 'requirement_groups' } });
   assert.equal(fieldLabel(unrelatedType), 'Type');
@@ -63,6 +63,48 @@ test('canonical entity kind stays separate from contact source record type and r
   const qualifiedType = field('type', 'office', { assertion: { limitations: ['Source categorization differs.'] } });
   assert.deepEqual(partitionFields(entity([qualifiedType])).details, [qualifiedType]);
   assert.deepEqual(partitionFields(entity([field('name', 'Alternate published name')])).details.map(node => node.label), ['name']);
+});
+
+test('contact email flag is explained without interpreting unrelated false values as missing', () => {
+  const unspecified = field('prefers_email', false);
+  assert.equal(contactPreferenceText(unspecified.values[0]), 'Preference not specified');
+  assert.equal(contactPreferenceText(field('prefers_email', true).values[0]), 'Email note present');
+  assert.equal(contactPreferenceText(field('vegan', false, { source: { collection: 'menu' } }).values[0]), undefined);
+  assert.equal(contactPreferenceText(field('prefers_email', false, { source: { collection: 'other' } }).values[0]), undefined);
+  assert.equal(contactPreferenceText(field('prefers_email', false, { assertion: { field_path: ['nested', 'prefers_email'] } }).values[0]), undefined);
+  assert.equal(unspecified.values[0].value, false);
+  assert.equal(unspecified.values[0].assertion.value, false);
+  assert.deepEqual(partitionFields(entity([unspecified])).details, [unspecified]);
+});
+
+test('contact cards retain both original scalar and structured fields without equating their values', () => {
+  const phone = field('phone', '(201) 555-0100');
+  const phones = field('phones', [{ number: '201-555-0100' }, { number: '201-555-0199' }]);
+  const office = field('office', 'ASB-107');
+  const offices = field('offices', ['ASB-107', 'Different location']);
+  const bio = field('bio', 'Biography', { source: { collection: 'faculty' } });
+  const link = field('profile_url', 'https://example.edu/faculty', { assertion: { field_path: ['profileUrl'] }, source: { collection: 'faculty' } });
+  const root = entity([phones, bio, office, link, phone, offices]);
+  const before = structuredClone(root);
+  const sections = detailSections(root, root.children);
+  assert.deepEqual(sections.map(section => section.label), ['Contact', 'Academic profile', 'Links']);
+  const cards = sections.flatMap(section => section.cards);
+  assert.strictEqual(cards.find(card => card.field === phone).related[0], phones);
+  assert.strictEqual(cards.find(card => card.field === office).related[0], offices);
+  assert.deepEqual(cards.flatMap(card => [card.field, ...card.related]).map(node => node.id).sort(), root.children.map(node => node.id).sort());
+  assert.deepEqual(root, before);
+  assert.equal(phones.values[0].value[1].number, '201-555-0199');
+  assert.equal(offices.values[0].value[1], 'Different location');
+});
+
+test('unmatched, empty, nested and unrelated fields are not folded into contact representations', () => {
+  const phones = field('phones', [{ number: '201-555-0100' }]);
+  for (const root of [entity([phones]), entity([field('phone', null), phones]), entity([field('phone', '201-555-0100', { source: { collection: 'other' } }), phones]),
+    { ...entity([field('phone', '201-555-0100'), phones]), kind: 'record' }]) {
+    const sections = detailSections(root, root.children);
+    assert.equal(sections.flatMap(section => section.cards).length, root.children.length);
+    assert.ok(sections.flatMap(section => section.cards).every(card => card.related.length === 0));
+  }
 });
 
 test('collection descriptions explain record units while summaries preserve counts and pending pages', () => {

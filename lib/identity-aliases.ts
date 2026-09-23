@@ -21,6 +21,7 @@ export type AliasBasis =
   | 'program_family'
   | 'school_abbreviation'
   | 'school_former_name'
+  | 'subject_code'
   | 'event_title';
 
 export interface AliasEvidence {
@@ -78,6 +79,7 @@ export const BASES: { basis: AliasBasis; label: string; description: string }[] 
   { basis: 'program_family', label: 'Program family', description: 'The program name without its degree designation.' },
   { basis: 'school_abbreviation', label: 'School abbreviation', description: "The abbreviation in the school's reviewed entry, beside its official page." },
   { basis: 'school_former_name', label: 'Former school name', description: 'A former name the school replaced, with recorded evidence.' },
+  { basis: 'subject_code', label: 'Subject code', description: "A course subject's catalog code: the only name it answers to in lookup. Its name and short forms work in course search." },
   { basis: 'event_title', label: 'Event title', description: "The event's published title, without its date." },
 ];
 
@@ -94,6 +96,7 @@ export const LOOKUP_LABELS: Record<AliasLookup, string> = {
 export const KIND_NAMES: Record<IdentityKind, string> = {
   person: 'Person', office: 'Office', facility: 'Facility', venue: 'Dining venue', program: 'Program',
   club: 'Club', organization: 'Organization', event: 'Event', building: 'Building', school: 'School',
+  subject: 'Course subject',
 };
 
 export function basisLabel(basis: AliasBasis): string {

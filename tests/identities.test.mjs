@@ -66,6 +66,8 @@ test('clubs and event occurrences open their own evidence while programs remain 
   assert.equal(defaultProfileSection('program'), 'conveners');
   assert.equal(sectionForCollection('clubs'), 'club');
   assert.equal(sectionForCollection('events'), 'event');
+  assert.equal(defaultProfileSection('subject'), 'subject');
+  assert.equal(sectionForCollection('subjects'), 'subject');
   assert.equal(KIND_LABELS.program, 'Academic programs');
 });
 

@@ -1,5 +1,5 @@
-export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event';
-export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'organization' | 'event';
+export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event' | 'building';
+export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'organization' | 'event' | 'building';
 
 export interface RecordReference {
   collection: string;
@@ -14,7 +14,7 @@ export interface IdentityLink {
   source_record_ids?: string[];
 }
 export interface IdentityRelationship {
-  type: 'convener' | 'listed_faculty' | 'profile_course' | 'organized_by';
+  type: 'convener' | 'listed_faculty' | 'profile_course' | 'organized_by' | 'office_at' | 'located_at';
   target_entity_id: string | null;
   target_record: RecordReference | null;
   evidence: (RecordReference & { field: string; source_url?: string | null })[];
@@ -104,10 +104,11 @@ export const SECTIONS: { key: ProfileSection; label: string }[] = [
   { key: 'menu', label: 'Menu' },
   { key: 'club', label: 'Club' },
   { key: 'event', label: 'Event occurrence' },
+  { key: 'building', label: 'Building' },
 ];
 export const KIND_LABELS: Record<IdentityKind, string> = {
   person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining venues', program: 'Academic programs',
-  club: 'Clubs', organization: 'Organizations', event: 'Events',
+  club: 'Clubs', organization: 'Organizations', event: 'Events', building: 'Buildings',
 };
 
 export interface RelatedIdentityNode {
@@ -126,6 +127,8 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
   const definitions = {
     convener: { label: 'Has convener', reverse: 'Convener of', section: 'conveners', kind: 'person' },
     listed_faculty: { label: 'Lists faculty', reverse: 'Listed faculty of', section: 'program', kind: 'person' },
+    office_at: { label: 'Office in', reverse: 'Office of', section: 'contact', kind: 'building' },
+    located_at: { label: 'Located in', reverse: 'Location of', section: 'contact', kind: 'building' },
     organized_by: { label: 'Organized by', reverse: 'Organizes event', section: 'event', kind: 'club' },
   } as const;
   for (const relationship of entity.relationships ?? []) {
@@ -156,7 +159,8 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
       const key = `${relationship.type}-of:${candidate.id}`;
       nodes.set(key, {
         key, name: candidate.name, label: definition.reverse,
-        detail: candidate.kind === 'program' ? 'Academic program identity' : 'Event occurrence identity',
+        detail: candidate.kind === 'program' ? 'Academic program identity'
+          : candidate.kind === 'event' ? 'Event occurrence identity' : `${KIND_LABELS[candidate.kind]} identity`,
         entityId: candidate.id, section: definition.section, kind: candidate.kind,
       });
     }
@@ -170,6 +174,7 @@ export function defaultProfileSection(kind: IdentityKind): ProfileSection {
   // Clubs and other Archway organizations open on their directory profile.
   if (kind === 'club' || kind === 'organization') return 'club';
   if (kind === 'event') return 'event';
+  if (kind === 'building') return 'building';
   return 'contact';
 }
 
@@ -191,6 +196,7 @@ export function sectionForCollection(collection: string): ProfileSection {
   const sections: Record<string, ProfileSection> = {
     contacts: 'contact', campus_hours: 'hours', dining_hours: 'hours', faculty: 'faculty',
     courses: 'courses', programs: 'program', menu: 'menu', clubs: 'club', events: 'event',
+    buildings: 'building',
   };
   return sections[collection] ?? 'contact';
 }

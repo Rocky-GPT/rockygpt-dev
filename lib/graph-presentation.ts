@@ -1,5 +1,7 @@
 import { valueText, type AttachmentNode } from './graph-projection.ts';
 
+const FACULTY_DERIVATION_NOTE = 'Derived from the linked faculty profile; these records are not independent corroboration.';
+
 /** Empty values may be summarized, but false/zero and structured records are
  * still facts. An array containing null is not the same as an empty array. */
 export function isEmptyValue(value: unknown): boolean {
@@ -13,7 +15,27 @@ function needsAttention(node: AttachmentNode): boolean {
   const values = node.values ?? [];
   return node.status === 'conflicting' || node.status === 'multiple' || values.some(({ assertion, source }) =>
     assertion.publication_status === 'not_published' || assertion.limitations.length > 0 ||
-    !source || source.limitations.length > 0 || source.freshness === 'stale');
+    !source || source.limitations.some(text => text !== FACULTY_DERIVATION_NOTE || !source.derived_from_source_id) || source.freshness === 'stale');
+}
+
+/** Record-wide caveats remain above both primary and collapsed field sections. */
+export function sourceCaveats(node: AttachmentNode): string[] {
+  return [...new Set(node.children.flatMap(child => child.values?.flatMap(value => value.source?.limitations ?? []) ?? []))];
+}
+
+/** Format the backend's phone representation without parsing or changing it.
+ * Extension-only and unparsed numbers remain exactly the supplied strings. */
+export function canonicalPhonePreview(node: AttachmentNode, value: unknown): string | undefined {
+  if (node.propertyKey !== 'phones' || !Array.isArray(value) || !value.length) return;
+  const lines: string[] = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry) ||
+      Object.entries(entry).some(([key, part]) => !['number', 'extension', 'type'].includes(key) || (part !== null && typeof part !== 'string'))) return;
+    const { number, extension, type } = entry as { number?: string | null; extension?: string | null; type?: string | null };
+    if (!number && !extension) return;
+    lines.push([number, extension ? `ext. ${extension}` : undefined, type ? `(${type})` : undefined].filter(Boolean).join(' '));
+  }
+  return lines.join('\n');
 }
 
 export function fieldLabel(node: AttachmentNode): string {

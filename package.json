@@ -13,7 +13,7 @@
     "lint": "eslint",
     "test:identities": "node --experimental-strip-types --test tests/identities.test.mjs tests/identity-aliases.test.mjs",
     "typecheck": "tsc --noEmit",
-    "test:graph": "node --experimental-strip-types --test tests/knowledge-graph.test.mjs tests/graph-projection.test.mjs tests/graph-presentation.test.mjs tests/graph-value-groups.test.mjs tests/graph-connection-groups.test.mjs"
+    "test:graph": "node --experimental-strip-types --test tests/knowledge-graph.test.mjs tests/graph-projection.test.mjs tests/graph-presentation.test.mjs tests/graph-connection-groups.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

@@ -4,8 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronDown, FileText, Layers3, Network, Search, X } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
-import { collectionDescription, contactPreferenceText, detailSections, fieldLabel, nodeSummary, partitionFields } from '@/lib/graph-presentation';
-import { groupAttachedValues } from '@/lib/graph-value-groups';
+import { collectionDescription, detailSections, fieldLabel, nodeSummary, partitionFields } from '@/lib/graph-presentation';
 import { groupConnections } from '@/lib/graph-connection-groups';
 import {
   appendProjectionPage, findAttachment, hasChildren, ProjectionError,
@@ -101,7 +100,7 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
 
     {sections.filter(section => section.cards.length > 0).map(section => <section key={section.label} aria-label={section.label} className="space-y-3">
       <SectionLabel label={section.label} count={section.cards.length} />
-      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{section.cards.map(card => <PropertyCard key={card.field.id} node={card.field} related={card.related} onSelect={onSelect} />)}</div>
+      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{section.cards.map(card => <PropertyCard key={card.field.id} node={card.field} onSelect={onSelect} />)}</div>
     </section>)}
 
     {relationships.length > 0 && <section aria-label="Entity connections" className="space-y-3">
@@ -124,7 +123,7 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
       </details>}
       {fields.sourceFields.length > 0 && <details className="group rounded-xl border border-white/10 bg-black/10">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-400 [&::-webkit-details-marker]:hidden"><span>Source record fields <span className="text-slate-500">· {fields.sourceFields.length}</span></span><ChevronDown size={15} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-        <p className="border-t border-white/5 px-4 pt-4 text-xs leading-5 text-slate-400">Source classifications describe the original record. They can differ from the graph entity type.</p>
+        <p className="border-t border-white/5 px-4 pt-4 text-xs leading-5 text-slate-400">Values repeated in the entity heading, with their evidence.</p>
         <div className="grid items-start gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">{fields.sourceFields.map(child => <PropertyCard key={child.id} node={child} onSelect={onSelect} />)}</div>
       </details>}
     </div>}
@@ -137,46 +136,27 @@ function SectionLabel({ label, count }: { label: string; count: number }) {
   return <h3 className="flex items-center gap-2 text-sm font-medium text-slate-200">{label}<span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-500">{count.toLocaleString()}</span></h3>;
 }
 
-function PropertyCard({ node, related = [], onSelect }: { node: AttachmentNode; related?: AttachmentNode[]; onSelect: (node: AttachmentNode) => void }) {
+function PropertyCard({ node, onSelect }: { node: AttachmentNode; onSelect: (node: AttachmentNode) => void }) {
   return <div data-node-kind={node.kind} className="min-w-0 rounded-xl border border-white/10 bg-white/[0.02] p-4">
     <p className="text-xs font-medium text-slate-400">{fieldLabel(node)}</p>
     <PropertyValues node={node} />
     {hasChildren(node) && <button aria-label={`Open ${node.label}`} onClick={() => onSelect(node)} className="mt-3 flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
-    {related.map(field => <div key={field.id} className="mt-4 border-t border-white/10 pt-3">
-      <ValueWarnings values={field.values ?? []} />
-      <details className="text-xs text-slate-400">
-        <summary className="cursor-pointer leading-5 text-sky-300">{field.label === 'phones' ? 'Structured phone entries' : 'Structured office entries'} <span className="text-slate-500">· {structuredCount(field)}</span></summary>
-        <p className="mt-2 text-xs leading-5 text-slate-500">Separate source field; inspect all entries and their evidence.</p>
-        <PropertyValues node={field} />
-        {hasChildren(field) && <button aria-label={`Open ${field.label}`} onClick={() => onSelect(field)} className="mt-3 flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore entries <ArrowRight size={12} aria-hidden="true" /></button>}
-      </details>
-    </div>)}
   </div>;
 }
 
-function structuredCount(node: AttachmentNode): string {
-  const values = node.values ?? [];
-  if (values.length === 1 && Array.isArray(values[0].value)) {
-    const count = values[0].value.length;
-    return `${count} ${count === 1 ? 'entry' : 'entries'}`;
-  }
-  const groups = groupAttachedValues(values);
-  return groups.length > 1 ? `${groups.length} distinct values across sources` : `${values.length} source values`;
-}
-
 function PropertyValues({ node }: { node: AttachmentNode }) {
-  const groups = groupAttachedValues(node.values ?? []);
+  const groups = node.factValues ?? [];
   return <div className="mt-2 space-y-3">
-    {groups.length > 1 && <p className="text-xs text-amber-200">Sources contain {groups.length} distinct values</p>}
+    {node.status === 'conflicting' && <p className="text-xs text-amber-200">Conflicting published values</p>}
+    {node.status === 'multiple' && <p className="text-xs text-slate-400">Multiple values with different validity periods</p>}
+    {node.status === 'unknown' && <p className="text-xs text-slate-400">Not known from available evidence</p>}
     {groups.map((group, index) => {
-      const preference = contactPreferenceText(group.assertions[0]);
-      const text = preference && group.assertions.every(value => contactPreferenceText(value) === preference) ? preference : undefined;
-      return <div key={group.assertions[0].assertion.id + ':' + index} className={index ? 'border-t border-white/10 pt-3' : undefined}>
-        <ValueContent value={group.value} label={fieldLabel(node)} text={text} />
-        {text && <p className="mt-1 text-xs leading-5 text-slate-400">{group.value === false ? 'No email preference was detected in the contact text.' : 'The contact text contains an email note; see the source for its wording.'}</p>}
+      return <div key={group.id} className={index ? 'border-t border-white/10 pt-3' : undefined}>
+        <ValueContent value={group.value} label={fieldLabel(node)} />
+        {(group.valid_from || group.valid_until || groups.length > 1) && <p className="mt-1 text-xs leading-5 text-slate-400">Validity: {group.valid_from ?? 'Not specified'} – {group.valid_until ?? 'Not specified'}</p>}
         <ValueWarnings values={group.assertions} />
         <details className="mt-3 text-xs text-slate-400">
-          <summary className="w-fit cursor-pointer text-sky-300 hover:text-sky-100">{group.sourceCount > 1 ? `${group.sourceCount} sources` : 'Source details'}</summary>
+          <summary className="w-fit cursor-pointer text-sky-300 hover:text-sky-100">{group.evidence_count} {group.evidence_count === 1 ? 'evidence record' : 'evidence records'}</summary>
           <div className="mt-3 space-y-4">{group.assertions.map((attached, sourceIndex) => <div key={`${attached.assertion.id}:${sourceIndex}`} className={sourceIndex ? 'border-t border-white/10 pt-3' : undefined}>
             {group.assertions.length > 1 && <p className="mb-2 text-xs font-medium text-slate-300">{sourceLabel(attached)}</p>}
             <AssertionSource attached={attached} />
@@ -237,12 +217,13 @@ function RecordList({ node, records, onSelect }: { node: AttachmentNode; records
 function AssertionSource({ attached: { assertion, source } }: { attached: AttachedValue }) {
   const url = source?.source_url ? safeSourceUrl(source.source_url) : undefined;
   return <dl className="space-y-2 border-l border-sky-300/20 pl-3 leading-5 [overflow-wrap:anywhere]">
-      {contactPreferenceText({ assertion, source, value: assertion.value }) && <div><dt className="text-slate-500">Stored parser flag</dt><dd>{String(assertion.value)}</dd></div>}
+      <div><dt className="text-slate-500">Raw assertion value</dt><dd><ValueContent value={assertion.value} label="raw assertion value" text={JSON.stringify(assertion.value, null, 2)} /></dd></div>
       {assertion.limitations.map((text, index) => <div key={index} className="text-amber-200"><dt className="sr-only">Field limitation</dt><dd>{text}</dd></div>)}
       <div><dt className="text-slate-500">Field publication</dt><dd>{assertion.publication_status === 'unspecified' ? 'Not specified for this field' : assertion.publication_status.replaceAll('_', ' ')}</dd></div>
       {source ? <>
         <div><dt className="text-slate-500">Source</dt><dd>{source.source_key ?? 'Unknown'} · {source.source_record_key ?? source.row_id}</dd></div>
         <div><dt className="text-slate-500">Original record</dt><dd>{source.collection} / {source.row_id}</dd></div>
+        {source.derived_from_source_id && <div><dt className="text-slate-500">Derived from evidence record</dt><dd>{source.derived_from_source_id}</dd></div>}
         <div><dt className="text-slate-500">Field path</dt><dd>{JSON.stringify(assertion.field_path)}</dd></div>
         {source.artifact_key && <div><dt className="text-slate-500">Artifact</dt><dd>{source.artifact_key} · {JSON.stringify(source.artifact_path)}</dd></div>}
         <div><dt className="text-slate-500">Collected</dt><dd>{source.collected_at ?? 'Unknown'} · {source.freshness}</dd></div>

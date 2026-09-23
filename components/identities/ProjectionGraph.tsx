@@ -2,12 +2,11 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowRight, FileText, X } from 'lucide-react';
-import { EntityGraph } from './EntityGraph';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
 import {
-  appendProjectionPage, fallbackReason, findAttachment, hasChildren, ProjectionError,
-  projectionTree, readProjection, valueText, type Assertion, type AttachmentNode, type EntityProjection,
+  appendProjectionPage, findAttachment, hasChildren, ProjectionError,
+  projectionTree, readProjection, valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
 } from '@/lib/graph-projection';
 
 const branch = 'border-sky-400/60 bg-[#12283b] text-sky-100';
@@ -20,21 +19,16 @@ export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onO
   onOpen: (node: CampusEntity, via?: string) => void; onRoot: () => void;
 }) {
   const [projection, setProjection] = useState<EntityProjection>();
-  const [fallback, setFallback] = useState('');
   const [error, setError] = useState<ProjectionError>();
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
-    setProjection(undefined); setFallback(''); setError(undefined); setLoading(true);
+    setProjection(undefined); setError(undefined); setLoading(true);
     async function load() {
-      let initial = true;
       try {
         let result = await readProjection(graph, entity.id, controller.signal);
         if (controller.signal.aborted) return;
-        const reason = fallbackReason(result);
-        if (reason) { setFallback(reason); return; }
-        initial = false;
         setProjection(result);
         const cursors = new Set<string>();
         // Load each page once, sequentially, with exact scope pins. A single continuous
@@ -50,9 +44,7 @@ export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onO
         }
       } catch (reason) {
         if (controller.signal.aborted) return;
-        const failure = reason instanceof ProjectionError ? reason : new ProjectionError(reason instanceof Error ? reason.message : 'Could not load projection.');
-        if (initial && !failure.reload) setFallback(failure.message);
-        else setError(failure);
+        setError(reason instanceof ProjectionError ? reason : new ProjectionError(reason instanceof Error ? reason.message : 'Could not load projection.'));
       } finally { if (!controller.signal.aborted) setLoading(false); }
     }
     void load();
@@ -62,13 +54,13 @@ export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onO
   const current = root && (attachmentId ? findAttachment(root, attachmentId) : root);
 
   if (error?.reload) return <p role="alert" className="text-sm text-amber-200">{error.message}</p>;
-  if (fallback) return <div className="space-y-3"><p role="status" className="text-xs text-muted-foreground">Showing the existing graph view. {fallback}</p>{attachmentId && <button className={control} onClick={onRoot}>Return to entity</button>}<EntityGraph graph={graph} entity={entity} onOpen={onOpen} /></div>;
+  if (error && !projection) return <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-amber-200"><p>Could not load {entity.name}. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry</button></div>;
   return <div className="space-y-3" data-projection-version={projection?.projection_version}>
     {loading && <p role="status" className="text-xs text-muted-foreground">{projection ? `Loading remaining records… ${projection.record_groups.reduce((n, g) => n + g.records.length, 0)} of ${projection.record_groups.reduce((n, g) => n + g.total, 0)}` : 'Loading entity projection…'}</p>}
     {error && <div role="alert" className="flex items-center gap-3 text-xs text-amber-200"><p>Only part of this projection is loaded. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry projection</button></div>}
     {current && <AttachmentCanvas key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />}
     {projection && !current && <p role="status" className="text-sm text-muted-foreground">{loading ? 'Loading this attachment…' : 'This attachment is unavailable.'} {!loading && <button className={control} onClick={onRoot}>Return to entity</button>}</p>}
-    {projection && (!projection.properties_complete || projection.coverage.length > 0) && <details className="text-xs text-amber-200"><summary className="cursor-pointer">Projection coverage and source limitations</summary><p className="mt-2">Some published fields are not included in this projection yet.</p><ul className="mt-2 max-h-52 space-y-2 overflow-auto">{projection.coverage.map((issue, index) => <li key={index}>{[issue.collection, issue.record_id, issue.reason, issue.fields.join(', '), issue.detail].filter(Boolean).join(' · ')}</li>)}</ul><a className="mt-3 inline-block text-sky-200 underline" href={`?projection=legacy&entity=${encodeURIComponent(entity.id)}`}>View existing projection</a></details>}
+    {projection && (!projection.properties_complete || projection.coverage.length > 0) && <details className="text-xs text-amber-200"><summary className="cursor-pointer">Projection coverage</summary><p className="mt-2">{projection.coverage.length ? 'Published values withheld or incomplete in this projection:' : 'This is a partial projection.'}</p><ul className="mt-2 max-h-52 space-y-2 overflow-auto">{projection.coverage.map((issue, index) => <li key={index}>{[issue.collection, issue.record_id, issue.reason, issue.fields.join(', '), issue.detail].filter(Boolean).join(' · ')}</li>)}</ul></details>}
   </div>;
 }
 
@@ -91,7 +83,7 @@ function AttachmentCanvas({ node, onSelect }: { node: AttachmentNode; onSelect: 
         {positions.map(({ child, x, y }) => <div key={child.id} className="absolute w-[390px]" style={{ left: `calc(50% - 550px + ${x}px)`, top: y }}>
           <div data-node-kind={child.kind} data-has-children={hasChildren(child)} className={`relative h-[132px] rounded-xl border shadow-md ${hasChildren(child) ? branch : leaf}`}>
             {hasChildren(child) ? <button aria-label={`Open ${child.label}`} className="h-full w-full rounded-xl p-4 text-left hover:border-sky-200 hover:bg-sky-400/10 focus-visible:outline-2 focus-visible:outline-sky-200" onClick={() => onSelect(child)}><span className={`flex items-start justify-between gap-3 text-sm font-medium ${child.relationship ? 'pr-7' : ''}`}><span className="line-clamp-2" title={child.label}>{child.label}</span><ArrowRight size={13} className="shrink-0" /></span><span className="mt-2 line-clamp-3 break-words text-xs opacity-80" title={child.subtitle}>{child.subtitle ?? (child.values ? child.values.map(v => valueText(v.value)).join(' · ') : `${child.children.length} attachments`)}</span></button>
-              : <div role="group" aria-label={`${child.label} leaf`} className="h-full p-4"><p className="text-xs font-medium text-green-200">{child.label}</p><div tabIndex={0} aria-label={`${child.label} value`} className="mt-2 h-[76px] overflow-auto whitespace-pre-wrap break-words text-sm leading-5 outline-offset-2">{child.values?.map(({ value, assertion }, i) => <div key={`${assertion.id}:${i}`} className={i ? 'mt-3 border-t border-green-300/20 pt-3' : ''}><p>{valueText(value)}</p><AssertionSource assertion={assertion} /></div>)}{!child.values && <p>{child.subtitle ?? 'No published attachments'}</p>}{child.relationship && <p className="mt-2 text-[10px] leading-4">Published relationship reference: {JSON.stringify(child.relationship)}</p>}</div></div>}
+              : <div role="group" aria-label={`${child.label} leaf`} className="h-full p-4"><p className="text-xs font-medium text-green-200">{child.label}</p><div tabIndex={0} aria-label={`${child.label} value`} className="mt-2 h-[76px] overflow-auto whitespace-pre-wrap break-words text-sm leading-5 outline-offset-2">{child.values?.map((attached, i) => <div key={`${attached.assertion.id}:${i}`} className={i ? 'mt-3 border-t border-green-300/20 pt-3' : ''}><p>{valueText(attached.value)}</p><AssertionSource attached={attached} /></div>)}{!child.values && <p>{child.subtitle ?? 'No published attachments'}</p>}{child.relationship && <p className="mt-2 text-[10px] leading-4">Published relationship reference: {JSON.stringify(child.relationship)}</p>}</div></div>}
             {child.relationship && hasChildren(child) && <button aria-label={`Evidence for ${child.subtitle}: ${child.label}`} title="Relationship evidence" className="absolute right-3 top-3 rounded p-1 text-sky-200 hover:bg-white/10" onClick={() => setEvidence(child)}><FileText size={15} /></button>}
           </div>
         </div>)}
@@ -103,8 +95,11 @@ function AttachmentCanvas({ node, onSelect }: { node: AttachmentNode; onSelect: 
 }
 
 // Source details are selectable text within leaves, never graph navigation targets.
-function AssertionSource({ assertion }: { assertion: Assertion }) {
-  return <div className="mt-2 space-y-1 text-[10px] leading-4 text-green-200/70"><p>Publication status: {assertion.publication_status}</p>{assertion.limitations.map((text, i) => <p key={i}>{text}</p>)}{assertion.provenance.map((source, i) => <div key={i} className="space-y-1"><p>Source: {source.source_key} · {source.source_record_key}</p><p>Reference: {source.locator.collection} / {source.locator.row_id} · Field path: {JSON.stringify(source.locator.field_path)}</p><p>Collected: {source.collected_at ?? 'Unknown'} · Freshness: {source.freshness}</p><p>Published validity: {source.valid_from ?? 'Not specified'} – {source.valid_until ?? 'Not specified'}</p>{source.source_url && <p>{source.source_url}</p>}</div>)}</div>;
+function AssertionSource({ attached: { assertion, source } }: { attached: AttachedValue }) {
+  const url = source?.source_url ? safeSourceUrl(source.source_url) : undefined;
+  return <div className="mt-2 space-y-1 text-[10px] leading-4 text-green-200/70"><p>Publication status: {assertion.publication_status}</p>{assertion.limitations.map((text, i) => <p key={i}>{text}</p>)}
+    {source ? <div className="space-y-1"><p>Source: {source.source_key ?? 'Unknown'} · {source.source_record_key ?? source.row_id}</p><p>Record: {source.collection} / {source.row_id} · Field path: {JSON.stringify(assertion.field_path)}</p>{source.artifact_key && <p>Artifact: {source.artifact_key} · Path: {JSON.stringify(source.artifact_path)}</p>}<p>Collected: {source.collected_at ?? 'Unknown'} · Freshness: {source.freshness}</p><p>Published validity: {source.valid_from ?? 'Not specified'} – {source.valid_until ?? 'Not specified'}</p>{source.limitations.map((text, i) => <p key={`source:${i}`}>{text}</p>)}{url && <p><a href={url} target="_blank" rel="noopener noreferrer" className="underline">{source.source_url}</a></p>}</div>
+      : <p>Source record not listed in this response.</p>}</div>;
 }
 function RelationshipEvidence({ node, close }: { node: AttachmentNode; close: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);

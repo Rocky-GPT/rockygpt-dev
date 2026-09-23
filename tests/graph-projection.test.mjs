@@ -1,23 +1,23 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { appendProjectionPage, fallbackReason, findAttachment, hasChildren, parseProjection, projectionTree, readProjection, valueText } from '../lib/graph-projection.ts';
+import { appendProjectionPage, findAttachment, hasChildren, parseProjection, projectionTree, readProjection, valueText } from '../lib/graph-projection.ts';
 import { CAMPUS, traverse } from '../lib/knowledge-graph.ts';
 
 const entity = { id: 'venue', name: 'Dining location', kind: 'venue', aliases: [] };
 const club = { id: 'club', name: 'A club', kind: 'club', aliases: [] };
 const graph = { dataset_version: 'release-1', identity_hash: 'hash-1', nodes: [entity, club], edges: [], diagnostics: [] };
-const provenance = { source_key: 'source', source_record_key: 'original-key', source_url: 'https://example.org/source', locator: { kind: 'row', collection: 'menu', row_id: 'original-row', field_path: ['calories'] }, collected_at: null, valid_from: '2026-09-22', valid_until: '2026-09-22', freshness: 'unknown' };
-const assertion = (id, value) => ({ id, value, provenance: [structuredClone(provenance)], limitations: ['Source applicability is unresolved.'], publication_status: 'not_published' });
-const prop = (key, value, id = key) => ({ key, label: key, value_type: 'text', assertions: [assertion(id, value)] });
-const record = (id, meal) => ({ id, label: 'Same dish', record_type: 'menu_offerings', context: [prop('meal', meal, `${id}-meal`)], properties: [prop('calories', 0, `${id}-calories`), prop('vegan', false, `${id}-vegan`), prop('allergens', [], `${id}-allergens`)], relationships: [] });
+const source = (id) => ({ id, collection: 'menu', row_id: id.replace('menu:', ''), source_key: 'source', source_record_key: 'original-key', source_url: 'https://example.org/source', artifact_key: null, artifact_path: null, collected_at: null, valid_from: '2026-09-22', valid_until: '2026-09-22', freshness: 'unknown', limitations: ['Source applicability is unresolved.'] });
+const assertion = (id, value, sourceId = 'menu:root') => ({ id, value, source_id: sourceId, field_path: ['calories'], limitations: ['Dietary field not published.'], publication_status: 'not_published' });
+const prop = (key, value, id = key, sourceId = 'menu:root') => ({ key, label: key, value_type: 'text', assertions: [assertion(id, value, sourceId)] });
+const record = (id, meal) => ({ id, label: 'Same dish', record_type: 'menu_offerings', source_id: `menu:${id}`, context: [prop('meal', meal, `${id}-meal`, `menu:${id}`)], properties: [prop('calories', 0, `${id}-calories`, `menu:${id}`), prop('vegan', false, `${id}-vegan`, `menu:${id}`), prop('allergens', [], `${id}-allergens`, `menu:${id}`)], relationships: [] });
 const relationship = { id: 'edge', subject: { kind: 'entity', entity_id: 'venue' }, predicate: 'part_of', target_entity_id: 'club', direction: 'outgoing', evidence: [{ collection: 'source', source_key: 'key', source_record_key: 'record', source_record_id: 'pinned-row', field: 'explicit_id' }], registry_locator: { identity_hash: 'hash-1', entity_id: 'venue', relationship_index: 0 } };
 function fixture() {
-  return { schema_version: 1, projection_version: 'mapping-1', dataset_version: 'release-1', identity_hash: 'hash-1', entity: structuredClone(entity), selected_record_group: null, properties_complete: true,
-    properties: [prop('name', 'Dining location')], relationships: [structuredClone(relationship)], coverage: [],
+  return { schema_version: 2, projection_version: 'mapping-2', dataset_version: 'release-1', identity_hash: 'hash-1', entity: structuredClone(entity), selected_record_group: null, properties_complete: true,
+    properties: [prop('name', 'Dining location')], relationships: [structuredClone(relationship)], sources: [source('menu:root'), source('menu:one')], coverage: [],
     record_groups: [{ key: 'menu', label: 'Menu offerings', record_type: 'menu_offerings', records: [record('one', 'Breakfast')], total: 2, returned: 1, next_cursor: 'opaque-1', filters: { date: '2026-09-22', meal: null }, filter_fields: ['date', 'meal'], ordering: 'published record order' }] };
 }
 function continuation(current) {
-  return { ...structuredClone(current), properties: [], properties_complete: false, selected_record_group: 'menu', record_groups: [{ ...structuredClone(current.record_groups[0]), records: [record('two', 'Lunch')], returned: 1, next_cursor: null }] };
+  return { ...structuredClone(current), properties: [], properties_complete: false, selected_record_group: 'menu', sources: [source('menu:two')], record_groups: [{ ...structuredClone(current.record_groups[0]), records: [record('two', 'Lunch')], returned: 1, next_cursor: null }] };
 }
 
 test('record pages preserve repeated labels, boundaries, root assertions, edges and exact provenance', () => {
@@ -36,9 +36,12 @@ test('record pages preserve repeated labels, boundaries, root assertions, edges 
   assert.equal(root.children.filter(n => n.kind === 'property').length, 1);
   const calories = group.children[0].children.find(n => n.label === 'calories');
   assert.equal(calories.values[0].value, 0);
-  assert.deepEqual(calories.values[0].assertion.provenance, [provenance]);
-  assert.deepEqual(calories.values[0].assertion.limitations, ['Source applicability is unresolved.']);
+  // Each value carries its own caveats and the one source record it names.
+  assert.deepEqual(calories.values[0].source, source('menu:one'));
+  assert.deepEqual(calories.values[0].assertion.limitations, ['Dietary field not published.']);
   assert.equal(calories.values[0].assertion.publication_status, 'not_published');
+  assert.deepEqual(group.children[1].children.find(n => n.label === 'calories').values[0].source, source('menu:two'));
+  assert.deepEqual(merged.sources.map(s => s.id), ['menu:root', 'menu:one', 'menu:two']);
   assert.equal(findAttachment(root, calories.id), calories);
 });
 
@@ -117,21 +120,16 @@ test('missing records remain visible as incomplete coverage even after the final
 
 test('contract validation rejects unsupported versions, malformed records and missing provenance', () => {
   assert.deepEqual(parseProjection(fixture()), fixture());
-  for (const mutate of [p => p.schema_version = 2, p => p.properties[0].assertions[0].provenance[0].locator = {}, p => p.record_groups[0].records[0].context = null, p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' }]) {
+  for (const mutate of [p => p.schema_version = 1, p => p.properties[0].assertions[0].field_path = [], p => delete p.properties[0].assertions[0].source_id, p => p.sources[0].freshness = 'current', p => delete p.sources, p => delete p.record_groups[0].records[0].source_id, p => p.record_groups[0].records[0].context = null, p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' }]) {
     const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /not supported/);
+  }
+  for (const mutate of [p => p.properties[0].assertions[0].source_id = 'menu:unlisted', p => p.record_groups[0].records[0].source_id = 'menu:unlisted', p => p.sources.push(source('menu:one'))]) {
+    const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /listed source record/);
   }
   const repeated = fixture();
   repeated.record_groups[0].records.push(structuredClone(repeated.record_groups[0].records[0]));
   repeated.record_groups[0].returned = 2;
   assert.throws(() => parseProjection(repeated), /repeated/);
-});
-
-test('unmigrated collections fall back, while incomplete approved fields stay explicit', () => {
-  const p = fixture(); p.properties_complete = false;
-  p.coverage = [{ reason: 'fields_not_migrated', collection: 'contacts', record_id: null, fields: ['preferred_contact'], detail: null }];
-  assert.equal(fallbackReason(p), undefined);
-  p.coverage.push({ reason: 'collection_not_migrated', collection: 'courses', record_id: null, fields: [], detail: null });
-  assert.match(fallbackReason(p), /courses/);
 });
 
 test('requests pin release/hash/entity/page size and use opaque group cursors with exact filters', async () => {
@@ -148,7 +146,7 @@ test('requests pin release/hash/entity/page size and use opaque group cursors wi
   await readProjection(graph, entity.id, new AbortController().signal, p.record_groups[0], fetcher);
 });
 
-test('409 and mismatched identity require reload, while unavailable/invalid providers can fall back', async () => {
+test('409 and mismatched identity require reload, while unavailable or invalid responses can be retried', async () => {
   const signal = new AbortController().signal;
   await assert.rejects(readProjection(graph, entity.id, signal, undefined, async () => new Response('', { status: 409 })), e => e.reload);
   const wrong = fixture(); wrong.identity_hash = 'other';

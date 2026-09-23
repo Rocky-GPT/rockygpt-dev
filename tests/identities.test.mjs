@@ -151,6 +151,18 @@ test('rooms place people and offices in a building, shown from both sides', () =
   assert.equal(sectionForCollection('buildings'), 'building');
 });
 
+test('programs and people are shown as part of their current school', () => {
+  const school = identity('school-1', 'school');
+  const program = identity('program-1', 'program', [{ type: 'part_of', target_entity_id: school.id, target_record: null, evidence: [] }]);
+  const [placed] = relatedIdentityNodes(program, [program, school]);
+  assert.deepEqual([placed.label, placed.entityId, placed.kind], ['Part of', school.id, 'school']);
+  const [member] = relatedIdentityNodes(school, [program, school]);
+  assert.deepEqual([member.label, member.entityId, member.detail], ['Includes', program.id, 'Academic program identity']);
+  assert.equal(defaultProfileSection('school'), 'school');
+  assert.equal(sectionForCollection('schools'), 'school');
+  assert.equal(KIND_LABELS.school, 'Schools');
+});
+
 test('a missing organizer target remains evidence navigation rather than a guessed identity', () => {
   const event = identity('event-1', 'event', [{
     type: 'organized_by', target_entity_id: 'missing-club', target_record: null, evidence: [],

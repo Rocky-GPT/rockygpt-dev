@@ -1,14 +1,18 @@
 import type { CampusEntity, KnowledgeIndex } from './knowledge-graph.ts';
 import { relationshipLabel } from './knowledge-graph.ts';
 
-export interface Provenance {
-  source_key: string; source_record_key: string; source_url: string | null;
-  locator: { kind: 'row'; collection: string; row_id: string; field_path: (string | number)[] };
+/** One original published record: a database row or an item of a release artifact. */
+export interface SourceRecord {
+  id: string; collection: string; row_id: string;
+  source_key: string | null; source_record_key: string | null; source_url: string | null;
+  artifact_key?: string | null; artifact_path?: (string | number)[] | null;
   collected_at: string | null; valid_from: string | null; valid_until: string | null;
   freshness: 'fresh' | 'stale' | 'unknown' | 'static';
+  /** Caveats about the whole record; a value's own caveats are on its assertion. */
+  limitations: string[];
 }
 export interface Assertion {
-  id: string; value: unknown; provenance: Provenance[]; limitations: string[];
+  id: string; value: unknown; source_id: string; field_path: (string | number)[]; limitations: string[];
   publication_status: 'published' | 'not_published' | 'unspecified';
 }
 export interface ProjectionProperty { key: string; label: string; value_type: string; assertions: Assertion[] }
@@ -20,7 +24,7 @@ export interface ProjectionRelationship {
   registry_locator: { identity_hash: string; entity_id: string; relationship_index: number };
 }
 export interface ContextualRecord {
-  id: string; label: string; record_type: string; context: ProjectionProperty[];
+  id: string; label: string; record_type: string; source_id: string; context: ProjectionProperty[];
   properties: ProjectionProperty[]; relationships: ProjectionRelationship[];
 }
 export interface RecordGroup {
@@ -30,10 +34,10 @@ export interface RecordGroup {
 }
 export interface CoverageIssue { reason: string; collection: string | null; record_id: string | null; fields: string[]; detail: string | null }
 export interface EntityProjection {
-  schema_version: 1; projection_version: string; dataset_version: string; identity_hash: string;
-  entity: CampusEntity; selected_record_group: string | null; properties_complete: boolean;
+  schema_version: 2; projection_version: string; dataset_version: string; identity_hash: string;
+  entity: CampusEntity & { status?: string | null }; selected_record_group: string | null; properties_complete: boolean;
   properties: ProjectionProperty[]; record_groups: RecordGroup[];
-  relationships: ProjectionRelationship[]; coverage: CoverageIssue[];
+  relationships: ProjectionRelationship[]; sources: SourceRecord[]; coverage: CoverageIssue[];
 }
 
 export class ProjectionError extends Error {
@@ -52,11 +56,16 @@ function validProperty(value: unknown): boolean {
   return object(value) && typeof value.key === 'string' && typeof value.label === 'string' && typeof value.value_type === 'string'
     && Array.isArray(value.assertions) && value.assertions.every(a => object(a) && typeof a.id === 'string' && 'value' in a
       && ['published', 'not_published', 'unspecified'].includes(String(a.publication_status)) && strings(a.limitations)
-      && Array.isArray(a.provenance) && a.provenance.every(p => object(p) && typeof p.source_key === 'string' && typeof p.source_record_key === 'string'
-        && nullableText(p.source_url) && nullableText(p.collected_at) && nullableText(p.valid_from) && nullableText(p.valid_until)
-        && ['fresh', 'stale', 'unknown', 'static'].includes(String(p.freshness)) && object(p.locator) && p.locator.kind === 'row'
-        && typeof p.locator.collection === 'string' && typeof p.locator.row_id === 'string' && Array.isArray(p.locator.field_path)
-        && p.locator.field_path.every(s => typeof s === 'string' || Number.isInteger(s))));
+      && typeof a.source_id === 'string' && Array.isArray(a.field_path) && a.field_path.length > 0
+      && a.field_path.every(s => typeof s === 'string' || Number.isInteger(s)));
+}
+function validSource(value: unknown): boolean {
+  return object(value) && typeof value.id === 'string' && typeof value.collection === 'string' && typeof value.row_id === 'string'
+    && nullableText(value.source_key) && nullableText(value.source_record_key) && nullableText(value.source_url)
+    && (value.artifact_key === undefined || nullableText(value.artifact_key))
+    && (value.artifact_path === undefined || value.artifact_path === null || (Array.isArray(value.artifact_path) && value.artifact_path.every(s => typeof s === 'string' || Number.isInteger(s))))
+    && nullableText(value.collected_at) && nullableText(value.valid_from) && nullableText(value.valid_until)
+    && ['fresh', 'stale', 'unknown', 'static'].includes(String(value.freshness)) && strings(value.limitations);
 }
 function validRelationship(value: unknown): boolean {
   return object(value) && typeof value.id === 'string' && typeof value.predicate === 'string' && typeof value.target_entity_id === 'string'
@@ -66,18 +75,19 @@ function validRelationship(value: unknown): boolean {
     && Number.isInteger(value.registry_locator.relationship_index);
 }
 export function parseProjection(value: unknown): EntityProjection {
-  if (!object(value) || value.schema_version !== 1 || typeof value.projection_version !== 'string'
+  if (!object(value) || value.schema_version !== 2 || typeof value.projection_version !== 'string'
     || typeof value.dataset_version !== 'string' || typeof value.identity_hash !== 'string'
     || !object(value.entity) || typeof value.entity.id !== 'string' || typeof value.entity.name !== 'string' || typeof value.entity.kind !== 'string' || !strings(value.entity.aliases)
     || !nullableText(value.selected_record_group) || typeof value.properties_complete !== 'boolean'
     || !Array.isArray(value.properties) || !value.properties.every(validProperty)
     || !Array.isArray(value.relationships) || !value.relationships.every(validRelationship)
+    || !Array.isArray(value.sources) || !value.sources.every(validSource)
     || !Array.isArray(value.coverage) || !value.coverage.every(c => object(c) && typeof c.reason === 'string' && nullableText(c.collection) && nullableText(c.record_id) && nullableText(c.detail) && strings(c.fields))
     || !Array.isArray(value.record_groups) || !value.record_groups.every(g => object(g) && typeof g.key === 'string' && typeof g.label === 'string' && typeof g.record_type === 'string'
       && Number.isInteger(g.total) && Number(g.total) >= 0 && Number.isInteger(g.returned) && nullableText(g.next_cursor)
       && object(g.filters) && Object.values(g.filters).every(nullableText) && strings(g.filter_fields) && typeof g.ordering === 'string'
       && Array.isArray(g.records) && g.returned === g.records.length && g.records.length <= Number(g.total)
-      && g.records.every(r => object(r) && typeof r.id === 'string' && typeof r.label === 'string' && typeof r.record_type === 'string'
+      && g.records.every(r => object(r) && typeof r.id === 'string' && typeof r.label === 'string' && typeof r.record_type === 'string' && typeof r.source_id === 'string'
         && Array.isArray(r.context) && r.context.every(validProperty) && Array.isArray(r.properties) && r.properties.every(validProperty)
         && Array.isArray(r.relationships) && r.relationships.every(validRelationship)))) {
     throw new ProjectionError('This projection response is not supported by this Explorer.');
@@ -87,6 +97,12 @@ export function parseProjection(value: unknown): EntityProjection {
   if (!unique(parsed.record_groups.map(g => g.key)) || parsed.record_groups.some(g => !unique(g.records.map(r => r.id)))) {
     throw new ProjectionError('Projection contains repeated record or group IDs.');
   }
+  // Every value and record must name a source record this response lists, once.
+  const sources = parsed.sources.map(source => source.id);
+  const listed = new Set(sources);
+  const records = parsed.record_groups.flatMap(g => g.records);
+  const referenced = [...records.map(r => r.source_id), ...[...parsed.properties, ...records.flatMap(r => [...r.context, ...r.properties])].flatMap(p => p.assertions.map(a => a.source_id))];
+  if (!unique(sources) || referenced.some(id => !listed.has(id))) throw new ProjectionError('Projection values must name a listed source record.');
   return parsed;
 }
 
@@ -96,18 +112,13 @@ export async function readProjection(graph: KnowledgeIndex, entityId: string, si
     params.set('record_group', group.key); params.set('filters', JSON.stringify(group.filters));
     if (group.next_cursor) params.set('cursor', group.next_cursor);
   }
-  const response = await fetcher(`/api/brain/graph/projection/v1?${params}`, { signal: AbortSignal.any([signal, AbortSignal.timeout(20000)]), cache: 'no-store' });
+  const response = await fetcher(`/api/brain/graph/projection/v2?${params}`, { signal: AbortSignal.any([signal, AbortSignal.timeout(20000)]), cache: 'no-store' });
   if (response.status === 409) throw changed();
   if (!response.ok) throw new ProjectionError(`Projection unavailable (${response.status}).`);
   const result = parseProjection(await response.json());
   if (result.dataset_version !== graph.dataset_version || result.identity_hash !== graph.identity_hash || result.entity.id !== entityId) throw changed();
   if (result.selected_record_group !== (group?.key ?? null)) throw new ProjectionError('Unexpected projection record group.');
   return result;
-}
-
-export function fallbackReason(projection: EntityProjection): string | undefined {
-  const unmigrated = projection.coverage.filter(issue => issue.reason === 'collection_not_migrated');
-  if (unmigrated.length) return `Collections awaiting migration: ${unmigrated.map(issue => issue.collection).join(', ')}.`;
 }
 
 /** Merge a continuation only into its own group, never replace entity assertions or edges. */
@@ -124,12 +135,17 @@ export function appendProjectionPage(current: EntityProjection, page: EntityProj
     ids.add(record.id);
   }
   if (ids.size > next.total) throw new ProjectionError('Projection record count exceeds the published total.');
-  return { ...current, record_groups: current.record_groups.map(g => g.key === requested.key ? { ...next, records: [...g.records, ...next.records], returned: g.records.length + next.records.length } : g), coverage: [...current.coverage, ...page.coverage.filter(c => !current.coverage.some(old => JSON.stringify(old) === JSON.stringify(c)))] };
+  const known = new Set(current.sources.map(source => source.id));
+  return { ...current, record_groups: current.record_groups.map(g => g.key === requested.key ? { ...next, records: [...g.records, ...next.records], returned: g.records.length + next.records.length } : g),
+    sources: [...current.sources, ...page.sources.filter(source => !known.has(source.id))],
+    coverage: [...current.coverage, ...page.coverage.filter(c => !current.coverage.some(old => JSON.stringify(old) === JSON.stringify(c)))] };
 }
 
+/** A value shown in the graph, with the assertion and original record it comes from. */
+export interface AttachedValue { value: unknown; assertion: Assertion; source?: SourceRecord }
 export interface AttachmentNode {
   id: string; label: string; kind: 'entity' | 'group' | 'record' | 'property' | 'value' | 'relationship';
-  subtitle?: string; values?: { value: unknown; assertion: Assertion }[];
+  subtitle?: string; values?: AttachedValue[];
   children: AttachmentNode[]; pending?: boolean;
   relationship?: ProjectionRelationship; target?: CampusEntity;
 }
@@ -141,16 +157,17 @@ export function valueText(value: unknown): string {
   if (object(value)) return Object.keys(value).length ? `${Object.keys(value).length} details` : 'Empty object';
   return value === '' ? 'Empty value' : String(value);
 }
-function valueNode(id: string, label: string, value: unknown, assertion: Assertion): AttachmentNode {
-  return { id, label, kind: 'value', values: [{ value, assertion }], children: entries(value).map(([key, child]) => valueNode(nodeId(id, key), key, child, assertion)) };
+type Sources = Map<string, SourceRecord>;
+function valueNode(id: string, label: string, value: unknown, assertion: Assertion, sources: Sources): AttachmentNode {
+  return { id, label, kind: 'value', values: [{ value, assertion, source: sources.get(assertion.source_id) }], children: entries(value).map(([key, child]) => valueNode(nodeId(id, key), key, child, assertion, sources)) };
 }
-function propertyNode(owner: string, property: ProjectionProperty): AttachmentNode {
+function propertyNode(owner: string, property: ProjectionProperty, sources: Sources): AttachmentNode {
   const id = nodeId(owner, 'property', property.key);
   const structured = property.assertions.some(a => entries(a.value).length > 0);
-  return { id, label: property.label, kind: 'property', values: property.assertions.map(assertion => ({ value: assertion.value, assertion })),
+  return { id, label: property.label, kind: 'property', values: property.assertions.map(assertion => ({ value: assertion.value, assertion, source: sources.get(assertion.source_id) })),
     children: !structured ? [] : property.assertions.length === 1
-      ? valueNode(id, property.label, property.assertions[0].value, property.assertions[0]).children
-      : property.assertions.map((a, i) => valueNode(nodeId(id, a.id), `Source value ${i + 1}`, a.value, a)) };
+      ? valueNode(id, property.label, property.assertions[0].value, property.assertions[0], sources).children
+      : property.assertions.map((a, i) => valueNode(nodeId(id, a.id), `Source value ${i + 1}`, a.value, a, sources)) };
 }
 function relationshipNode(owner: string, rel: ProjectionRelationship, entities: Map<string, CampusEntity>): AttachmentNode {
   const targetId = rel.direction === 'incoming' ? rel.subject.kind === 'entity' ? rel.subject.entity_id : undefined : rel.target_entity_id;
@@ -160,15 +177,16 @@ function relationshipNode(owner: string, rel: ProjectionRelationship, entities: 
 }
 export function projectionTree(projection: EntityProjection, graph: KnowledgeIndex): AttachmentNode {
   const entities = new Map(graph.nodes.map(e => [e.id, e]));
+  const sources: Sources = new Map(projection.sources.map(source => [source.id, source]));
   const owner = projection.entity.id;
   return { id: owner, label: projection.entity.name, kind: 'entity', subtitle: projection.entity.kind.replaceAll('_', ' '), children: [
     ...projection.relationships.map(r => relationshipNode(owner, r, entities)),
-    ...projection.properties.map(p => propertyNode(owner, p)),
+    ...projection.properties.map(p => propertyNode(owner, p, sources)),
     ...projection.record_groups.map(group => ({ id: nodeId(owner, 'group', group.key), label: group.label, kind: 'group' as const,
       subtitle: `${group.records.length} of ${group.total} records`, pending: group.next_cursor !== null,
       children: group.records.map(record => ({ id: nodeId(owner, 'record', group.key, record.id), label: record.label, kind: 'record' as const,
         subtitle: record.context.map(p => `${p.label}: ${p.assertions.map(a => valueText(a.value)).join(' / ')}`).join(' · '),
-        children: [...record.context.map(p => propertyNode(nodeId(record.id, 'context'), p)), ...record.properties.map(p => propertyNode(nodeId(record.id, 'properties'), p)), ...record.relationships.map(r => relationshipNode(record.id, r, entities))],
+        children: [...record.context.map(p => propertyNode(nodeId(record.id, 'context'), p, sources)), ...record.properties.map(p => propertyNode(nodeId(record.id, 'properties'), p, sources)), ...record.relationships.map(r => relationshipNode(record.id, r, entities))],
       })),
     })),
   ] };

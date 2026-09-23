@@ -165,7 +165,7 @@ export const NAVIGATION: NavSection[] = [
         description: 'Explore campus entities, relationships, and source-backed properties',
         icon: Tags,
         status: 'ready',
-        upstream: 'GET /v1/dev/graph/knowledge + GET /v1/dev/graph/properties',
+        upstream: 'GET /v1/dev/graph/knowledge + GET /v1/dev/graph/projection/v2',
       },
       {
         href: '/data/aliases',

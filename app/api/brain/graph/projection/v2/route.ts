@@ -2,7 +2,7 @@ import { proxyBrainProbe } from '@/lib/brain-proxy';
 
 export const dynamic = 'force-dynamic';
 
-/** Additive inspection path used by the opt-in projection explorer. */
+/** The projection the Campus Graph explorer shows for each entity. */
 export async function GET(request: Request) {
   const incoming = new URL(request.url).searchParams;
   const query = new URLSearchParams();
@@ -10,5 +10,5 @@ export async function GET(request: Request) {
     const value = incoming.get(key);
     if (value !== null) query.set(key, value);
   }
-  return proxyBrainProbe(`/v1/dev/graph/projection/v1?${query}`);
+  return proxyBrainProbe(`/v1/dev/graph/projection/v2?${query}`);
 }

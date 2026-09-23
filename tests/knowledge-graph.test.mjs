@@ -31,4 +31,6 @@ test('revisits preserve the journey and relationships keep their published label
   assert.equal(relationshipLabel('listed_faculty', true), 'listed faculty of');
   assert.equal(relationshipLabel('office_at'), 'office in');
   assert.equal(relationshipLabel('located_at', true), 'location of');
+  assert.equal(relationshipLabel('includes_course'), 'includes course');
+  assert.equal(relationshipLabel('includes_course', true), 'in subject');
 });

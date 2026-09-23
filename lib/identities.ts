@@ -1,5 +1,5 @@
-export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event' | 'building' | 'school';
-export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'organization' | 'event' | 'building' | 'school';
+export type ProfileSection = 'contact' | 'hours' | 'faculty' | 'courses' | 'program' | 'conveners' | 'menu' | 'club' | 'event' | 'building' | 'school' | 'subject';
+export type IdentityKind = 'person' | 'office' | 'facility' | 'venue' | 'program' | 'club' | 'organization' | 'event' | 'building' | 'school' | 'subject';
 
 export interface RecordReference {
   collection: string;
@@ -14,7 +14,7 @@ export interface IdentityLink {
   source_record_ids?: string[];
 }
 export interface IdentityRelationship {
-  type: 'convener' | 'listed_faculty' | 'profile_course' | 'organized_by' | 'office_at' | 'located_at' | 'part_of';
+  type: 'convener' | 'listed_faculty' | 'profile_course' | 'organized_by' | 'office_at' | 'located_at' | 'part_of' | 'includes_course';
   target_entity_id: string | null;
   target_record: RecordReference | null;
   evidence: (RecordReference & { field: string; source_url?: string | null })[];
@@ -106,10 +106,12 @@ export const SECTIONS: { key: ProfileSection; label: string }[] = [
   { key: 'event', label: 'Event occurrence' },
   { key: 'building', label: 'Building' },
   { key: 'school', label: 'School' },
+  { key: 'subject', label: 'Course subject' },
 ];
 export const KIND_LABELS: Record<IdentityKind, string> = {
   person: 'People', office: 'Offices', facility: 'Facilities', venue: 'Dining venues', program: 'Academic programs',
   club: 'Clubs', organization: 'Organizations', event: 'Events', building: 'Buildings', school: 'Schools',
+  subject: 'Course subjects',
 };
 
 export interface RelatedIdentityNode {
@@ -134,14 +136,13 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
     organized_by: { label: 'Organized by', reverse: 'Organizes event', section: 'event', kind: 'club' },
   } as const;
   for (const relationship of entity.relationships ?? []) {
-    if (relationship.type === 'profile_course' && relationship.target_record) {
+    if ((relationship.type === 'profile_course' || relationship.type === 'includes_course') && relationship.target_record) {
       const target = relationship.target_record;
       const key = `course:${target.source_key}:${target.source_record_key}`;
-      nodes.set(key, {
-        key, name: target.source_record_key, label: 'Profile-listed course',
-        detail: 'Undated list · catalog link', section: 'courses', kind: 'course',
-      });
-    } else if (relationship.type !== 'profile_course' && relationship.target_entity_id) {
+      nodes.set(key, relationship.type === 'profile_course'
+        ? { key, name: target.source_record_key, label: 'Profile-listed course', detail: 'Undated list · catalog link', section: 'courses', kind: 'course' }
+        : { key, name: target.source_record_key, label: 'Includes course', detail: "The course's code starts with this subject's", section: 'subject', kind: 'course' });
+    } else if (relationship.type !== 'profile_course' && relationship.type !== 'includes_course' && relationship.target_entity_id) {
       const definition = definitions[relationship.type];
       if (!definition) continue;
       const target = byId.get(relationship.target_entity_id);
@@ -155,7 +156,7 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
   }
   for (const candidate of identities) {
     for (const relationship of candidate.relationships ?? []) {
-      if (relationship.type === 'profile_course' || relationship.target_entity_id !== entity.id) continue;
+      if (relationship.type === 'profile_course' || relationship.type === 'includes_course' || relationship.target_entity_id !== entity.id) continue;
       const definition = definitions[relationship.type];
       if (!definition) continue;
       const key = `${relationship.type}-of:${candidate.id}`;
@@ -178,6 +179,7 @@ export function defaultProfileSection(kind: IdentityKind): ProfileSection {
   if (kind === 'event') return 'event';
   if (kind === 'building') return 'building';
   if (kind === 'school') return 'school';
+  if (kind === 'subject') return 'subject';
   return 'contact';
 }
 
@@ -199,7 +201,7 @@ export function sectionForCollection(collection: string): ProfileSection {
   const sections: Record<string, ProfileSection> = {
     contacts: 'contact', campus_hours: 'hours', dining_hours: 'hours', faculty: 'faculty',
     courses: 'courses', programs: 'program', menu: 'menu', clubs: 'club', events: 'event',
-    buildings: 'building', schools: 'school',
+    buildings: 'building', schools: 'school', subjects: 'subject',
   };
   return sections[collection] ?? 'contact';
 }

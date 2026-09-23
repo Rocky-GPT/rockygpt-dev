@@ -8,11 +8,14 @@ const club = { id: 'club', name: 'A club', kind: 'club', aliases: [] };
 const graph = { dataset_version: 'release-1', identity_hash: 'hash-1', nodes: [entity, club], edges: [], diagnostics: [] };
 const source = (id) => ({ id, collection: 'menu', row_id: id.replace('menu:', ''), source_key: 'source', source_record_key: 'original-key', source_url: 'https://example.org/source', artifact_key: null, artifact_path: null, collected_at: null, valid_from: '2026-09-22', valid_until: '2026-09-22', freshness: 'unknown', limitations: ['Source applicability is unresolved.'] });
 const assertion = (id, value, sourceId = 'menu:root') => ({ id, value, source_id: sourceId, field_path: ['calories'], limitations: ['Dietary field not published.'], publication_status: 'not_published' });
-const prop = (key, value, id = key, sourceId = 'menu:root') => ({ key, label: key, value_type: 'text', assertions: [assertion(id, value, sourceId)] });
+const factValue = (id, value, assertionIds = [id], evidenceIds = ['menu:root'], scope = {}) => ({ id: `value:${id}`, value, assertion_ids: assertionIds,
+  supporting_evidence_ids: evidenceIds, evidence_count: evidenceIds.length, valid_from: null, valid_until: null, ...scope });
+const prop = (key, value, id = key, sourceId = 'menu:root') => ({ key, label: key, value_type: 'text', status: 'known', category: 'details',
+  assertions: [assertion(id, value, sourceId)], values: [factValue(id, value, [id], [sourceId])] });
 const record = (id, meal) => ({ id, label: 'Same dish', record_type: 'menu_offerings', source_id: `menu:${id}`, context: [prop('meal', meal, `${id}-meal`, `menu:${id}`)], properties: [prop('calories', 0, `${id}-calories`, `menu:${id}`), prop('vegan', false, `${id}-vegan`, `menu:${id}`), prop('allergens', [], `${id}-allergens`, `menu:${id}`)], relationships: [] });
 const relationship = { id: 'edge', subject: { kind: 'entity', entity_id: 'venue' }, predicate: 'part_of', target_entity_id: 'club', direction: 'outgoing', evidence: [{ collection: 'source', source_key: 'key', source_record_key: 'record', source_record_id: 'pinned-row', field: 'explicit_id' }], registry_locator: { identity_hash: 'hash-1', entity_id: 'venue', relationship_index: 0 } };
 function fixture() {
-  return { schema_version: 2, projection_version: 'mapping-2', dataset_version: 'release-1', identity_hash: 'hash-1', entity: structuredClone(entity), selected_record_group: null, properties_complete: true,
+  return { schema_version: 3, projection_version: 'entity-facts-1', dataset_version: 'release-1', identity_hash: 'hash-1', entity: structuredClone(entity), selected_record_group: null, properties_complete: true,
     properties: [prop('name', 'Dining location')], relationships: [structuredClone(relationship)], sources: [source('menu:root'), source('menu:one')], coverage: [],
     record_groups: [{ key: 'menu', label: 'Menu offerings', record_type: 'menu_offerings', records: [record('one', 'Breakfast')], total: 2, returned: 1, next_cursor: 'opaque-1', filters: { date: '2026-09-22', meal: null }, filter_fields: ['date', 'meal'], ordering: 'published record order' }] };
 }
@@ -47,15 +50,19 @@ test('record pages preserve repeated labels, boundaries, root assertions, edges 
 
 test('leaf semantics preserve false, null, empty containers, conflicts and structured descendants', () => {
   const p = fixture();
-  p.properties = [prop('false', false), prop('zero', 0), prop('null', null), prop('empty', ''), prop('list', []), prop('object', {}), prop('structured', { nested: ['a', 'b'] }), { ...prop('conflict', 'first'), assertions: [assertion('a', 'first'), assertion('b', 'second')] }];
+  p.properties = [prop('false', false), prop('zero', 0), prop('null', null), prop('empty', ''), prop('list', []), prop('object', {}), prop('structured', { nested: ['a', 'b'] }),
+    { ...prop('conflict', 'first'), status: 'conflicting', assertions: [assertion('a', 'first'), assertion('b', 'second')], values: [factValue('a', 'first'), factValue('b', 'second')] }];
   const root = projectionTree(p, graph);
   for (const label of ['false', 'zero', 'null', 'empty', 'list', 'object', 'conflict']) assert.equal(hasChildren(root.children.find(n => n.label === label)), false);
   const conflict = root.children.find(n => n.label === 'conflict');
   assert.deepEqual(conflict.values.map(v => v.value), ['first', 'second']);
+  assert.deepEqual(conflict.factValues.map(v => v.value), ['first', 'second']);
+  assert.equal(conflict.status, 'conflicting');
   const structured = root.children.find(n => n.label === 'structured');
   assert.equal(hasChildren(structured), true);
-  assert.equal(structured.children[0].children[1].values[0].value, 'b');
-  assert.deepEqual([false, 0, null, '', [], {}].map(valueText), ['false', '0', 'Not published', 'Empty value', 'Empty list', 'Empty object']);
+  assert.equal(structured.children[0].children[1].factValues[0].value, 'b');
+  assert.deepEqual(structured.children[0].children[1].values[0].value, { nested: ['a', 'b'] });
+  assert.deepEqual([false, 0, null, '', [], {}].map(valueText), ['false', '0', 'No value provided', 'Empty value', 'Empty list', 'Empty object']);
 });
 
 test('unknown record types and record-to-entity relationships work with the same tree', () => {
@@ -120,10 +127,14 @@ test('missing records remain visible as incomplete coverage even after the final
 
 test('contract validation rejects unsupported versions, malformed records and missing provenance', () => {
   assert.deepEqual(parseProjection(fixture()), fixture());
-  for (const mutate of [p => p.schema_version = 1, p => p.properties[0].assertions[0].field_path = [], p => delete p.properties[0].assertions[0].source_id, p => p.sources[0].freshness = 'current', p => delete p.sources, p => delete p.record_groups[0].records[0].source_id, p => p.record_groups[0].records[0].context = null, p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' }]) {
+  for (const mutate of [p => p.schema_version = 2, p => p.projection_version = 'unsupported', p => delete p.properties[0].values, p => p.properties[0].category = 'made-up',
+    p => p.properties[0].status = 'assumed', p => p.properties[0].assertions[0].field_path = [], p => delete p.properties[0].assertions[0].source_id,
+    p => p.sources[0].freshness = 'current', p => delete p.sources, p => delete p.record_groups[0].records[0].source_id, p => p.record_groups[0].records[0].context = null,
+    p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' }]) {
     const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /not supported/);
   }
-  for (const mutate of [p => p.properties[0].assertions[0].source_id = 'menu:unlisted', p => p.record_groups[0].records[0].source_id = 'menu:unlisted', p => p.sources.push(source('menu:one'))]) {
+  for (const mutate of [p => p.properties[0].assertions[0].source_id = 'menu:unlisted', p => p.record_groups[0].records[0].source_id = 'menu:unlisted', p => p.sources.push(source('menu:one')),
+    p => p.sources[0].derived_from_source_id = 'menu:unlisted']) {
     const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /listed source record/);
   }
   const repeated = fixture();
@@ -135,6 +146,7 @@ test('contract validation rejects unsupported versions, malformed records and mi
 test('requests pin release/hash/entity/page size and use opaque group cursors with exact filters', async () => {
   const p = fixture();
   const fetcher = async (url, options) => {
+    assert.equal(new URL(url, 'http://localhost').pathname, '/api/brain/graph/projection/v3');
     const query = new URL(url, 'http://localhost').searchParams;
     assert.equal(query.get('entity_id'), entity.id); assert.equal(query.get('dataset_version'), graph.dataset_version);
     assert.equal(query.get('identity_hash'), graph.identity_hash); assert.equal(query.get('limit'), '100');
@@ -155,4 +167,74 @@ test('409 and mismatched identity require reload, while unavailable or invalid r
   await assert.rejects(readProjection(graph, entity.id, signal, undefined, async () => Response.json({})), e => e.reload === false);
   const cancelled = new AbortController(); cancelled.abort();
   await assert.rejects(readProjection(graph, entity.id, cancelled.signal, undefined, async (_url, options) => { options.signal.throwIfAborted(); }), /abort/i);
+});
+
+test('backend canonical values drive the tree while every raw assertion and derived evidence record remains available', () => {
+  const p = fixture();
+  const scalar = { ...assertion('phone-scalar', '(201) 555-0100'), field_path: ['phone'] };
+  const list = { ...assertion('phone-list', [{ number: '201-555-0100' }], 'menu:one'), field_path: ['phones'] };
+  const canonical = [{ number: '201-555-0100', extension: null, type: null }];
+  p.sources[1].derived_from_source_id = p.sources[0].id;
+  p.properties = [
+    { ...prop('phones', canonical), label: 'Phone numbers', category: 'contact', assertions: [scalar, list],
+      values: [factValue('canonical-phones', canonical, [scalar.id, list.id], ['menu:root', 'menu:one'])] },
+    { ...prop('email_preference', false), label: 'Email preference', category: 'contact', status: 'unknown',
+      values: [factValue('email_preference', null)] },
+  ];
+  p.record_groups[0].records[0].context[0].values[0].value = 'Canonical breakfast';
+  const before = structuredClone(p);
+  const root = projectionTree(parseProjection(p), graph);
+  const phones = root.children.find(node => node.propertyKey === 'phones');
+  assert.equal(phones.label, 'Phone numbers');
+  assert.equal(phones.category, 'contact');
+  assert.equal(phones.factValues.length, 1);
+  assert.strictEqual(phones.factValues[0].value, canonical);
+  assert.equal(phones.factValues[0].evidence_count, 2);
+  assert.strictEqual(phones.factValues[0].assertions[0].assertion, scalar);
+  assert.strictEqual(phones.factValues[0].assertions[1].assertion, list);
+  assert.strictEqual(phones.factValues[0].assertions[1].source, p.sources[1]);
+  assert.equal(phones.children[0].children.find(node => node.label === 'number').factValues[0].value, '201-555-0100');
+  const preference = root.children.find(node => node.propertyKey === 'email_preference');
+  assert.equal(preference.factValues[0].value, null);
+  assert.equal(preference.values[0].value, false);
+  assert.equal(preference.status, 'unknown');
+  assert.match(root.children.find(node => node.kind === 'group').children[0].subtitle, /Canonical breakfast/);
+  assert.deepEqual(p, before);
+});
+
+test('equal canonical values with distinct backend validity scopes are never regrouped', () => {
+  const p = fixture();
+  const assertions = [assertion('early', 'Same value'), assertion('late', 'Same value', 'menu:one')];
+  p.properties = [{ ...prop('scoped', 'Same value'), assertions, values: [
+    factValue('early', 'Same value', ['early'], ['menu:root'], { valid_from: '2026-01-01', valid_until: '2026-05-31' }),
+    factValue('late', 'Same value', ['late'], ['menu:one'], { valid_from: '2026-09-01', valid_until: '2026-12-31' }),
+  ] }];
+  const field = projectionTree(parseProjection(p), graph).children.find(node => node.propertyKey === 'scoped');
+  assert.equal(field.status, 'known');
+  assert.deepEqual(field.factValues.map(value => [value.id, value.value, value.valid_from]), [
+    ['value:early', 'Same value', '2026-01-01'], ['value:late', 'Same value', '2026-09-01'],
+  ]);
+  assert.strictEqual(field.factValues[0].assertions[0].assertion, assertions[0]);
+  assert.strictEqual(field.factValues[1].assertions[0].assertion, assertions[1]);
+});
+
+test('v3 rejects orphaned or repeated assertions and misleading evidence counts without recomputing fact semantics', () => {
+  for (const mutate of [
+    p => p.properties[0].values = [],
+    p => p.properties[0].values[0].assertion_ids = ['missing'],
+    p => p.properties[0].values[0].assertion_ids.push('name'),
+    p => p.properties[0].values.push(structuredClone(p.properties[0].values[0])),
+    p => p.properties[0].assertions.push(structuredClone(p.properties[0].assertions[0])),
+  ]) {
+    const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /every field assertion exactly once/);
+  }
+  for (const mutate of [
+    p => p.properties[0].values[0].evidence_count = 2,
+    p => p.properties[0].values[0].supporting_evidence_ids = ['menu:one'],
+    p => p.properties[0].values[0].supporting_evidence_ids.push('menu:root'),
+  ]) {
+    const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /evidence records must match/);
+  }
+  const p = fixture(); p.properties[0].values[0].valid_from = false;
+  assert.throws(() => parseProjection(p), /not supported/);
 });

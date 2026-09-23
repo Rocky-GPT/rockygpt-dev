@@ -126,6 +126,17 @@ test('organizer links use stored IDs in both directions, never matching names or
   assert.deepEqual(relatedIdentityNodes(unrelated, entities), []);
 });
 
+test('a catalog program faculty listing is shown as a listing, not a convenership', () => {
+  const person = identity('person-1', 'person');
+  const program = identity('program-1', 'program', [{
+    type: 'listed_faculty', target_entity_id: person.id, target_record: null, evidence: [],
+  }]);
+  const [outgoing] = relatedIdentityNodes(program, [program, person]);
+  assert.deepEqual([outgoing.label, outgoing.entityId, outgoing.section], ['Lists faculty', person.id, 'program']);
+  const [incoming] = relatedIdentityNodes(person, [program, person]);
+  assert.deepEqual([incoming.label, incoming.entityId], ['Listed faculty of', program.id]);
+});
+
 test('a missing organizer target remains evidence navigation rather than a guessed identity', () => {
   const event = identity('event-1', 'event', [{
     type: 'organized_by', target_entity_id: 'missing-club', target_record: null, evidence: [],

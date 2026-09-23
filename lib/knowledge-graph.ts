@@ -55,6 +55,7 @@ export function kindLabel(kind: string) { return labels[kind] ?? `${kind.replace
 export function relationshipLabel(type: string, incoming = false): string {
   const names: Record<string, [string, string]> = {
     organized_by: ['organized by', 'organizes'], convener: ['has convener', 'convener of'],
+    listed_faculty: ['lists faculty', 'listed faculty of'],
     profile_course: ['lists course (undated)', 'listed in profile of (undated)'],
     teaches: ['teaches', 'taught by'], requires: ['requires', 'required by'],
     part_of: ['part of', 'contains'], located_at: ['located at', 'location of'], advisor: ['has advisor', 'advisor of'],

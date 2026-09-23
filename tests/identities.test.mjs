@@ -137,6 +137,20 @@ test('a catalog program faculty listing is shown as a listing, not a convenershi
   assert.deepEqual([incoming.label, incoming.entityId], ['Listed faculty of', program.id]);
 });
 
+test('rooms place people and offices in a building, shown from both sides', () => {
+  const building = identity('building-1', 'building');
+  const person = identity('person-1', 'person', [{ type: 'office_at', target_entity_id: building.id, target_record: null, evidence: [] }]);
+  const office = identity('office-1', 'office', [{ type: 'located_at', target_entity_id: building.id, target_record: null, evidence: [] }]);
+  const [placed] = relatedIdentityNodes(person, [person, office, building]);
+  assert.deepEqual([placed.label, placed.entityId, placed.kind], ['Office in', building.id, 'building']);
+  const occupants = relatedIdentityNodes(building, [person, office, building]);
+  assert.deepEqual(occupants.map(node => [node.label, node.entityId, node.detail]), [
+    ['Office of', person.id, 'People identity'], ['Location of', office.id, 'Offices identity'],
+  ]);
+  assert.equal(defaultProfileSection('building'), 'building');
+  assert.equal(sectionForCollection('buildings'), 'building');
+});
+
 test('a missing organizer target remains evidence navigation rather than a guessed identity', () => {
   const event = identity('event-1', 'event', [{
     type: 'organized_by', target_entity_id: 'missing-club', target_record: null, evidence: [],

@@ -41,6 +41,8 @@ test('revisits preserve the journey and missing targets never become guessed ent
   assert.equal(connections({ nodes: [event], edges: graph.edges }, event.id).length, 0);
   assert.equal(relationshipLabel('profile_course'), 'lists course (undated)');
   assert.equal(relationshipLabel('listed_faculty', true), 'listed faculty of');
+  assert.equal(relationshipLabel('office_at'), 'office in');
+  assert.equal(relationshipLabel('located_at', true), 'location of');
 });
 
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { collectionDescription, detailSections, fieldLabel, isEmptyValue, nodeSummary, partitionFields } from '../lib/graph-presentation.ts';
+import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, isEmptyValue, nodeSummary, partitionFields, sourceCaveats } from '../lib/graph-presentation.ts';
 
 const field = (label, value, options = {}) => {
   const source = { id: options.sourceId ?? 'contacts:one', collection: 'contacts', row_id: 'one', source_key: 'directory', source_record_key: 'birch',
@@ -86,4 +86,43 @@ test('presentation leaves relationship targets, evidence and repeated record ide
   assert.deepEqual(root, before);
   assert.strictEqual(root.children[1], edge);
   assert.deepEqual(group.children.map(node => node.id), ['breakfast', 'lunch']);
+});
+
+test('canonical phone previews preserve ordered entries, extensions, labels and unparsed text without inventing digits', () => {
+  const values = [{ number: '201-684-7392', extension: null, type: null }, { extension: '0076', type: 'office' },
+    { number: 'published non-dialable text', extension: '03', type: 'direct' }, { number: '914-555-0100', type: 'cell' }];
+  const node = field('phones', values, { category: 'contact' });
+  const before = structuredClone(node);
+  assert.equal(canonicalPhonePreview(node, values), '201-684-7392\next. 0076 (office)\npublished non-dialable text ext. 03 (direct)\n914-555-0100 (cell)');
+  assert.deepEqual(node, before);
+  assert.equal(canonicalPhonePreview(node, [{ number: '201-684-7392' }]), '201-684-7392');
+  for (const value of [null, [], '201-684-7392', [{ type: 'office' }], [{ number: '201-684-7392', unknown: 'preserve in structured view' }]]) {
+    assert.equal(canonicalPhonePreview(node, value), undefined);
+  }
+  assert.equal(canonicalPhonePreview({ ...node, propertyKey: 'other' }, values), undefined);
+});
+
+test('verified lineage stays visible in the header and provenance without expanding otherwise empty fields', () => {
+  const note = 'Derived from the linked faculty profile; these records are not independent corroboration.';
+  const lineage = { derived_from_source_id: 'faculty:one', limitations: [note] };
+  const empty = field('status', null, { status: 'unknown', source: lineage });
+  const name = field('name', 'Birch Tree Inn', { source: lineage });
+  const root = entity([empty, name]), before = structuredClone(root);
+  const fields = partitionFields(root);
+  assert.deepEqual(fields.empty, [empty]);
+  assert.deepEqual(fields.sourceFields, [name]);
+  assert.deepEqual(sourceCaveats(root), [note]);
+  assert.strictEqual(fields.empty[0].values[0].source, empty.values[0].source);
+  assert.deepEqual(fields.empty[0].values[0].source.limitations, [note]);
+  assert.deepEqual(root, before);
+  const warnings = [
+    field('stale', null, { status: 'unknown', source: { ...lineage, freshness: 'stale' } }),
+    field('field-caveat', null, { status: 'unknown', source: lineage, assertion: { limitations: ['Field is withheld.'] } }),
+    field('record-caveat', null, { status: 'unknown', source: { ...lineage, limitations: [note, 'Source applicability is uncertain.'] } }),
+    field('unpublished', null, { status: 'unknown', source: lineage, assertion: { publication_status: 'not_published' } }),
+    field('conflict', null, { status: 'conflicting', source: lineage }),
+    field('unlinked', null, { status: 'unknown', source: { limitations: [note] } }),
+  ];
+  assert.deepEqual(partitionFields(entity(warnings)).details, warnings);
+  assert.deepEqual(sourceCaveats(entity(warnings)), [note, 'Source applicability is uncertain.']);
 });

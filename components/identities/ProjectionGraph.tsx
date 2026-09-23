@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ChevronDown, FileText, Layers3, Network, Search, X } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
-import { collectionDescription, detailSections, fieldLabel, nodeSummary, partitionFields } from '@/lib/graph-presentation';
+import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, nodeSummary, partitionFields, sourceCaveats } from '@/lib/graph-presentation';
 import { groupConnections } from '@/lib/graph-connection-groups';
 import {
   appendProjectionPage, findAttachment, hasChildren, ProjectionError,
@@ -71,7 +71,7 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
   const relationships = node.children.filter(child => child.kind === 'relationship');
   const connectionGroups = groupConnections(relationships);
   const records = node.children.filter(child => child.kind === 'record');
-  const sourceCaveats = [...new Set(node.children.flatMap(child => child.values?.flatMap(value => value.source?.limitations ?? []) ?? []))];
+  const caveats = sourceCaveats(node);
   const propertyChildren = node.kind === 'property' || node.kind === 'value';
   const displayFields = propertyChildren ? node.children.filter(child => child.kind === 'value') : fields.details;
   const sections = detailSections(node, displayFields);
@@ -87,7 +87,7 @@ function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (
       {node.kind === 'group' && <p className="mt-2 text-sm leading-6 text-slate-400">{collectionDescription(node)}</p>}
     </header>
 
-    {sourceCaveats.length > 0 && <div className="space-y-1 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs leading-5 text-amber-100">{sourceCaveats.map(text => <p key={text}>{text}</p>)}</div>}
+    {caveats.length > 0 && <div className="space-y-1 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs leading-5 text-amber-100">{caveats.map(text => <p key={text}>{text}</p>)}</div>}
 
     {collections.length > 0 && <section aria-label="Record collections" className="space-y-3">
       <SectionLabel label="Explore records" count={collections.length} />
@@ -152,7 +152,7 @@ function PropertyValues({ node }: { node: AttachmentNode }) {
     {node.status === 'unknown' && <p className="text-xs text-slate-400">Not known from available evidence</p>}
     {groups.map((group, index) => {
       return <div key={group.id} className={index ? 'border-t border-white/10 pt-3' : undefined}>
-        <ValueContent value={group.value} label={fieldLabel(node)} />
+        <ValueContent value={group.value} label={fieldLabel(node)} text={canonicalPhonePreview(node, group.value)} />
         {(group.valid_from || group.valid_until || groups.length > 1) && <p className="mt-1 text-xs leading-5 text-slate-400">Validity: {group.valid_from ?? 'Not specified'} – {group.valid_until ?? 'Not specified'}</p>}
         <ValueWarnings values={group.assertions} />
         <details className="mt-3 text-xs text-slate-400">

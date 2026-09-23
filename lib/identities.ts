@@ -14,7 +14,7 @@ export interface IdentityLink {
   source_record_ids?: string[];
 }
 export interface IdentityRelationship {
-  type: 'convener' | 'profile_course' | 'organized_by';
+  type: 'convener' | 'listed_faculty' | 'profile_course' | 'organized_by';
   target_entity_id: string | null;
   target_record: RecordReference | null;
   evidence: (RecordReference & { field: string; source_url?: string | null })[];
@@ -125,6 +125,7 @@ export function relatedIdentityNodes(entity: Identity, identities: Identity[]): 
   const nodes = new Map<string, RelatedIdentityNode>();
   const definitions = {
     convener: { label: 'Has convener', reverse: 'Convener of', section: 'conveners', kind: 'person' },
+    listed_faculty: { label: 'Lists faculty', reverse: 'Listed faculty of', section: 'program', kind: 'person' },
     organized_by: { label: 'Organized by', reverse: 'Organizes event', section: 'event', kind: 'club' },
   } as const;
   for (const relationship of entity.relationships ?? []) {

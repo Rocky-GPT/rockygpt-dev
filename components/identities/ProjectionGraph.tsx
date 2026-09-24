@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ChevronDown, DoorOpen, ExternalLink, FileText, Info, Layers3, Mail, Network, Phone, Search, X } from 'lucide-react';
+import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ArrowRight, ChevronDown, DoorOpen, ExternalLink, FileText, Folder, Info, Mail, Phone, X } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
 import {
-  canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, nodeSummary, overviewFields,
-  overviewSources, partitionFields, shortUrl, sourceCaveats, sourceLabel as collectionLabel, type OverviewSource,
+  canonicalPhonePreview, collectionDescription, fieldLabel, initials, nodeSummary, overviewFields,
+  overviewSources, shortUrl, sourceLabel as collectionLabel, type OverviewFields, type OverviewSource,
 } from '@/lib/graph-presentation';
 import { groupConnections, type ConnectionGroup } from '@/lib/graph-connection-groups';
 import {
-  appendProjectionPage, findAttachment, hasChildren, ProjectionError,
+  appendProjectionPage, findAttachment, ProjectionError,
   projectionTree, readProjection, valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
 } from '@/lib/graph-projection';
 
@@ -66,7 +66,7 @@ export function ProjectionGraph({ graph, entity, attachmentId, layout, onAttachm
     {error && <div role="alert" className="flex items-center gap-3 text-xs text-amber-200"><p>Only part of this projection is loaded. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry projection</button></div>}
     {current && (layout === 'overview' && (current.kind === 'entity' || current.kind === 'record')
       ? <EntityOverview key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />
-      : <AttachmentPanel key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />)}
+      : <CardsPanel key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />)}
     {projection && !current && <p role="status" className="text-sm text-muted-foreground">{loading ? 'Loading this attachment…' : 'This attachment is unavailable.'} {!loading && <button className={control} onClick={onRoot}>Return to entity</button>}</p>}
     {projection && (!projection.properties_complete || projection.coverage.length > 0) && <details className="text-xs text-amber-200"><summary className="cursor-pointer">Projection coverage</summary><p className="mt-2">{projection.coverage.length ? 'Published values withheld or incomplete in this projection:' : 'This is a partial projection.'}</p><ul className="mt-2 max-h-52 space-y-2 overflow-auto">{projection.coverage.map((issue, index) => <li key={index}>{[issue.collection, issue.record_id, issue.reason, issue.fields.join(', '), issue.detail].filter(Boolean).join(' · ')}</li>)}</ul></details>}
   </div>;
@@ -144,39 +144,23 @@ function EntityOverview({ node, onSelect }: { node: AttachmentNode; onSelect: Se
       </aside>}
     </div>
 
-    {(sources.length > 0 || fields.hidden.length > 0) && <footer className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
-      {sources.length > 0 && <section aria-label="Sources">
-        <h3 className="text-xs font-medium text-slate-400">Sources</h3>
-        <ul className="mt-2 space-y-3">{sources.map(summary => <SourceLine key={summary.source.id} summary={summary} />)}</ul>
-      </section>}
-      {fields.hidden.length > 0 && <details className="group border-t border-white/10 pt-3">
-        <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">{fields.hidden.length} {fields.hidden.length === 1 ? 'field' : 'fields'} not shown<ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-        <ul className="mt-3 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/10">{fields.hidden.map(({ field, reason }) => <li key={field.id} className="px-4 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-sm text-slate-200">{heading(field)}</span>
-            <span className="flex items-center gap-2 text-xs text-slate-500">{reason}<EvidenceCount field={field} open={openFact === field.id} onToggle={() => toggle(field.id)} /></span>
-          </div>
-          {reason !== 'Not published' && <p className="mt-1 break-words text-xs text-slate-400">{factText(field)}</p>}
-          {fieldWarnings(field).map(text => <p key={text} className="mt-1 text-xs leading-5 text-amber-200/80">{text}</p>)}
-          {openFact === field.id && <div className="mt-3"><EvidencePanel field={field} /></div>}
-        </li>)}</ul>
-      </details>}
-    </footer>}
+    <Footnotes sources={sources} hidden={fields.hidden} />
     {evidence && <RelationshipEvidence node={evidence} close={() => setEvidence(undefined)} />}
   </section>;
 }
 
 /** The published photo when there is one; initials if there is none or it fails to load. */
-function Avatar({ name, photo }: { name: string; photo?: string }) {
+function Avatar({ name, photo, small }: { name: string; photo?: string; small?: boolean }) {
   const [failed, setFailed] = useState(false);
+  const size = small ? 'h-10 w-10' : 'h-14 w-14';
   if (photo && !failed) {
     // A direct load from Ramapo's site, which the page's image policy allows;
     // next/image would fetch it through this server instead.
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={photo} alt={`Photo of ${name}`} onError={() => setFailed(true)} referrerPolicy="no-referrer"
-      className="h-14 w-14 shrink-0 rounded-full border border-white/10 object-cover" />;
+      className={`${size} shrink-0 rounded-full border border-white/10 object-cover`} />;
   }
-  return <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sky-400/15 text-lg font-semibold text-sky-200">{initials(name)}</div>;
+  return <div aria-hidden="true" className={`flex ${size} shrink-0 items-center justify-center rounded-full bg-sky-400/15 font-semibold text-sky-200 ${small ? 'text-sm' : 'text-lg'}`}>{initials(name)}</div>;
 }
 
 function FieldIcon({ field }: { field: AttachmentNode }) {
@@ -229,12 +213,15 @@ function FactBody({ field, onSelect }: { field: AttachmentNode; onSelect: Select
           : <ValueContent value={value} label={fieldLabel(field)} />}
       </div>;
     })}
-    {field.children.length > 0 && groups.some(group => !isTextList(group.value)) && canonicalPhonePreview(field, groups[0]?.value) === undefined && <button aria-label={`Open ${field.label}`} onClick={() => onSelect(field)} className="flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
+    {opensValues(field) && <button aria-label={`Open ${field.label}`} onClick={() => onSelect(field)} className="flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
     {fieldWarnings(field).map(text => <p key={text} className="text-xs leading-5 text-amber-200">{text}</p>)}
   </div>;
 }
 
 const isTextList = (value: unknown): boolean => Array.isArray(value) && value.every(item => typeof item === 'string' || typeof item === 'number');
+/** A structured fact with no one-line reading, browsed a level down instead. */
+const opensValues = (field: AttachmentNode): boolean => field.children.length > 0
+  && (field.factValues ?? []).some(group => !isTextList(group.value)) && canonicalPhonePreview(field, field.factValues?.[0]?.value) === undefined;
 
 /** Long entries, such as publications: a few at a time, each kept whole. */
 function LongList({ items }: { items: string[] }) {
@@ -258,8 +245,10 @@ function fieldWarnings(field: AttachmentNode): string[] {
   return [...warnings];
 }
 
+const evidenceTotal = (field: AttachmentNode): number =>
+  (field.factValues ?? []).reduce((total, group) => total + group.evidence_count, 0) || (field.values ?? []).length;
 function EvidenceCount({ field, open, onToggle }: { field: AttachmentNode; open: boolean; onToggle: () => void }) {
-  const count = (field.factValues ?? []).reduce((total, group) => total + group.evidence_count, 0) || (field.values ?? []).length;
+  const count = evidenceTotal(field);
   return <button type="button" aria-expanded={open} aria-label={`${count} ${count === 1 ? 'source' : 'sources'} for ${fieldLabel(field)}`} title="Show evidence" onClick={onToggle}
     className={`inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border px-1.5 text-[10px] tabular-nums ${open ? 'border-sky-300/60 text-sky-200' : 'border-white/15 text-slate-400 hover:border-sky-300/50 hover:text-sky-200'}`}>{count}</button>;
 }
@@ -305,122 +294,168 @@ function SourceLine({ summary: { source, label, derivedFrom } }: { summary: Over
   </li>;
 }
 
-function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (node: AttachmentNode) => void }) {
+/** Under a page: each source once, then the fields not shown, each with its reason and evidence. */
+function Footnotes({ sources, hidden }: { sources: OverviewSource[]; hidden: OverviewFields['hidden'] }) {
+  const [openFact, setOpenFact] = useState<string>();
+  if (!sources.length && !hidden.length) return null;
+  return <footer className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
+    {sources.length > 0 && <section aria-label="Sources">
+      <h3 className="text-xs font-medium text-slate-400">Sources</h3>
+      <ul className="mt-2 space-y-3">{sources.map(summary => <SourceLine key={summary.source.id} summary={summary} />)}</ul>
+    </section>}
+    {hidden.length > 0 && <details className={`group ${sources.length ? 'border-t border-white/10 pt-3' : ''}`}>
+      <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">{hidden.length} {hidden.length === 1 ? 'field' : 'fields'} not shown<ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+      <ul className="mt-3 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/10">{hidden.map(({ field, reason }) => <li key={field.id} className="px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm text-slate-200">{heading(field)}</span>
+          <span className="flex items-center gap-2 text-xs text-slate-500">{reason}<EvidenceCount field={field} open={openFact === field.id} onToggle={() => setOpenFact(current => current === field.id ? undefined : field.id)} /></span>
+        </div>
+        {reason !== 'Not published' && <p className="mt-1 break-words text-xs text-slate-400">{factText(field)}</p>}
+        {fieldWarnings(field).map(text => <p key={text} className="mt-1 text-xs leading-5 text-amber-200/80">{text}</p>)}
+        {openFact === field.id && <div className="mt-3"><EvidencePanel field={field} /></div>}
+      </li>)}</ul>
+    </details>}
+  </footer>;
+}
+
+const CARD = 'min-w-0 rounded-xl border border-white/15 p-4 text-left';
+const CARD_GRID = 'grid grid-flow-row-dense gap-3 sm:grid-cols-2 lg:grid-cols-3';
+const CONNECTION_PREVIEW = 6;
+const RECORD_PAGE = 30;
+
+/** One level of the graph as cards, like the category pages: a card with an arrow
+ * opens the next level down, and a fact card shows its value and opens its evidence in place. */
+function CardsPanel({ node, onSelect }: { node: AttachmentNode; onSelect: Select }) {
   const [evidence, setEvidence] = useState<AttachmentNode>();
-  const fields = partitionFields(node);
+  const value = node.kind === 'property' || node.kind === 'value';
+  const fields = node.kind === 'entity' || node.kind === 'record' ? overviewFields(node) : undefined;
+  const facts = fields ? [...fields.headline, ...fields.contact, ...fields.main] : node.children.filter(child => child.kind === 'property' || child.kind === 'value');
   const collections = node.children.filter(child => child.kind === 'group');
-  const relationships = node.children.filter(child => child.kind === 'relationship');
-  const connectionGroups = groupConnections(relationships);
-  const records = node.children.filter(child => child.kind === 'record');
-  const caveats = sourceCaveats(node);
-  const propertyChildren = node.kind === 'property' || node.kind === 'value';
-  const displayFields = propertyChildren ? node.children.filter(child => child.kind === 'value') : fields.details;
-  const sections = detailSections(node, displayFields);
+  const connections = groupConnections(node.children.filter(child => child.kind === 'relationship'));
+  const summary = node.kind === 'group' ? [nodeSummary(node), collectionDescription(node)].filter(Boolean).join(' · ') : value ? nodeSummary(node) : node.subtitle;
   return <section aria-label={`Details for ${node.label}`} className="min-w-0 space-y-6">
-    <header className="rounded-2xl border border-sky-300/15 bg-gradient-to-br from-sky-400/[0.08] to-transparent p-5 sm:p-6">
-      <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-sky-200">
-        <Network size={14} aria-hidden="true" />
-        <span>{node.kind === 'entity' ? `Graph entity · ${node.subtitle}` : node.kind === 'group' ? 'Record collection' : node.kind === 'record' ? 'Source record' : 'Field details'}</span>
+    <header className="flex items-center gap-3">
+      {fields?.photo && <Avatar name={node.label} photo={fields.photo} small />}
+      <div className="min-w-0">
+        <h2 className="break-words text-lg font-semibold text-slate-50">{value ? heading(node) : node.label}</h2>
+        {summary && <p className="mt-0.5 break-words text-xs text-slate-400">{summary}</p>}
       </div>
-      <h2 className="mt-3 break-words text-2xl font-semibold tracking-tight text-slate-100">{node.label}</h2>
-      {node.kind !== 'entity' && node.subtitle && <p className="mt-2 break-words text-sm leading-6 text-slate-400">{node.subtitle}</p>}
-      {node.kind === 'entity' && <p className="mt-2 text-sm text-slate-400">Details, source records and connections for this entity.</p>}
-      {node.kind === 'group' && <p className="mt-2 text-sm leading-6 text-slate-400">{collectionDescription(node)}</p>}
     </header>
-
-    {caveats.length > 0 && <div className="space-y-1 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs leading-5 text-amber-100">{caveats.map(text => <p key={text}>{text}</p>)}</div>}
-
-    {collections.length > 0 && <section aria-label="Record collections" className="space-y-3">
-      <SectionLabel label="Explore records" count={collections.length} />
-      <div className="grid gap-3 md:grid-cols-2">{collections.map(child => <button key={child.id} aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} className="group min-w-0 rounded-xl border border-sky-300/20 bg-sky-400/5 p-5 text-left transition-colors hover:border-sky-300/50 hover:bg-sky-400/10">
-        <span className="flex items-center justify-between gap-3"><span className="flex items-center gap-2 text-sm font-medium text-sky-100"><Layers3 size={16} aria-hidden="true" />{child.label}</span><ArrowRight size={16} className="shrink-0 text-sky-300 transition-transform group-hover:translate-x-1" aria-hidden="true" /></span>
-        <span className="mt-3 block text-lg font-semibold tabular-nums text-slate-100">{nodeSummary(child)}</span>
-        <span className="mt-1 block text-xs leading-5 text-slate-400">{collectionDescription(child)}</span>
-      </button>)}</div>
-    </section>}
-
-    {sections.filter(section => section.cards.length > 0).map(section => <section key={section.label} aria-label={section.label} className="space-y-3">
-      <SectionLabel label={section.label} count={section.cards.length} />
-      <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">{section.cards.map(card => <PropertyCard key={card.field.id} node={card.field} onSelect={onSelect} />)}</div>
-    </section>)}
-
-    {relationships.length > 0 && <section aria-label="Entity connections" className="space-y-3">
-      <SectionLabel label="Connections" count={relationships.length} />
-      <div className="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3">{connectionGroups.map(group => <section key={group.key} aria-label={`${group.label} connections`} className="min-w-0 overflow-hidden rounded-xl border border-sky-300/20 bg-[#12202c]">
-        <h4 className="flex items-center gap-2 border-b border-sky-300/10 px-4 py-3 text-sm font-medium text-sky-200"><Network size={14} className="shrink-0" aria-hidden="true" /><span className="first-letter:uppercase">{group.label}</span><span className="ml-auto rounded-md bg-sky-300/10 px-2 py-0.5 text-xs tabular-nums">{group.nodes.length}</span></h4>
-        <ul className="divide-y divide-white/10">{group.nodes.map(child => <li key={child.id} className="px-4 py-3">
-          {child.target ? <button aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} className="flex w-full items-start justify-between gap-3 text-left text-sm font-medium text-slate-100 hover:text-sky-200"><span className="break-words">{child.label}</span><ArrowRight size={15} className="mt-0.5 shrink-0" aria-hidden="true" /></button> : <p className="text-sm text-amber-200">{child.label}</p>}
-          {child.relationship && <button aria-label={`Evidence for ${child.subtitle}: ${child.label}`} onClick={() => setEvidence(child)} className="mt-2 flex items-center gap-1.5 text-xs text-slate-400 hover:text-sky-200"><FileText size={12} aria-hidden="true" />View evidence</button>}
-        </li>)}</ul>
-      </section>)}</div>
-    </section>}
-
-    {(records.length > 0 || node.kind === 'group') && <RecordList node={node} records={records} onSelect={onSelect} />}
-
-    {!propertyChildren && (fields.empty.length > 0 || fields.sourceFields.length > 0) && <div className="space-y-3 border-t border-white/10 pt-4">
-      {fields.empty.length > 0 && <details className="group rounded-xl border border-white/10 bg-black/10">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-400 [&::-webkit-details-marker]:hidden"><span>{fields.empty.length} empty {fields.empty.length === 1 ? 'field' : 'fields'} <span className="text-slate-500">· null or empty values</span></span><ChevronDown size={15} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-        <div className="grid items-start gap-3 border-t border-white/5 p-4 sm:grid-cols-2 xl:grid-cols-3">{fields.empty.map(child => <PropertyCard key={child.id} node={child} onSelect={onSelect} />)}</div>
-      </details>}
-      {fields.sourceFields.length > 0 && <details className="group rounded-xl border border-white/10 bg-black/10">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm text-slate-400 [&::-webkit-details-marker]:hidden"><span>Source record fields <span className="text-slate-500">· {fields.sourceFields.length}</span></span><ChevronDown size={15} className="shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
-        <p className="border-t border-white/5 px-4 pt-4 text-xs leading-5 text-slate-400">Values repeated in the entity heading, with their evidence.</p>
-        <div className="grid items-start gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">{fields.sourceFields.map(child => <PropertyCard key={child.id} node={child} onSelect={onSelect} />)}</div>
-      </details>}
-    </div>}
-    {!node.children.length && <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-slate-400">{node.pending ? 'Loading records…' : 'No attached records or details.'}</p>}
+    {collections.length > 0 && <CardSection label="Records" count={collections.length}>
+      {collections.map(group => <OpenCard key={group.id} title={group.label} subtitle={nodeSummary(group)} folder onClick={() => onSelect(group)} />)}
+    </CardSection>}
+    {node.kind === 'group' && <RecordCards node={node} onSelect={onSelect} />}
+    {facts.length > 0 && <CardSection label={value ? 'Values' : 'Facts'} count={facts.length}>
+      <FactCards facts={facts} evidence={!value} onSelect={onSelect} />
+    </CardSection>}
+    {connections.map(group => <ConnectionCards key={group.key} group={group} onSelect={onSelect} onEvidence={setEvidence} />)}
+    {value && <EvidencePanel field={node} />}
+    {node.kind !== 'group' && !facts.length && !collections.length && !connections.length && <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-slate-400">{node.pending ? 'Loading records…' : 'No published details.'}</p>}
+    {fields && <Footnotes sources={overviewSources(node)} hidden={fields.hidden} />}
     {evidence && <RelationshipEvidence node={evidence} close={() => setEvidence(undefined)} />}
   </section>;
 }
 
-function SectionLabel({ label, count }: { label: string; count: number }) {
-  return <h3 className="flex items-center gap-2 text-sm font-medium text-slate-200">{label}<span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] tabular-nums text-slate-500">{count.toLocaleString()}</span></h3>;
+function CardSection({ label, count, after, children }: { label: string; count: number; after?: ReactNode; children: ReactNode }) {
+  return <section aria-label={label} className="space-y-2">
+    <h3 className="flex items-center gap-2 text-xs font-medium text-slate-400"><span className="first-letter:uppercase">{label}</span><span className="tabular-nums text-slate-500">{count.toLocaleString()}</span></h3>
+    <div className={CARD_GRID}>{children}</div>
+    {after}
+  </section>;
 }
 
-function PropertyCard({ node, onSelect }: { node: AttachmentNode; onSelect: (node: AttachmentNode) => void }) {
-  return <div data-node-kind={node.kind} className="min-w-0 rounded-xl border border-white/10 bg-white/[0.02] p-4">
-    <p className="text-xs font-medium text-slate-400">{fieldLabel(node)}</p>
-    <PropertyValues node={node} />
-    {hasChildren(node) && <button aria-label={`Open ${node.label}`} onClick={() => onSelect(node)} className="mt-3 flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
+/** A card that opens the next level: a record collection, a record or a structured value. */
+function OpenCard({ title, subtitle, folder, onClick }: { title: string; subtitle?: string; folder?: boolean; onClick: () => void }) {
+  return <button type="button" onClick={onClick} className={`${CARD} flex items-center justify-between gap-3 hover:border-sky-300/70 hover:bg-sky-400/5`}>
+    <span className="flex min-w-0 items-center gap-3">
+      {folder && <Folder size={16} className="shrink-0 text-sky-300" aria-hidden="true" />}
+      <span className="min-w-0"><span title={title} className="block truncate text-sm text-sky-100">{title}</span>{subtitle && <span title={subtitle} className="mt-1 block truncate text-xs text-muted-foreground">{subtitle}</span>}</span>
+    </span>
+    <ArrowRight size={14} className="shrink-0 text-sky-300" aria-hidden="true" />
+  </button>;
+}
+
+/** Facts as cards. A structured value opens a level down; any other fact opens its full
+ * value and evidence below its row, so the evidence stays beside the fact it supports. */
+function FactCards({ facts, evidence, onSelect }: { facts: AttachmentNode[]; evidence: boolean; onSelect: Select }) {
+  const [open, setOpen] = useState<string>();
+  return <>{facts.map(field => opensValues(field)
+    ? <OpenCard key={field.id} title={heading(field)} subtitle={nodeSummary(field)} onClick={() => onSelect(field)} />
+    : <Fragment key={field.id}>
+      <FactCard field={field} evidence={evidence} open={open === field.id} onToggle={() => setOpen(current => current === field.id ? undefined : field.id)} />
+      {open === field.id && <FactDetail field={field} evidence={evidence} onSelect={onSelect} onClose={() => setOpen(undefined)} />}
+    </Fragment>)}</>;
+}
+
+/** A single published URL on a links fact, or an email address, shown as a link. */
+function factLink(field: AttachmentNode): { href: string; text: string } | undefined {
+  const value = field.factValues?.length === 1 ? field.factValues[0].value : undefined;
+  if (typeof value !== 'string') return;
+  if (field.propertyKey === 'email') return { href: `mailto:${value}`, text: value };
+  const url = field.category === 'links' ? safeSourceUrl(value) : undefined;
+  return url ? { href: url, text: url } : undefined;
+}
+
+function FactCard({ field, evidence, open, onToggle }: { field: AttachmentNode; evidence: boolean; open: boolean; onToggle: () => void }) {
+  const count = evidenceTotal(field);
+  const link = factLink(field);
+  const note = FIELD_NOTES[field.propertyKey ?? ''];
+  return <button type="button" aria-expanded={open} onClick={onToggle} className={`${CARD} flex flex-col ${open ? 'border-sky-300/60 bg-sky-400/[0.06]' : 'hover:border-white/30 hover:bg-white/[0.03]'}`}>
+    <span className="flex items-start justify-between gap-2">
+      <span className="min-w-0 truncate text-xs text-muted-foreground">{heading(field)}</span>
+      {evidence && <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-white/15 px-1.5 text-[10px] tabular-nums text-slate-400">{count}<span className="sr-only"> {count === 1 ? 'source' : 'sources'}</span></span>}
+    </span>
+    <span className="mt-1 line-clamp-2 break-words text-sm text-slate-100">{link?.href.startsWith('http') ? shortUrl(link.text) : factText(field).replace(/\s*\n\s*/g, ' · ')}</span>
+    {field.status === 'conflicting' && <span className="mt-1 block text-[11px] text-amber-200">Sources differ</span>}
+    {field.status === 'multiple' && <span className="mt-1 block text-[11px] text-slate-400">Several values by period</span>}
+    {note && <span className="mt-1 block text-[11px] text-slate-500">{note}</span>}
+  </button>;
+}
+
+function FactDetail({ field, evidence, onSelect, onClose }: { field: AttachmentNode; evidence: boolean; onSelect: Select; onClose: () => void }) {
+  const link = factLink(field);
+  return <div className="col-span-full space-y-3 rounded-xl border border-white/15 bg-white/[0.02] p-4">
+    <div className="flex items-start justify-between gap-3">
+      <p className="text-xs font-medium text-slate-300">{heading(field)}</p>
+      <button type="button" aria-label={`Close ${heading(field)}`} onClick={onClose} className="-m-1 rounded p-1 text-slate-400 hover:bg-white/10 hover:text-slate-100"><X size={14} aria-hidden="true" /></button>
+    </div>
+    {link ? <>
+      <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="block break-all text-sm text-sky-300 hover:text-sky-100">{link.text}</a>
+      {fieldWarnings(field).map(text => <p key={text} className="text-xs leading-5 text-amber-200">{text}</p>)}
+    </> : <FactBody field={field} onSelect={onSelect} />}
+    {evidence && <EvidencePanel field={field} />}
   </div>;
 }
 
-function PropertyValues({ node }: { node: AttachmentNode }) {
-  const groups = node.factValues ?? [];
-  return <div className="mt-2 space-y-3">
-    {node.status === 'conflicting' && <p className="text-xs text-amber-200">Conflicting published values</p>}
-    {node.status === 'multiple' && <p className="text-xs text-slate-400">Multiple values with different validity periods</p>}
-    {node.status === 'unknown' && <p className="text-xs text-slate-400">Not known from available evidence</p>}
-    {groups.map((group, index) => {
-      return <div key={group.id} className={index ? 'border-t border-white/10 pt-3' : undefined}>
-        <ValueContent value={group.value} label={fieldLabel(node)} text={canonicalPhonePreview(node, group.value)} />
-        {(group.valid_from || group.valid_until || groups.length > 1) && <p className="mt-1 text-xs leading-5 text-slate-400">Validity: {group.valid_from ?? 'Not specified'} – {group.valid_until ?? 'Not specified'}</p>}
-        <ValueWarnings values={group.assertions} />
-        <details className="mt-3 text-xs text-slate-400">
-          <summary className="w-fit cursor-pointer text-sky-300 hover:text-sky-100">{group.evidence_count} {group.evidence_count === 1 ? 'evidence record' : 'evidence records'}</summary>
-          <div className="mt-3 space-y-4">{group.assertions.map((attached, sourceIndex) => <div key={`${attached.assertion.id}:${sourceIndex}`} className={sourceIndex ? 'border-t border-white/10 pt-3' : undefined}>
-            {group.assertions.length > 1 && <p className="mb-2 text-xs font-medium text-slate-300">{sourceLabel(attached)}</p>}
-            <AssertionSource attached={attached} />
-          </div>)}</div>
-        </details>
-      </div>;
-    })}
-  </div>;
+function ConnectionCards({ group, onSelect, onEvidence }: { group: ConnectionGroup; onSelect: Select; onEvidence: (node: AttachmentNode) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? group.nodes : group.nodes.slice(0, CONNECTION_PREVIEW);
+  return <CardSection label={group.label} count={group.nodes.length} after={group.nodes.length > CONNECTION_PREVIEW
+    && <button onClick={() => setExpanded(value => !value)} className="text-xs text-sky-300 hover:text-sky-100">{expanded ? 'Show fewer' : `Show ${group.nodes.length - CONNECTION_PREVIEW} more`}</button>}>
+    {visible.map(child => <div key={child.id} className={`group flex min-w-0 items-center rounded-xl border border-white/15 ${child.target ? 'hover:border-sky-300/70 hover:bg-sky-400/5' : ''}`}>
+      {child.target ? <button type="button" onClick={() => onSelect(child)} className="flex min-w-0 flex-1 items-center justify-between gap-3 p-4 text-left">
+        <span className="min-w-0"><span title={child.label} className="block truncate text-sm text-sky-100">{child.label}</span><span className="mt-1 block truncate text-xs text-muted-foreground">{child.target.kind.replaceAll('_', ' ')}</span></span>
+        <ArrowRight size={14} className="shrink-0 text-sky-300" aria-hidden="true" />
+      </button> : <p className="min-w-0 flex-1 p-4 text-sm text-amber-200">{child.label}</p>}
+      {child.relationship && <button type="button" aria-label={`Evidence for ${child.subtitle}: ${child.label}`} title="Relationship evidence" onClick={() => onEvidence(child)}
+        className="mr-2 shrink-0 rounded p-1.5 text-slate-500 opacity-60 hover:text-sky-200 focus-visible:opacity-100 group-hover:opacity-100"><FileText size={13} aria-hidden="true" /></button>}
+    </div>)}
+  </CardSection>;
 }
 
-function sourceLabel({ source }: AttachedValue): string {
-  if (!source) return 'Source record unavailable';
-  return `${source.source_key ?? source.collection} · ${source.collection}`;
-}
-
-function ValueWarnings({ values }: { values: AttachedValue[] }) {
-  const warnings = new Set(values.flatMap(attached => [
-    ...(attached.source?.freshness === 'stale' ? ['A source is stale'] : []),
-    ...(!attached.source ? ['A source record is unavailable'] : []),
-    ...(attached.assertion.publication_status === 'not_published' ? ['A source does not mark this field as published'] : []),
-    ...attached.assertion.limitations,
-  ]));
-  return <>{[...warnings].map(text => <p key={text} className="mt-2 text-xs leading-5 text-amber-200">{text}</p>)}</>;
+/** A collection's records as cards, filtered like a category page. */
+function RecordCards({ node, onSelect }: { node: AttachmentNode; onSelect: Select }) {
+  const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(RECORD_PAGE);
+  const records = node.children.filter(child => child.kind === 'record');
+  const needle = query.trim().toLowerCase();
+  const matches = records.filter(record => !needle || `${record.label} ${record.subtitle ?? ''}`.toLowerCase().includes(needle));
+  return <section aria-label="Collection records" className="space-y-3">
+    <input aria-label={`Filter ${node.label}`} value={query} onChange={event => { setQuery(event.target.value); setLimit(RECORD_PAGE); }} placeholder={`Find in ${node.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" />
+    <div className={CARD_GRID}>{matches.slice(0, limit).map(record => <OpenCard key={record.id} title={record.label} subtitle={record.subtitle} onClick={() => onSelect(record)} />)}</div>
+    <p role="status" className="text-xs text-muted-foreground">{matches.length.toLocaleString()} {needle ? 'matching ' : ''}{matches.length === 1 ? 'record' : 'records'}{node.pending ? ' loaded so far' : ''}</p>
+    {matches.length > limit && <button className={control} onClick={() => setLimit(value => value + RECORD_PAGE)}>Show {Math.min(RECORD_PAGE, matches.length - limit)} more</button>}
+  </section>;
 }
 
 function displayValue(value: unknown): string {
@@ -439,20 +474,6 @@ function ValueContent({ value, label, text: override }: { value: unknown; label:
     <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-100">{long && !expanded ? `${text.slice(0, 280)}…` : text}</p>
     {long && <button aria-label={`${expanded ? 'Collapse' : 'Read full'} ${label}`} aria-expanded={expanded} onClick={() => setExpanded(value => !value)} className="mt-2 text-xs text-sky-300 hover:text-sky-100">{expanded ? 'Show less' : 'Read full value'}</button>}
   </>;
-}
-
-function RecordList({ node, records, onSelect }: { node: AttachmentNode; records: AttachmentNode[]; onSelect: (node: AttachmentNode) => void }) {
-  const [query, setQuery] = useState('');
-  const [limit, setLimit] = useState(30);
-  const needle = query.trim().toLowerCase();
-  const matches = records.filter(record => !needle || `${record.label} ${record.subtitle ?? ''}`.toLowerCase().includes(needle));
-  return <section aria-label="Collection records" className="space-y-3">
-    <label className="flex items-center gap-2 rounded-xl border border-white/15 bg-black/15 px-3 text-slate-400"><Search size={15} aria-hidden="true" /><input aria-label={`Search ${node.label} records`} placeholder="Search records by name, date or details…" value={query} onChange={event => { setQuery(event.target.value); setLimit(30); }} className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none" /></label>
-    <p role="status" className="text-xs text-slate-400">Showing {Math.min(limit, matches.length).toLocaleString()} of {matches.length.toLocaleString()} {needle ? 'matching loaded records' : 'loaded records'}{node.pending ? ' · More records are loading' : ''}</p>
-    <div className="divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">{matches.slice(0, limit).map(record => <button key={record.id} aria-label={`Open ${record.label}`} onClick={() => onSelect(record)} className="flex w-full min-w-0 items-center justify-between gap-4 p-4 text-left hover:bg-sky-400/5"><span className="min-w-0"><span className="block break-words text-sm font-medium text-slate-100">{record.label}</span><span className="mt-1 block break-words text-xs leading-5 text-slate-400">{record.subtitle}</span></span><ArrowRight size={14} className="shrink-0 text-sky-300" aria-hidden="true" /></button>)}</div>
-    {!matches.length && <p className="py-4 text-sm text-slate-400">{node.pending ? 'No matching records loaded yet.' : 'No matching records.'}</p>}
-    {matches.length > limit && <button className={control} onClick={() => setLimit(value => value + 30)}>Show 30 more records</button>}
-  </section>;
 }
 
 function AssertionSource({ attached: { assertion, source } }: { attached: AttachedValue }) {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, isEmptyValue, nodeSummary, overviewFields, overviewSources, partitionFields, photoUrl, shortUrl, sourceCaveats } from '../lib/graph-presentation.ts';
+import { canonicalPhonePreview, collectionDescription, fieldLabel, initials, nodeSummary, overviewFields, overviewSources, photoUrl, shortUrl } from '../lib/graph-presentation.ts';
 import { buildContentSecurityPolicy, PHOTO_ORIGINS } from '../lib/security-headers.ts';
 
 const field = (label, value, options = {}) => {
@@ -14,28 +14,18 @@ const field = (label, value, options = {}) => {
 };
 const entity = children => ({ id: 'birch', label: 'Birch Tree Inn', kind: 'entity', subtitle: 'venue', children });
 
-test('only backend-unknown empty values move to secondary fields; known empty lists, false and zero stay visible', () => {
-  for (const value of [null, undefined, '', '  ', [], {}]) assert.equal(isEmptyValue(value), true);
-  for (const value of [false, 0, '0', [null], { unknown: null }]) assert.equal(isEmptyValue(value), false);
-  const empty = [null, '', [], {}].map((value, i) => field(`empty${i}`, value, { status: 'unknown' }));
+test('only facts the backend marks unknown fold away; known empty lists, false, zero and disputed values stay', () => {
+  const unknown = [null, '', [], {}].map((value, i) => field(`empty${i}`, value, { status: 'unknown' }));
   const known = [false, 0, [], {}, [null], { unknown: null }].map((value, i) => field(`known${i}`, value));
-  const root = entity([...empty, ...known]), before = structuredClone(root);
-  assert.deepEqual(partitionFields(root).empty, empty);
-  assert.deepEqual(partitionFields(root).details, known);
+  const disputed = [field('conflict', null, { status: 'conflicting' }), field('periods', null, { status: 'multiple' })];
+  const root = entity([...unknown, ...known, ...disputed]), before = structuredClone(root);
+  const fields = overviewFields(root);
+  assert.deepEqual(fields.hidden.map(({ field, reason }) => [field, reason]), unknown.map(field => [field, 'Not published']));
+  assert.deepEqual(fields.main, [...known, ...disputed]);
+  assert.strictEqual(fields.main[0], known[0]);
   assert.deepEqual(root, before);
-  assert.strictEqual(partitionFields(root).details[0], known[0]);
 });
 
-test('backend conflicts, temporal variants and evidence caveats remain visible', () => {
-  const fields = [field('conflict', null, { status: 'conflicting' }), field('periods', null, { status: 'multiple' }),
-    field('unpublished', null, { status: 'unknown', assertion: { publication_status: 'not_published' } }),
-    field('qualified', null, { status: 'unknown', assertion: { limitations: ['Applicability is uncertain.'] } }),
-    field('source-caveat', null, { status: 'unknown', source: { limitations: ['Original record unavailable.'] } }),
-    field('stale', null, { status: 'unknown', source: { freshness: 'stale' } })];
-  const missing = field('missing', null, { status: 'unknown' }); missing.values[0].source = undefined; fields.push(missing);
-  assert.deepEqual(partitionFields(entity(fields)).details, fields);
-  assert.deepEqual(partitionFields(entity(fields)).empty, []);
-});
 
 test('labels and canonical values come from the backend, with raw parser values retained only as evidence', () => {
   const name = field('name', 'Birch Tree Inn');
@@ -45,34 +35,22 @@ test('labels and canonical values come from the backend, with raw parser values 
   assert.equal(root.subtitle, 'venue');
   assert.equal(fieldLabel(type), 'Source record type');
   assert.equal(fieldLabel(preference), 'Email preference');
+  const key = label => fieldLabel({ id: label, label, kind: 'value', children: [] });
+  assert.deepEqual(['transFat', 'vitaminA', 'calories_from_fat', 'number', 'Value 2'].map(key), ['Trans fat', 'Vitamin A', 'Calories from fat', 'Number', 'Value 2']);
   assert.equal(nodeSummary(preference), 'No value provided');
   assert.equal(preference.values[0].assertion.value, false);
-  assert.deepEqual(partitionFields(root).sourceFields, [name]);
-  assert.deepEqual(partitionFields(root).empty, [preference]);
+  assert.deepEqual(overviewFields(root).hidden.map(({ field, reason }) => [field, reason]), [[name, 'Shown as the heading'], [preference, 'Not published']]);
   assert.equal(nodeSummary(field('Other boolean', false)), 'false');
 });
 
-test('detail sections obey backend categories without merging or reclassifying source fields', () => {
-  const phone = field('Phone', '201-555-0100', { category: 'details' });
-  const phones = field('Phones', [{ number: '201-555-0100' }], { category: 'contact' });
-  const bio = field('Biography', 'A profile', { category: 'academic' });
-  const link = field('Profile', 'https://example.edu/profile', { category: 'links' });
-  const root = entity([phones, bio, phone, link]), before = structuredClone(root);
-  const sections = detailSections(root, root.children);
-  assert.deepEqual(sections.map(section => section.label), ['Contact', 'Academic profile', 'Details', 'Links']);
-  assert.strictEqual(sections[2].cards[0].field, phone);
-  assert.deepEqual(sections.flatMap(section => section.cards).map(card => card.field), root.children);
-  assert.deepEqual(root, before);
-  assert.equal(detailSections({ ...root, kind: 'record' }, root.children)[0].label, 'Contact');
-  assert.equal(detailSections(phones, [phone])[0].label, 'Values');
-});
 
 test('record descriptions preserve exact loading totals and contextual subtitles', () => {
   const record = { id: 'one', label: 'Repeated dish', kind: 'record', subtitle: 'meal: Breakfast · date: 2026-09-23', children: [] };
   const group = { id: 'menu', label: 'Menu offerings', kind: 'group', subtitle: '100 of 874 records', pending: true, children: [record] };
   assert.equal(collectionDescription(group), 'Entries across dates, meals and stations; dishes may repeat.');
   assert.match(collectionDescription({ ...group, label: 'Dining hours' }), /validity periods/);
-  assert.equal(collectionDescription({ ...group, label: 'Other' }), 'Open to explore individual records and their sources.');
+  // Other collections need no explanation beyond their name and size.
+  assert.equal(collectionDescription({ ...group, label: 'Other' }), '');
   assert.equal(nodeSummary(group), '100 of 874 records · Loading more records…');
   assert.equal(nodeSummary({ ...group, subtitle: '1 of 2 records', pending: false }), '1 of 2 records');
   assert.equal(nodeSummary(record), record.subtitle);
@@ -83,7 +61,7 @@ test('presentation leaves relationship targets, evidence and repeated record ide
   const edge = { id: 'edge', label: 'Dining Services', kind: 'relationship', children: [], target: { id: 'office' }, relationship: { id: 'published-edge', evidence: [{ field: 'office_id' }] } };
   const group = { id: 'group', label: 'Menu offerings', kind: 'group', children: [{ id: 'breakfast', label: 'Same dish' }, { id: 'lunch', label: 'Same dish' }] };
   const root = entity([field('Phone', '201-555-0100'), edge, group]), before = structuredClone(root);
-  assert.equal(partitionFields(root).details.length, 1);
+  assert.equal(overviewFields(root).main.length, 1);
   assert.deepEqual(root, before);
   assert.strictEqual(root.children[1], edge);
   assert.deepEqual(group.children.map(node => node.id), ['breakfast', 'lunch']);
@@ -103,29 +81,17 @@ test('canonical phone previews preserve ordered entries, extensions, labels and 
   assert.equal(canonicalPhonePreview({ ...node, propertyKey: 'other' }, values), undefined);
 });
 
-test('verified lineage stays visible in the header and provenance without expanding otherwise empty fields', () => {
+test('verified lineage stays with its source while otherwise empty fields fold', () => {
   const note = 'Derived from the linked faculty profile; these records are not independent corroboration.';
   const lineage = { derived_from_source_id: 'faculty:one', limitations: [note] };
   const empty = field('status', null, { status: 'unknown', source: lineage });
   const name = field('name', 'Birch Tree Inn', { source: lineage });
   const root = entity([empty, name]), before = structuredClone(root);
-  const fields = partitionFields(root);
-  assert.deepEqual(fields.empty, [empty]);
-  assert.deepEqual(fields.sourceFields, [name]);
-  assert.deepEqual(sourceCaveats(root), [note]);
-  assert.strictEqual(fields.empty[0].values[0].source, empty.values[0].source);
-  assert.deepEqual(fields.empty[0].values[0].source.limitations, [note]);
+  const fields = overviewFields(root);
+  assert.deepEqual(fields.hidden.map(({ field, reason }) => [field, reason]), [[empty, 'Not published'], [name, 'Shown as the heading']]);
+  assert.strictEqual(fields.hidden[0].field.values[0].source, empty.values[0].source);
+  assert.deepEqual(overviewSources(root).map(({ source, derivedFrom }) => [source.limitations, derivedFrom]), [[[note], 'faculty:one']]);
   assert.deepEqual(root, before);
-  const warnings = [
-    field('stale', null, { status: 'unknown', source: { ...lineage, freshness: 'stale' } }),
-    field('field-caveat', null, { status: 'unknown', source: lineage, assertion: { limitations: ['Field is withheld.'] } }),
-    field('record-caveat', null, { status: 'unknown', source: { ...lineage, limitations: [note, 'Source applicability is uncertain.'] } }),
-    field('unpublished', null, { status: 'unknown', source: lineage, assertion: { publication_status: 'not_published' } }),
-    field('conflict', null, { status: 'conflicting', source: lineage }),
-    field('unlinked', null, { status: 'unknown', source: { limitations: [note] } }),
-  ];
-  assert.deepEqual(partitionFields(entity(warnings)).details, warnings);
-  assert.deepEqual(sourceCaveats(entity(warnings)), [note, 'Source applicability is uncertain.']);
 });
 
 test('an overview puts role facts under the heading, contact facts in one strip and folds what asserts nothing', () => {

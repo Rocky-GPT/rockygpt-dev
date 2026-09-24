@@ -214,6 +214,15 @@ function relationshipNode(owner: string, rel: ProjectionRelationship, entities: 
   return { id: nodeId(owner, 'relationship', rel.id), label: target?.name ?? 'Unresolved relationship', kind: 'relationship',
     subtitle: relationshipLabel(rel.predicate, rel.direction === 'incoming'), children: [], relationship: rel, target };
 }
+/** A record's context on one line: its values, then its validity dates as one window. */
+function contextLine(context: ProjectionProperty[]): string {
+  const text = (property?: ProjectionProperty) => property?.values.filter(group => group.value !== null && group.value !== '')
+    .map(group => valueText(group.value)).join(' / ') || undefined;
+  const from = text(context.find(p => p.key === 'valid_from')), until = text(context.find(p => p.key === 'valid_until'));
+  const window = from && until ? (from === until ? from : `${from} – ${until}`) : from ? `from ${from}` : until ? `until ${until}` : undefined;
+  return [...context.filter(p => p.key !== 'valid_from' && p.key !== 'valid_until').map(text), window].filter(Boolean).join(' · ');
+}
+const recordCount = (loaded: number, total: number) => `${loaded === total ? '' : `${loaded.toLocaleString()} of `}${total.toLocaleString()} ${total === 1 ? 'record' : 'records'}`;
 export function projectionTree(projection: EntityProjection, graph: KnowledgeIndex): AttachmentNode {
   const entities = new Map(graph.nodes.map(e => [e.id, e]));
   const sources: Sources = new Map(projection.sources.map(source => [source.id, source]));
@@ -222,9 +231,9 @@ export function projectionTree(projection: EntityProjection, graph: KnowledgeInd
     ...projection.relationships.map(r => relationshipNode(owner, r, entities)),
     ...projection.properties.map(p => propertyNode(owner, p, sources)),
     ...projection.record_groups.map(group => ({ id: nodeId(owner, 'group', group.key), label: group.label, kind: 'group' as const,
-      subtitle: `${group.records.length} of ${group.total} records`, pending: group.next_cursor !== null,
+      subtitle: recordCount(group.records.length, group.total), pending: group.next_cursor !== null,
       children: group.records.map(record => ({ id: nodeId(owner, 'record', group.key, record.id), label: record.label, kind: 'record' as const,
-        subtitle: record.context.map(p => `${p.label}: ${p.values.map(group => valueText(group.value)).join(' / ')}`).join(' · '),
+        subtitle: contextLine(record.context),
         children: [...record.context.map(p => propertyNode(nodeId(record.id, 'context'), p, sources)), ...record.properties.map(p => propertyNode(nodeId(record.id, 'properties'), p, sources)), ...record.relationships.map(r => relationshipNode(record.id, r, entities))],
       })),
     })),

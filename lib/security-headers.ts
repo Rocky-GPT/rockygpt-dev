@@ -9,6 +9,9 @@
  * leaked url must not become a search result.
  */
 
+/** Sites the browser may load entity photos from; the Campus Graph shows only these. */
+export const PHOTO_ORIGINS = ['https://www.ramapo.edu'];
+
 export type CspMode = 'enforce' | 'report-only';
 
 export interface SecurityHeader {
@@ -72,7 +75,8 @@ export function buildContentSecurityPolicy(options: SecurityHeaderOptions = {}):
     "object-src 'none'",
     `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    // Faculty profile photos load straight from Ramapo's site (decided September 23, 2026).
+    `img-src 'self' data: blob: ${PHOTO_ORIGINS.join(' ')}`,
     "font-src 'self' data:",
     `connect-src 'self'${isDevelopment ? ' ws: wss:' : ''}`,
     "frame-src 'none'",

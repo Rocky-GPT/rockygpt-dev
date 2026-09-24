@@ -128,7 +128,7 @@ function CoverageIssues({ issues }: { issues: CoverageIssue[] }) {
   const groups = useMemo(() => groupCoverage(issues), [issues]);
   return <details className="rounded-xl border border-amber-400/20 p-4 text-xs"><summary className="cursor-pointer text-amber-200">{issues.length.toLocaleString()} data coverage issues</summary>
     <p className="mt-3 text-muted-foreground">Unresolved references remain unlinked. Categories are entry points, not factual relationships.</p>
-    <div className="mt-3 space-y-2">{groups.map(group => <details key={group.id} open={group.id === 'unlinked'} className="rounded-lg border border-white/10 p-3">
+    <div className="mt-3 space-y-2">{groups.map(group => <details key={group.id} open={group.id === 'unlinked_record'} className="rounded-lg border border-white/10 p-3">
       <summary className="cursor-pointer"><span className="font-medium text-amber-100">{group.label}</span><span className="text-muted-foreground"> · {group.issues.length.toLocaleString()}</span></summary>
       <p className="mt-2 text-muted-foreground">{group.description}</p>
       <p className="mt-1 text-muted-foreground">{group.collections.map(([collection, count]) => `${collection.replaceAll('_', ' ')} ${count.toLocaleString()}`).join(' · ')}</p>

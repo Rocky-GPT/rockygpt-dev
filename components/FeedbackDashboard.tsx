@@ -173,7 +173,7 @@ export function FeedbackDashboard() {
               <span className="text-xs text-muted-foreground">actionable issues</span>
             </div>
             <div className="mt-3 text-xs text-muted-foreground">
-              90-day retention with expiry
+              Kept until removed on request
             </div>
           </div>
         </div>

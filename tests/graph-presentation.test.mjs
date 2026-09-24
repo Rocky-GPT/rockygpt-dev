@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, isEmptyValue, nodeSummary, partitionFields, sourceCaveats } from '../lib/graph-presentation.ts';
+import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, isEmptyValue, nodeSummary, overviewFields, overviewSources, partitionFields, shortUrl, sourceCaveats } from '../lib/graph-presentation.ts';
 
 const field = (label, value, options = {}) => {
   const source = { id: options.sourceId ?? 'contacts:one', collection: 'contacts', row_id: 'one', source_key: 'directory', source_record_key: 'birch',
@@ -125,4 +125,53 @@ test('verified lineage stays visible in the header and provenance without expand
   ];
   assert.deepEqual(partitionFields(entity(warnings)).details, warnings);
   assert.deepEqual(sourceCaveats(entity(warnings)), [note, 'Source applicability is uncertain.']);
+});
+
+test('an overview puts role facts under the heading, contact facts in one strip and folds what asserts nothing', () => {
+  const person = children => ({ id: 'ali', label: 'Ali Al-Juboori', kind: 'entity', subtitle: 'person', children });
+  const title = field('title', 'Associate Professor of Computer Science');
+  const school = field('school', 'School of Science, Nursing, and Health', { category: 'academic' });
+  const department = field('department', 'School of Science, Nursing, and Health', { category: 'academic' });
+  const email = field('email', 'aaljuboo@ramapo.edu', { category: 'contact' });
+  const profile = field('profile_url', 'https://www.ramapo.edu/snh/faculty/ali-al-juboori/', { category: 'links' });
+  const name = field('name', 'Ali Al-Juboori');
+  const type = field('type', 'person');
+  const bio = field('bio', 'Office hours by appointment');
+  const courses = field('profile_courses', ['Computer Science I'], { category: 'academic' });
+  const preference = field('prefers_email', null, { status: 'unknown', category: 'contact', assertion: { limitations: ['Absence does not mean email is refused.'] } });
+  const teaching = field('teaching_interests', [], { status: 'unknown', category: 'academic' });
+  const conflict = field('phone', null, { status: 'conflicting', category: 'contact' });
+  const root = person([title, school, department, email, profile, name, type, bio, courses, preference, teaching, conflict]);
+  const before = structuredClone(root);
+  const fields = overviewFields(root);
+  assert.deepEqual(fields.headline, [title, school]);
+  assert.deepEqual(fields.contact, [email, profile, conflict]);
+  // General details read first, then academic ones.
+  assert.deepEqual(fields.main, [bio, courses]);
+  assert.deepEqual(fields.hidden.map(({ field, reason }) => [field.propertyKey, reason]), [
+    ['department', 'Same as school'], ['name', 'Shown as the heading'], ['type', 'Record metadata'],
+    ['prefers_email', 'Not published'], ['teaching_interests', 'Not published'],
+  ]);
+  // A folded field keeps its caveats; a disputed one is never folded.
+  assert.deepEqual(fields.hidden[3].field.values[0].assertion.limitations, ['Absence does not mean email is refused.']);
+  assert.strictEqual(fields.contact[2], conflict);
+  assert.deepEqual(root, before);
+  // Without a school, the department describes the entity; records have no headline.
+  assert.deepEqual(overviewFields(person([department, email])).headline, [department]);
+  assert.deepEqual(overviewFields({ ...person([title, email]), kind: 'record' }).headline, []);
+});
+
+test('an overview lists each source once and names what a derived source came from', () => {
+  const faculty = { id: 'faculty:140', collection: 'faculty', limitations: ['Faculty-profile course lists are undated.'] };
+  const directory = { id: 'contacts:1', collection: 'contacts', derived_from_source_id: 'faculty:140', limitations: [] };
+  const root = entity([field('email', 'a@ramapo.edu', { sourceId: 'contacts:1', source: directory }),
+    field('phone', '201-684-6232', { sourceId: 'contacts:1', source: directory }),
+    field('bio', 'Profile text', { sourceId: 'faculty:140', source: faculty })]);
+  const sources = overviewSources(root);
+  assert.deepEqual(sources.map(({ label, derivedFrom }) => [label, derivedFrom]), [['Directory entry', 'Faculty profile'], ['Faculty profile', undefined]]);
+  assert.deepEqual(sources[1].source.limitations, ['Faculty-profile course lists are undated.']);
+  assert.equal(initials('Ali Al-Juboori'), 'AA');
+  assert.equal(initials('Computer Science (CMPS)'), 'CC');
+  assert.equal(initials('Yolanda del\u00a0Amo'), 'YA');
+  assert.equal(shortUrl('https://www.ramapo.edu/snh/faculty/ali-al-juboori/'), 'ramapo.edu/snh/faculty/ali-al-juboori');
 });

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canonicalPhonePreview, collectionDescription, fieldLabel, initials, nodeSummary, overviewFields, overviewSources, photoUrl, shortUrl } from '../lib/graph-presentation.ts';
+import { canonicalPhonePreview, collectionDescription, fieldLabel, initials, namedLinks, nodeSummary, overviewFields, overviewSources, photoUrl, shortUrl, sourceLabel } from '../lib/graph-presentation.ts';
 import { buildContentSecurityPolicy, PHOTO_ORIGINS } from '../lib/security-headers.ts';
 
 const field = (label, value, options = {}) => {
@@ -159,4 +159,11 @@ test('a photo from an allowed site becomes the avatar, and the page policy allow
   assert.equal(overviewFields({ ...root, kind: 'record' }).photo, undefined);
   const images = buildContentSecurityPolicy({ nodeEnv: 'production' }).split('; ').find(rule => rule.startsWith('img-src'));
   assert.equal(images, `img-src 'self' data: blob: ${PHOTO_ORIGINS.join(' ')}`);
+});
+
+test('named links read as links, and anything else with other keys is left to its own shape', () => {
+  const documents = [{ name: 'PDF', url: 'https://www.ramapo.edu/plan.pdf' }, { name: 'Create My Plan (.doc)', url: 'https://www.ramapo.edu/plan.docx' }];
+  assert.deepEqual(namedLinks(documents), documents);
+  for (const value of [[], null, ['PDF'], [{ name: 'PDF' }], [{ name: 'PDF', url: 'x', size: 1 }], [...documents, 'text']]) assert.equal(namedLinks(value), undefined);
+  assert.equal(sourceLabel('graduation_plans'), 'Graduation plan');
 });

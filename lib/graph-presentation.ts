@@ -112,6 +112,7 @@ const SOURCE_LABELS: Record<string, string> = {
   contacts: 'Directory entry', faculty: 'Faculty profile', programs: 'Catalog program', courses: 'Catalog course',
   clubs: 'Archway group', events: 'Archway event', buildings: 'Campus map', schools: 'Schools page',
   subjects: 'Catalog subjects', campus_hours: 'Campus hours', dining_hours: 'Dining hours', menu: 'Dining menu',
+  graduation_plans: 'Graduation plan',
 };
 export const sourceLabel = (collection: string): string => SOURCE_LABELS[collection] ?? collection.replaceAll('_', ' ');
 
@@ -126,6 +127,15 @@ export function overviewSources(node: AttachmentNode): OverviewSource[] {
     const derivedFrom = origin ? (found.get(origin) ? sourceLabel(found.get(origin)!.collection) : origin) : undefined;
     return { source, label: sourceLabel(source.collection), ...(derivedFrom ? { derivedFrom } : {}) };
   });
+}
+
+/** A list of named links, such as a plan's PDF and document copies, or nothing. */
+export function namedLinks(value: unknown): { name: string; url: string }[] | undefined {
+  if (!Array.isArray(value) || !value.length) return;
+  const links = value.filter((item): item is { name: string; url: string } => Boolean(item) && typeof item === 'object' && !Array.isArray(item)
+    && typeof (item as { name?: unknown }).name === 'string' && typeof (item as { url?: unknown }).url === 'string'
+    && Object.keys(item).every(key => key === 'name' || key === 'url'));
+  return links.length === value.length ? links : undefined;
 }
 
 export function initials(name: string): string {

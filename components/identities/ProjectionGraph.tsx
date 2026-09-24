@@ -5,7 +5,7 @@ import { ArrowRight, ChevronDown, DoorOpen, ExternalLink, FileText, Folder, Info
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
 import {
-  canonicalPhonePreview, collectionDescription, fieldLabel, initials, nodeSummary, overviewFields,
+  canonicalPhonePreview, collectionDescription, fieldLabel, initials, namedLinks, nodeSummary, overviewFields,
   overviewSources, shortUrl, sourceLabel as collectionLabel, type OverviewFields, type OverviewSource,
 } from '@/lib/graph-presentation';
 import { groupConnections, type ConnectionGroup } from '@/lib/graph-connection-groups';
@@ -78,7 +78,7 @@ const ROOM_PREDICATES = ['office_at', 'located_at'];
 const FIELD_NOTES: Record<string, string> = { profile_courses: 'undated list, not current teaching' };
 /** The backend's label in sentence case, with URL capitalized. */
 const heading = (field: AttachmentNode): string => {
-  const label = fieldLabel(field).replace(/\burl\b/i, 'URL');
+  const label = fieldLabel(field).replace(/\burl\b/i, 'URL').replace(/\bgpa\b/i, 'GPA');
   return label ? label[0].toUpperCase() + label.slice(1) : label;
 };
 
@@ -207,7 +207,8 @@ function FactBody({ field, onSelect }: { field: AttachmentNode; onSelect: Select
       const phones = canonicalPhonePreview(field, value);
       return <div key={group.id} className={index ? 'border-t border-white/5 pt-3' : undefined}>
         {groups.length > 1 && <p className="mb-1 text-xs text-slate-500">{group.assertions.map(attached => attached.source ? collectionLabel(attached.source.collection) : 'Source unavailable').join(', ')}{(group.valid_from || group.valid_until) && ` · ${group.valid_from ?? '…'} – ${group.valid_until ?? '…'}`}</p>}
-        {phones !== undefined ? <p className="whitespace-pre-line text-sm text-slate-100">{phones}</p>
+        {namedLinks(value) ? <ul className="space-y-1 text-sm">{namedLinks(value)!.map((link, i) => { const url = safeSourceUrl(link.url); return <li key={i}>{url ? <a href={url} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:text-sky-100">{link.name}</a> : link.name}</li>; })}</ul>
+          : phones !== undefined ? <p className="whitespace-pre-line text-sm text-slate-100">{phones}</p>
           : list && list.every(item => item.length <= CHIP_LENGTH) ? <ul className="flex flex-wrap gap-1.5">{(expanded ? list : list.slice(0, 12)).map((item, i) => <li key={i} className="rounded-md bg-white/[0.06] px-2 py-0.5 text-sm text-slate-100">{item}</li>)}{list.length > 12 && <li><button onClick={() => setExpanded(v => !v)} className="px-1 text-sm text-sky-300 hover:text-sky-100">{expanded ? 'Show fewer' : `+${list.length - 12}`}</button></li>}</ul>
           : list ? <LongList items={list} />
           : <ValueContent value={value} label={fieldLabel(field)} />}
@@ -221,7 +222,8 @@ function FactBody({ field, onSelect }: { field: AttachmentNode; onSelect: Select
 const isTextList = (value: unknown): boolean => Array.isArray(value) && value.every(item => typeof item === 'string' || typeof item === 'number');
 /** A structured fact with no one-line reading, browsed a level down instead. */
 const opensValues = (field: AttachmentNode): boolean => field.children.length > 0
-  && (field.factValues ?? []).some(group => !isTextList(group.value)) && canonicalPhonePreview(field, field.factValues?.[0]?.value) === undefined;
+  && (field.factValues ?? []).some(group => !isTextList(group.value) && !namedLinks(group.value))
+  && canonicalPhonePreview(field, field.factValues?.[0]?.value) === undefined;
 
 /** Long entries, such as publications: a few at a time, each kept whole. */
 function LongList({ items }: { items: string[] }) {
@@ -460,6 +462,8 @@ function RecordCards({ node, onSelect }: { node: AttachmentNode; onSelect: Selec
 
 function displayValue(value: unknown): string {
   if (value === null) return 'No value provided';
+  const links = namedLinks(value);
+  if (links) return links.map(link => link.name).join(' · ');
   if (value === '') return 'Empty text';
   if (Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' || typeof item === 'number')) return value.join(' · ');
   if (Array.isArray(value) && value.length === 1) return '1 item';

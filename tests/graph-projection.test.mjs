@@ -32,10 +32,11 @@ test('record pages preserve repeated labels, boundaries, root assertions, edges 
   const root = projectionTree(merged, graph);
   const group = root.children.find(n => n.kind === 'group');
   assert.equal(group.children.length, 2);
-  assert.equal(group.subtitle, '2 of 2 records');
+  assert.equal(group.subtitle, '2 records');
+  assert.equal(projectionTree(first, graph).children.find(n => n.kind === 'group').subtitle, '1 of 2 records');
   assert.notEqual(group.children[0].id, group.children[1].id);
-  assert.match(group.children[0].subtitle, /Breakfast/);
-  assert.match(group.children[1].subtitle, /Lunch/);
+  assert.equal(group.children[0].subtitle, 'Breakfast');
+  assert.equal(group.children[1].subtitle, 'Lunch');
   assert.equal(root.children.filter(n => n.kind === 'property').length, 1);
   const calories = group.children[0].children.find(n => n.label === 'calories');
   assert.equal(calories.values[0].value, 0);
@@ -46,6 +47,18 @@ test('record pages preserve repeated labels, boundaries, root assertions, edges 
   assert.deepEqual(group.children[1].children.find(n => n.label === 'calories').values[0].source, source('menu:two'));
   assert.deepEqual(merged.sources.map(s => s.id), ['menu:root', 'menu:one', 'menu:two']);
   assert.equal(findAttachment(root, calories.id), calories);
+});
+
+test('a record reads as its context values, with its validity dates as one window', () => {
+  const p = fixture();
+  const dated = (id, context) => ({ ...record(id, 'Breakfast'), context: context.map(([key, value]) => prop(key, value, `${id}-${key}`, `menu:${id}`)) });
+  p.record_groups[0].records = [
+    dated('one', [['valid_from', '2026-09-23'], ['valid_until', '2026-09-23'], ['meal', 'Breakfast'], ['station', 'Savory']]),
+    dated('two', [['weekday', 'Friday'], ['valid_from', '2026-08-23'], ['valid_until', '2026-08-25']]),
+    dated('three', [['weekday', 'Monday'], ['valid_from', '2026-05-26'], ['valid_until', null], ['station', '']]),
+  ];
+  const records = projectionTree(p, graph).children.find(n => n.kind === 'group').children;
+  assert.deepEqual(records.map(r => r.subtitle), ['Breakfast · Savory · 2026-09-23', 'Friday · 2026-08-23 – 2026-08-25', 'Monday · from 2026-05-26']);
 });
 
 test('leaf semantics preserve false, null, empty containers, conflicts and structured descendants', () => {

@@ -1,29 +1,6 @@
 import { valueText, type AttachmentNode, type SourceRecord } from './graph-projection.ts';
 import { PHOTO_ORIGINS } from './security-headers.ts';
 
-const FACULTY_DERIVATION_NOTE = 'Derived from the linked faculty profile; these records are not independent corroboration.';
-
-/** Empty values may be summarized, but false/zero and structured records are
- * still facts. An array containing null is not the same as an empty array. */
-export function isEmptyValue(value: unknown): boolean {
-  if (value === null || value === undefined) return true;
-  if (typeof value === 'string') return value.trim() === '';
-  if (Array.isArray(value)) return value.length === 0;
-  return typeof value === 'object' && Object.keys(value).length === 0;
-}
-
-function needsAttention(node: AttachmentNode): boolean {
-  const values = node.values ?? [];
-  return node.status === 'conflicting' || node.status === 'multiple' || values.some(({ assertion, source }) =>
-    assertion.publication_status === 'not_published' || assertion.limitations.length > 0 ||
-    !source || source.limitations.some(text => text !== FACULTY_DERIVATION_NOTE || !source.derived_from_source_id) || source.freshness === 'stale');
-}
-
-/** Record-wide caveats remain above both primary and collapsed field sections. */
-export function sourceCaveats(node: AttachmentNode): string[] {
-  return [...new Set(node.children.flatMap(child => child.values?.flatMap(value => value.source?.limitations ?? []) ?? []))];
-}
-
 /** Format the backend's phone representation without parsing or changing it.
  * Extension-only and unparsed numbers remain exactly the supplied strings. */
 export function canonicalPhonePreview(node: AttachmentNode, value: unknown): string | undefined {
@@ -41,55 +18,10 @@ export function canonicalPhonePreview(node: AttachmentNode, value: unknown): str
 
 export function fieldLabel(node: AttachmentNode): string {
   if (node.kind === 'property') return node.label;
-  const label = node.label.replaceAll('_', ' ');
+  // Source keys read as words: transFat is "Trans fat" and vitaminA is "Vitamin A".
+  const label = node.label.replaceAll('_', ' ').replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ').map(word => word.length > 1 ? word.toLowerCase() : word).join(' ');
   return label ? label[0].toUpperCase() + label.slice(1) : label;
-}
-
-export interface DetailCard {
-  field: AttachmentNode;
-}
-export interface DetailSection {
-  label: string;
-  cards: DetailCard[];
-}
-
-/** Layout follows the backend's fact categories; source schemas do not decide
- * field meaning, contact normalization, or which facts belong together. */
-export function detailSections(owner: AttachmentNode, fields: AttachmentNode[]): DetailSection[] {
-  if (owner.kind === 'property' || owner.kind === 'value') return [{ label: 'Values', cards: fields.map(field => ({ field })) }];
-  const sections: DetailSection[] = [];
-  const labels = { contact: 'Contact', academic: 'Academic profile', links: 'Links', details: 'Details' };
-  for (const field of fields) {
-    const label = labels[field.category ?? 'details'];
-    let section = sections.find(section => section.label === label);
-    if (!section) { section = { label, cards: [] }; sections.push(section); }
-    section.cards.push({ field });
-  }
-  const order = ['Contact', 'Academic profile', 'Details', 'Links'];
-  return sections.sort((a, b) => order.indexOf(a.label) - order.indexOf(b.label));
-}
-
-/** Partition presentation only. Return the original nodes so assertion IDs,
- * distinct sources, caveats and navigation paths cannot be lost in a summary. */
-export function partitionFields(node: AttachmentNode): {
-  details: AttachmentNode[]; empty: AttachmentNode[]; sourceFields: AttachmentNode[];
-} {
-  const result = { details: [] as AttachmentNode[], empty: [] as AttachmentNode[], sourceFields: [] as AttachmentNode[] };
-  for (const child of node.children) {
-    if (child.kind !== 'property' && child.kind !== 'value') continue;
-    if (needsAttention(child)) {
-      result.details.push(child);
-    } else if (child.status === 'unknown' && !child.children.length && child.factValues?.length && child.factValues.every(value => isEmptyValue(value.value))) {
-      result.empty.push(child);
-    } else if ((node.kind === 'entity' || node.kind === 'record') &&
-      child.kind === 'property' && child.propertyKey === 'name' &&
-      child.factValues?.length === 1 && child.factValues[0].value === node.label) {
-      result.sourceFields.push(child);
-    } else {
-      result.details.push(child);
-    }
-  }
-  return result;
 }
 
 /** Explain the units without treating repeated record labels as duplicates. */
@@ -100,7 +32,7 @@ export function collectionDescription(node: AttachmentNode): string {
   if (node.kind === 'group' && node.label === 'Dining hours') {
     return 'Schedule records across meals, weekdays and validity periods. Open a record to check applicability.';
   }
-  return 'Open to explore individual records and their sources.';
+  return '';
 }
 
 export function nodeSummary(node: AttachmentNode): string {
@@ -142,16 +74,16 @@ export function photoUrl(field: AttachmentNode): string | undefined {
 const single = (field: AttachmentNode | undefined): unknown =>
   field?.factValues?.length === 1 ? field.factValues[0].value : undefined;
 
-/** A fact with no published value asserts nothing, so it folds away with its
- * caveats; values that disagree across sources or periods always stay visible. */
+/** A fact the backend marks unknown asserts nothing, so it folds away with its
+ * caveats. A known empty list, false or zero is a published fact and stays, and
+ * values that disagree across sources or periods are never folded. */
 export function overviewFields(node: AttachmentNode): OverviewFields {
   const fields = node.children.filter(child => child.kind === 'property' || child.kind === 'value');
   const result: OverviewFields = { headline: [], contact: [], main: [], hidden: [] };
   const school = fields.find(field => field.propertyKey === 'school' && field.status !== 'unknown');
   for (const field of fields) {
     const disputed = field.status === 'conflicting' || field.status === 'multiple';
-    const values = field.factValues ?? [];
-    if (!disputed && (field.status === 'unknown' || values.every(value => isEmptyValue(value.value)))) {
+    if (field.status === 'unknown') {
       result.hidden.push({ field, reason: 'Not published' });
     } else if (!disputed && single(field) === node.label) {
       result.hidden.push({ field, reason: 'Shown as the heading' });

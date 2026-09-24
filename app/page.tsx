@@ -16,11 +16,21 @@ interface ProbeBody {
   status?: string;
 }
 
+interface OpenApiSchema {
+  paths?: Record<string, Record<string, unknown>>;
+}
+
 export default async function OverviewPage() {
-  const [health, readiness] = await Promise.all([
+  const [health, readiness, schema] = await Promise.all([
     readBrainProbe<ProbeBody>('/health'),
     readBrainProbe<ProbeBody>('/readiness'),
+    readBrainProbe<OpenApiSchema>('/openapi.json'),
   ]);
+  // Counted from the Brain's own schema; a typed-in "3 endpoints" went stale
+  // as soon as the Brain grew logs, feedback, evals and panel routes.
+  const routeCount = schema.data?.paths
+    ? Object.values(schema.data.paths).reduce((total, methods) => total + Object.keys(methods).length, 0)
+    : null;
 
   const problem = readiness.problem ?? health.problem;
   const ready = !problem && health.data?.status === 'ok' && readiness.data?.status === 'ready';
@@ -43,7 +53,7 @@ export default async function OverviewPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
-          <Tile label="HTTP surface" value="3 endpoints" />
+          <Tile label="Brain routes" value={routeCount === null ? '—' : String(routeCount)} />
           <Tile label="Assistant" value="Campus + study help" />
         </div>
 

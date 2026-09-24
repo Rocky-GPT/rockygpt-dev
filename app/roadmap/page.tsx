@@ -69,10 +69,10 @@ export default function RoadmapPage() {
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
           <h2 className="text-sm font-semibold">Current boundary</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            The Dev UI currently reads <code className="font-mono text-foreground/80">GET /health</code>,{' '}
-            <code className="font-mono text-foreground/80">GET /readiness</code>, and{' '}
-            <code className="font-mono text-foreground/80">POST /v1/chat</code>.
-            It does not emulate data, logs, feedback, or other removed Brain behavior.
+            The Dev UI talks to the Brain only over HTTP: the health and readiness probes,{' '}
+            <code className="font-mono text-foreground/80">POST /v1/chat</code>, and the Brain&rsquo;s read
+            routes for logs, feedback, evals, documents, capabilities, releases and the campus graph.
+            It never reads the database directly.
           </p>
         </section>
       </main>

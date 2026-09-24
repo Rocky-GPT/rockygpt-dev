@@ -187,7 +187,7 @@ export const NAVIGATION: NavSection[] = [
         description: 'Live student turns, routes, and latency',
         icon: ScrollText,
         status: 'ready',
-        upstream: 'GET /v1/logs + SSE /stream',
+        upstream: 'GET /v1/logs, refreshed every 10 seconds',
       },
       {
         href: '/quality/feedback',

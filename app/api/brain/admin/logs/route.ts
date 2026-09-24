@@ -13,7 +13,13 @@ interface RawLogEntry {
   elapsedMs?: number;
   citations?: Array<{ title: string; url: string }>;
   origin?: 'client' | 'dev' | 'bot';
+  tools?: string[];
 }
+
+// Statuses the Brain returns for a turn that ran to completion. Anything else
+// (a timeout, an exhausted budget, a provider error) is a failed turn;
+// clarifications and partial answers used to be counted as errors too.
+const COMPLETED = new Set(['answered', 'partial', 'clarification', 'unavailable']);
 
 export async function GET(request: NextRequest) {
   const { url: brainUrl } = brainAddress();
@@ -49,7 +55,8 @@ export async function GET(request: NextRequest) {
       const id = entry.requestId || `turn-${idx}`;
       const status = entry.status || 'answered';
       const question = entry.question || (entry.messages && entry.messages[entry.messages.length - 1]?.content) || '';
-      const answer = entry.answer || (status === 'answered' ? '' : `Status: ${status}`);
+      // Never invent answer text; the status badge carries the outcome.
+      const answer = entry.answer || '';
       const origin: 'client' | 'dev' | 'bot' = entry.origin || 'client';
 
       return {
@@ -60,7 +67,7 @@ export async function GET(request: NextRequest) {
         assistant_message: answer,
         route: status,
         question_origin: origin,
-        tools_invoked: [],
+        tools_invoked: entry.tools || [],
         tool_arguments: {},
         citations: entry.citations || [],
         facts_extracted: [],
@@ -78,12 +85,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Compute Metrics across all logs
-    const totalLogs = allLogs.length;
-    const avgLatencyMs = totalLogs > 0
-      ? Math.round(allLogs.reduce((sum, l) => sum + l.latency_ms, 0) / totalLogs)
+    // The Brain counts every turn; this route reads the newest 500.
+    const totalLogs = typeof data.total === 'number' ? data.total : allLogs.length;
+    const avgLatencyMs = allLogs.length > 0
+      ? Math.round(allLogs.reduce((sum, l) => sum + l.latency_ms, 0) / allLogs.length)
       : 0;
-    const uniqueSessions = new Set(allLogs.map((l) => l.session_id)).size;
-    const errorCount = allLogs.filter((l) => l.route !== 'answered').length;
+    const errorCount = allLogs.filter((l) => !COMPLETED.has(l.route)).length;
+    const unverifiedCount = allLogs.filter((l) => l.route === 'unavailable').length;
     const clientCount = allLogs.filter((l) => l.question_origin === 'client').length;
     const devCount = allLogs.filter((l) => l.question_origin === 'dev').length;
     const botCount = allLogs.filter((l) => l.question_origin === 'bot').length;
@@ -91,7 +99,7 @@ export async function GET(request: NextRequest) {
     const metrics = {
       totalLogs,
       avgLatencyMs,
-      uniqueSessions,
+      unverifiedCount,
       errorCount,
       clientCount,
       devCount,

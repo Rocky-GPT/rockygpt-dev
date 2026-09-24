@@ -71,7 +71,7 @@ export interface AliasTable {
 
 /** Ordered as the filter shows them: human decisions first, then the source rules. */
 export const BASES: { basis: AliasBasis; label: string; description: string }[] = [
-  { basis: 'human_reviewed', label: 'Human-reviewed', description: 'A person approved it. No Ramapo source publishes it.' },
+  { basis: 'human_reviewed', label: 'Human-reviewed', description: 'A person approved it. No rule derives it; a linked page, when shown, uses it as a label.' },
   { basis: 'identity_map', label: 'Identity map', description: 'Listed in the reviewed identity map.' },
   { basis: 'record_name', label: 'Linked record name', description: 'A record linked to this identity publishes it as its name.' },
   { basis: 'department', label: 'Directory department', description: 'Its own directory entry publishes it as the department.' },

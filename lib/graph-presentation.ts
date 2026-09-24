@@ -1,4 +1,4 @@
-import { valueText, type AttachmentNode } from './graph-projection.ts';
+import { valueText, type AttachmentNode, type SourceRecord } from './graph-projection.ts';
 
 const FACULTY_DERIVATION_NOTE = 'Derived from the linked faculty profile; these records are not independent corroboration.';
 
@@ -110,4 +110,81 @@ export function nodeSummary(node: AttachmentNode): string {
   if (node.factValues?.length) return node.factValues.map(value => valueText(value.value)).join(' / ');
   if (node.pending) return 'Loading records…';
   return node.children.length ? `${node.children.length.toLocaleString()} details` : 'No published details';
+}
+
+/** Where each fact goes on an entity or record overview. Presentation only:
+ * the original nodes are returned, so assertions, sources and caveats stay intact. */
+export interface OverviewFields {
+  /** Role facts under the heading: title, and school (or department without one). */
+  headline: AttachmentNode[];
+  /** Contact facts and links, shown as one strip under the heading. */
+  contact: AttachmentNode[];
+  /** Every other published fact: general details first, then academic ones. */
+  main: AttachmentNode[];
+  /** Folded away with the reason: no published value, record metadata, or a repeat. */
+  hidden: { field: AttachmentNode; reason: string }[];
+}
+
+const single = (field: AttachmentNode | undefined): unknown =>
+  field?.factValues?.length === 1 ? field.factValues[0].value : undefined;
+
+/** A fact with no published value asserts nothing, so it folds away with its
+ * caveats; values that disagree across sources or periods always stay visible. */
+export function overviewFields(node: AttachmentNode): OverviewFields {
+  const fields = node.children.filter(child => child.kind === 'property' || child.kind === 'value');
+  const result: OverviewFields = { headline: [], contact: [], main: [], hidden: [] };
+  const school = fields.find(field => field.propertyKey === 'school' && field.status !== 'unknown');
+  for (const field of fields) {
+    const disputed = field.status === 'conflicting' || field.status === 'multiple';
+    const values = field.factValues ?? [];
+    if (!disputed && (field.status === 'unknown' || values.every(value => isEmptyValue(value.value)))) {
+      result.hidden.push({ field, reason: 'Not published' });
+    } else if (!disputed && single(field) === node.label) {
+      result.hidden.push({ field, reason: 'Shown as the heading' });
+    } else if (!disputed && field.propertyKey === 'type' && field.category === 'details') {
+      result.hidden.push({ field, reason: 'Record metadata' });
+    } else if (!disputed && field.propertyKey === 'department' && school && single(field) === single(school)) {
+      result.hidden.push({ field, reason: 'Same as school' });
+    } else if (node.kind === 'entity' && (field.propertyKey === 'title' || field.propertyKey === 'school'
+      || (field.propertyKey === 'department' && !school))) {
+      result.headline.push(field);
+    } else if (field.category === 'contact' || field.category === 'links') {
+      result.contact.push(field);
+    } else {
+      result.main.push(field);
+    }
+  }
+  const rank = (field: AttachmentNode) => (field.category === 'academic' ? 1 : 0);
+  result.main.sort((a, b) => rank(a) - rank(b));
+  return result;
+}
+
+const SOURCE_LABELS: Record<string, string> = {
+  contacts: 'Directory entry', faculty: 'Faculty profile', programs: 'Catalog program', courses: 'Catalog course',
+  clubs: 'Archway group', events: 'Archway event', buildings: 'Campus map', schools: 'Schools page',
+  subjects: 'Catalog subjects', campus_hours: 'Campus hours', dining_hours: 'Dining hours', menu: 'Dining menu',
+};
+export const sourceLabel = (collection: string): string => SOURCE_LABELS[collection] ?? collection.replaceAll('_', ' ');
+
+export interface OverviewSource { source: SourceRecord; label: string; derivedFrom?: string }
+
+/** Each source record behind the overview's facts, once, in first-use order. */
+export function overviewSources(node: AttachmentNode): OverviewSource[] {
+  const found = new Map<string, SourceRecord>();
+  for (const child of node.children) for (const { source } of child.values ?? []) if (source && !found.has(source.id)) found.set(source.id, source);
+  return [...found.values()].map(source => {
+    const origin = source.derived_from_source_id;
+    const derivedFrom = origin ? (found.get(origin) ? sourceLabel(found.get(origin)!.collection) : origin) : undefined;
+    return { source, label: sourceLabel(source.collection), ...(derivedFrom ? { derivedFrom } : {}) };
+  });
+}
+
+export function initials(name: string): string {
+  const letters = name.split(/\s+/).map(word => word.replace(/[^\p{L}]/gu, '')).filter(Boolean).map(word => word[0]);
+  return (letters.length > 1 ? letters[0] + letters[letters.length - 1] : letters[0] ?? '?').toUpperCase();
+}
+
+/** A URL without its scheme and trailing slash, for display next to the full link. */
+export function shortUrl(url: string): string {
+  return url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 }

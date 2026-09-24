@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ChevronDown, FileText, Layers3, Network, Search, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, DoorOpen, ExternalLink, FileText, Info, Layers3, Mail, Network, Phone, Search, X } from 'lucide-react';
 import { safeSourceUrl } from '@/lib/identities';
 import type { CampusEntity, KnowledgeIndex } from '@/lib/knowledge-graph';
-import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, nodeSummary, partitionFields, sourceCaveats } from '@/lib/graph-presentation';
-import { groupConnections } from '@/lib/graph-connection-groups';
+import {
+  canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, nodeSummary, overviewFields,
+  overviewSources, partitionFields, shortUrl, sourceCaveats, sourceLabel as collectionLabel, type OverviewSource,
+} from '@/lib/graph-presentation';
+import { groupConnections, type ConnectionGroup } from '@/lib/graph-connection-groups';
 import {
   appendProjectionPage, findAttachment, hasChildren, ProjectionError,
   projectionTree, readProjection, valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
@@ -55,13 +58,235 @@ export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onO
 
   if (error?.reload) return <p role="alert" className="text-sm text-amber-200">{error.message}</p>;
   if (error && !projection) return <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-amber-200"><p>Could not load {entity.name}. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry</button></div>;
-  return <div className="space-y-3" data-projection-version={projection?.projection_version}>
+  return <div className="mx-auto max-w-6xl space-y-3" data-projection-version={projection?.projection_version}>
     {loading && <p role="status" className="text-xs text-muted-foreground">{projection ? `Loading remaining records… ${projection.record_groups.reduce((n, g) => n + g.records.length, 0)} of ${projection.record_groups.reduce((n, g) => n + g.total, 0)}` : 'Loading entity projection…'}</p>}
     {error && <div role="alert" className="flex items-center gap-3 text-xs text-amber-200"><p>Only part of this projection is loaded. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry projection</button></div>}
-    {current && <AttachmentPanel key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />}
+    {current && (current.kind === 'entity' || current.kind === 'record'
+      ? <EntityOverview key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />
+      : <AttachmentPanel key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />)}
     {projection && !current && <p role="status" className="text-sm text-muted-foreground">{loading ? 'Loading this attachment…' : 'This attachment is unavailable.'} {!loading && <button className={control} onClick={onRoot}>Return to entity</button>}</p>}
     {projection && (!projection.properties_complete || projection.coverage.length > 0) && <details className="text-xs text-amber-200"><summary className="cursor-pointer">Projection coverage</summary><p className="mt-2">{projection.coverage.length ? 'Published values withheld or incomplete in this projection:' : 'This is a partial projection.'}</p><ul className="mt-2 max-h-52 space-y-2 overflow-auto">{projection.coverage.map((issue, index) => <li key={index}>{[issue.collection, issue.record_id, issue.reason, issue.fields.join(', '), issue.detail].filter(Boolean).join(' · ')}</li>)}</ul></details>}
   </div>;
+}
+
+type Select = (node: AttachmentNode) => void;
+const ROOM_PREDICATES = ['office_at', 'located_at'];
+// What a field's name already implies, said where the value is read.
+const FIELD_NOTES: Record<string, string> = { profile_courses: 'undated list, not current teaching' };
+/** The backend's label in sentence case, with URL capitalized. */
+const heading = (field: AttachmentNode): string => {
+  const label = fieldLabel(field).replace(/\burl\b/i, 'URL');
+  return label ? label[0].toUpperCase() + label.slice(1) : label;
+};
+
+/** An entity or record at a glance: who or what it is, how to reach it, its facts,
+ * its connections, and each source once. Evidence opens beside the fact it supports. */
+function EntityOverview({ node, onSelect }: { node: AttachmentNode; onSelect: Select }) {
+  const [openFact, setOpenFact] = useState<string>();
+  const [evidence, setEvidence] = useState<AttachmentNode>();
+  const fields = overviewFields(node);
+  const relationships = node.children.filter(child => child.kind === 'relationship');
+  const connections = groupConnections(relationships);
+  const collections = node.children.filter(child => child.kind === 'group');
+  const sources = overviewSources(node);
+  const room = relationships.find(child => child.target && child.relationship?.direction === 'outgoing'
+    && ROOM_PREDICATES.includes(child.relationship.predicate));
+  const toggle = (id: string) => setOpenFact(current => (current === id ? undefined : id));
+  const openHeader = [...fields.headline, ...fields.contact].find(field => field.id === openFact);
+  return <section aria-label={`Overview of ${node.label}`} className="min-w-0 space-y-4">
+    <header className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+      <div className="flex items-start gap-4">
+        <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sky-400/15 text-lg font-semibold text-sky-200">{initials(node.label)}</div>
+        <div className="min-w-0 flex-1">
+          <h2 className="break-words text-2xl font-semibold tracking-tight text-slate-50">{node.label}</h2>
+          {fields.headline.length > 0 && <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-6 text-slate-300">{fields.headline.map((field, index) => <span key={field.id} className="inline-flex items-center gap-1.5">
+            {index > 0 && <span aria-hidden="true" className="text-slate-500">·</span>}<FactInline field={field} /><EvidenceCount field={field} open={openFact === field.id} onToggle={() => toggle(field.id)} />
+          </span>)}</p>}
+          {node.kind === 'record' && node.subtitle && <p className="mt-1 break-words text-sm text-slate-400">{node.subtitle}</p>}
+        </div>
+        <span className="shrink-0 rounded-md border border-white/10 px-2 py-1 text-[11px] uppercase tracking-wider text-slate-400">{node.kind === 'entity' ? node.subtitle : 'Record'}</span>
+      </div>
+      {fields.contact.length > 0 && <dl className="mt-5 flex flex-wrap gap-x-10 gap-y-4 border-t border-white/10 pt-4">{fields.contact.map(field => <div key={field.id} className="min-w-0 max-w-full">
+        <dt className="flex items-center gap-1.5 text-xs text-slate-400"><FieldIcon field={field} />{heading(field)}</dt>
+        <dd className="mt-1 flex min-w-0 items-baseline gap-1.5 text-sm text-slate-100">
+          <FactInline field={field} />
+          <EvidenceCount field={field} open={openFact === field.id} onToggle={() => toggle(field.id)} />
+        </dd>
+        {room?.target && ['offices', 'office'].includes(field.propertyKey ?? '') && <dd className="mt-0.5 text-xs"><button onClick={() => onSelect(room)} className="text-left text-sky-300 hover:text-sky-100">in {room.label}</button></dd>}
+      </div>)}</dl>}
+      {openHeader && <div className="mt-4"><EvidencePanel field={openHeader} /></div>}
+    </header>
+
+    <div className={`grid items-start gap-4 ${connections.length ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]' : ''}`}>
+      <div className="min-w-0 space-y-4">
+        {collections.length > 0 && <section aria-label="Records" className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
+          <h3 className="px-5 pt-4 text-xs font-medium text-slate-400">Records</h3>
+          <ul className="mt-2 divide-y divide-white/5">{collections.map(child => <li key={child.id}><button aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} className="flex w-full items-center justify-between gap-3 px-5 py-3 text-left hover:bg-sky-400/5">
+            <span className="min-w-0"><span className="block text-sm font-medium text-slate-100">{child.label}</span><span className="mt-0.5 block text-xs text-slate-400">{nodeSummary(child)}</span></span>
+            <ArrowRight size={15} className="shrink-0 text-sky-300" aria-hidden="true" />
+          </button></li>)}</ul>
+        </section>}
+        {fields.main.length > 0 && <section aria-label="Details" className="divide-y divide-white/5 rounded-2xl border border-white/10 bg-white/[0.02]">{fields.main.map(field => <div key={field.id} className="px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-medium text-slate-400">{heading(field)}{FIELD_NOTES[field.propertyKey ?? ''] && <span className="font-normal text-slate-500"> · {FIELD_NOTES[field.propertyKey ?? '']}</span>}</p>
+            <EvidenceCount field={field} open={openFact === field.id} onToggle={() => toggle(field.id)} />
+          </div>
+          <div className="mt-1.5"><FactBody field={field} onSelect={onSelect} /></div>
+          {openFact === field.id && <div className="mt-3"><EvidencePanel field={field} /></div>}
+        </div>)}</section>}
+        {!fields.main.length && !collections.length && !fields.contact.length && !fields.headline.length && <p className="rounded-2xl border border-dashed border-white/15 p-6 text-sm text-slate-400">{node.pending ? 'Loading records…' : 'No published details.'}</p>}
+      </div>
+      {connections.length > 0 && <aside aria-label="Connections" className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+        {connections.map(group => <ConnectionList key={group.key} group={group} onSelect={onSelect} onEvidence={setEvidence} />)}
+      </aside>}
+    </div>
+
+    {(sources.length > 0 || fields.hidden.length > 0) && <footer className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4">
+      {sources.length > 0 && <section aria-label="Sources">
+        <h3 className="text-xs font-medium text-slate-400">Sources</h3>
+        <ul className="mt-2 space-y-3">{sources.map(summary => <SourceLine key={summary.source.id} summary={summary} />)}</ul>
+      </section>}
+      {fields.hidden.length > 0 && <details className="group border-t border-white/10 pt-3">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">{fields.hidden.length} {fields.hidden.length === 1 ? 'field' : 'fields'} not shown<ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+        <ul className="mt-3 divide-y divide-white/5 overflow-hidden rounded-xl border border-white/10">{fields.hidden.map(({ field, reason }) => <li key={field.id} className="px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm text-slate-200">{heading(field)}</span>
+            <span className="flex items-center gap-2 text-xs text-slate-500">{reason}<EvidenceCount field={field} open={openFact === field.id} onToggle={() => toggle(field.id)} /></span>
+          </div>
+          {reason !== 'Not published' && <p className="mt-1 break-words text-xs text-slate-400">{factText(field)}</p>}
+          {fieldWarnings(field).map(text => <p key={text} className="mt-1 text-xs leading-5 text-amber-200/80">{text}</p>)}
+          {openFact === field.id && <div className="mt-3"><EvidencePanel field={field} /></div>}
+        </li>)}</ul>
+      </details>}
+    </footer>}
+    {evidence && <RelationshipEvidence node={evidence} close={() => setEvidence(undefined)} />}
+  </section>;
+}
+
+function FieldIcon({ field }: { field: AttachmentNode }) {
+  const key = field.propertyKey ?? '';
+  const Icon = key === 'email' ? Mail : ['phones', 'phone'].includes(key) ? Phone : ['offices', 'office'].includes(key) ? DoorOpen
+    : field.category === 'links' ? ExternalLink : Info;
+  return <Icon size={13} className="shrink-0" aria-hidden="true" />;
+}
+
+/** One value as text: canonical phones, lists joined, links shortened beside their full URL. */
+function valueLine(field: AttachmentNode, value: unknown): string {
+  return canonicalPhonePreview(field, value) ?? displayValue(value);
+}
+function factText(field: AttachmentNode): string {
+  return (field.factValues ?? []).map(group => valueLine(field, group.value)).join(' / ');
+}
+
+function FactInline({ field }: { field: AttachmentNode }) {
+  const groups = field.factValues ?? [];
+  return <span className="inline-flex min-w-0 flex-wrap items-baseline gap-x-1.5">
+    {groups.map((group, index) => {
+      const url = typeof group.value === 'string' ? safeSourceUrl(group.value) : undefined;
+      return <span key={group.id} className="min-w-0 break-words">
+        {index > 0 && <span aria-hidden="true" className="text-slate-600">/ </span>}
+        {field.propertyKey === 'email' && typeof group.value === 'string'
+          ? <a href={`mailto:${group.value}`} className="text-sky-300 hover:text-sky-100">{group.value}</a>
+          : url && field.category === 'links'
+            ? <a href={url} target="_blank" rel="noopener noreferrer" title={url} className="block max-w-[22rem] truncate text-sky-300 hover:text-sky-100">{field.propertyKey === 'image_url' ? 'Open photo' : shortUrl(url)}</a>
+            : <span className="whitespace-pre-line">{valueLine(field, group.value)}</span>}
+      </span>;
+    })}
+    {field.status === 'conflicting' && <span className="rounded bg-amber-300/10 px-1.5 text-[11px] text-amber-200">sources differ</span>}
+  </span>;
+}
+
+const CHIP_LENGTH = 64;
+function FactBody({ field, onSelect }: { field: AttachmentNode; onSelect: Select }) {
+  const [expanded, setExpanded] = useState(false);
+  const groups = field.factValues ?? [];
+  return <div className="space-y-3">
+    {groups.map((group, index) => {
+      const value = group.value;
+      const list = isTextList(value) ? (value as unknown[]).map(String) : undefined;
+      const phones = canonicalPhonePreview(field, value);
+      return <div key={group.id} className={index ? 'border-t border-white/5 pt-3' : undefined}>
+        {groups.length > 1 && <p className="mb-1 text-xs text-slate-500">{group.assertions.map(attached => attached.source ? collectionLabel(attached.source.collection) : 'Source unavailable').join(', ')}{(group.valid_from || group.valid_until) && ` · ${group.valid_from ?? '…'} – ${group.valid_until ?? '…'}`}</p>}
+        {phones !== undefined ? <p className="whitespace-pre-line text-sm text-slate-100">{phones}</p>
+          : list && list.every(item => item.length <= CHIP_LENGTH) ? <ul className="flex flex-wrap gap-1.5">{(expanded ? list : list.slice(0, 12)).map((item, i) => <li key={i} className="rounded-md bg-white/[0.06] px-2 py-0.5 text-sm text-slate-100">{item}</li>)}{list.length > 12 && <li><button onClick={() => setExpanded(v => !v)} className="px-1 text-sm text-sky-300 hover:text-sky-100">{expanded ? 'Show fewer' : `+${list.length - 12}`}</button></li>}</ul>
+          : list ? <LongList items={list} />
+          : <ValueContent value={value} label={fieldLabel(field)} />}
+      </div>;
+    })}
+    {field.children.length > 0 && groups.some(group => !isTextList(group.value)) && canonicalPhonePreview(field, groups[0]?.value) === undefined && <button aria-label={`Open ${field.label}`} onClick={() => onSelect(field)} className="flex items-center gap-1.5 text-xs text-sky-300 hover:text-sky-100">Explore values <ArrowRight size={12} aria-hidden="true" /></button>}
+    {fieldWarnings(field).map(text => <p key={text} className="text-xs leading-5 text-amber-200">{text}</p>)}
+  </div>;
+}
+
+const isTextList = (value: unknown): boolean => Array.isArray(value) && value.every(item => typeof item === 'string' || typeof item === 'number');
+
+/** Long entries, such as publications: a few at a time, each kept whole. */
+function LongList({ items }: { items: string[] }) {
+  const [expanded, setExpanded] = useState(false);
+  const preview = items.some(item => item.length > 120) ? 2 : 3;
+  return <>
+    <ul className="space-y-2 text-sm leading-6 text-slate-100">{(expanded ? items : items.slice(0, preview)).map((item, i) => <li key={i} className="break-words">{item}</li>)}</ul>
+    {items.length > preview && <button onClick={() => setExpanded(value => !value)} className="mt-1 text-xs text-sky-300 hover:text-sky-100">{expanded ? 'Show fewer' : `Show all ${items.length}`}</button>}
+  </>;
+}
+
+/** A field's own caveats; a stale or derived source is said once, under Sources. */
+function fieldWarnings(field: AttachmentNode): string[] {
+  const warnings = new Set<string>();
+  if (field.status === 'multiple') warnings.add('Several values apply in different periods.');
+  for (const { assertion, source } of field.values ?? []) {
+    if (!source) warnings.add('A source record is unavailable.');
+    if (assertion.publication_status === 'not_published') warnings.add('A source does not mark this field as published.');
+    for (const text of assertion.limitations) warnings.add(text);
+  }
+  return [...warnings];
+}
+
+function EvidenceCount({ field, open, onToggle }: { field: AttachmentNode; open: boolean; onToggle: () => void }) {
+  const count = (field.factValues ?? []).reduce((total, group) => total + group.evidence_count, 0) || (field.values ?? []).length;
+  return <button type="button" aria-expanded={open} aria-label={`${count} ${count === 1 ? 'source' : 'sources'} for ${fieldLabel(field)}`} title="Show evidence" onClick={onToggle}
+    className={`inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border px-1.5 text-[10px] tabular-nums ${open ? 'border-sky-300/60 text-sky-200' : 'border-white/15 text-slate-400 hover:border-sky-300/50 hover:text-sky-200'}`}>{count}</button>;
+}
+
+function EvidencePanel({ field }: { field: AttachmentNode }) {
+  const attached = (field.factValues ?? []).flatMap(group => group.assertions);
+  return <div className="rounded-xl border border-sky-300/15 bg-sky-400/[0.04] p-4 text-xs text-slate-300">
+    <p className="mb-3 font-medium text-slate-200">Evidence for {fieldLabel(field)}</p>
+    <div className="space-y-4">{attached.map((value, index) => <div key={`${value.assertion.id}:${index}`} className={index ? 'border-t border-white/10 pt-3' : undefined}>
+      <p className="mb-2 text-slate-400">{value.source ? collectionLabel(value.source.collection) : 'Source unavailable'}</p>
+      <AssertionSource attached={value} />
+    </div>)}</div>
+  </div>;
+}
+
+const PREVIEW = 5;
+function ConnectionList({ group, onSelect, onEvidence }: { group: ConnectionGroup; onSelect: Select; onEvidence: (node: AttachmentNode) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? group.nodes : group.nodes.slice(0, PREVIEW);
+  return <section aria-label={`${group.label} connections`}>
+    <h3 className="flex items-center justify-between gap-2 text-xs font-medium text-slate-400"><span className="first-letter:uppercase">{group.label}</span><span className="tabular-nums text-slate-500">{group.nodes.length}</span></h3>
+    <ul className="mt-2">{visible.map(child => <li key={child.id} className="group -mx-2 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-white/[0.04]">
+      {child.target ? <button aria-label={`Open ${child.label}`} onClick={() => onSelect(child)} title={child.label} className="min-w-0 flex-1 truncate text-left text-sm text-sky-200 hover:text-sky-100">{child.label}</button>
+        : <span className="text-sm text-amber-200">{child.label}</span>}
+      {child.relationship && <button aria-label={`Evidence for ${child.subtitle}: ${child.label}`} title="Relationship evidence" onClick={() => onEvidence(child)} className="shrink-0 rounded p-1 text-slate-500 opacity-60 hover:text-sky-200 focus-visible:opacity-100 group-hover:opacity-100"><FileText size={13} aria-hidden="true" /></button>}
+    </li>)}</ul>
+    {group.nodes.length > PREVIEW && <button onClick={() => setExpanded(value => !value)} className="mt-1 text-xs text-slate-400 hover:text-sky-200">{expanded ? 'Show fewer' : `+${group.nodes.length - PREVIEW} more`}</button>}
+  </section>;
+}
+
+const FRESHNESS: Record<string, string> = { fresh: 'text-emerald-300', stale: 'text-amber-200', unknown: 'text-slate-400', static: 'text-slate-400' };
+function SourceLine({ summary: { source, label, derivedFrom } }: { summary: OverviewSource }) {
+  const url = source.source_url ? safeSourceUrl(source.source_url) : undefined;
+  return <li className="text-sm">
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <span className="text-slate-100">{label}</span>
+      {derivedFrom && <span className="text-xs text-slate-400">derived from the {derivedFrom.toLowerCase()}</span>}
+      <span className={`text-xs ${FRESHNESS[source.freshness] ?? 'text-slate-400'}`}>{source.freshness}</span>
+      {source.collected_at && <span className="text-xs text-slate-500">collected {source.collected_at.slice(0, 10)}</span>}
+      {url && <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-sky-300 hover:text-sky-100">{shortUrl(url)}</a>}
+    </div>
+    {source.limitations.map(text => <p key={text} className="mt-1 text-xs leading-5 text-slate-400">{text}</p>)}
+  </li>;
 }
 
 function AttachmentPanel({ node, onSelect }: { node: AttachmentNode; onSelect: (node: AttachmentNode) => void }) {

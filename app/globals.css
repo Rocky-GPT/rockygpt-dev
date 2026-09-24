@@ -26,6 +26,9 @@
    * of latent.
    */
   :root {
+    /* Native scrollbars and form controls draw dark too; without this the
+       sidebar and every scrolling panel carried a bright white scrollbar. */
+    color-scheme: dark;
     --background: #1a1a1a;
     --foreground: #e5e5e5;
 

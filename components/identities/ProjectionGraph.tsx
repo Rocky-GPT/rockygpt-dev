@@ -16,8 +16,11 @@ import {
 
 const control = 'rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5';
 
-export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onOpen, onRoot }: {
-  graph: KnowledgeIndex; entity: CampusEntity; attachmentId?: string;
+/** The readable overview, or the cards that open one level of the graph at a time. */
+export type GraphLayout = 'overview' | 'cards';
+
+export function ProjectionGraph({ graph, entity, attachmentId, layout, onAttachment, onOpen, onRoot }: {
+  graph: KnowledgeIndex; entity: CampusEntity; attachmentId?: string; layout: GraphLayout;
   onAttachment: (id: string, label: string) => void;
   onOpen: (node: CampusEntity, via?: string) => void; onRoot: () => void;
 }) {
@@ -58,10 +61,10 @@ export function ProjectionGraph({ graph, entity, attachmentId, onAttachment, onO
 
   if (error?.reload) return <p role="alert" className="text-sm text-amber-200">{error.message}</p>;
   if (error && !projection) return <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-amber-200"><p>Could not load {entity.name}. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry</button></div>;
-  return <div className="mx-auto max-w-6xl space-y-3" data-projection-version={projection?.projection_version}>
+  return <div className={`space-y-3 ${layout === 'overview' ? 'mx-auto max-w-6xl' : ''}`} data-projection-version={projection?.projection_version}>
     {loading && <p role="status" className="text-xs text-muted-foreground">{projection ? `Loading remaining records… ${projection.record_groups.reduce((n, g) => n + g.records.length, 0)} of ${projection.record_groups.reduce((n, g) => n + g.total, 0)}` : 'Loading entity projection…'}</p>}
     {error && <div role="alert" className="flex items-center gap-3 text-xs text-amber-200"><p>Only part of this projection is loaded. {error.message}</p><button className={control} onClick={() => setRetry(n => n + 1)}>Retry projection</button></div>}
-    {current && (current.kind === 'entity' || current.kind === 'record'
+    {current && (layout === 'overview' && (current.kind === 'entity' || current.kind === 'record')
       ? <EntityOverview key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />
       : <AttachmentPanel key={current.id} node={current} onSelect={child => child.target ? onOpen(child.target, child.subtitle) : onAttachment(child.id, child.label)} />)}
     {projection && !current && <p role="status" className="text-sm text-muted-foreground">{loading ? 'Loading this attachment…' : 'This attachment is unavailable.'} {!loading && <button className={control} onClick={onRoot}>Return to entity</button>}</p>}

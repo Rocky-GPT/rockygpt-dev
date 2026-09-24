@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronRight, Download, Home, RefreshCw, Search } from 'lucide-react';
-import { ProjectionGraph } from './ProjectionGraph';
+import { ArrowRight, ChevronRight, Download, Home, LayoutDashboard, LayoutGrid, RefreshCw, Search } from 'lucide-react';
+import { ProjectionGraph, type GraphLayout } from './ProjectionGraph';
 import { CAMPUS, kindLabel, traverse, type CampusEntity, type KnowledgeIndex, type TraversalStep } from '@/lib/knowledge-graph';
 
 async function read<T>(operation: string, params: URLSearchParams, signal?: AbortSignal): Promise<T> {
@@ -13,6 +13,15 @@ async function read<T>(operation: string, params: URLSearchParams, signal?: Abor
 }
 const button = 'rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5 disabled:opacity-30';
 const PAGE_SIZE = 8;
+const LAYOUTS = [{ value: 'overview', label: 'Overview', Icon: LayoutDashboard }, { value: 'cards', label: 'Cards', Icon: LayoutGrid }] as const;
+const LAYOUT_KEY = 'rockygpt-dev:campus-graph-layout';
+function savedLayout(): GraphLayout {
+  try {
+    return window.localStorage.getItem(LAYOUT_KEY) === 'cards' ? 'cards' : 'overview';
+  } catch {
+    return 'overview';
+  }
+}
 
 export function KnowledgeExplorer() {
   const [graph, setGraph] = useState<KnowledgeIndex>();
@@ -40,6 +49,8 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
   const [searchLimit, setSearchLimit] = useState(PAGE_SIZE);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState('');
+  // Kept across entities and visits; the explorer only renders in the browser.
+  const [layout, setLayout] = useState<GraphLayout>(savedLayout);
   const current = path.at(-1)!;
   const entity = current.type === 'entity' || current.type === 'attachment' ? graph.nodes.find(node => node.id === (current.type === 'entity' ? current.id : current.entityId)) : undefined;
   const categories = useMemo(() => [...new Set(graph.nodes.map(node => node.kind))].map(kind => ({ kind, label: kindLabel(kind), count: graph.nodes.filter(node => node.kind === kind).length })), [graph]);
@@ -53,6 +64,14 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
     window.history.replaceState(null, '', url);
   }
   function open(node: CampusEntity, via?: string) { navigate(traverse(path, node, via)); }
+  function changeLayout(next: GraphLayout) {
+    setLayout(next);
+    try {
+      window.localStorage.setItem(LAYOUT_KEY, next);
+    } catch {
+      // The layout still changes for this visit when browser storage is unavailable.
+    }
+  }
   function category(kind: string) { navigate([...path, { type: 'category', kind, label: kindLabel(kind), query: '' }]); }
   function updateCategory(change: { query: string }) {
     setPath(previous => previous.map((step, index) => index === previous.length - 1 && step.type === 'category' ? { ...step, ...change } : step));
@@ -84,7 +103,8 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
               <button className="flex min-w-0 items-center gap-2 rounded px-1 py-1 text-sky-200 hover:bg-white/5" title={step.label} aria-current={index === path.length - 1 ? 'location' : undefined} aria-label={index === 0 ? 'Ramapo College home' : undefined} onClick={() => navigate(path.slice(0, index + 1))}>{index === 0 && <Home size={15} />}<span className="max-w-64 truncate">{step.label}</span></button>
             </li>)}
           </ol></nav>
-          {path.length > 1 && <button className={`${button} flex shrink-0 items-center gap-1`} onClick={() => navigate(path.slice(0, -1))}><ArrowLeft size={13} />Back</button>}
+          {entity && <div role="group" aria-label="Entity layout" className="flex shrink-0 rounded-lg border border-white/15 p-0.5">{LAYOUTS.map(({ value, label, Icon }) => <button key={value} type="button" aria-pressed={layout === value} onClick={() => changeLayout(value)}
+            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs ${layout === value ? 'bg-sky-400/15 text-sky-100' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}`}><Icon size={13} aria-hidden="true" />{label}</button>)}</div>}
         </div>
         <label className="flex items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-3"><Search size={15} /><input aria-label="Search campus entities" placeholder="Search people, courses, clubs, places…" value={search} onChange={event => { setSearch(event.target.value); setSearchLimit(PAGE_SIZE); }} className="min-w-0 flex-1 bg-transparent py-3 text-xs outline-none" /></label>
         {search.trim() && <div aria-label="Entity search results" className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{searchResults.slice(0, searchLimit).map(node => <EntityButton key={node.id} node={node} onClick={() => open(node, 'search')} />)}<p className="col-span-full text-xs text-muted-foreground">{searchResults.length} matching entities</p>{searchResults.length > searchLimit && <button className={button} onClick={() => setSearchLimit(value => value + PAGE_SIZE)}>Show more results</button>}</div>}
@@ -92,7 +112,7 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
       <div className="space-y-6 p-5">
         {current.type === 'campus' && <><div><h2 className="text-lg font-semibold">Explore Ramapo College</h2><p className="mt-2 text-sm text-muted-foreground">Choose a starting point, then follow the connections.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{categories.map(item => <button key={item.kind} onClick={() => category(item.kind)} className="rounded-xl border border-sky-400/20 bg-sky-950/20 p-5 text-left hover:border-sky-300"><span className="block font-medium text-sky-100">{item.label}</span><span className="mt-2 block text-xs text-muted-foreground">{item.count.toLocaleString()} entities <ArrowRight className="ml-2 inline" size={13} /></span></button>)}</div></>}
         {current.type === 'category' && <><h2 className="text-lg font-semibold">{current.label}</h2><input aria-label={`Filter ${current.label}`} value={current.query} onChange={event => updateCategory({ query: event.target.value })} placeholder={`Find in ${current.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" /><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{categoryNodes.map(node => <EntityButton key={node.id} node={node} onClick={() => open(node)} />)}</div><p className="text-xs text-muted-foreground">{categoryNodes.length.toLocaleString()} {current.query.trim() ? 'matching entities' : 'entities'}</p></>}
-        {entity && <ProjectionGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} onOpen={open}
+        {entity && <ProjectionGraph key={`${graph.dataset_version}:${entity.id}`} graph={graph} entity={entity} layout={layout} onOpen={open}
           attachmentId={current.type === 'attachment' ? current.nodeId : undefined}
           onAttachment={(nodeId, label) => navigate([...path, { type: 'attachment', label, entityId: entity.id, nodeId }])}
           onRoot={() => { const index = path.findLastIndex(step => step.type === 'entity' && step.id === entity.id); navigate(path.slice(0, index + 1)); }} />}

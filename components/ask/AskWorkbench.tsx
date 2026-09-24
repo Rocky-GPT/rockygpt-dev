@@ -24,6 +24,29 @@ interface SendOptions {
   signal?: AbortSignal;
   priorMessages?: ChatMessageInput[];
   select?: boolean;
+  bulk?: boolean;
+}
+
+/**
+ * The most recent exchanges that fit the Brain's limits (80 messages, 48,000
+ * characters), using the student app's half-size budget. Every successful
+ * turn used to travel with each typed question, so after a 100-question bulk
+ * run every question afterwards failed with HTTP 422.
+ */
+const HISTORY_MESSAGES = 40;
+const HISTORY_CHARACTERS = 24_000;
+
+function recentHistory(messages: ChatMessageInput[], nextMessage: string): ChatMessageInput[] {
+  const kept: ChatMessageInput[] = [];
+  let budget = HISTORY_CHARACTERS - nextMessage.length;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (kept.length >= HISTORY_MESSAGES - 1 || message.content.length > budget) break;
+    kept.unshift(message);
+    budget -= message.content.length;
+  }
+  while (kept.length > 0 && kept[0].role !== 'user') kept.shift();
+  return kept;
 }
 
 type ConversationExportStatus = 'idle' | 'copied' | 'downloaded' | 'copy-error';
@@ -53,6 +76,15 @@ export function AskWorkbench() {
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
+
+  // The bulk run's progress and Stop button live in this page. Leaving the
+  // page used to leave a paid run going with no way to stop it, writing turns
+  // into the session behind the next page's back, so leaving stops it.
+  const bulkStopRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    bulkStopRef.current = bulk?.running ? bulk.stop : null;
+  }, [bulk]);
+  useEffect(() => () => bulkStopRef.current?.(), []);
 
   useEffect(
     () => () => {
@@ -85,16 +117,18 @@ export function AskWorkbench() {
   }, [conversationExportOpen]);
 
   const send = useCallback(async (message: string, options: SendOptions = {}): Promise<Turn> => {
-    const priorMessages =
+    const priorMessages = recentHistory(
       options.priorMessages ??
-      turnsRef.current.flatMap<ChatMessageInput>((turn) => {
-        const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-        if (turn.status !== 'ok' || !answer) return [];
-        return [
-          { role: 'user', content: turn.question },
-          { role: 'assistant', content: answer },
-        ];
-      });
+        turnsRef.current.flatMap<ChatMessageInput>((turn) => {
+          const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+          if (turn.bulk || turn.status !== 'ok' || !answer) return [];
+          return [
+            { role: 'user', content: turn.question },
+            { role: 'assistant', content: answer },
+          ];
+        }),
+      message
+    );
     const body = buildBody({ message }, priorMessages);
     const requestText = JSON.stringify(body);
     const localId = crypto.randomUUID();
@@ -106,6 +140,7 @@ export function AskWorkbench() {
       requestText,
       status: 'pending',
       startedAt,
+      bulk: options.bulk,
     };
 
     turnsRef.current = [...turnsRef.current, pending];
@@ -386,6 +421,7 @@ async function runBulk(
       signal: controller.signal,
       priorMessages: preserveHistory ? history : [],
       select: false,
+      bulk: true,
     });
     asked += 1;
     if (turn.status === 'failed') failed += 1;

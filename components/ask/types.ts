@@ -36,4 +36,6 @@ export interface Turn {
   failure?: string;
   startedAt: number;
   latencyMs?: number;
+  /** Sent by the bulk runner; never replayed as a typed question's history. */
+  bulk?: boolean;
 }

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { AskSessionProvider } from '@/components/ask/AskSession';
-import { Sidebar } from './Sidebar';
+import { ShellFrame } from './ShellFrame';
 
 /**
  * The persistent frame: sidebar left, page right.
@@ -15,11 +15,8 @@ import { Sidebar } from './Sidebar';
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-dvh overflow-hidden bg-background text-foreground">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
-        <AskSessionProvider>{children}</AskSessionProvider>
-      </div>
-    </div>
+    <ShellFrame>
+      <AskSessionProvider>{children}</AskSessionProvider>
+    </ShellFrame>
   );
 }

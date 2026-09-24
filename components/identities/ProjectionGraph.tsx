@@ -10,8 +10,8 @@ import {
 } from '@/lib/graph-presentation';
 import { groupConnections, type ConnectionGroup } from '@/lib/graph-connection-groups';
 import {
-  appendProjectionPage, findAttachment, ProjectionError,
-  projectionTree, readProjection, valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
+  appendProjectionPage, findAttachment, ProjectionError, projectionTree, readProjection, recordsIn,
+  valueText, type AttachedValue, type AttachmentNode, type EntityProjection,
 } from '@/lib/graph-projection';
 
 const control = 'rounded-lg border border-white/15 px-3 py-2 text-xs hover:bg-white/5';
@@ -346,13 +346,13 @@ function CardsPanel({ node, onSelect }: { node: AttachmentNode; onSelect: Select
     {collections.length > 0 && <CardSection label="Records" count={collections.length}>
       {collections.map(group => <OpenCard key={group.id} title={group.label} subtitle={nodeSummary(group)} folder onClick={() => onSelect(group)} />)}
     </CardSection>}
-    {node.kind === 'group' && <RecordCards node={node} onSelect={onSelect} />}
+    {(node.kind === 'group' || node.kind === 'section') && <RecordCards node={node} onSelect={onSelect} />}
     {facts.length > 0 && <CardSection label={value ? 'Values' : 'Facts'} count={facts.length}>
       <FactCards facts={facts} evidence={!value} onSelect={onSelect} />
     </CardSection>}
     {connections.map(group => <ConnectionCards key={group.key} group={group} onSelect={onSelect} onEvidence={setEvidence} />)}
     {value && <EvidencePanel field={node} />}
-    {node.kind !== 'group' && !facts.length && !collections.length && !connections.length && <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-slate-400">{node.pending ? 'Loading records…' : 'No published details.'}</p>}
+    {node.kind !== 'group' && node.kind !== 'section' && !facts.length && !collections.length && !connections.length && <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-slate-400">{node.pending ? 'Loading records…' : 'No published details.'}</p>}
     {fields && <Footnotes sources={overviewSources(node)} hidden={fields.hidden} />}
     {evidence && <RelationshipEvidence node={evidence} close={() => setEvidence(undefined)} />}
   </section>;
@@ -445,19 +445,40 @@ function ConnectionCards({ group, onSelect, onEvidence }: { group: ConnectionGro
   </CardSection>;
 }
 
-/** A collection's records as cards, filtered like a category page. */
+/** A collection or one of its sections, filtered like a category page: its sections as
+ * cards, then its own records. A search looks through every record below it. */
 function RecordCards({ node, onSelect }: { node: AttachmentNode; onSelect: Select }) {
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(RECORD_PAGE);
-  const records = node.children.filter(child => child.kind === 'record');
+  const sections = node.children.filter(child => child.kind === 'section');
   const needle = query.trim().toLowerCase();
-  const matches = records.filter(record => !needle || `${record.label} ${record.subtitle ?? ''}`.toLowerCase().includes(needle));
+  const records = needle ? recordsIn(node) : node.children.filter(child => child.kind === 'record');
+  const matches = records.filter(record => !needle || `${record.label} ${record.subtitle ?? ''} ${record.trail ?? ''}`.toLowerCase().includes(needle));
+  // Outside its section a record needs its trail, such as which period a Monday belongs to.
+  const subtitle = (record: AttachmentNode) => needle && sections.length ? [record.trail, record.subtitle].filter(Boolean).join(' · ') : record.subtitle;
   return <section aria-label="Collection records" className="space-y-3">
     <input aria-label={`Filter ${node.label}`} value={query} onChange={event => { setQuery(event.target.value); setLimit(RECORD_PAGE); }} placeholder={`Find in ${node.label.toLowerCase()}…`} className="w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm" />
-    <div className={CARD_GRID}>{matches.slice(0, limit).map(record => <OpenCard key={record.id} title={record.label} subtitle={record.subtitle} onClick={() => onSelect(record)} />)}</div>
-    <p role="status" className="text-xs text-muted-foreground">{matches.length.toLocaleString()} {needle ? 'matching ' : ''}{matches.length === 1 ? 'record' : 'records'}{node.pending ? ' loaded so far' : ''}</p>
-    {matches.length > limit && <button className={control} onClick={() => setLimit(value => value + RECORD_PAGE)}>Show {Math.min(RECORD_PAGE, matches.length - limit)} more</button>}
+    {!needle && sections.length > 0 && <SectionCards sections={sections} onSelect={onSelect} />}
+    {(needle || records.length > 0 || !sections.length) && <>
+      <div className={CARD_GRID}>{matches.slice(0, limit).map(record => <OpenCard key={record.id} title={record.label} subtitle={subtitle(record)} onClick={() => onSelect(record)} />)}</div>
+      <p role="status" className="text-xs text-muted-foreground">{matches.length.toLocaleString()} {needle ? 'matching ' : ''}{matches.length === 1 ? 'record' : 'records'}{node.pending ? ' loaded so far' : ''}</p>
+      {matches.length > limit && <button className={control} onClick={() => setLimit(value => value + RECORD_PAGE)}>Show {Math.min(RECORD_PAGE, matches.length - limit)} more</button>}
+    </>}
   </section>;
+}
+
+/** Sections as cards that open their records. Ended ones fold away below the rest,
+ * unless every section has ended. */
+function SectionCards({ sections, onSelect }: { sections: AttachmentNode[]; onSelect: Select }) {
+  const open = sections.filter(section => section.window !== 'ended');
+  const ended = sections.filter(section => section.window === 'ended');
+  const card = (section: AttachmentNode) => <OpenCard key={section.id} title={section.label} subtitle={nodeSummary(section)} folder onClick={() => onSelect(section)} />;
+  return <CardSection label={sections[0].level ?? 'Sections'} count={sections.length} after={open.length > 0 && ended.length > 0 && <details className="group">
+    <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 [&::-webkit-details-marker]:hidden">{ended.length} ended<ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden="true" /></summary>
+    <div className={`mt-2 ${CARD_GRID}`}>{ended.map(card)}</div>
+  </details>}>
+    {(open.length ? open : ended).map(card)}
+  </CardSection>;
 }
 
 function displayValue(value: unknown): string {

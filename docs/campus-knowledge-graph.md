@@ -79,12 +79,17 @@ Brain query behavior, source mappings, or database schemas change in this stage.
 - Contextual groups contain individual record nodes identified by published IDs,
   never by names. Each record owns its context fields, properties and explicit
   relationships. Repeated dish names and seasonal schedules stay separate.
+- Records sit under the sections the Brain sends: hours under their validity
+  period, menus under date, meal and station. Section cards open their records,
+  ended sections fold away below the rest, and a search looks through every record
+  below the current level. Hours records are titled by weekday, with the schedule
+  under the title.
 - Explicit relationships resolve canonical IDs against the knowledge index,
   preserving direction, predicate, exact evidence and registry locator. Plain
   property values never create links. Unresolved IDs are not guessed.
 
-Groups, records and structured property children extend the Explorer's existing
-breadcrumb. There is no second path or bottom Properties panel. Green leaves
+Groups, sections, records and structured property children extend the Explorer's
+existing breadcrumb. There is no second path or bottom Properties panel. Green leaves
 remain non-clickable and scrollable, with complete value and source text; blue
 nodes navigate to their children or a canonical entity. Source limitations,
 publication status, collection time, freshness, validity, original row ID and

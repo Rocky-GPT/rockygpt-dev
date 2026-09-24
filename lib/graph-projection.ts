@@ -33,14 +33,23 @@ export interface ProjectionRelationship {
   evidence: Record<string, unknown>[];
   registry_locator: { identity_hash: string; entity_id: string; relationship_index: number };
 }
+export type SectionWindow = 'undated' | 'current' | 'upcoming' | 'ended';
+/** One level of a record's place in its group, outermost first. The window compares the
+ * published validity dates with the campus date; it never decides which record applies. */
+export interface RecordSection { key: string; label: string; level: string; window: SectionWindow | null }
 export interface ContextualRecord {
   id: string; label: string; record_type: string; source_id: string; context: ProjectionProperty[];
   properties: ProjectionProperty[]; relationships: ProjectionRelationship[];
+  /** Absent from an older Brain, whose records are not grouped. */
+  sections?: RecordSection[];
 }
 export interface RecordGroup {
   key: string; label: string; record_type: string; records: ContextualRecord[];
   total: number; returned: number; next_cursor: string | null;
   filters: Record<string, string | null>; filter_fields: string[]; ordering: string;
+  /** How records read: the context field that titles each record, the context fields
+   * its sections stand for, and the property shown under each title. */
+  title_field?: string | null; section_fields?: string[]; summary_field?: string | null;
 }
 export interface CoverageIssue { reason: string; collection: string | null; record_id: string | null; fields: string[]; detail: string | null }
 export interface EntityProjection {
@@ -83,6 +92,10 @@ function validSource(value: unknown): boolean {
     && nullableText(value.collected_at) && nullableText(value.valid_from) && nullableText(value.valid_until)
     && ['fresh', 'stale', 'unknown', 'static'].includes(String(value.freshness)) && strings(value.limitations);
 }
+function validSection(value: unknown): boolean {
+  return object(value) && typeof value.key === 'string' && typeof value.label === 'string' && typeof value.level === 'string'
+    && (value.window === null || ['undated', 'current', 'upcoming', 'ended'].includes(String(value.window)));
+}
 function validRelationship(value: unknown): boolean {
   return object(value) && typeof value.id === 'string' && typeof value.predicate === 'string' && typeof value.target_entity_id === 'string'
     && ['incoming', 'outgoing'].includes(String(value.direction)) && Array.isArray(value.evidence) && value.evidence.every(object)
@@ -102,10 +115,13 @@ export function parseProjection(value: unknown): EntityProjection {
     || !Array.isArray(value.record_groups) || !value.record_groups.every(g => object(g) && typeof g.key === 'string' && typeof g.label === 'string' && typeof g.record_type === 'string'
       && Number.isInteger(g.total) && Number(g.total) >= 0 && Number.isInteger(g.returned) && nullableText(g.next_cursor)
       && object(g.filters) && Object.values(g.filters).every(nullableText) && strings(g.filter_fields) && typeof g.ordering === 'string'
+      && (g.title_field === undefined || nullableText(g.title_field)) && (g.section_fields === undefined || strings(g.section_fields))
+      && (g.summary_field === undefined || nullableText(g.summary_field))
       && Array.isArray(g.records) && g.returned === g.records.length && g.records.length <= Number(g.total)
       && g.records.every(r => object(r) && typeof r.id === 'string' && typeof r.label === 'string' && typeof r.record_type === 'string' && typeof r.source_id === 'string'
         && Array.isArray(r.context) && r.context.every(validProperty) && Array.isArray(r.properties) && r.properties.every(validProperty)
-        && Array.isArray(r.relationships) && r.relationships.every(validRelationship)))) {
+        && Array.isArray(r.relationships) && r.relationships.every(validRelationship)
+        && (r.sections === undefined || (Array.isArray(r.sections) && r.sections.every(validSection)))))) {
     throw new ProjectionError('This projection response is not supported by this Explorer.');
   }
   const parsed = value as unknown as EntityProjection;
@@ -178,11 +194,15 @@ export function appendProjectionPage(current: EntityProjection, page: EntityProj
 export interface AttachedValue { value: unknown; assertion: Assertion; source?: SourceRecord }
 export interface AttachedFactValue extends FactValue { assertions: AttachedValue[] }
 export interface AttachmentNode {
-  id: string; label: string; kind: 'entity' | 'group' | 'record' | 'property' | 'value' | 'relationship';
+  id: string; label: string; kind: 'entity' | 'group' | 'section' | 'record' | 'property' | 'value' | 'relationship';
   subtitle?: string; values?: AttachedValue[];
   factValues?: AttachedFactValue[]; status?: FactStatus; category?: FactCategory; propertyKey?: string;
   children: AttachmentNode[]; pending?: boolean;
   relationship?: ProjectionRelationship; target?: CampusEntity;
+  /** A section's level, such as "Periods", and its window. */
+  level?: string; window?: SectionWindow | null;
+  /** A record's section labels, outermost first, for reading it outside its section. */
+  trail?: string;
 }
 const nodeId = (...parts: unknown[]) => JSON.stringify(parts);
 function entries(value: unknown): [string, unknown][] { return Array.isArray(value) ? value.map((v, i) => [String(i + 1), v]) : object(value) ? Object.entries(value) : []; }
@@ -223,6 +243,51 @@ function contextLine(context: ProjectionProperty[]): string {
   return [...context.filter(p => p.key !== 'valid_from' && p.key !== 'valid_until').map(text), window].filter(Boolean).join(' · ');
 }
 const recordCount = (loaded: number, total: number) => `${loaded === total ? '' : `${loaded.toLocaleString()} of `}${total.toLocaleString()} ${total === 1 ? 'record' : 'records'}`;
+/** The line under a record's title: the group's summary property when it has a value,
+ * otherwise the context that the title and sections do not already show. */
+function recordSubtitle(group: RecordGroup, record: ContextualRecord): string | undefined {
+  const summary = record.properties.find(p => p.key === group.summary_field)?.values
+    .filter(v => v.value !== null && v.value !== '').map(v => valueText(v.value)).join(' / ');
+  if (summary) return summary;
+  const shown = new Set([group.title_field, ...(group.section_fields ?? [])]);
+  return contextLine(record.context.filter(p => !shown.has(p.key))) || undefined;
+}
+function recordNode(owner: string, group: RecordGroup, record: ContextualRecord, sources: Sources, entities: Map<string, CampusEntity>): AttachmentNode {
+  const trail = (record.sections ?? []).map(section => section.label).join(' › ');
+  return { id: nodeId(owner, 'record', group.key, record.id), label: record.label, kind: 'record', subtitle: recordSubtitle(group, record), ...(trail ? { trail } : {}),
+    children: [...record.context.map(p => propertyNode(nodeId(record.id, 'context'), p, sources)), ...record.properties.map(p => propertyNode(nodeId(record.id, 'properties'), p, sources)), ...record.relationships.map(r => relationshipNode(record.id, r, entities))] };
+}
+/** Every record at or below a node, in order. */
+export function recordsIn(node: AttachmentNode): AttachmentNode[] {
+  return node.children.flatMap(child => child.kind === 'record' ? [child] : child.kind === 'section' ? recordsIn(child) : []);
+}
+/** A group's records under their sections, outermost first, in the order the Brain sent
+ * them. Sections only arrange records: each record keeps its own node and provenance. */
+function sectioned(owner: string, group: RecordGroup, records: AttachmentNode[]): AttachmentNode[] {
+  const top: AttachmentNode[] = [];
+  const sections = new Map<string, AttachmentNode>();
+  group.records.forEach((record, index) => {
+    let siblings = top;
+    const path: string[] = [];
+    for (const section of record.sections ?? []) {
+      path.push(section.key);
+      const id = nodeId(owner, 'section', group.key, ...path);
+      let node = sections.get(id);
+      if (!node) {
+        node = { id, label: section.label, kind: 'section', level: section.level, window: section.window, pending: group.next_cursor !== null, children: [] };
+        sections.set(id, node);
+        siblings.push(node);
+      }
+      siblings = node.children;
+    }
+    siblings.push(records[index]);
+  });
+  for (const node of sections.values()) {
+    const count = recordsIn(node).length;
+    node.subtitle = [`${count.toLocaleString()} ${count === 1 ? 'record' : 'records'}`, node.window === 'undated' ? null : node.window].filter(Boolean).join(' · ');
+  }
+  return top;
+}
 export function projectionTree(projection: EntityProjection, graph: KnowledgeIndex): AttachmentNode {
   const entities = new Map(graph.nodes.map(e => [e.id, e]));
   const sources: Sources = new Map(projection.sources.map(source => [source.id, source]));
@@ -232,10 +297,7 @@ export function projectionTree(projection: EntityProjection, graph: KnowledgeInd
     ...projection.properties.map(p => propertyNode(owner, p, sources)),
     ...projection.record_groups.map(group => ({ id: nodeId(owner, 'group', group.key), label: group.label, kind: 'group' as const,
       subtitle: recordCount(group.records.length, group.total), pending: group.next_cursor !== null,
-      children: group.records.map(record => ({ id: nodeId(owner, 'record', group.key, record.id), label: record.label, kind: 'record' as const,
-        subtitle: contextLine(record.context),
-        children: [...record.context.map(p => propertyNode(nodeId(record.id, 'context'), p, sources)), ...record.properties.map(p => propertyNode(nodeId(record.id, 'properties'), p, sources)), ...record.relationships.map(r => relationshipNode(record.id, r, entities))],
-      })),
+      children: sectioned(owner, group, group.records.map(record => recordNode(owner, group, record, sources, entities))),
     })),
   ] };
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ChevronRight, Download, Home, LayoutDashboard, LayoutGrid, RefreshCw, Search } from 'lucide-react';
 import { ProjectionGraph, type GraphLayout } from './ProjectionGraph';
 import { CAMPUS, kindLabel, traverse, type CampusEntity, type KnowledgeIndex, type TraversalStep } from '@/lib/knowledge-graph';
+import { groupCoverage, type CoverageIssue } from '@/lib/coverage-issues';
 
 async function read<T>(operation: string, params: URLSearchParams, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`/api/brain/graph/${operation}?${params}`, { signal, cache: 'no-store' });
@@ -118,9 +119,21 @@ function Explorer({ graph, reload }: { graph: KnowledgeIndex; reload: () => void
           onRoot={() => { const index = path.findLastIndex(step => step.type === 'entity' && step.id === entity.id); navigate(path.slice(0, index + 1)); }} />}
       </div>
     </section>
-    {graph.diagnostics.length > 0 && <details className="rounded-xl border border-amber-400/20 p-4 text-xs"><summary className="cursor-pointer text-amber-200">{graph.diagnostics.length} data coverage issues</summary><p className="mt-3 text-muted-foreground">Unresolved references remain unlinked. Categories are entry points, not factual relationships.</p><ul className="mt-3 max-h-64 space-y-2 overflow-auto">{graph.diagnostics.map((issue, index) => <li key={index}>{[issue.entity, issue.record, issue.reason].filter(Boolean).map(String).join(' · ')}</li>)}</ul></details>}
+    {graph.diagnostics.length > 0 && <CoverageIssues issues={graph.diagnostics} />}
   </div>;
 }
 
 function matches(node: CampusEntity, query: string) { const q = query.trim().toLowerCase(); return [node.name, node.id, ...node.aliases].some(value => value.toLowerCase().includes(q)); }
+function CoverageIssues({ issues }: { issues: CoverageIssue[] }) {
+  const groups = useMemo(() => groupCoverage(issues), [issues]);
+  return <details className="rounded-xl border border-amber-400/20 p-4 text-xs"><summary className="cursor-pointer text-amber-200">{issues.length.toLocaleString()} data coverage issues</summary>
+    <p className="mt-3 text-muted-foreground">Unresolved references remain unlinked. Categories are entry points, not factual relationships.</p>
+    <div className="mt-3 space-y-2">{groups.map(group => <details key={group.id} open={group.id === 'unlinked'} className="rounded-lg border border-white/10 p-3">
+      <summary className="cursor-pointer"><span className="font-medium text-amber-100">{group.label}</span><span className="text-muted-foreground"> · {group.issues.length.toLocaleString()}</span></summary>
+      <p className="mt-2 text-muted-foreground">{group.description}</p>
+      <p className="mt-1 text-muted-foreground">{group.collections.map(([collection, count]) => `${collection.replaceAll('_', ' ')} ${count.toLocaleString()}`).join(' · ')}</p>
+      <ul className="mt-3 max-h-64 space-y-2 overflow-auto">{group.issues.map((issue, index) => <li key={index}>{[typeof issue.collection === 'string' && issue.collection.replaceAll('_', ' '), issue.entity, issue.record, issue.reason].filter(Boolean).map(String).join(' · ')}</li>)}</ul>
+    </details>)}</div>
+  </details>;
+}
 function EntityButton({ node, onClick }: { node: CampusEntity; onClick: () => void }) { return <button onClick={onClick} className="flex items-center justify-between gap-3 rounded-xl border border-white/15 p-4 text-left hover:border-sky-300/70 hover:bg-sky-400/5"><span><span className="block text-sm text-sky-100">{node.name}</span><span className="mt-1 block text-xs text-muted-foreground">{node.kind.replaceAll('_', ' ')}</span></span><ArrowRight size={14} className="shrink-0 text-sky-300" /></button>; }

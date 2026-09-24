@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { appendProjectionPage, findAttachment, hasChildren, parseProjection, projectionTree, readProjection, valueText } from '../lib/graph-projection.ts';
+import { appendProjectionPage, findAttachment, hasChildren, parseProjection, projectionTree, readProjection, recordsIn, valueText } from '../lib/graph-projection.ts';
 import { CAMPUS, traverse } from '../lib/knowledge-graph.ts';
 
 const entity = { id: 'venue', name: 'Dining location', kind: 'venue', aliases: [] };
@@ -59,6 +59,29 @@ test('a record reads as its context values, with its validity dates as one windo
   ];
   const records = projectionTree(p, graph).children.find(n => n.kind === 'group').children;
   assert.deepEqual(records.map(r => r.subtitle), ['Breakfast · Savory · 2026-09-23', 'Friday · 2026-08-23 – 2026-08-25', 'Monday · from 2026-05-26']);
+});
+
+test('sectioned records nest under their sections, titled and summarized as the group declares', () => {
+  const p = fixture();
+  const regular = { key: 'dates:', label: 'Regular hours', level: 'Periods', window: 'undated' };
+  const opening = { key: 'dates:2026-08-23:2026-08-25', label: '2026-08-23 – 2026-08-25', level: 'Periods', window: 'ended' };
+  const hours = (id, day, sections, schedule) => ({ id, label: day, record_type: 'dining_hours', source_id: `menu:${id}`, relationships: [], sections,
+    context: [prop('weekday', day, `${id}-weekday`, `menu:${id}`), prop('valid_from', null, `${id}-from`, `menu:${id}`)],
+    properties: [prop('schedule', schedule, `${id}-schedule`, `menu:${id}`)] });
+  p.sources.push(source('menu:mon'), source('menu:tue'), source('menu:sun'));
+  p.record_groups = [{ key: 'dining_hours', label: 'Dining hours', record_type: 'dining_hours', total: 3, returned: 3, next_cursor: null, filters: {}, filter_fields: ['day'],
+    ordering: 'undated records, then the newest validity dates; each Monday to Sunday', title_field: 'weekday', section_fields: ['valid_from', 'valid_until'], summary_field: 'schedule',
+    records: [hours('mon', 'Monday', [regular], 'Lunch: 11:00 AM - 02:00 PM'), hours('tue', 'Tuesday', [regular], ''), hours('sun', 'Sunday', [opening], 'Dinner: 07:00 PM - 08:30 PM')] }];
+  const root = projectionTree(parseProjection(p), graph);
+  const group = root.children.find(n => n.kind === 'group');
+  assert.deepEqual(group.children.map(n => [n.kind, n.label, n.level, n.window, n.subtitle]), [
+    ['section', 'Regular hours', 'Periods', 'undated', '2 records'], ['section', '2026-08-23 – 2026-08-25', 'Periods', 'ended', '1 record · ended']]);
+  // The summary is the record's line; an empty one falls back to context not already shown.
+  assert.deepEqual(group.children[0].children.map(r => [r.kind, r.label, r.subtitle, r.trail]), [
+    ['record', 'Monday', 'Lunch: 11:00 AM - 02:00 PM', 'Regular hours'], ['record', 'Tuesday', undefined, 'Regular hours']]);
+  assert.deepEqual(recordsIn(group).map(r => r.label), ['Monday', 'Tuesday', 'Sunday']);
+  assert.equal(findAttachment(root, group.children[1].id), group.children[1]);
+  assert.equal(recordsIn(group)[2].id, JSON.stringify(['venue', 'record', 'dining_hours', 'sun']));
 });
 
 test('leaf semantics preserve false, null, empty containers, conflicts and structured descendants', () => {
@@ -143,7 +166,10 @@ test('contract validation rejects unsupported versions, malformed records and mi
   for (const mutate of [p => p.schema_version = 2, p => p.projection_version = 'unsupported', p => delete p.properties[0].values, p => p.properties[0].category = 'made-up',
     p => p.properties[0].status = 'assumed', p => p.properties[0].assertions[0].field_path = [], p => delete p.properties[0].assertions[0].source_id,
     p => p.sources[0].freshness = 'current', p => delete p.sources, p => delete p.record_groups[0].records[0].source_id, p => p.record_groups[0].records[0].context = null,
-    p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' }]) {
+    p => p.record_groups[0].returned = 12, p => p.relationships[0].subject = { kind: 'name', name: 'Dining location' },
+    p => p.record_groups[0].records[0].sections = [{ key: 'dates:', label: 'Regular hours', level: 'Periods', window: 'soon' }],
+    p => p.record_groups[0].records[0].sections = [{ key: 'dates:', label: 'Regular hours' }],
+    p => p.record_groups[0].section_fields = 'valid_from', p => p.record_groups[0].title_field = 3]) {
     const p = fixture(); mutate(p); assert.throws(() => parseProjection(p), /not supported/);
   }
   for (const mutate of [p => p.properties[0].assertions[0].source_id = 'menu:unlisted', p => p.record_groups[0].records[0].source_id = 'menu:unlisted', p => p.sources.push(source('menu:one')),

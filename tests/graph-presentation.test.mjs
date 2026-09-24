@@ -49,6 +49,7 @@ test('record descriptions preserve exact loading totals and contextual subtitles
   const group = { id: 'menu', label: 'Menu offerings', kind: 'group', subtitle: '100 of 874 records', pending: true, children: [record] };
   assert.equal(collectionDescription(group), 'Entries across dates, meals and stations; dishes may repeat.');
   assert.match(collectionDescription({ ...group, label: 'Dining hours' }), /validity periods/);
+  assert.match(collectionDescription({ ...group, label: 'Operating hours' }), /validity periods/);
   // Other collections need no explanation beyond their name and size.
   assert.equal(collectionDescription({ ...group, label: 'Other' }), '');
   assert.equal(nodeSummary(group), '100 of 874 records · Loading more records…');

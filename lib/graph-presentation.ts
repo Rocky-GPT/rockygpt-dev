@@ -29,8 +29,8 @@ export function collectionDescription(node: AttachmentNode): string {
   if (node.kind === 'group' && node.label === 'Menu offerings') {
     return 'Entries across dates, meals and stations; dishes may repeat.';
   }
-  if (node.kind === 'group' && node.label === 'Dining hours') {
-    return 'Schedule records across meals, weekdays and validity periods. Open a record to check applicability.';
+  if (node.kind === 'group' && (node.label === 'Dining hours' || node.label === 'Operating hours')) {
+    return 'Schedule records grouped by validity periods, then by weekday. Open a record to check applicability.';
   }
   return '';
 }

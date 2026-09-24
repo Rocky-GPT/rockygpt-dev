@@ -19,7 +19,8 @@ interface RawLogEntry {
 // Statuses the Brain returns for a turn that ran to completion. Anything else
 // (a timeout, an exhausted budget, a provider error) is a failed turn;
 // clarifications and partial answers used to be counted as errors too.
-const COMPLETED = new Set(['answered', 'partial', 'clarification', 'unavailable']);
+// `passed` rows are the synthetic turns the eval endpoints seeded on 2026-09-17.
+const COMPLETED = new Set(['answered', 'partial', 'clarification', 'unavailable', 'passed']);
 
 export async function GET(request: NextRequest) {
   const { url: brainUrl } = brainAddress();

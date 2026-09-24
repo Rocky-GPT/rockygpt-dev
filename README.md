@@ -44,11 +44,12 @@ to inspect dining evidence; menus show a labelled sample of up to 12 records.
 The Unresolved view explains links that still need evidence. Both the identity
 and the exact assembled profile can be downloaded as JSON.
 
-The data coverage issues panel groups the release's coverage report by what each
-issue means: records no entity links to, missing connections, reviewed entries
-with no data in the release, and notes. Each reason is matched to a template the
-Data identity compiler writes; a reason the panel does not recognize stays
-visible under Other.
+The data coverage issues panel groups the release's coverage report by each
+issue's `kind` from the Data identity compiler: records no entity links to,
+missing connections, reviewed entries with no data in the release, and notes.
+For releases compiled before kinds existed, it matches each reason to a template
+the compiler writes. A kind or reason the panel does not recognize stays visible
+under Other.
 
 Clubs and event occurrences appear alongside people, offices, facilities, dining
 venues and academic programs. Events and club-linked occurrences retain their

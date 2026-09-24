@@ -96,7 +96,7 @@ function EntityOverview({ node, onSelect }: { node: AttachmentNode; onSelect: Se
   return <section aria-label={`Overview of ${node.label}`} className="min-w-0 space-y-4">
     <header className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
       <div className="flex items-start gap-4">
-        <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sky-400/15 text-lg font-semibold text-sky-200">{initials(node.label)}</div>
+        <Avatar name={node.label} photo={fields.photo} />
         <div className="min-w-0 flex-1">
           <h2 className="break-words text-2xl font-semibold tracking-tight text-slate-50">{node.label}</h2>
           {fields.headline.length > 0 && <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-6 text-slate-300">{fields.headline.map((field, index) => <span key={field.id} className="inline-flex items-center gap-1.5">
@@ -161,6 +161,19 @@ function EntityOverview({ node, onSelect }: { node: AttachmentNode; onSelect: Se
     </footer>}
     {evidence && <RelationshipEvidence node={evidence} close={() => setEvidence(undefined)} />}
   </section>;
+}
+
+/** The published photo when there is one; initials if there is none or it fails to load. */
+function Avatar({ name, photo }: { name: string; photo?: string }) {
+  const [failed, setFailed] = useState(false);
+  if (photo && !failed) {
+    // A direct load from Ramapo's site, which the page's image policy allows;
+    // next/image would fetch it through this server instead.
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={photo} alt={`Photo of ${name}`} onError={() => setFailed(true)} referrerPolicy="no-referrer"
+      className="h-14 w-14 shrink-0 rounded-full border border-white/10 object-cover" />;
+  }
+  return <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sky-400/15 text-lg font-semibold text-sky-200">{initials(name)}</div>;
 }
 
 function FieldIcon({ field }: { field: AttachmentNode }) {

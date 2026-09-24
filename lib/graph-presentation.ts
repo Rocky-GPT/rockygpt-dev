@@ -1,4 +1,5 @@
 import { valueText, type AttachmentNode, type SourceRecord } from './graph-projection.ts';
+import { PHOTO_ORIGINS } from './security-headers.ts';
 
 const FACULTY_DERIVATION_NOTE = 'Derived from the linked faculty profile; these records are not independent corroboration.';
 
@@ -123,6 +124,19 @@ export interface OverviewFields {
   main: AttachmentNode[];
   /** Folded away with the reason: no published value, record metadata, or a repeat. */
   hidden: { field: AttachmentNode; reason: string }[];
+  /** The published photo, when it comes from a site the page may load images from. */
+  photo?: string;
+}
+
+/** A single published image URL on an allowed photo site, or nothing. */
+export function photoUrl(field: AttachmentNode): string | undefined {
+  const value = single(field);
+  if (field.propertyKey !== 'image_url' || field.status !== 'known' || typeof value !== 'string') return;
+  try {
+    return PHOTO_ORIGINS.includes(new URL(value).origin) ? value : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 const single = (field: AttachmentNode | undefined): unknown =>
@@ -141,6 +155,9 @@ export function overviewFields(node: AttachmentNode): OverviewFields {
       result.hidden.push({ field, reason: 'Not published' });
     } else if (!disputed && single(field) === node.label) {
       result.hidden.push({ field, reason: 'Shown as the heading' });
+    } else if (node.kind === 'entity' && !result.photo && photoUrl(field)) {
+      result.photo = photoUrl(field);
+      result.hidden.push({ field, reason: 'Shown as the photo' });
     } else if (!disputed && field.propertyKey === 'type' && field.category === 'details') {
       result.hidden.push({ field, reason: 'Record metadata' });
     } else if (!disputed && field.propertyKey === 'department' && school && single(field) === single(school)) {

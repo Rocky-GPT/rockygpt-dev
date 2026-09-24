@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, isEmptyValue, nodeSummary, overviewFields, overviewSources, partitionFields, shortUrl, sourceCaveats } from '../lib/graph-presentation.ts';
+import { canonicalPhonePreview, collectionDescription, detailSections, fieldLabel, initials, isEmptyValue, nodeSummary, overviewFields, overviewSources, partitionFields, photoUrl, shortUrl, sourceCaveats } from '../lib/graph-presentation.ts';
+import { buildContentSecurityPolicy, PHOTO_ORIGINS } from '../lib/security-headers.ts';
 
 const field = (label, value, options = {}) => {
   const source = { id: options.sourceId ?? 'contacts:one', collection: 'contacts', row_id: 'one', source_key: 'directory', source_record_key: 'birch',
@@ -174,4 +175,22 @@ test('an overview lists each source once and names what a derived source came fr
   assert.equal(initials('Computer Science (CMPS)'), 'CC');
   assert.equal(initials('Yolanda del\u00a0Amo'), 'YA');
   assert.equal(shortUrl('https://www.ramapo.edu/snh/faculty/ali-al-juboori/'), 'ramapo.edu/snh/faculty/ali-al-juboori');
+});
+
+test('a photo from an allowed site becomes the avatar, and the page policy allows exactly those sites', () => {
+  const photo = 'https://www.ramapo.edu/snh/wp-content/uploads/sites/13/2022/01/photo.jpg';
+  const image = field('image_url', photo, { category: 'links' });
+  const root = { id: 'ali', label: 'Ali Al-Juboori', kind: 'entity', subtitle: 'person', children: [image, field('email', 'a@ramapo.edu', { category: 'contact' })] };
+  const fields = overviewFields(root);
+  assert.equal(fields.photo, photo);
+  assert.deepEqual(fields.hidden.map(({ field, reason }) => [field.propertyKey, reason]), [['image_url', 'Shown as the photo']]);
+  assert.equal(fields.contact.length, 1);
+  // Another site, an unknown value or a record keeps the link and the initials.
+  for (const value of ['https://example.com/photo.jpg', 'http://www.ramapo.edu/photo.jpg', 'not a url']) {
+    assert.equal(photoUrl(field('image_url', value, { category: 'links' })), undefined);
+  }
+  assert.equal(photoUrl(field('image_url', null, { category: 'links', status: 'unknown' })), undefined);
+  assert.equal(overviewFields({ ...root, kind: 'record' }).photo, undefined);
+  const images = buildContentSecurityPolicy({ nodeEnv: 'production' }).split('; ').find(rule => rule.startsWith('img-src'));
+  assert.equal(images, `img-src 'self' data: blob: ${PHOTO_ORIGINS.join(' ')}`);
 });

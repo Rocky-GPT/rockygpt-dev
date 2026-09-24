@@ -38,12 +38,14 @@ interface ReleasesData {
     activatedAt: string;
     sourcesCount: number;
     sources: CampusSource[];
+    /** Set by the Brain when the campus database could not be read. */
     error?: string;
   } | null;
 }
 
 export function ReleasesDashboard() {
   const [data, setData] = useState<ReleasesData | null>(null);
+  const datasetError = data?.dataset?.error;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -116,14 +118,20 @@ export function ReleasesDashboard() {
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="truncate text-base font-bold tracking-tight text-emerald-400 font-mono">
-                {data?.dataset?.version ?? 'Loading...'}
+              <span className={`truncate text-base font-bold tracking-tight font-mono ${datasetError ? 'text-red-300' : 'text-emerald-400'}`}>
+                {datasetError ? 'Unavailable' : data?.dataset?.version ?? 'Loading...'}
               </span>
             </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Active in Neon DB</span>
-            </div>
+            {/* A failed dataset read showed "Loading..." forever beside a
+                pulsing "Active in Neon DB". */}
+            {datasetError ? (
+              <p role="alert" className="mt-2 text-xs text-red-300 break-words">{datasetError}</p>
+            ) : data?.dataset?.version ? (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                <span>Active release</span>
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-neutral-900/90 to-neutral-950/90 p-4 shadow-sm backdrop-blur-md">

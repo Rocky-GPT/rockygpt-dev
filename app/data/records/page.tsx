@@ -9,25 +9,27 @@ export const metadata: Metadata = {
   description: 'What each capability returns when nothing narrows it',
 };
 
-async function getCapabilities(): Promise<string[]> {
+// A failed read used to return [], which the explorer drew as a lookup that
+// never finished ("Looking it up…"). The reason travels with the result.
+async function getCapabilities(): Promise<{ capabilities: string[]; problem?: string }> {
   const { url } = brainAddress();
-  if (!url) return [];
+  if (!url) return { capabilities: [], problem: 'BRAIN_URL is not set in this environment.' };
   try {
     const res = await fetch(`${url}/v1/capabilities`, { cache: 'no-store' });
-    if (!res.ok) return [];
+    if (!res.ok) return { capabilities: [], problem: `The Brain answered HTTP ${res.status}.` };
     const data = await res.json();
-    return (data.capabilities || [])
+    return { capabilities: (data.capabilities || [])
       .map((c: { capability: string }) => c.capability)
-      .filter((capability: string) => capability !== 'documents');
+      .filter((capability: string) => capability !== 'documents') };
   } catch {
-    return [];
+    return { capabilities: [], problem: 'The Brain is not reachable.' };
   }
 }
 
 export default async function RecordsPage(props: {
   searchParams: Promise<{ capability?: string; tag?: string }>;
 }) {
-  const [capabilities, searchParams] = await Promise.all([
+  const [{ capabilities, problem }, searchParams] = await Promise.all([
     getCapabilities(),
     props.searchParams,
   ]);
@@ -40,6 +42,11 @@ export default async function RecordsPage(props: {
         subtitle="What each capability returns when nothing narrows it"
       />
       <main className="min-w-0 px-6 py-6">
+        {problem ? (
+          <p role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            Capabilities could not be loaded. {problem}
+          </p>
+        ) : (
         <Suspense
           fallback={
             <div className="space-y-4">
@@ -57,6 +64,7 @@ export default async function RecordsPage(props: {
             initialCapability={initialCapability}
           />
         </Suspense>
+        )}
       </main>
     </>
   );

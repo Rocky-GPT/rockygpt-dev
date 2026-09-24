@@ -131,11 +131,13 @@ function ProbeCard({
 
 function CurrentSurfaceCard() {
   return (
-    <Card title="Current Brain surface" tone="idle" pill="Student assistant">
-      <Row label="GET" value="/health" />
-      <Row label="GET" value="/readiness" />
-      <Row label="POST" value="/v1/chat" />
-      <p className="pt-1">Inspect answers, sources, and tool calls in Ask &amp; Inspect.</p>
+    <Card title="Brain surface" tone="idle" pill="HTTP">
+      <Row label="Probes" value="GET /health, /readiness" />
+      <Row label="Chat" value="POST /v1/chat" />
+      <p className="pt-1">
+        Plus read routes for the student panels, logs, feedback, evals, documents and the campus
+        graph. The Brain&rsquo;s /openapi.json lists every one.
+      </p>
     </Card>
   );
 }

@@ -191,7 +191,9 @@ export interface BrainRead<T> {
   problem?: string;
 }
 
-export async function readBrainProbe<T>(path: '/health' | '/readiness'): Promise<BrainRead<T>> {
+export async function readBrainProbe<T>(
+  path: '/health' | '/readiness' | '/openapi.json'
+): Promise<BrainRead<T>> {
   const target = targetFor(path);
   if (target === null) return { problem: 'BRAIN_URL is not set in this environment.' };
 

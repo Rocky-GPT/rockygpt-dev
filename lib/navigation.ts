@@ -20,6 +20,7 @@ import {
   FileText,
   FlaskConical,
   Gauge,
+  HardDrive,
   LayoutDashboard,
   ListChecks,
   type LucideIcon,
@@ -158,6 +159,14 @@ export const NAVIGATION: NavSection[] = [
         icon: Database,
         status: 'ready',
         upstream: 'GET /v1/releases',
+      },
+      {
+        href: '/data/storage',
+        label: 'Storage',
+        description: 'Database size against the Neon limit, what uses it, and the releases kept',
+        icon: HardDrive,
+        status: 'ready',
+        upstream: 'GET /v1/storage on the local and production Brains',
       },
       {
         href: '/data/entities',

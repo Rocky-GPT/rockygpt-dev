@@ -1,7 +1,7 @@
 /** The server-side HTTP connection to the Brain. */
 
 import 'server-only';
-import { brainAddress } from './brain-address';
+import { brainAddress, type ServiceAddress } from './brain-address';
 
 const PROBE_TIMEOUT_MS = 5_000;
 const CHAT_TIMEOUT_MS = 60_000;
@@ -18,8 +18,8 @@ type FailureReason =
   | 'brain_error'
   | 'http_error';
 
-function targetFor(path: string): string | null {
-  const { url } = brainAddress();
+function targetFor(path: string, address: ServiceAddress = brainAddress()): string | null {
+  const { url } = address;
   if (url === null) return null;
   return `${url}${path.startsWith('/') ? path : `/${path}`}`;
 }
@@ -121,7 +121,8 @@ function misconfigured(): Response {
 function upstreamFailure(
   error: unknown,
   operation: string,
-  timeoutMs = PROBE_TIMEOUT_MS
+  timeoutMs = PROBE_TIMEOUT_MS,
+  setting = 'BRAIN_URL'
 ): Response {
   if (error instanceof DOMException && error.name === 'TimeoutError') {
     return failure(
@@ -138,13 +139,17 @@ function upstreamFailure(
     503,
     'The Dev UI could not connect to the Brain.',
     'unreachable',
-    'Check that the Brain is running and that BRAIN_URL points to it.',
+    `Check that the Brain is running and that ${setting} points to it.`,
     true
   );
 }
 
-export async function proxyBrainProbe(path: string, timeoutMs = PROBE_TIMEOUT_MS): Promise<Response> {
-  const target = targetFor(path);
+export async function proxyBrainProbe(
+  path: string,
+  timeoutMs = PROBE_TIMEOUT_MS,
+  address: ServiceAddress = brainAddress()
+): Promise<Response> {
+  const target = targetFor(path, address);
   if (target === null) {
     return misconfigured();
   }
@@ -158,7 +163,7 @@ export async function proxyBrainProbe(path: string, timeoutMs = PROBE_TIMEOUT_MS
 
     return proxyResponse(upstream, `GET ${path}`);
   } catch (error) {
-    return upstreamFailure(error, `GET ${path}`, timeoutMs);
+    return upstreamFailure(error, `GET ${path}`, timeoutMs, address.setting);
   }
 }
 

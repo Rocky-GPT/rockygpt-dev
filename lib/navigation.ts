@@ -201,10 +201,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/quality/feedback',
         label: 'Feedback',
-        description: 'Ratings and comments, aggregated from PostgreSQL',
+        description: 'Ratings and comments, sorted by topic and reason with Jev',
         icon: MessageSquareCode,
         status: 'ready',
-        upstream: 'GET /v1/feedback + POST /v1/feedback',
+        upstream: 'GET /v1/feedback + POST /v1/feedback; Jev tags kept on this machine',
       },
       {
         href: '/quality/evals',

@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, Check, Loader2, ShieldAlert } from 'lucide-react';
+import { describeStep } from '@/lib/chat-stream';
 import type { Turn } from './types';
 
 const ROUTE_TONE: Record<string, string> = {
@@ -55,11 +56,12 @@ export function TurnList({
   }
 
   return (
-    <div className="flex-1 space-y-2 overflow-y-auto p-4">
+    <div className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
       {turns.map((turn) => {
         const selected = turn.localId === selectedId;
         const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;
         const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+        const step = turn.steps?.[turn.steps.length - 1];
         return (
           <button
             key={turn.localId}
@@ -95,6 +97,12 @@ export function TurnList({
               placeholder bubble would be text the brain did not send, which is
               exactly the thing a control room must never show.
             */}
+            {/* What the Brain says it is doing: a status line, not an answer. */}
+            {turn.status === 'pending' && step && (
+              <p className="mt-1.5 truncate pl-5.5 text-xs italic leading-5 text-muted-foreground">
+                {describeStep(step).label}…
+              </p>
+            )}
             {turn.status === 'ok' && answer && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
                 {answer}

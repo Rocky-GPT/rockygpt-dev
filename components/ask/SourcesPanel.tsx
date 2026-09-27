@@ -29,16 +29,13 @@ export function SourcesPanel({ citations }: { citations: unknown[] }) {
   const pages = groupByPage(citations.filter(isCitation));
 
   return (
-    <section className="border-b border-border px-5 py-4">
+    <section className="px-5 py-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-          SOURCES
-        </h2>
+        <span className="text-xs text-muted-foreground">
+          {citations.length} record{citations.length === 1 ? '' : 's'} from {pages.length} page
+          {pages.length === 1 ? '' : 's'}
+        </span>
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] text-muted-foreground">
-            {citations.length} record{citations.length === 1 ? '' : 's'} · {pages.length} page
-            {pages.length === 1 ? '' : 's'}
-          </span>
           <div className="flex rounded-md border border-border p-0.5 text-[10px]">
             {(['cards', 'json'] as const).map((option) => (
               <button

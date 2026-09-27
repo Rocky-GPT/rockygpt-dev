@@ -12,7 +12,9 @@ import {
 } from 'lucide-react';
 import { BulkQuestionModal } from '@/components/BulkQuestionModal';
 import { PageHeader } from '@/components/shell/PageHeader';
+import { brainFailureBody } from '@/lib/brain-failure';
 import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
+import { addStep, ChatStreamError, isEventStream, readChatStream } from '@/lib/chat-stream';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
@@ -147,39 +149,67 @@ export function AskWorkbench() {
     setTurns(turnsRef.current);
     if (options.select !== false) setSelectedId(localId);
 
-    const settle = (patch: Partial<Turn>): Turn => {
-      const settled = { ...pending, ...patch, latencyMs: Date.now() - startedAt };
-      turnsRef.current = turnsRef.current.map((turn) =>
-        turn.localId === localId ? settled : turn
+    let current = pending;
+    const write = (turn: Turn) => {
+      current = turn;
+      turnsRef.current = turnsRef.current.map((existing) =>
+        existing.localId === localId ? turn : existing
       );
       setTurns(turnsRef.current);
-      return settled;
+    };
+    const settle = (patch: Partial<Turn>): Turn => {
+      write({ ...current, ...patch, draft: undefined, latencyMs: Date.now() - startedAt });
+      return current;
     };
 
     try {
       const response = await fetch('/api/brain/chat', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
         body: requestText,
         signal: options.signal,
       });
-      const rawText = await response.text();
+      let httpStatus = response.status;
+      let rawText: string;
       let raw: Record<string, unknown> | undefined;
-      try {
-        raw = JSON.parse(rawText) as Record<string, unknown>;
-      } catch {
-        raw = undefined;
+      if (response.ok && isEventStream(response)) {
+        // Each step lands on the turn as it happens, so the inspector fills in
+        // while the Brain works instead of all at once at the end.
+        const result = await readChatStream(response, (update) => {
+          write({
+            ...current,
+            steps: addStep(current.steps ?? [], update, Date.now() - startedAt),
+            draft:
+              update.stage === 'reviewing' && typeof update.draft === 'string'
+                ? update.draft
+                : current.draft,
+          });
+        });
+        httpStatus = result.status;
+        raw =
+          result.status >= 200 && result.status < 300
+            ? (result.body as Record<string, unknown>)
+            : brainFailureBody(result.status, result.body, 'POST /v1/chat');
+        rawText = JSON.stringify(raw);
+      } else {
+        rawText = await response.text();
+        try {
+          raw = JSON.parse(rawText) as Record<string, unknown>;
+        } catch {
+          raw = undefined;
+        }
       }
+      const ok = httpStatus >= 200 && httpStatus < 300;
 
       return settle({
-        status: response.ok ? 'ok' : 'failed',
-        httpStatus: response.status,
+        status: ok ? 'ok' : 'failed',
+        httpStatus,
         rawText,
         raw,
         requestId:
           response.headers.get('x-request-id') ??
           (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
-        failure: response.ok ? undefined : describeFailure(response.status, raw),
+        failure: ok ? undefined : describeFailure(httpStatus, raw),
       });
     } catch (error) {
       const stopped = error instanceof DOMException && error.name === 'AbortError';
@@ -190,12 +220,19 @@ export function AskWorkbench() {
             detail: 'The Dev UI cancelled this request.',
             retryable: true,
           }
-        : {
-            error: 'The Dev UI could not complete the request.',
-            reason: 'client_network_error',
-            detail: error instanceof Error ? error.message : String(error),
-            retryable: true,
-          };
+        : error instanceof ChatStreamError
+          ? {
+              error: error.message,
+              reason: 'stream_interrupted',
+              detail: 'The Brain stopped sending steps without a final answer.',
+              retryable: true,
+            }
+          : {
+              error: 'The Dev UI could not complete the request.',
+              reason: 'client_network_error',
+              detail: error instanceof Error ? error.message : String(error),
+              retryable: true,
+            };
       return settle({
         status: 'failed',
         raw,
@@ -396,6 +433,7 @@ function describeFailure(status: number, body?: Record<string, unknown>): string
   if (reason === 'misconfigured') return `Configuration error — ${message}`;
   if (reason === 'cancelled') return `Cancelled — ${message}`;
   if (reason === 'client_network_error') return `Browser request failed — ${message}`;
+  if (reason === 'stream_interrupted') return `Stream ended early — ${message}`;
   return `HTTP ${status} — ${message}`;
 }
 

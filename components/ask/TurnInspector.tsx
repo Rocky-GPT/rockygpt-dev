@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { describeStep, type TurnStep } from '@/lib/chat-stream';
 import { SourcesPanel } from './SourcesPanel';
 import type { Turn } from './types';
 
@@ -38,7 +39,7 @@ export function TurnInspector({
         ? 'Declined'
         : turn.status === 'failed'
           ? 'Failed'
-          : 'Pending';
+          : 'Working';
 
   const copyRaw = () => {
     void navigator.clipboard.writeText(
@@ -86,14 +87,23 @@ export function TurnInspector({
           <ResponsePanel answer={answer} />
         ) : turn.status === 'failed' ? (
           <FailurePanel turn={turn} />
+        ) : turn.status === 'pending' ? (
+          <LiveResponsePanel turn={turn} />
         ) : (
-          <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
+          <RawPanel title="RESPONSE" text={turn.rawText ?? 'No response body.'} />
         )}
         {Array.isArray(turn.raw?.citations) && turn.raw.citations.length > 0 && (
           <SourcesPanel citations={turn.raw.citations} />
         )}
         {Array.isArray(turn.raw?.trace) && turn.raw.trace.length > 0 && (
           <RawPanel title="TOOL CALLS" text={JSON.stringify(turn.raw.trace, null, 2)} />
+        )}
+        {turn.steps && turn.steps.length > 0 && (
+          <StepsPanel
+            steps={turn.steps}
+            live={turn.status === 'pending'}
+            totalMs={turn.latencyMs}
+          />
         )}
         {answer && turn.rawText && (
           <details>
@@ -169,6 +179,123 @@ function ResponsePanel({ answer }: { answer: string }) {
   );
 }
 
+/** Seconds since `startedAt`, ticking while the turn is in flight. */
+function useElapsedSeconds(startedAt: number): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return Math.max(0, Math.floor((now - startedAt) / 1_000));
+}
+
+/**
+ * What the Brain is doing right now, from the steps it has sent so far, then
+ * its draft once there is one to check. The draft is drawn apart from a real
+ * answer on purpose: the check can still cut it.
+ */
+function LiveResponsePanel({ turn }: { turn: Turn }) {
+  const elapsed = useElapsedSeconds(turn.startedAt);
+  const step = turn.steps?.[turn.steps.length - 1];
+  const { label, detail } = step ? describeStep(step) : { label: 'Sending the question' };
+
+  return (
+    <section className="border-b border-border px-5 py-4">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
+        RESPONSE
+      </h2>
+      <div
+        role="status"
+        aria-live="polite"
+        className="mt-3 rounded-xl border border-border bg-neutral-950/70 px-4 py-3"
+      >
+        <div className="flex items-center gap-2.5">
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sky-300" />
+          <p className="min-w-0 flex-1 truncate text-sm text-foreground">{label}…</p>
+          <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{elapsed} s</span>
+        </div>
+        {detail && (
+          <p className="mt-1 truncate pl-6.5 text-xs text-muted-foreground">{detail}</p>
+        )}
+      </div>
+      {turn.draft && (
+        <div className="mt-3 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-4">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">
+            Draft · not checked yet
+          </p>
+          <div className="text-[15px] leading-7 text-muted-foreground">
+            <BrainMarkdown>{turn.draft}</BrainMarkdown>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Every stage the Brain reported, with when it started. Open while the turn
+ * runs, folded away once the answer is in.
+ */
+function StepsPanel({
+  steps,
+  live,
+  totalMs,
+}: {
+  steps: TurnStep[];
+  live: boolean;
+  totalMs?: number;
+}) {
+  const list = (
+    <ol className="mt-3 space-y-1.5 rounded-xl border border-border bg-neutral-950/40 p-3">
+      {steps.map((step, index) => {
+        const { label, detail } = describeStep(step);
+        const running = live && index === steps.length - 1;
+        return (
+          <li key={`${step.stage}-${index}`} className="flex items-start gap-2.5 text-sm">
+            <span className="mt-1 shrink-0">
+              {running ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-sky-300" />
+              ) : (
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
+              )}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className={running ? 'text-foreground' : 'text-muted-foreground'}>
+                {label}
+              </span>
+              {detail && (
+                <span className="block text-xs leading-5 text-muted-foreground">{detail}</span>
+              )}
+            </span>
+            <span className="mt-0.5 shrink-0 font-mono text-[11px] text-muted-foreground">
+              {(step.atMs / 1_000).toFixed(1)} s
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+
+  if (live) {
+    return (
+      <section className="border-b border-border px-5 py-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">STEPS</h2>
+        {list}
+      </section>
+    );
+  }
+
+  return (
+    <details className="border-b border-border px-5 py-3">
+      <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+        Steps · {steps.length}
+        {totalMs !== undefined ? ` · ${(totalMs / 1_000).toFixed(1)} s total` : ''}
+      </summary>
+      {list}
+    </details>
+  );
+}
+
 function FailurePanel({ turn }: { turn: Turn }) {
   const reason = typeof turn.raw?.reason === 'string' ? turn.raw.reason : undefined;
   const errorMessage = typeof turn.raw?.error === 'string' ? turn.raw.error : undefined;
@@ -189,6 +316,8 @@ function FailurePanel({ turn }: { turn: Turn }) {
             ? 'Request stopped'
             : reason === 'client_network_error'
               ? 'Browser request failed'
+            : reason === 'stream_interrupted'
+              ? 'Brain stopped mid-answer'
             : 'Brain request failed';
 
   return (

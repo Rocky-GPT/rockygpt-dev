@@ -2,21 +2,10 @@
 
 import 'server-only';
 import { brainAddress, type ServiceAddress } from './brain-address';
+import { brainFailureBody, type FailureReason } from './brain-failure';
 
 const PROBE_TIMEOUT_MS = 5_000;
 const CHAT_TIMEOUT_MS = 60_000;
-
-type FailureReason =
-  | 'timeout'
-  | 'unreachable'
-  | 'misconfigured'
-  | 'invalid_request'
-  | 'unauthorized'
-  | 'forbidden'
-  | 'not_found'
-  | 'rate_limited'
-  | 'brain_error'
-  | 'http_error';
 
 function targetFor(path: string, address: ServiceAddress = brainAddress()): string | null {
   const { url } = address;
@@ -35,53 +24,18 @@ function failure(
   return Response.json({ error, reason, detail, retryable, ...extra }, { status });
 }
 
-function reasonForStatus(status: number): FailureReason {
-  if (status === 400 || status === 413 || status === 422) return 'invalid_request';
-  if (status === 401) return 'unauthorized';
-  if (status === 403) return 'forbidden';
-  if (status === 404) return 'not_found';
-  if (status === 408 || status === 504) return 'timeout';
-  if (status === 429) return 'rate_limited';
-  if (status >= 500) return 'brain_error';
-  return 'http_error';
-}
-
-function failureMessage(body: unknown, status: number): string {
-  if (body && typeof body === 'object' && !Array.isArray(body)) {
-    const record = body as Record<string, unknown>;
-    if (typeof record.error === 'string') return record.error;
-    if (typeof record.detail === 'string') return record.detail;
-    if (
-      Array.isArray(record.detail) &&
-      record.detail[0] &&
-      typeof record.detail[0] === 'object' &&
-      typeof (record.detail[0] as Record<string, unknown>).msg === 'string'
-    ) {
-      return (record.detail[0] as Record<string, unknown>).msg as string;
-    }
-    if (
-      record.error &&
-      typeof record.error === 'object' &&
-      !Array.isArray(record.error) &&
-      typeof (record.error as Record<string, unknown>).message === 'string'
-    ) {
-      return (record.error as Record<string, unknown>).message as string;
-    }
-  }
-  return `The Brain returned HTTP ${status} without a specific error message.`;
-}
-
 async function proxyResponse(upstream: Response, operation: string): Promise<Response> {
   const contentType = upstream.headers.get('content-type') ?? 'application/json';
   const requestId = upstream.headers.get('x-request-id');
   if (upstream.ok) {
-    return new Response(upstream.body, {
-      status: upstream.status,
-      headers: {
-        'content-type': contentType,
-        ...(requestId ? { 'x-request-id': requestId } : {}),
-      },
-    });
+    const headers = new Headers({ 'content-type': contentType });
+    // `no-transform` keeps Next's gzip from holding a streamed turn's events
+    // back until the answer is done.
+    for (const name of ['x-request-id', 'cache-control', 'x-accel-buffering']) {
+      const value = upstream.headers.get(name);
+      if (value) headers.set(name, value);
+    }
+    return new Response(upstream.body, { status: upstream.status, headers });
   }
 
   const rawText = await upstream.text();
@@ -91,16 +45,8 @@ async function proxyResponse(upstream: Response, operation: string): Promise<Res
   } catch {
     // Preserve a non-JSON upstream response exactly as text.
   }
-  const reason = reasonForStatus(upstream.status);
   return Response.json(
-    {
-      error: failureMessage(upstreamResponse, upstream.status),
-      reason,
-      detail: `${operation} was rejected by the Brain with HTTP ${upstream.status}.`,
-      retryable: reason === 'timeout' || reason === 'rate_limited' || reason === 'brain_error',
-      upstreamStatus: upstream.status,
-      upstreamResponse,
-    },
+    brainFailureBody(upstream.status, upstreamResponse, operation),
     {
       status: upstream.status,
       headers: requestId ? { 'x-request-id': requestId } : undefined,
@@ -174,7 +120,13 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
   }
 
   try {
-    const headers = new Headers({ accept: 'application/json', 'content-type': 'application/json' });
+    // A caller that asks for events gets the Brain's live steps as they
+    // happen; anything else gets one JSON answer at the end.
+    const streaming = request.headers.get('accept')?.includes('text/event-stream') ?? false;
+    const headers = new Headers({
+      accept: streaming ? 'text/event-stream' : 'application/json',
+      'content-type': 'application/json',
+    });
     const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
     if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
     const upstream = await fetch(target, {

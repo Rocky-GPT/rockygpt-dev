@@ -382,8 +382,8 @@ export function AskWorkbench() {
         }
       />
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col border-border lg:border-r">
+      <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col border-border lg:min-h-0 lg:border-r">
           {bulk && <BulkRunner progress={bulk} />}
           <TurnList turns={turns} selectedId={selectedId} onSelect={setSelectedId} />
           <Composer
@@ -397,7 +397,7 @@ export function AskWorkbench() {
         </div>
 
         {inspectorOpen && (
-          <div className="flex min-h-0 w-full shrink-0 flex-col border-t border-border lg:w-[46rem] lg:max-w-[50%] lg:border-t-0">
+          <div className="flex w-full shrink-0 flex-col border-t border-border lg:min-h-0 lg:w-[46rem] lg:max-w-[50%] lg:border-t-0">
             <TurnInspector
               turn={selected}
               onPrev={position > 0 ? () => stepTurn(-1) : undefined}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { SourcesPanel } from './SourcesPanel';
 import type { Turn } from './types';
 
 export function TurnInspector({
@@ -89,7 +90,7 @@ export function TurnInspector({
           <RawPanel title="RESPONSE" text={turn.rawText ?? 'Waiting for response…'} />
         )}
         {Array.isArray(turn.raw?.citations) && turn.raw.citations.length > 0 && (
-          <RawPanel title="SOURCES" text={JSON.stringify(turn.raw.citations, null, 2)} />
+          <SourcesPanel citations={turn.raw.citations} />
         )}
         {Array.isArray(turn.raw?.trace) && turn.raw.trace.length > 0 && (
           <RawPanel title="TOOL CALLS" text={JSON.stringify(turn.raw.trace, null, 2)} />

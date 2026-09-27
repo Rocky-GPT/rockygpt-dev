@@ -56,7 +56,7 @@ export function TurnList({
   }
 
   return (
-    <div className="flex-1 space-y-2 overflow-y-auto p-4">
+    <div className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
       {turns.map((turn) => {
         const selected = turn.localId === selectedId;
         const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;

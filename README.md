@@ -69,6 +69,25 @@ release. The Student UI is unchanged.
 Verify changes with `npm run test:identities`, `npm run typecheck`,
 `npm run lint`, and `npm run build`.
 
+## Feedback sorting
+
+**Quality → Feedback** (`/quality/feedback`) can sort the recent ratings with
+Jev, TypeSafe's classifier. Press **Sort with Jev** and each rating gets a topic
+(dining, hours, shuttle and parking, courses, and so on). A thumbs down gets a
+reason too when the student gave none or chose "Other": inaccurate, incomplete,
+outdated or could be better, the same labels the student UI offers. The
+**What students are unhappy about** panel counts thumbs down by topic and
+reason; click a row to filter the list. It counts student ratings only, not the
+reviews you give on Chat Logs.
+
+Each rating is one Jev call of about $0.0001, and one press sorts at most 100.
+Jev reads the rated question, answer and comment and only picks labels. The tags
+are saved in `.data/feedback-tags.json` on this machine (git-ignored). The file
+holds feedback IDs, labels and Jev's confidence, never a question, answer or
+comment, and nothing is written back to the Brain's database. A rating whose
+reason or comment changes later is sorted again. Set `TYPESAFE_API_KEY` to turn
+the button on; verify changes with `npm run test:feedback`.
+
 ## Running
 
 ```bash
@@ -86,5 +105,7 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 |---|---|---|
 | `BRAIN_URL` | in production | Brain service address; local development falls back to `http://127.0.0.1:8000`. |
 | `STAGING_SERVICE_TOKEN` | for a protected Brain | Shared server-side environment token; must match the Brain. |
+| `TYPESAFE_API_KEY` | to sort feedback | Jev key for the Feedback page's Sort button; the same key as the Brain's `BRAIN_TYPESAFE_API_KEY`. |
 
 The Dev UI does not connect to a database or import another repository's source.
+Besides the Brain, it calls only Jev, and only when you press Sort on the Feedback page.

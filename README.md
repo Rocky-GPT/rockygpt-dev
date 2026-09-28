@@ -88,6 +88,21 @@ comment, and nothing is written back to the Brain's database. A rating whose
 reason or comment changes later is sorted again. Set `TYPESAFE_API_KEY` to turn
 the button on; verify changes with `npm run test:feedback`.
 
+## Conversation export
+
+**Ask & Inspect**'s download button saves every turn as JSON for debugging
+later, often by an AI reading only the file. Each turn has `sentAt` and
+`finishedAt`, `timing` (the first progress line, the first answer text the
+student would read and whether that was the draft shown while it was checked,
+the answer or a failure's emergency help, the total and the Brain's own time),
+`brain` (commit, release, configuration hash and campus data release), the
+stage `steps`, and the Brain's whole response. The chat proxy asks a
+development Brain for `diagnostics`, so that response also carries every record
+the writer and reviewer were given (`diagnostics.evidence`) and each draft as
+written with the reviewer's verdict on every paragraph (`diagnostics.drafts`).
+A Brain started without the deploy script has no commit to report. Verify
+changes with `npm run test:export`.
+
 ## Running
 
 ```bash

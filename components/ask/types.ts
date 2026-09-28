@@ -36,11 +36,16 @@ export interface Turn {
   requestId?: string;
   failure?: string;
   startedAt: number;
+  finishedAt?: number;
   latencyMs?: number;
+  /** When the first progress event arrived, counted from when it was sent. */
+  firstProgressMs?: number;
   /** Sent by the bulk runner; never replayed as a typed question's history. */
   bulk?: boolean;
   /** The stages the Brain reported while it worked, in order. */
   steps?: TurnStep[];
   /** The answer as drafted, while the Brain checks it. Gone once the turn settles. */
   draft?: string;
+  /** The first draft the Brain showed while checking it, kept for the export. */
+  draftPreview?: { text: string; atMs: number };
 }

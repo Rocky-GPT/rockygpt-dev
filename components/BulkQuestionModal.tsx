@@ -35,8 +35,8 @@ interface BulkQuestionModalProps {
  * The sample sets the runner can load, in the order they are offered.
  *
  * Checked-in evaluation lists contain independent cases, so every line starts
- * a fresh conversation. History remains an explicit opt-in for a manually
- * assembled multi-turn scenario.
+ * a fresh conversation. Anything else runs as one conversation unless history is
+ * turned off.
  */
 const SAMPLE_SETS: ReadonlyArray<{
   id: string;
@@ -86,7 +86,10 @@ export function BulkQuestionModal({
   const [text, setText] = useState('');
   const [pickingSample, setPickingSample] = useState(false);
   const [delayMs, setDelayMs] = useState(0);
-  const [preserveHistory, setPreserveHistory] = useState(false);
+  // On by default (Dan, 09-28): a pasted list with follow-ups sent each question alone,
+  // and "what room did you tell me earlier?" read as the bot forgetting. The checked-in
+  // sample sets are independent cases and still turn it off.
+  const [preserveHistory, setPreserveHistory] = useState(true);
   const dialogRef = useAccessibleDialog(isOpen, onClose);
 
   useEffect(() => {
@@ -100,12 +103,11 @@ export function BulkQuestionModal({
 
   // Opening the runner resumes the exact set and delay used for the last run.
   // This is separate from the saved draft so launching a sample does not erase
-  // questions someone was still editing. Conversation history is intentionally
-  // not restored: it must be opted into for each multi-turn run so a later
-  // independent evaluation cannot inherit an enormous context by accident.
+  // questions someone was still editing. Each run starts with history kept, as a
+  // conversation; turn it off for a list of independent questions.
   useEffect(() => {
     if (!isOpen || prefill) return;
-    setPreserveHistory(false);
+    setPreserveHistory(true);
     try {
       const cachedRun = window.localStorage.getItem(LAST_RUN_STORAGE_KEY);
       if (cachedRun === null) return;

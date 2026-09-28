@@ -53,18 +53,40 @@ export function failureMessage(body: unknown, status: number): string {
   return `The Brain returned HTTP ${status} without a specific error message.`;
 }
 
-/** The body the page reads for a Brain refusal, with the Brain's own body kept whole. */
+/** The Brain's own error object from a refusal body, when it sent one. */
+function brainError(body: unknown): Record<string, unknown> | undefined {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return undefined;
+  const error = (body as Record<string, unknown>).error;
+  return error && typeof error === 'object' && !Array.isArray(error)
+    ? (error as Record<string, unknown>)
+    : undefined;
+}
+
+/**
+ * The body the page reads for a Brain refusal, with the Brain's own body kept whole.
+ *
+ * The Brain's own code, retryability and reset time win over what the HTTP status
+ * suggests: a spent monthly budget is a 429 like a rate limit, but it is not worth
+ * retrying until it resets, and the page said "rate_limited, retry" (09-28).
+ */
 export function brainFailureBody(
   status: number,
   upstreamResponse: unknown,
   operation: string
 ): Record<string, unknown> {
-  const reason = reasonForStatus(status);
+  const own = brainError(upstreamResponse);
+  const reason = typeof own?.code === 'string' ? own.code : reasonForStatus(status);
+  const retryable =
+    typeof own?.retryable === 'boolean'
+      ? own.retryable
+      : reason === 'timeout' || reason === 'rate_limited' || reason === 'brain_error';
   return {
     error: failureMessage(upstreamResponse, status),
     reason,
     detail: `${operation} was rejected by the Brain with HTTP ${status}.`,
-    retryable: reason === 'timeout' || reason === 'rate_limited' || reason === 'brain_error',
+    retryable,
+    ...(typeof own?.resetAt === 'string' ? { resetAt: own.resetAt } : {}),
+    ...(own?.emergency ? { emergency: own.emergency } : {}),
     upstreamStatus: status,
     upstreamResponse,
   };

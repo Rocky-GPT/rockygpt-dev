@@ -291,7 +291,7 @@ function FailurePanel({ turn }: { turn: Turn }) {
   const retryable = typeof turn.raw?.retryable === 'boolean' ? turn.raw.retryable : undefined;
   const timeoutMs = typeof turn.raw?.timeoutMs === 'number' ? turn.raw.timeoutMs : undefined;
   const heading =
-    reason === 'timeout'
+    reason === 'timeout' || reason === 'model_timeout'
       ? 'Brain response timed out'
       : reason === 'unreachable'
         ? 'Brain connection failed'

@@ -257,6 +257,14 @@ export function AskWorkbench() {
     JSON.stringify(
       turns.map((turn) => ({
         question: turn.question,
+        // A bulk run sends each question alone unless history was kept; say so, since a
+        // follow-up graded without its history read as the bot forgetting (09-28).
+        sentWith:
+          turn.request.messages.length > 1
+            ? `${turn.request.messages.length - 1} earlier messages`
+            : turn.bulk
+              ? 'no history (bulk run, each question on its own)'
+              : 'no history (first question)',
         status: turn.status,
         httpStatus: turn.httpStatus,
         latencyMs: turn.latencyMs,
@@ -428,7 +436,8 @@ function describeFailure(status: number, body?: Record<string, unknown>): string
         : 'The Brain request failed.';
   const reason = typeof body?.reason === 'string' ? body.reason : undefined;
 
-  if (reason === 'timeout') return `Timed out — ${message}`;
+  if (reason === 'timeout' || reason === 'model_timeout') return `Timed out — ${message}`;
+  if (reason === 'budget_exhausted') return `Budget spent — ${message}`;
   if (reason === 'unreachable') return `Connection failed — ${message}`;
   if (reason === 'misconfigured') return `Configuration error — ${message}`;
   if (reason === 'cancelled') return `Cancelled — ${message}`;

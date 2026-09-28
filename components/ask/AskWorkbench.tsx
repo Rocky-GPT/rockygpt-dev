@@ -15,6 +15,7 @@ import { PageHeader } from '@/components/shell/PageHeader';
 import { brainFailureBody } from '@/lib/brain-failure';
 import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
 import { addStep, ChatStreamError, isEventStream, readChatStream } from '@/lib/chat-stream';
+import { exportTurn } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
@@ -158,7 +159,14 @@ export function AskWorkbench() {
       setTurns(turnsRef.current);
     };
     const settle = (patch: Partial<Turn>): Turn => {
-      write({ ...current, ...patch, draft: undefined, latencyMs: Date.now() - startedAt });
+      const finishedAt = Date.now();
+      write({
+        ...current,
+        ...patch,
+        draft: undefined,
+        finishedAt,
+        latencyMs: finishedAt - startedAt,
+      });
       return current;
     };
 
@@ -176,13 +184,17 @@ export function AskWorkbench() {
         // Each step lands on the turn as it happens, so the inspector fills in
         // while the Brain works instead of all at once at the end.
         const result = await readChatStream(response, (update) => {
+          const atMs = Date.now() - startedAt;
+          const draft =
+            update.stage === 'reviewing' && typeof update.draft === 'string'
+              ? update.draft
+              : undefined;
           write({
             ...current,
-            steps: addStep(current.steps ?? [], update, Date.now() - startedAt),
-            draft:
-              update.stage === 'reviewing' && typeof update.draft === 'string'
-                ? update.draft
-                : current.draft,
+            steps: addStep(current.steps ?? [], update, atMs),
+            draft: draft ?? current.draft,
+            firstProgressMs: current.firstProgressMs ?? atMs,
+            draftPreview: current.draftPreview ?? (draft ? { text: draft, atMs } : undefined),
           });
         });
         httpStatus = result.status;
@@ -253,28 +265,7 @@ export function AskWorkbench() {
     }
   }, [bulk?.running, busy, problems.length, send, setState, state.message]);
 
-  const conversationJson = () =>
-    JSON.stringify(
-      turns.map((turn) => ({
-        question: turn.question,
-        // A bulk run sends each question alone unless history was kept; say so, since a
-        // follow-up graded without its history read as the bot forgetting (09-28).
-        sentWith:
-          turn.request.messages.length > 1
-            ? `${turn.request.messages.length - 1} earlier messages`
-            : turn.bulk
-              ? 'no history (bulk run, each question on its own)'
-              : 'no history (first question)',
-        status: turn.status,
-        httpStatus: turn.httpStatus,
-        latencyMs: turn.latencyMs,
-        requestId: turn.requestId,
-        request: turn.request,
-        response: turn.raw,
-      })),
-      null,
-      2
-    );
+  const conversationJson = () => JSON.stringify(turns.map(exportTurn), null, 2);
 
   const showConversationExportStatus = (status: ConversationExportStatus) => {
     if (conversationExportTimerRef.current !== null) {

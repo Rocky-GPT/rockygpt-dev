@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "test:graph": "node --experimental-strip-types --test tests/knowledge-graph.test.mjs tests/graph-projection.test.mjs tests/graph-presentation.test.mjs tests/graph-connection-groups.test.mjs tests/coverage-issues.test.mjs",
     "test:storage": "node --experimental-strip-types --test tests/storage.test.mjs",
-    "test:feedback": "node --experimental-strip-types --test tests/feedback-tags.test.mjs"
+    "test:feedback": "node --experimental-strip-types --test tests/feedback-tags.test.mjs",
+    "test:export": "node --experimental-strip-types --test tests/turn-export.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

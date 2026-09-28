@@ -129,6 +129,10 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
     });
     const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
     if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
+    // A development Brain then adds which Brain answered, the evidence the writer and
+    // reviewer were given, and every draft with its verdicts. The student app never
+    // asks, and a production Brain ignores it.
+    headers.set('x-rockygpt-diagnostics', '1');
     const upstream = await fetch(target, {
       method: 'POST',
       headers,

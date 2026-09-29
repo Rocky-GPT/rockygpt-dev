@@ -103,6 +103,12 @@ record) or `{id, version}`, meaning `evidenceVersions[id][version - 1]`.
 `exportedEvidence()` in `lib/turn-export.ts` reads them back. A request that
 left earlier messages out says so in `sentWith` and `request.omittedMessages`.
 
+Each turn starts with `decisions`, what the Brain made of it: `answerMode` (how
+the answer was made, or why there was none), the danger the phrase list heard
+(`dangerPhrase`), and Jev's one call with its readings, what code `decided` from
+them, its cost and time, or why the turn went on without Jev (`jev.skipped` and
+`jev.why`). A Brain that sent no metrics gets no `decisions`.
+
 Each turn has `sentAt` and `finishedAt`, `timing` (the first progress line, the
 first answer text the student would read and whether that was the safety
 block the Brain sends as soon as it reads danger (`safety`), the draft shown
@@ -115,8 +121,9 @@ got back) and the Brain's response. The chat proxy asks a development Brain for
 reviewer's verdict on every paragraph (`diagnostics.drafts`) and the Brain's
 step timings (`diagnostics.work`). A turn without a work record keeps the
 `steps` as they arrived instead. `metrics.toolResults` is left out: it is
-`trace` without the arguments. A Brain started without the deploy script has
-no commit to report. Verify changes with `npm run test:export`.
+`trace` without the arguments. The old Brain reports its commit only when the
+deploy script started it; the new Brain (09-29) reads it from git, marked
+`-dirty` for uncommitted changes. Verify changes with `npm run test:export`.
 
 ## Running
 

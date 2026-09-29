@@ -134,13 +134,16 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
     // reviewer were given, and every draft with its verdicts. The student app never
     // asks, and a production Brain ignores it.
     headers.set('x-rockygpt-diagnostics', '1');
+    // The timeout alone kept a closed Dev tab's turn running on the Brain for up to
+    // a minute; the student route already passes its tab's signal (09-29). Each send
+    // gets its own timer, so the 422 retry still has the full minute.
     const send = (body: string) =>
       fetch(target, {
         method: 'POST',
         headers,
         body,
         cache: 'no-store',
-        signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
+        signal: AbortSignal.any([request.signal, AbortSignal.timeout(CHAT_TIMEOUT_MS)]),
       });
     const body = await request.text();
     let upstream = await send(body);
@@ -154,8 +157,24 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
         : new Response(refusal, { status: upstream.status, headers: upstream.headers });
     }
 
-    return proxyResponse(upstream, 'POST /v1/chat');
+    // Awaited so a tab closed (or the timer firing) while an error body is still
+    // being read lands in the catch below, not as an unhandled route rejection (09-29).
+    return await proxyResponse(upstream, 'POST /v1/chat');
   } catch (error) {
+    // A stopped or closed tab is not a Brain that failed to answer: without this it
+    // read as "could not connect to the Brain". 499 is nginx's client-closed code;
+    // the tab is gone, but the request log still shows why the turn ended.
+    if (request.signal.aborted) {
+      return Response.json(
+        {
+          error: 'The request was stopped before the Brain answered.',
+          reason: 'cancelled',
+          detail: 'The Dev UI tab stopped or closed this request.',
+          retryable: true,
+        },
+        { status: 499 }
+      );
+    }
     return upstreamFailure(error, 'POST /v1/chat', CHAT_TIMEOUT_MS);
   }
 }

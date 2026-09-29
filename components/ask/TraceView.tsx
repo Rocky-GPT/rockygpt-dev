@@ -12,7 +12,9 @@ import {
   type WorkShare,
   type Worker,
 } from '@/lib/chat-stream';
+import { brainMetrics, readJevDecision } from '@/lib/jev-route';
 import { turnDiagnostics } from '@/lib/turn-export';
+import { JevCard } from './JevCard';
 import { useNow } from './useNow';
 import type { Turn } from './types';
 
@@ -24,7 +26,9 @@ import type { Turn } from './types';
  */
 export function TraceView({ turn }: { turn: Turn }) {
   const live = turn.status === 'pending';
-  const metrics = record(turn.raw?.metrics);
+  // A failed or not-ready turn keeps the Brain's metrics under `upstreamResponse`.
+  const metrics = brainMetrics(turn.raw);
+  const decision = live ? undefined : readJevDecision(turn.raw);
   const routing = readRouting(metrics?.routing);
   const calls = Array.isArray(turn.raw?.trace) ? turn.raw.trace.filter(isRecordValue) : [];
   const timings = Array.isArray(metrics?.toolResults)
@@ -34,6 +38,12 @@ export function TraceView({ turn }: { turn: Turn }) {
 
   return (
     <div className="space-y-6 px-5 py-4">
+      {decision && (decision.route || decision.skipped || decision.readings.length > 0) && (
+        <Section title="What Jev decided">
+          <JevCard decision={decision} />
+        </Section>
+      )}
+
       {turn.steps && turn.steps.length > 0 && (
         <Section title="Timeline">
           <Timeline

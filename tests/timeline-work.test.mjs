@@ -257,6 +257,11 @@ test('Jev handoffs read as one line', () => {
     reasons({ route: 'search', confidence: 0.76, directRetrieval: true, fallbackReason: null }),
     ['Jev picked search (76%) and looked it up itself']
   );
+  // Several lookups, like today's hours and the meal on now, and no one route.
+  assert.deepEqual(
+    reasons({ route: 'unresolved', confidence: 0.77, directRetrieval: true, parts: 2 }),
+    ['Jev ran 2 lookups itself (77%)']
+  );
   assert.deepEqual(
     reasons({ route: 'profile', confidence: 0.98, fallbackReason: 'arguments_unresolved' }),
     ['Jev picked profile (98%) → GPT fills in the lookup']

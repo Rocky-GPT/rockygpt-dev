@@ -325,3 +325,132 @@ test('early emergency guidance is the first text the student read', () => {
   assert.equal(exported.timing.firstAnswerText, 'safety');
   assert.equal(exported.timing.firstAnswerTextMs, 900);
 });
+
+test("the new Brain's decisions go at the top of its turn, and its timeline shows Jev", () => {
+  const exported = exportTurn({
+    localId: 'three',
+    question: 'What are my grades?',
+    request,
+    requestText: JSON.stringify(request),
+    status: 'ok',
+    httpStatus: 200,
+    startedAt,
+    finishedAt: startedAt + 700,
+    latencyMs: 700,
+    raw: {
+      answer: "RockyGPT can't see your own account.",
+      status: 'unavailable',
+      citations: [],
+      metrics: {
+        routingCalls: 1,
+        dangerPhrase: null,
+        responseMode: 'access_limit',
+        jev: {
+          answers: {
+            danger: { choice: 'none', probability: 0.97, confidence: 0.95 },
+            own_account: { yes: 0.96 },
+            own_account_only: { yes: 0.9 },
+            needs_earlier: { yes: 0.03 },
+          },
+          decided: { danger: null, ownAccount: true, needsEarlier: false },
+          costNusd: 42_000,
+          inputTokens: 1_000,
+          elapsedMs: 480,
+        },
+      },
+      diagnostics: {
+        brain: { revision: 'd285c8f1a2b3-dirty', environment: 'development' },
+        startedAt: '2026-09-29T11:00:00-04:00',
+        work: {
+          steps: [
+            { stage: 'connecting', subjects: [], atMs: 0 },
+            {
+              stage: 'understanding',
+              subjects: [],
+              atMs: 2,
+              written: { by: 'code', mode: 'access_limit' },
+            },
+          ],
+          calls: [{ who: 'jev', what: 'routing', step: 1, startMs: 30, ms: 480 }],
+          endMs: 540,
+        },
+      },
+    },
+  });
+  assert.equal(Object.keys(exported).indexOf('decisions'), 4);
+  assert.deepEqual(exported.decisions, {
+    answerMode: 'access_limit',
+    dangerPhrase: null,
+    jev: {
+      decided: { danger: null, ownAccount: true, needsEarlier: false },
+      answers: {
+        danger: { choice: 'none', probability: 0.97, confidence: 0.95 },
+        own_account: { yes: 0.96 },
+        own_account_only: { yes: 0.9 },
+        needs_earlier: { yes: 0.03 },
+      },
+      costUsd: 0.000042,
+      inputTokens: 1_000,
+      ms: 480,
+    },
+  });
+  assert.equal(exported.brain.revision, 'd285c8f1a2b3-dirty');
+  assert.equal(exported.timing.brainElapsedMs, 540);
+  const [, understanding] = exported.timeline.steps;
+  assert.deepEqual(understanding.why, ['Code wrote what RockyGPT can’t reach, with no GPT call']);
+  assert.deepEqual(
+    understanding.work.find((share) => share.who === 'jev'),
+    { who: 'jev', ms: 480, calls: ['routing'] }
+  );
+});
+
+test('a new Brain failure says why Jev was skipped, from inside the Brain body', () => {
+  const exported = exportTurn({
+    localId: 'four',
+    question: 'Hi',
+    request,
+    requestText: JSON.stringify(request),
+    status: 'failed',
+    httpStatus: 503,
+    startedAt,
+    finishedAt: startedAt + 40,
+    latencyMs: 40,
+    raw: {
+      error: 'RockyGPT is not ready yet.',
+      reason: 'not_ready',
+      upstreamStatus: 503,
+      upstreamResponse: {
+        reason: 'not_ready',
+        metrics: {
+          routingCalls: 0,
+          dangerPhrase: null,
+          responseMode: 'not_ready',
+          jev: { skipped: 'routing_unavailable' },
+        },
+      },
+    },
+  });
+  assert.deepEqual(exported.decisions, {
+    answerMode: 'not_ready',
+    dangerPhrase: null,
+    jev: {
+      skipped: 'routing_unavailable',
+      why: 'Jev is not set up on this Brain, or could not be reached',
+      calls: 0,
+    },
+  });
+});
+
+test('a turn without metrics has no decisions block', () => {
+  const exported = exportTurn({
+    localId: 'five',
+    question: 'Where is the Registrar?',
+    request,
+    requestText: JSON.stringify(request),
+    status: 'ok',
+    httpStatus: 200,
+    startedAt,
+    raw: { answer: 'D-224.' },
+  });
+  assert.equal('decisions' in exported, false);
+});

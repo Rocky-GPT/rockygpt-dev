@@ -210,9 +210,27 @@ export interface WorkShare {
   calls: string[];
 }
 
+/** A stretch of a step, in the order it happened, and who worked in it. */
+export interface WorkSegment {
+  who: Worker;
+  ms: number;
+  /** The Jev or GPT call, as `draft` or `review (failed)`; empty for code. */
+  call?: string;
+}
+
 export interface WorkedStep extends TurnStep {
   ms: number;
   work: WorkShare[];
+  segments: WorkSegment[];
+}
+
+/** Where the whole turn's time went in the Brain, and how many calls each model made. */
+export interface WorkTotal {
+  who: Worker;
+  ms: number;
+  /** Of the Brain's whole time, 0 to 1. */
+  share: number;
+  calls: number;
 }
 
 interface WorkCall {
@@ -238,7 +256,9 @@ const CALLS: Record<string, string> = {
  * them live. Whatever a step spent outside its calls was the Brain's own code:
  * lookups, calculations, rendering and the ledger's bookkeeping.
  */
-export function workedSteps(work: unknown): { steps: WorkedStep[]; endMs: number } | undefined {
+export function workedSteps(
+  work: unknown
+): { steps: WorkedStep[]; endMs: number; calls: Record<'jev' | 'gpt', number> } | undefined {
   if (!work || typeof work !== 'object') return undefined;
   const { steps: rawSteps, calls: rawCalls, endMs } = work as Record<string, unknown>;
   if (!Array.isArray(rawSteps) || !rawSteps.length || typeof endMs !== 'number') return undefined;
@@ -261,6 +281,10 @@ export function workedSteps(work: unknown): { steps: WorkedStep[]; endMs: number
   );
   return {
     endMs,
+    calls: {
+      jev: calls.filter((call) => call.who === 'jev').length,
+      gpt: calls.filter((call) => call.who === 'gpt').length,
+    },
     steps: steps.map((step, index) => {
       const from = step.atMs;
       const to = Math.max(from, steps[index + 1]?.atMs ?? endMs);
@@ -272,9 +296,55 @@ export function workedSteps(work: unknown): { steps: WorkedStep[]; endMs: number
       }
       const code = to - from - covered(mine, from, to);
       if (code > 0 || !work.length) work.push({ who: 'code', ms: code, calls: [] });
-      return { ...step, ms: to - from, work };
+      return { ...step, ms: to - from, work, segments: segmented(mine, from, to) };
     }),
   };
+}
+
+/**
+ * The turn's time in the Brain by who did the work, largest first: GPT, Jev and the
+ * Brain's own code, with how many calls each model made. Workers with no time and no
+ * calls are left out.
+ */
+export function workTotals(worked: NonNullable<ReturnType<typeof workedSteps>>): WorkTotal[] {
+  const totals = new Map<Worker, number>();
+  for (const step of worked.steps) {
+    for (const share of step.work) totals.set(share.who, (totals.get(share.who) ?? 0) + share.ms);
+  }
+  const total = Math.max(worked.endMs, 1);
+  return (['gpt', 'jev', 'code'] as const)
+    .map((who) => ({
+      who,
+      ms: totals.get(who) ?? 0,
+      share: (totals.get(who) ?? 0) / total,
+      calls: who === 'code' ? 0 : worked.calls[who],
+    }))
+    .filter((entry) => entry.ms > 0 || entry.calls > 0)
+    .sort((a, b) => b.ms - a.ms);
+}
+
+/**
+ * A step's time in order: each call as its own stretch, and the code between them.
+ * A call that overlaps an earlier one (Jev's record checks run together) adds only
+ * its time past that one, so the stretches add up to the step.
+ */
+function segmented(calls: WorkCall[], from: number, to: number): WorkSegment[] {
+  const segments: WorkSegment[] = [];
+  let reached = from;
+  const add = (who: Worker, until: number, call?: string) => {
+    if (until <= reached) return;
+    segments.push({ who, ms: until - reached, ...(call ? { call } : {}) });
+    reached = until;
+  };
+  for (const call of [...calls].sort((a, b) => a.startMs - b.startMs)) {
+    const start = Math.max(from, call.startMs);
+    const end = Math.min(to, call.startMs + call.ms);
+    if (end <= start) continue;
+    add('code', start);
+    add(call.who, end, named([call])[0]);
+  }
+  add('code', to);
+  return segments;
 }
 
 /** How much of `from`..`to` the calls cover, counting overlaps once. */

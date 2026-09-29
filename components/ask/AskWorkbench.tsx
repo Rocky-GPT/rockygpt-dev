@@ -13,7 +13,12 @@ import {
 import { BulkQuestionModal } from '@/components/BulkQuestionModal';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { brainFailureBody } from '@/lib/brain-failure';
-import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
+import {
+  buildBody,
+  validate,
+  windowHistory,
+  type ChatMessageInput,
+} from '@/lib/chat-request';
 import { addStep, ChatStreamError, isEventStream, readChatStream } from '@/lib/chat-stream';
 import { exportConversation } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
@@ -21,7 +26,7 @@ import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
 import { TurnInspector } from './TurnInspector';
 import { TurnList } from './TurnList';
-import type { Turn } from './types';
+import { turnOutcome, type Turn } from './types';
 
 interface SendOptions {
   signal?: AbortSignal;
@@ -31,25 +36,19 @@ interface SendOptions {
 }
 
 /**
- * The most recent exchanges that fit the Brain's limits (80 messages, 48,000
- * characters), using the student app's half-size budget. Every successful
- * turn used to travel with each typed question, so after a 100-question bulk
- * run every question afterwards failed with HTTP 422.
+ * The conversation this app replays as history: every turn the Brain answered,
+ * including an "unavailable" one, since its reply is part of what the student would
+ * have read. Failed and bulk turns are not. Bulk runs build their own.
  */
-const HISTORY_MESSAGES = 40;
-const HISTORY_CHARACTERS = 24_000;
-
-function recentHistory(messages: ChatMessageInput[], nextMessage: string): ChatMessageInput[] {
-  const kept: ChatMessageInput[] = [];
-  let budget = HISTORY_CHARACTERS - nextMessage.length;
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const message = messages[index];
-    if (kept.length >= HISTORY_MESSAGES - 1 || message.content.length > budget) break;
-    kept.unshift(message);
-    budget -= message.content.length;
-  }
-  while (kept.length > 0 && kept[0].role !== 'user') kept.shift();
-  return kept;
+function conversationHistory(turns: Turn[]): ChatMessageInput[] {
+  return turns.flatMap<ChatMessageInput>((turn) => {
+    const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+    if (turn.bulk || turn.status === 'failed' || !answer) return [];
+    return [
+      { role: 'user', content: turn.question },
+      { role: 'assistant', content: answer },
+    ];
+  });
 }
 
 type ConversationExportStatus = 'idle' | 'copied' | 'downloaded' | 'copy-error';
@@ -121,19 +120,13 @@ export function AskWorkbench() {
 
   const send = useCallback(
     async (message: string, options: SendOptions = {}): Promise<Turn> => {
-      const priorMessages = recentHistory(
-        options.priorMessages ??
-          turnsRef.current.flatMap<ChatMessageInput>((turn) => {
-            const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-            if (turn.bulk || turn.status !== 'ok' || !answer) return [];
-            return [
-              { role: 'user', content: turn.question },
-              { role: 'assistant', content: answer },
-            ];
-          }),
+      // Typed questions and bulk runs with history share one window, and the Brain
+      // is told how much was left out (09-29).
+      const history = windowHistory(
+        options.priorMessages ?? conversationHistory(turnsRef.current),
         message
       );
-      const body = buildBody({ message }, priorMessages);
+      const body = buildBody({ message }, history.messages, history.omittedMessages);
       const requestText = JSON.stringify(body);
       const localId = crypto.randomUUID();
       const startedAt = Date.now();
@@ -196,6 +189,9 @@ export function AskWorkbench() {
               draft: draft ?? current.draft,
               firstProgressMs: current.firstProgressMs ?? atMs,
               draftPreview: current.draftPreview ?? (draft ? { text: draft, atMs } : undefined),
+              safety:
+                current.safety ??
+                (update.safety ? { answer: update.safety.answer, atMs } : undefined),
             });
           });
           httpStatus = result.status;
@@ -212,17 +208,17 @@ export function AskWorkbench() {
             raw = undefined;
           }
         }
-        const ok = httpStatus >= 200 && httpStatus < 300;
+        const status = turnOutcome(httpStatus, raw);
 
         return settle({
-          status: ok ? 'ok' : 'failed',
+          status,
           httpStatus,
           rawText,
           raw,
           requestId:
             response.headers.get('x-request-id') ??
             (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
-          failure: ok ? undefined : describeFailure(httpStatus, raw),
+          failure: status === 'failed' ? describeFailure(httpStatus, raw) : undefined,
         });
       } catch (error) {
         const stopped = error instanceof DOMException && error.name === 'AbortError';
@@ -450,9 +446,11 @@ async function runBulk(
   let asked = 0;
   let failed = 0;
   let declined = 0;
+  let partial = 0;
+  // Every exchange so far; `send` windows it like a typed question's history.
   const history: ChatMessageInput[] = [];
 
-  setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+  setBulk({ running: true, asked, failed, declined, partial, total: questions.length, stop });
 
   for (const question of questions) {
     if (controller.signal.aborted) break;
@@ -465,13 +463,14 @@ async function runBulk(
     asked += 1;
     if (turn.status === 'failed') failed += 1;
     else if (turn.status === 'declined') declined += 1;
-    if (preserveHistory && turn.status === 'ok' && typeof turn.raw?.answer === 'string') {
+    else if (turn.raw?.status === 'partial') partial += 1;
+    if (preserveHistory && turn.status !== 'failed' && typeof turn.raw?.answer === 'string') {
       history.push(
         { role: 'user', content: turn.question },
         { role: 'assistant', content: turn.raw.answer }
       );
     }
-    setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+    setBulk({ running: true, asked, failed, declined, partial, total: questions.length, stop });
 
     if (delayMs > 0 && !controller.signal.aborted) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -483,6 +482,7 @@ async function runBulk(
     asked,
     failed,
     declined,
+    partial,
     total: questions.length,
     stop,
     stopped: controller.signal.aborted,

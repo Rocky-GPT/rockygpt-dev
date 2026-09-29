@@ -26,6 +26,18 @@ export interface ProgressUpdate {
   subjects?: ProgressSubject[];
   operation?: string;
   draft?: string;
+  /** The fixed emergency guidance, sent as soon as the Brain sees danger (09-29). */
+  safety?: { answer: string; citations?: unknown[] };
+}
+
+/** `safety` kept only when it carries the guidance's text. */
+function progressUpdate(payload: Record<string, unknown>): ProgressUpdate {
+  const update = { ...payload } as unknown as ProgressUpdate;
+  const safety = payload.safety as Record<string, unknown> | null | undefined;
+  if (!safety || typeof safety !== 'object' || typeof safety.answer !== 'string') {
+    delete update.safety;
+  }
+  return update;
 }
 
 /** A stage the turn reached, and when, counted from when it was sent. */
@@ -80,10 +92,22 @@ export async function readChatStream(
         if (!data || typeof data !== 'object') throw new ChatStreamError();
         const payload = data as Record<string, unknown>;
         if (event === 'progress') {
-          if (typeof payload.stage === 'string') onProgress(payload as unknown as ProgressUpdate);
+          if (typeof payload.stage === 'string') onProgress(progressUpdate(payload));
         } else {
-          if (typeof payload.status !== 'number') throw new ChatStreamError();
-          return { status: payload.status, body: payload.body };
+          // A result must be a real HTTP status with a body, as the student parser
+          // requires; `{status: 200}` alone used to read as an empty answer.
+          const { status, body } = payload;
+          if (
+            typeof status !== 'number' ||
+            !Number.isInteger(status) ||
+            status < 200 ||
+            status > 599 ||
+            !body ||
+            typeof body !== 'object'
+          ) {
+            throw new ChatStreamError();
+          }
+          return { status, body };
         }
       }
       if (done) throw new ChatStreamError();

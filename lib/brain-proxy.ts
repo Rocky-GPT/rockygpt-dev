@@ -3,6 +3,7 @@
 import 'server-only';
 import { brainAddress, type ServiceAddress } from './brain-address';
 import { brainFailureBody, type FailureReason } from './brain-failure';
+import { refusesOmittedMessages, withoutOmittedMessages } from './chat-request';
 
 const PROBE_TIMEOUT_MS = 5_000;
 const CHAT_TIMEOUT_MS = 60_000;
@@ -133,13 +134,25 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
     // reviewer were given, and every draft with its verdicts. The student app never
     // asks, and a production Brain ignores it.
     headers.set('x-rockygpt-diagnostics', '1');
-    const upstream = await fetch(target, {
-      method: 'POST',
-      headers,
-      body: await request.text(),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
-    });
+    const send = (body: string) =>
+      fetch(target, {
+        method: 'POST',
+        headers,
+        body,
+        cache: 'no-store',
+        signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
+      });
+    const body = await request.text();
+    let upstream = await send(body);
+    if (upstream.status === 422) {
+      // A Brain released before omittedMessages (09-29) refuses the field, and every
+      // question past the history window failed; it gets the shortened history instead.
+      const refusal = await upstream.text();
+      const shortened = refusesOmittedMessages(refusal) ? withoutOmittedMessages(body) : null;
+      upstream = shortened
+        ? await send(shortened)
+        : new Response(refusal, { status: upstream.status, headers: upstream.headers });
+    }
 
     return proxyResponse(upstream, 'POST /v1/chat');
   } catch (error) {

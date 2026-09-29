@@ -7,8 +7,14 @@ export interface BulkProgress {
   asked: number;
   /** The system broke. */
   failed: number;
-  /** A guard refused. Counted apart, because it is not the same news. */
+  /**
+   * The Brain answered "unavailable": a guard refused or a fact could not be
+   * verified. Counted apart, because it is not the same news. Counted from the
+   * Brain's status, not HTTP 200 (09-29).
+   */
   declined: number;
+  /** Answered in part: the Brain's `partial` status. */
+  partial: number;
   total: number;
   stop: () => void;
   stopped?: boolean;
@@ -19,7 +25,7 @@ export function BulkRunner({
 }: {
   progress: BulkProgress;
 }) {
-  const { running, asked, failed, declined, total, stop, stopped } = progress;
+  const { running, asked, failed, declined, partial, total, stop, stopped } = progress;
   const percent = total === 0 ? 0 : Math.round((asked / total) * 100);
 
   return (
@@ -28,6 +34,11 @@ export function BulkRunner({
         <span className="text-xs font-medium text-foreground">
           {running ? 'Running' : stopped ? 'Stopped' : 'Finished'} {asked} of {total}
         </span>
+        {partial > 0 && (
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-sky-300">
+            {partial} partial
+          </span>
+        )}
         {declined > 0 && (
           <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-amber-300">
             {declined} declined

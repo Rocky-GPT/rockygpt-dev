@@ -180,10 +180,10 @@ function StatusPill({ turn }: { turn: Turn }) {
   const label =
     turn.status === 'failed'
       ? 'Failed'
-      : turn.status === 'declined'
-        ? 'Declined'
-        : verdict
-          ? humanizeIdentifier(verdict)
+      : verdict
+        ? humanizeIdentifier(verdict)
+        : turn.status === 'declined'
+          ? 'Declined'
           : 'Answered';
   const tone =
     turn.status === 'failed'
@@ -264,6 +264,16 @@ function LiveAnswer({ turn }: { turn: Turn }) {
           </div>
         )}
       </div>
+      {turn.safety && (
+        <div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-red-300/80">
+            Emergency guidance · sent at {turn.safety.atMs} ms
+          </p>
+          <div className="text-[15px] leading-7 text-foreground">
+            <BrainMarkdown>{turn.safety.answer}</BrainMarkdown>
+          </div>
+        </div>
+      )}
       {turn.draft && (
         <div className="mt-3 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-4">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">

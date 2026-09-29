@@ -1,4 +1,4 @@
-import type { ChatRequestBody } from '@/lib/chat-request';
+import type { ChatMessageInput, ChatRequestBody } from '@/lib/chat-request';
 import type { TurnStep } from '@/lib/chat-stream';
 
 /**
@@ -44,6 +44,31 @@ export function currentOutcome(turn: Turn): Turn {
   if (turn.status === 'pending' || turn.httpStatus === undefined) return turn;
   const status = turnOutcome(turn.httpStatus, turn.raw);
   return status === turn.status ? turn : { ...turn, status };
+}
+
+/**
+ * What a finished turn adds to a conversation's history. An answered turn adds the
+ * question and its answer. A turn the Brain called "not ready" adds the question alone:
+ * it was asked, and a follow-up ("what about tomorrow?") leans on it, though there is no
+ * answer to add. Leaving it out sent every follow-up on its own, so the Brain read it
+ * without the question it followed (09-29). A turn that failed, or hasn't finished,
+ * adds nothing.
+ */
+export function historyOf(turn: Turn): ChatMessageInput[] {
+  const status = currentOutcome(turn).status;
+  const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  if (status === 'not_built') return [{ role: 'user', content: turn.question }];
+  if (status === 'failed' || status === 'pending' || !answer) return [];
+  return [
+    { role: 'user', content: turn.question },
+    { role: 'assistant', content: answer },
+  ];
+}
+
+/** A typed conversation's history: every finished turn but the bulk runner's, which are
+ * never replayed as the history of a typed question. */
+export function conversationHistory(turns: Turn[]): ChatMessageInput[] {
+  return turns.flatMap((turn) => (turn.bulk ? [] : historyOf(turn)));
 }
 
 function reasonOf(body: unknown): unknown {

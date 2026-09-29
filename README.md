@@ -90,18 +90,25 @@ the button on; verify changes with `npm run test:feedback`.
 
 ## Conversation export
 
-**Ask & Inspect**'s download button saves every turn as JSON for debugging
-later, often by an AI reading only the file. Each turn has `sentAt` and
-`finishedAt`, `timing` (the first progress line, the first answer text the
-student would read and whether that was the draft shown while it was checked,
-the answer or a failure's emergency help, the total and the Brain's own time),
-`brain` (commit, release, configuration hash and campus data release), the
-stage `steps`, and the Brain's whole response. The chat proxy asks a
-development Brain for `diagnostics`, so that response also carries every record
-the writer and reviewer were given (`diagnostics.evidence`) and each draft as
-written with the reviewer's verdict on every paragraph (`diagnostics.drafts`).
-A Brain started without the deploy script has no commit to report. Verify
-changes with `npm run test:export`.
+**Ask & Inspect**'s download button saves the conversation as compact JSON for
+debugging later, often by an AI reading only the file. The conversation's
+`messages` and every `evidence` record (keyed by ID) are written once; each
+turn's `request.messages` are indexes into `messages`, and its
+`diagnostics.evidenceIds` name the records the writer and reviewer were given.
+
+Each turn has `sentAt` and `finishedAt`, `timing` (the first progress line, the
+first answer text the student would read and whether that was the draft shown
+while it was checked, the answer or a failure's emergency help, the total and
+the Brain's own time), `brain` (commit, release, configuration hash and campus
+data release), `timeline` (what the Timeline panel shows: the Jev, GPT and code
+totals, then each step with who worked in it, why it ran and what its lookups
+got back) and the Brain's response. The chat proxy asks a development Brain for
+`diagnostics`, so the response also carries each draft as written with the
+reviewer's verdict on every paragraph (`diagnostics.drafts`) and the Brain's
+step timings (`diagnostics.work`). A turn without a work record keeps the
+`steps` as they arrived instead. `metrics.toolResults` is left out: it is
+`trace` without the arguments. A Brain started without the deploy script has
+no commit to report. Verify changes with `npm run test:export`.
 
 ## Running
 

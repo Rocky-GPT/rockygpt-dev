@@ -5,9 +5,24 @@
  * not, so a low-confidence one is shown rather than hidden.
  */
 
-import { JEV_SKIPPED } from './turn-export.ts';
-
 type Json = Record<string, unknown>;
+
+/** Why a development Brain went on without Jev, in words; its `metrics.jev.skipped` code. */
+export const JEV_SKIPPED: Record<string, string> = {
+  routing_unavailable: 'Jev is not set up on this Brain, or could not be reached',
+  routing_timeout: 'Jev ran out of time',
+  routing_rate_limited: 'Typesafe said too many calls',
+  routing_provider_error: 'Typesafe returned an error',
+  routing_invalid_response: "Jev's answers didn't check out",
+  routing_usage_unknown: "Typesafe didn't say what the call used",
+  routing_model_changed: 'Typesafe answered with another Jev model',
+  routing_context_limit: 'The conversation was too long for Jev',
+  routing_price_unavailable: 'Jev had no current price',
+  budget_exhausted: 'The allowance is spent, so all paid work stopped',
+  accounting_unavailable: "The spending ledger couldn't be reached, so all paid work stopped",
+  accounting_paused: 'Spending is paused, so all paid work stopped',
+  accounting_bound_exceeded: 'Spending is paused, so all paid work stopped',
+};
 
 export interface JevRoute {
   /** The Brain's route name, such as `campus_fact`. */
@@ -53,6 +68,18 @@ const ROUTE_WORDS: Record<string, string> = {
   ambiguous: 'ambiguous',
 };
 
+const GOES_TO: Record<string, string> = {
+  exact: 'code',
+  campus_fact: 'retrieval',
+  document_policy: 'retrieval + GPT',
+  general_question: 'GPT',
+  complex_reasoning: 'GPT',
+  multi_part: 'orchestrator',
+  account_action: 'capability limit',
+  danger: 'safety path',
+  ambiguous: 'clarification',
+};
+
 const PICK_WORDS: Record<string, string> = {
   danger: 'danger',
   ownAccount: 'own account',
@@ -81,7 +108,8 @@ export function readJevRoute(raw: Json | undefined): JevRoute | undefined {
         : undefined;
   if (!route) return undefined;
   const words = ROUTE_WORDS[route] ?? route.replaceAll('_', ' ');
-  const goesTo = typeof decided?.goesTo === 'string' ? decided.goesTo : undefined;
+  // Without Jev the Brain names only the route; Dan's table says where it goes.
+  const goesTo = typeof decided?.goesTo === 'string' ? decided.goesTo : GOES_TO[route];
   const lowConfidence = Object.entries(record(decided?.lowConfidence) ?? {})
     .filter((entry): entry is [string, number] => typeof entry[1] === 'number')
     .sort((a, b) => a[1] - b[1])

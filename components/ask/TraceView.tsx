@@ -4,7 +4,9 @@ import {
   describeStep,
   displayDate,
   workedSteps,
+  workTotals,
   type TurnStep,
+  type WorkedStep,
   type WorkShare,
   type Worker,
 } from '@/lib/chat-stream';
@@ -332,20 +334,23 @@ const STAGE_COLOR: Record<string, string> = {
   reviewing: 'bg-amber-400',
 };
 
-const WORKERS: Record<Worker, { label: string; className: string; about: string }> = {
+const WORKERS: Record<Worker, { label: string; className: string; bar: string; about: string }> = {
   jev: {
     label: 'Jev',
     className: 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200',
+    bar: 'bg-fuchsia-400',
     about: 'Jev',
   },
   gpt: {
     label: 'GPT',
     className: 'border-teal-400/30 bg-teal-400/10 text-teal-200',
+    bar: 'bg-teal-400',
     about: 'GPT',
   },
   code: {
     label: 'Code',
     className: 'border-white/10 bg-white/[0.04] text-neutral-300',
+    bar: 'bg-neutral-500',
     about: "The Brain's own code: lookups, calculations, rendering and bookkeeping",
   },
 };
@@ -354,7 +359,9 @@ const WORKERS: Record<Worker, { label: string; className: string; about: string 
  * Where the time went: one bar split by stage, then each stage with how long
  * it took. The last stage runs until the answer arrived, or until now while
  * the Brain is still on it. Once a development Brain has answered, the stages
- * are the Brain's own timings, each tagged with who did the work.
+ * are the Brain's own timings, each tagged with who did the work: a line on top
+ * adds up Jev, GPT and code for the whole turn, and the bar is colored by who
+ * was working at each moment instead of by stage.
  */
 function Timeline({
   steps,
@@ -377,7 +384,14 @@ function Timeline({
 
   return (
     <div className="rounded-xl border border-border bg-neutral-950/60 p-4">
-      <StageBar spans={spans} live={live} total={total} />
+      {worked ? (
+        <>
+          <WorkSummary worked={worked} />
+          <WorkBar steps={worked.steps} total={total} />
+        </>
+      ) : (
+        <StageBar spans={spans} live={live} total={total} />
+      )}
 
       <ol className="mt-3.5 space-y-2">
         {spans.map(({ step, ms, work }, index) => {
@@ -441,6 +455,64 @@ function WorkTags({ work }: { work: WorkShare[] }) {
         );
       })}
     </span>
+  );
+}
+
+/** The whole turn in one line: "GPT 17.7 s (86%) · Jev 0.5 s · Code 2.4 s · 4 GPT calls". */
+function WorkSummary({ worked }: { worked: NonNullable<ReturnType<typeof workedSteps>> }) {
+  const totals = workTotals(worked);
+  const counts = totals
+    .filter((entry) => entry.calls > 0)
+    .map(
+      (entry) => `${entry.calls} ${WORKERS[entry.who].label} call${entry.calls === 1 ? '' : 's'}`
+    );
+  return (
+    <p className="mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-muted-foreground">
+      {totals.map((entry) => (
+        <span
+          key={entry.who}
+          title={WORKERS[entry.who].about}
+          className="inline-flex items-center gap-1.5"
+        >
+          <span className={`h-2 w-2 rounded-sm ${WORKERS[entry.who].bar}`} />
+          <span className="text-foreground">
+            {WORKERS[entry.who].label} {formatMs(entry.ms)}
+          </span>
+          <span>{Math.round(entry.share * 100)}%</span>
+        </span>
+      ))}
+      {counts.length > 0 && <span>{counts.join(' · ')}</span>}
+    </p>
+  );
+}
+
+/**
+ * The Brain's time as one bar colored by who was working: Jev, GPT or the Brain's
+ * own code, in the order it happened. A thin gap marks where each step began.
+ */
+function WorkBar({ steps, total }: { steps: WorkedStep[]; total: number }) {
+  return (
+    <div className="flex h-2 overflow-hidden rounded-full bg-white/[0.06]">
+      {steps.map((step, index) => {
+        const { label } = describeStep(step);
+        return (
+          <div
+            key={index}
+            className="flex h-full border-r border-neutral-950/80 last:border-r-0"
+            style={{ width: `${(step.ms / total) * 100}%` }}
+          >
+            {step.segments.map((segment, part) => (
+              <div
+                key={part}
+                title={`${label} · ${WORKERS[segment.who].label}${segment.call ? ` ${segment.call}` : ''} ${formatMs(segment.ms)}`}
+                className={`${WORKERS[segment.who].bar} h-full`}
+                style={{ width: `${(segment.ms / Math.max(step.ms, 1)) * 100}%` }}
+              />
+            ))}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

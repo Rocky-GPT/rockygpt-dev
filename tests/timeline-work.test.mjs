@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { workedSteps } from '../lib/chat-stream.ts';
+import { workTotals, workedSteps } from '../lib/chat-stream.ts';
 
 const shares = (step) => Object.fromEntries(step.work.map((share) => [share.who, share.ms]));
 
@@ -40,6 +40,32 @@ test('each step says who did its work, from the calls the Brain timed', () => {
   assert.deepEqual(shares(worked.steps[3]), { gpt: 4_980, code: 20 });
   assert.deepEqual(worked.steps[4].work[0].calls, ['review (failed)']);
   assert.equal(worked.endMs, 13_950);
+
+  // The bar: each step's time in the order it happened, adding up to the step.
+  assert.deepEqual(worked.steps[1].segments, [
+    { who: 'code', ms: 50 },
+    { who: 'jev', ms: 900, call: 'routing' },
+    { who: 'code', ms: 10 },
+    { who: 'gpt', ms: 3_100, call: 'draft' },
+    { who: 'code', ms: 40 },
+  ]);
+  for (const step of worked.steps) {
+    assert.equal(
+      step.segments.reduce((sum, segment) => sum + segment.ms, 0),
+      step.ms
+    );
+  }
+
+  // The line on top: the whole turn by who did the work, largest first.
+  assert.deepEqual(
+    workTotals(worked).map(({ who, ms, calls }) => [who, ms, calls]),
+    [
+      ['gpt', 12_080, 3],
+      ['code', 970, 0],
+      ['jev', 900, 1],
+    ]
+  );
+  assert.equal(Math.round(workTotals(worked)[0].share * 100), 87);
 });
 
 test('overlapping calls count once, and a step with no time is still code', () => {
@@ -59,6 +85,15 @@ test('overlapping calls count once, and a step with no time is still code', () =
     { who: 'code', ms: 300, calls: [] },
   ]);
   assert.deepEqual(worked.steps[1].work, [{ who: 'code', ms: 0, calls: [] }]);
+  // An overlapping record check adds only its time past the earlier one, and still
+  // counts as a call.
+  assert.deepEqual(worked.steps[0].segments, [
+    { who: 'code', ms: 100 },
+    { who: 'jev', ms: 500, call: 'record check' },
+    { who: 'jev', ms: 200, call: 'record check' },
+    { who: 'code', ms: 200 },
+  ]);
+  assert.deepEqual(worked.calls, { jev: 2, gpt: 0 });
 });
 
 test('an answer without a work record keeps the live timeline', () => {

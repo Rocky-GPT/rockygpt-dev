@@ -3,6 +3,8 @@
 import {
   describeStep,
   displayDate,
+  lookupCounts,
+  stepReasons,
   workedSteps,
   workTotals,
   type TurnStep,
@@ -361,7 +363,9 @@ const WORKERS: Record<Worker, { label: string; className: string; bar: string; a
  * the Brain is still on it. Once a development Brain has answered, the stages
  * are the Brain's own timings, each tagged with who did the work: a line on top
  * adds up Jev, GPT and code for the whole turn, and the bar is colored by who
- * was working at each moment instead of by stage.
+ * was working at each moment instead of by stage. Each step then also says why it
+ * ran (Jev's route, what a draft asked for) and what each lookup got back, as the
+ * Brain recorded them.
  */
 function Timeline({
   steps,
@@ -381,6 +385,14 @@ function Timeline({
     ? worked.steps.map((step) => ({ step, ms: step.ms, work: step.work }))
     : timed.spans;
   const total = worked ? Math.max(worked.endMs, 1) : timed.total;
+  // Which writing attempt each writing step is, so a second one says it was a retry.
+  const notes = (worked?.steps ?? []).map((step, index, steps) => ({
+    why: stepReasons(
+      step,
+      steps.slice(0, index + 1).filter((earlier) => earlier.stage === 'composing').length
+    ),
+    found: lookupCounts(step),
+  }));
 
   return (
     <div className="rounded-xl border border-border bg-neutral-950/60 p-4">
@@ -411,6 +423,19 @@ function Timeline({
                 {detail && (
                   <span className="block text-xs leading-5 text-muted-foreground">{detail}</span>
                 )}
+                {notes[index]?.why.map((line, at) => (
+                  <span key={`why${at}`} className="block text-xs leading-5 text-sky-300/90">
+                    {line}
+                  </span>
+                ))}
+                {notes[index]?.found.map((line, at) => (
+                  <span
+                    key={`found${at}`}
+                    className="block font-mono text-[11px] leading-5 text-neutral-400"
+                  >
+                    {line}
+                  </span>
+                ))}
               </span>
               <span className="mt-0.5 shrink-0 font-mono text-[11px] text-muted-foreground">
                 {formatMs(ms)}

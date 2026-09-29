@@ -222,6 +222,59 @@ export interface WorkedStep extends TurnStep {
   ms: number;
   work: WorkShare[];
   segments: WorkSegment[];
+  /** What the Brain decided in this step, when a development Brain recorded it. */
+  facts: StepFacts;
+}
+
+/** Jev's route, as the Brain's `metrics.routing` records it. */
+export interface RoutingFact {
+  mode?: string;
+  route?: string;
+  confidence?: number | null;
+  directRetrieval?: boolean;
+  fallbackReason?: string | null;
+}
+
+/** One draft call: Jev's own first lookup, or a GPT draft that answered or asked for lookups. */
+export interface DraftFact {
+  by: 'jev' | 'gpt';
+  /** The GPT draft call's number in the turn, from 1. */
+  call?: number;
+  /** GPT had to answer: no lookups were left. */
+  answerOnly?: boolean;
+  asked: Array<{ tool: string; arguments: unknown }>;
+}
+
+/** What one lookup got back, counted by the Brain. */
+export interface LookupFact {
+  tool: string;
+  arguments: unknown;
+  status?: string;
+  matched?: number | null;
+  fetched?: number;
+  delivered?: number;
+  truncated?: boolean;
+  reason?: string | null;
+  filtered?: { records?: number; dropped?: number; reason?: string };
+  sections?: Record<
+    string,
+    {
+      status?: string;
+      total_matches?: number;
+      returned_count?: number;
+      omitted_count?: number;
+      reason?: string;
+      meal?: string;
+    }
+  >;
+}
+
+export interface StepFacts {
+  routing?: RoutingFact;
+  drafts: DraftFact[];
+  lookups: LookupFact[];
+  /** Code wrote the answer itself, in this answer style. */
+  written?: { by: string; mode?: string };
 }
 
 /** Where the whole turn's time went in the Brain, and how many calls each model made. */
@@ -265,11 +318,13 @@ export function workedSteps(
   let steps: TurnStep[] = [];
   // Which merged step each reported step became.
   const merged: number[] = [];
+  const facts: StepFacts[] = [];
   for (const raw of rawSteps) {
     const step = raw as Partial<ProgressUpdate & { atMs: number }>;
     if (typeof step?.stage !== 'string' || typeof step.atMs !== 'number') return undefined;
     steps = addStep(steps, step as ProgressUpdate, step.atMs);
     merged.push(steps.length - 1);
+    facts[steps.length - 1] = addFacts(facts[steps.length - 1], raw as Record<string, unknown>);
   }
   const calls = (Array.isArray(rawCalls) ? rawCalls : []).filter(
     (call): call is WorkCall =>
@@ -296,7 +351,13 @@ export function workedSteps(
       }
       const code = to - from - covered(mine, from, to);
       if (code > 0 || !work.length) work.push({ who: 'code', ms: code, calls: [] });
-      return { ...step, ms: to - from, work, segments: segmented(mine, from, to) };
+      return {
+        ...step,
+        ms: to - from,
+        work,
+        segments: segmented(mine, from, to),
+        facts: facts[index] ?? { drafts: [], lookups: [] },
+      };
     }),
   };
 }
@@ -370,4 +431,217 @@ function named(calls: WorkCall[]): string[] {
     counts.set(name, (counts.get(name) ?? 0) + 1);
   }
   return [...counts].map(([name, count]) => (count > 1 ? `${name} ×${count}` : name));
+}
+
+/** A merged step's facts with one reported step's added: steps that merged keep all of them. */
+function addFacts(facts: StepFacts | undefined, raw: Record<string, unknown>): StepFacts {
+  const next: StepFacts = facts ?? { drafts: [], lookups: [] };
+  const routing = raw.routing;
+  if (routing && typeof routing === 'object') next.routing = routing as RoutingFact;
+  const draft = raw.draft as DraftFact | undefined;
+  if (draft && (draft.by === 'jev' || draft.by === 'gpt') && Array.isArray(draft.asked)) {
+    next.drafts = [...next.drafts, draft];
+  }
+  if (Array.isArray(raw.lookups)) {
+    next.lookups = [
+      ...next.lookups,
+      ...raw.lookups.filter(
+        (lookup): lookup is LookupFact =>
+          !!lookup && typeof lookup === 'object' && typeof lookup.tool === 'string'
+      ),
+    ];
+  }
+  const written = raw.written as StepFacts['written'];
+  if (written && typeof written.by === 'string') next.written = written;
+  return next;
+}
+
+const HANDOFFS: Record<string, string> = {
+  routing_invalid_response: "Jev's reply didn't check out",
+  routing_timeout: 'Jev ran out of time',
+  routing_context_limit: 'The conversation was too long for Jev',
+  routing_unavailable: 'Jev could not be reached',
+  routing_price_unavailable: 'Jev had no current price',
+  routing_data_unavailable: "Campus names couldn't be loaded for Jev",
+  ambiguous_entities: 'The question names more than one place or person',
+  follow_up: 'A follow-up Jev left to GPT',
+};
+
+const percent = (value: number | null | undefined) =>
+  typeof value === 'number' ? ` (${Math.round(value * 100)}%)` : '';
+
+/** Why GPT planned the lookups, or didn't: what Jev decided, in one line. */
+export function routingNote(routing: RoutingFact): string {
+  const route = routing.route && routing.route !== 'unresolved' ? routing.route : undefined;
+  if (routing.mode === 'shadow')
+    return `Jev in shadow${route ? `: ${route}${percent(routing.confidence)}` : ''} → GPT plans`;
+  if (routing.directRetrieval)
+    return `Jev picked ${route ?? 'a route'}${percent(routing.confidence)} and looked it up itself`;
+  const reason = routing.fallbackReason;
+  if (!reason)
+    return `Jev picked ${route ?? 'a route'}${percent(routing.confidence)} → GPT writes the lookup`;
+  if (reason === 'uncertain_route') return `Jev unsure${percent(routing.confidence)} → GPT plans`;
+  if (reason === 'arguments_unresolved')
+    return `Jev picked ${route ?? 'a route'}${percent(routing.confidence)} → GPT fills in the lookup`;
+  return `${HANDOFFS[reason] ?? `Jev handed off: ${reason.replaceAll('_', ' ')}`} → GPT plans`;
+}
+
+function words(value: unknown): string {
+  return typeof value === 'string' ? value.replaceAll('_', ' ') : '';
+}
+
+/** A lookup call in a few words: "Birch Tree Inn hours, menu · Late Night", "menu search". */
+export function describeLookup(tool: string, argumentsValue: unknown): string {
+  const args = (
+    argumentsValue && typeof argumentsValue === 'object' ? argumentsValue : {}
+  ) as Record<string, unknown>;
+  const filters = (args.filters && typeof args.filters === 'object' ? args.filters : {}) as Record<
+    string,
+    unknown
+  >;
+  const meal =
+    typeof args.meal === 'string'
+      ? args.meal
+      : typeof filters.meal === 'string'
+        ? filters.meal
+        : '';
+  const suffix = meal ? ` · ${meal}` : '';
+  switch (tool) {
+    case 'lookup_profile': {
+      const include = Array.isArray(args.include) ? args.include.map(words).join(', ') : '';
+      const who = typeof args.entity === 'string' ? args.entity : 'a profile';
+      return `${who} ${include}`.trim() + suffix;
+    }
+    case 'search_campus': {
+      const topic = TOPICS[String(args.collection)] ?? words(args.collection);
+      const query = typeof args.query === 'string' && args.query ? ` "${args.query}"` : '';
+      return `${topic} search${query}${suffix}`;
+    }
+    case 'lookup_contact':
+      return `${typeof args.entity === 'string' ? args.entity : 'a'} contact`;
+    case 'lookup_entity':
+      return 'entity facts';
+    case 'read_campus':
+      return Array.isArray(args.ids)
+        ? `reading ${counted(args.ids.length, 'record')}`
+        : 'reading records';
+    case 'calculate':
+      return `a calculation (${OPERATIONS[String(args.operation)] ?? words(args.operation)})`;
+    default:
+      return words(tool);
+  }
+}
+
+const ORDINALS = ['1st', '2nd', '3rd', '4th', '5th'];
+
+/**
+ * Why a step ran and what its drafts decided, from the Brain's own record. `tries` is
+ * which writing attempt a writing step is (1 for the first).
+ */
+export function stepReasons(step: WorkedStep, tries: number): string[] {
+  const lines: string[] = [];
+  const { routing, drafts, written } = step.facts;
+  if (routing) lines.push(routingNote(routing));
+  for (const draft of drafts) {
+    if (draft.by === 'jev') continue; // The route line already says Jev looked it up.
+    const asked = draft.asked.map((call) => describeLookup(call.tool, call.arguments));
+    if (step.stage === 'composing') {
+      const attempt = tries > 1 ? `${ORDINALS[tries - 1] ?? `${tries}th`} try: ` : '';
+      lines.push(
+        asked.length
+          ? `${attempt}no answer yet, GPT asked for ${asked.join('; ')}`
+          : `${attempt}GPT wrote the answer${draft.answerOnly ? ' (no lookups left)' : ''}`
+      );
+    } else {
+      lines.push(
+        asked.length ? `GPT planned: ${asked.join('; ')}` : 'GPT answered without a lookup'
+      );
+    }
+  }
+  if (written?.by === 'code') {
+    lines.push(
+      `Code wrote the answer from the records${written.mode ? ` (${words(written.mode)})` : ''}`
+    );
+  }
+  return lines;
+}
+
+function counted(count: number, noun: string): string {
+  return `${count} ${noun}${count === 1 ? '' : 's'}`;
+}
+
+const SECTION_NOUNS: Record<string, string> = {
+  menu: 'menu item',
+  hours: 'hours record',
+  contact: 'contact',
+  building: 'building',
+  event: 'event',
+  courses: 'course',
+  faculty: 'faculty record',
+};
+
+const RECORD_NOUNS: Record<string, string> = {
+  menu: 'menu item',
+  dining_hours: 'dining hours record',
+  campus_hours: 'hours record',
+  events: 'event',
+  contacts: 'contact',
+  documents: 'passage',
+};
+
+const CUTS: Record<string, string> = {
+  retrieval_delivery_limit: 'no room in the prompt for the rest',
+  menu_item_limit: 'menu limit',
+  item_limit: 'item limit',
+};
+
+/** What each lookup in a step got back: "19 of 141 menu records (no room in the prompt for the rest)". */
+export function lookupCounts(step: WorkedStep): string[] {
+  return step.facts.lookups.map((lookup) => {
+    const what = describeLookup(lookup.tool, lookup.arguments);
+    if (lookup.status && lookup.status !== 'ok') {
+      return `${what}: ${lookup.status === 'no_match' ? 'nothing matched' : words(lookup.reason ?? lookup.status)}`;
+    }
+    const parts: string[] = [];
+    const sections = Object.entries(lookup.sections ?? {});
+    if (sections.length) {
+      for (const [name, section] of sections) {
+        const noun = SECTION_NOUNS[name] ?? `${words(name)} record`;
+        const got = section.returned_count ?? 0;
+        const of = section.total_matches;
+        if (section.status === 'not_requested') continue;
+        const cut = section.reason && CUTS[section.reason] ? ` (${CUTS[section.reason]})` : '';
+        parts.push(
+          typeof of === 'number' && of > got
+            ? `${got} of ${counted(of, noun)}${cut}`
+            : counted(got, noun)
+        );
+      }
+    } else {
+      const delivered = lookup.delivered ?? 0;
+      const matched = lookup.matched;
+      const args = (lookup.arguments ?? {}) as Record<string, unknown>;
+      const noun = RECORD_NOUNS[String(args.collection)] ?? 'record';
+      parts.push(
+        typeof matched === 'number' && matched > delivered
+          ? `${delivered} of ${counted(matched, noun)}`
+          : counted(delivered, noun)
+      );
+      if (lookup.truncated && lookup.reason && CUTS[lookup.reason]) {
+        const fetched = lookup.fetched;
+        parts.push(
+          `${typeof fetched === 'number' && fetched > delivered ? `${fetched} fetched, ` : ''}${CUTS[lookup.reason]}`
+        );
+      }
+    }
+    const filtered = lookup.filtered;
+    if (filtered && typeof filtered.records === 'number') {
+      parts.push(
+        filtered.reason
+          ? `Jev's check skipped (${words(filtered.reason)})`
+          : `Jev kept ${filtered.records - (filtered.dropped ?? 0)} of ${filtered.records}`
+      );
+    }
+    return `${what}: ${parts.join(' · ')}`;
+  });
 }

@@ -257,6 +257,19 @@ test('Jev handoffs read as one line', () => {
     reasons({ route: 'search', confidence: 0.76, directRetrieval: true, fallbackReason: null }),
     ['Jev picked search (76%) and looked it up itself']
   );
+  // A request for the student's own account, which code answers itself.
+  assert.deepEqual(reasons({ route: 'own_account', confidence: 0.98, fallbackReason: null }), [
+    "Jev read it as a request for the student's own account (98%)",
+  ]);
+  const accessLimit = workedSteps({
+    steps: [
+      { stage: 'composing', subjects: [], atMs: 0, written: { by: 'code', mode: 'access_limit' } },
+    ],
+    endMs: 1,
+  }).steps[0];
+  assert.deepEqual(stepReasons(accessLimit, 1), [
+    'Code wrote what RockyGPT can’t reach, with no GPT call',
+  ]);
   // Several lookups, like today's hours and the meal on now, and no one route.
   assert.deepEqual(
     reasons({ route: 'unresolved', confidence: 0.77, directRetrieval: true, parts: 2 }),

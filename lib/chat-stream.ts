@@ -477,6 +477,8 @@ export function routingNote(routing: RoutingFact): string {
   const route = routing.route && routing.route !== 'unresolved' ? routing.route : undefined;
   if (routing.mode === 'shadow')
     return `Jev in shadow${route ? `: ${route}${percent(routing.confidence)}` : ''} → GPT plans`;
+  if (route === 'own_account')
+    return `Jev read it as a request for the student's own account${percent(routing.confidence)}`;
   if (routing.directRetrieval && !route && routing.parts)
     return `Jev ran ${routing.parts} lookups itself${percent(routing.confidence)}`;
   if (routing.directRetrieval)
@@ -562,7 +564,9 @@ export function stepReasons(step: WorkedStep, tries: number): string[] {
       );
     }
   }
-  if (written?.by === 'code') {
+  if (written?.by === 'code' && written.mode === 'access_limit') {
+    lines.push('Code wrote what RockyGPT can’t reach, with no GPT call');
+  } else if (written?.by === 'code') {
     lines.push(
       `Code wrote the answer from the records${written.mode ? ` (${words(written.mode)})` : ''}`
     );

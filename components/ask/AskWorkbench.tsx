@@ -21,7 +21,7 @@ import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
 import { TurnInspector } from './TurnInspector';
 import { TurnList } from './TurnList';
-import { turnOutcome, type Turn } from './types';
+import { currentOutcome, turnOutcome, type Turn } from './types';
 
 interface SendOptions {
   signal?: AbortSignal;
@@ -293,7 +293,8 @@ export function AskWorkbench() {
     showConversationExportStatus('downloaded');
   };
 
-  const selected = turns.find((turn) => turn.localId === selectedId);
+  const shown = useMemo(() => turns.map(currentOutcome), [turns]);
+  const selected = shown.find((turn) => turn.localId === selectedId);
   const position = turns.findIndex((turn) => turn.localId === selectedId);
   const stepTurn = (delta: number) => {
     const next = position + delta;
@@ -394,7 +395,7 @@ export function AskWorkbench() {
       <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
         <div className="flex min-w-0 flex-1 flex-col border-border lg:min-h-0 lg:border-r">
           {bulk && <BulkRunner progress={bulk} />}
-          <TurnList turns={turns} selectedId={selectedId} onSelect={setSelectedId} />
+          <TurnList turns={shown} selectedId={selectedId} onSelect={setSelectedId} />
           <Composer
             state={state}
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}

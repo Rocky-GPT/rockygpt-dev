@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readJevRoute } from '../lib/jev-route.ts';
-import { turnOutcome } from '../components/ask/types.ts';
+import { readJevDecision, readJevRoute } from '../lib/jev-route.ts';
+import { currentOutcome, turnOutcome } from '../components/ask/types.ts';
 
 // A development Brain's not-ready turn, as the page keeps it (09-29).
 const notReady = {
@@ -60,4 +60,93 @@ test('without Jev, the danger phrases still name the route; without metrics, not
   assert.deepEqual(readJevRoute(phrases), { route: 'danger', label: 'danger', lowConfidence: [] });
   assert.equal(readJevRoute({ answer: 'hi' }), undefined);
   assert.equal(readJevRoute(undefined), undefined);
+});
+
+// "Where is Financial Aid?" on the new Brain (09-29), as a not-ready turn keeps it.
+const financialAid = {
+  reason: 'not_ready',
+  upstreamResponse: {
+    reason: 'not_ready',
+    metrics: {
+      responseMode: 'not_ready',
+      dangerPhrase: null,
+      handler: 'campus_fact',
+      jev: {
+        answers: {
+          danger: { choice: 'none', probability: 0.97, confidence: 0.95 },
+          own_account: { yes: 0.04 },
+          own_account_only: { yes: 0.06 },
+          needs_earlier: { yes: 0.12 },
+          work: { choice: 'look_up', probability: 0.84, confidence: 0.7 },
+          subject: { choice: 'money', probability: 0.93, confidence: 0.9 },
+          named: { choice: 'office', probability: 0.95, confidence: 0.9 },
+          needs: { choice: 'campus_info', probability: 0.96, confidence: 0.9 },
+          multi_part: { yes: 0.02 },
+        },
+        decided: {
+          reach: 'supported',
+          handler: 'campus_fact',
+          goesTo: 'retrieval',
+          handlerPath: ['danger', 'ownAccount', 'multiPart', 'work'],
+          lowConfidence: { work: 0.84 },
+        },
+        costNusd: 79758,
+        elapsedMs: 272,
+      },
+    },
+  },
+};
+
+test('the trace card says what Jev read, how sure, and what code did (09-29)', () => {
+  const decision = readJevDecision(financialAid);
+  assert.equal(decision.route.label, 'campus fact → retrieval');
+  assert.equal(decision.routePercent, 84);
+  assert.deepEqual(decision.readings.slice(0, 3), [
+    { label: 'Kind of work', answer: 'look up a campus fact', percent: 84, low: true },
+    { label: 'Needs earlier messages', answer: 'no', percent: 88, low: true },
+    { label: 'Danger', answer: 'none', percent: 97, low: false },
+  ]);
+  assert.deepEqual(
+    decision.readings.find((reading) => reading.label === 'What answering needs'),
+    {
+      label: 'What answering needs',
+      answer: 'campus information (answerable)',
+      percent: 96,
+      low: false,
+    }
+  );
+  assert.equal(decision.readings.length, 9);
+  assert.match(decision.codeDid, /kind of work\) to campus fact → retrieval\./);
+  assert.match(decision.codeDid, /isn't built yet/);
+  assert.equal(decision.ms, 272);
+  assert.equal(decision.costUsd, 0.000079758);
+});
+
+test('a turn without Jev says why', () => {
+  const decision = readJevDecision({
+    metrics: {
+      responseMode: 'safety_net',
+      dangerPhrase: 'danger',
+      handler: 'danger',
+      jev: { skipped: 'routing_timeout' },
+    },
+  });
+  assert.equal(decision.skipped, 'Jev ran out of time');
+  assert.equal(decision.route.label, 'danger');
+  assert.match(decision.codeDid, /danger phrases heard danger/);
+  assert.equal(readJevDecision({ answer: 'hi' }), undefined);
+});
+
+test('a not-ready turn settled before the rule changed now reads not built', () => {
+  const old = { localId: 'a', status: 'failed', httpStatus: 503, raw: financialAid };
+  assert.equal(currentOutcome(old).status, 'not_built');
+  const broken = {
+    localId: 'b',
+    status: 'failed',
+    httpStatus: 500,
+    raw: { reason: 'brain_error' },
+  };
+  assert.equal(currentOutcome(broken), broken);
+  const offline = { localId: 'c', status: 'failed', raw: { reason: 'client_network_error' } };
+  assert.equal(currentOutcome(offline), offline);
 });

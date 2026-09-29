@@ -590,6 +590,8 @@ export function stepReasons(step: WorkedStep, tries: number): string[] {
   }
   if (written?.by === 'code' && written.mode === 'access_limit') {
     lines.push('Code wrote what RockyGPT can’t reach, with no GPT call');
+  } else if (written?.by === 'code' && written.mode === 'safety_net') {
+    lines.push('Code wrote the emergency help, with no GPT call');
   } else if (written?.by === 'code') {
     lines.push(
       `Code wrote the answer from the records${written.mode ? ` (${words(written.mode)})` : ''}`

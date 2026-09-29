@@ -35,6 +35,17 @@ export function turnOutcome(httpStatus: number, body: unknown): TurnOutcome {
   return status === 'unavailable' ? 'declined' : 'ok';
 }
 
+/**
+ * A turn as the current rules read it. A turn keeps the outcome it settled with, so one
+ * from before a rule changed (a not-ready turn marked failed, 09-29) would otherwise
+ * show the old way until the page reloads.
+ */
+export function currentOutcome(turn: Turn): Turn {
+  if (turn.status === 'pending' || turn.httpStatus === undefined) return turn;
+  const status = turnOutcome(turn.httpStatus, turn.raw);
+  return status === turn.status ? turn : { ...turn, status };
+}
+
 function reasonOf(body: unknown): unknown {
   if (!body || typeof body !== 'object') return undefined;
   const record = body as Record<string, unknown>;

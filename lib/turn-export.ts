@@ -3,11 +3,12 @@
  * The Ask & Inspect conversation as the export writes it.
  *
  * The export is read by whoever debugs a turn later, often an AI with only the
- * file: it has to say when each turn ran, which Brain and release answered, what
- * evidence and drafts were behind the answer, how long the student waited before
- * seeing anything, and where the time went, as the Timeline panel shows it. The
- * Brain sends the evidence, drafts and work record only to this app
- * (`diagnostics`, development only); everything else is timed here.
+ * file: it has to say when each turn ran, which Brain and release answered, what it
+ * decided, what evidence and drafts were behind the answer, how long the student
+ * waited before seeing anything, and where the time went, as the Timeline panel
+ * shows it. The Brain sends its decisions (`metrics`) and the evidence, drafts and
+ * work record (`diagnostics`) only to this app, in development; everything else is
+ * timed here.
  *
  * Nothing is written twice: the conversation's messages and the evidence records
  * are listed once, and each turn names them. A 30-turn export on 09-28 was 445 KB,
@@ -26,13 +27,7 @@
 
 import type { Turn } from '@/components/ask/types';
 import type { ChatMessageInput } from './chat-request.ts';
-import {
-  describeStep,
-  lookupCounts,
-  stepReasons,
-  workTotals,
-  workedSteps,
-} from './chat-stream.ts';
+import { describeStep, lookupCounts, stepReasons, workTotals, workedSteps } from './chat-stream.ts';
 
 type Json = Record<string, unknown>;
 
@@ -170,6 +165,62 @@ export function exportTimeline(raw: Json | undefined) {
   };
 }
 
+/** Why a development Brain went on without Jev, in words; its `metrics.jev.skipped` code. */
+const JEV_SKIPPED: Record<string, string> = {
+  routing_unavailable: 'Jev is not set up on this Brain, or could not be reached',
+  routing_timeout: 'Jev ran out of time',
+  routing_rate_limited: 'Typesafe said too many calls',
+  routing_provider_error: 'Typesafe returned an error',
+  routing_invalid_response: "Jev's answers didn't check out",
+  routing_usage_unknown: "Typesafe didn't say what the call used",
+  routing_model_changed: 'Typesafe answered with another Jev model',
+  routing_context_limit: 'The conversation was too long for Jev',
+  routing_price_unavailable: 'Jev had no current price',
+  budget_exhausted: 'The allowance is spent, so all paid work stopped',
+  accounting_unavailable: "The spending ledger couldn't be reached, so all paid work stopped",
+  accounting_paused: 'Spending is paused, so all paid work stopped',
+  accounting_bound_exceeded: 'Spending is paused, so all paid work stopped',
+};
+
+/**
+ * What a development Brain decided for a turn, from its `metrics`: how the answer
+ * was made (`answerMode`), the danger the phrase list heard, and Jev's one call with
+ * its readings, what code decided from them, its cost and Typesafe's time, or why the
+ * turn went on without Jev. Null when the Brain sent no metrics (production, or the
+ * dev UI didn't ask for diagnostics).
+ */
+export function exportDecisions(raw: Json | undefined) {
+  const metrics = record(raw?.metrics) ?? record(record(raw?.upstreamResponse)?.metrics);
+  if (!metrics) return null;
+  const jev = record(metrics.jev);
+  const skipped = text(jev?.skipped);
+  const cost = jev?.costNusd;
+  return {
+    answerMode: text(metrics.responseMode),
+    ...('dangerPhrase' in metrics ? { dangerPhrase: text(metrics.dangerPhrase) } : {}),
+    ...(skipped
+      ? {
+          jev: {
+            skipped,
+            why: JEV_SKIPPED[skipped] ?? skipped.replaceAll('_', ' '),
+            // A call that went out and failed is still paid for.
+            calls: typeof metrics.routingCalls === 'number' ? metrics.routingCalls : null,
+          },
+        }
+      : jev
+        ? {
+            jev: {
+              decided: record(jev.decided) ?? null,
+              answers: record(jev.answers) ?? null,
+              costUsd: typeof cost === 'number' ? cost / 1e9 : null,
+              inputTokens: typeof jev.inputTokens === 'number' ? jev.inputTokens : null,
+              ms: typeof jev.elapsedMs === 'number' ? jev.elapsedMs : null,
+            },
+          }
+        : {}),
+  };
+}
+
 /** The response without what the export keeps elsewhere or doesn't need twice. */
 function slimResponse(raw: Json | undefined, tables: ExportTables): Json | undefined {
   if (!raw) return raw;
@@ -201,6 +252,7 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
   const brain = record(diagnostics?.brain);
   const first = firstAnswerText(turn);
   const timeline = exportTimeline(turn.raw);
+  const decisions = exportDecisions(turn.raw);
   return {
     question: turn.question,
     // A bulk run sends each question alone unless history was kept; say so, since a
@@ -208,14 +260,15 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
     sentWith:
       turn.request.messages.length > 1 || turn.request.omittedMessages
         ? `${turn.request.messages.length - 1} earlier messages` +
-          (turn.request.omittedMessages
-            ? ` (${turn.request.omittedMessages} older not sent)`
-            : '')
+          (turn.request.omittedMessages ? ` (${turn.request.omittedMessages} older not sent)` : '')
         : turn.bulk
           ? 'no history (bulk run, each question on its own)'
           : 'no history (first question)',
     status: turn.status,
     httpStatus: turn.httpStatus,
+    // Up top, since it's usually the first question about a turn: what the Brain made
+    // of it. The full metrics are in `response`.
+    ...(decisions ? { decisions } : {}),
     sentAt: new Date(turn.startedAt).toISOString(),
     finishedAt: turn.finishedAt === undefined ? null : new Date(turn.finishedAt).toISOString(),
     timing: {
@@ -224,10 +277,14 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
       firstAnswerTextMs: first.atMs,
       firstAnswerText: first.kind,
       totalMs: turn.latencyMs ?? null,
-      brainElapsedMs: typeof turn.raw?.elapsedMs === 'number' ? turn.raw.elapsedMs : null,
+      // The new Brain (09-29) sends no `elapsedMs`; its work record ends when it replied.
+      brainElapsedMs:
+        typeof turn.raw?.elapsedMs === 'number' ? turn.raw.elapsedMs : (timeline?.brainMs ?? null),
     },
     // Null revision: the Brain wasn't started by the deploy script (run-local.sh's
-    // working-tree Brain), or it predates diagnostics.
+    // working-tree Brain), or it predates diagnostics. The new Brain (09-29) reads its
+    // own commit from git, marked "-dirty" for uncommitted changes, and has no
+    // release, configuration hash or dataset yet.
     brain: {
       revision: text(brain?.revision),
       release: text(brain?.release),

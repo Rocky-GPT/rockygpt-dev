@@ -15,7 +15,7 @@ import { PageHeader } from '@/components/shell/PageHeader';
 import { brainFailureBody } from '@/lib/brain-failure';
 import { buildBody, validate, type ChatMessageInput } from '@/lib/chat-request';
 import { addStep, ChatStreamError, isEventStream, readChatStream } from '@/lib/chat-stream';
-import { exportTurn } from '@/lib/turn-export';
+import { exportConversation } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
@@ -119,139 +119,142 @@ export function AskWorkbench() {
     };
   }, [conversationExportOpen]);
 
-  const send = useCallback(async (message: string, options: SendOptions = {}): Promise<Turn> => {
-    const priorMessages = recentHistory(
-      options.priorMessages ??
-        turnsRef.current.flatMap<ChatMessageInput>((turn) => {
-          const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-          if (turn.bulk || turn.status !== 'ok' || !answer) return [];
-          return [
-            { role: 'user', content: turn.question },
-            { role: 'assistant', content: answer },
-          ];
-        }),
-      message
-    );
-    const body = buildBody({ message }, priorMessages);
-    const requestText = JSON.stringify(body);
-    const localId = crypto.randomUUID();
-    const startedAt = Date.now();
-    const pending: Turn = {
-      localId,
-      question: message.trim(),
-      request: body,
-      requestText,
-      status: 'pending',
-      startedAt,
-      bulk: options.bulk,
-    };
-
-    turnsRef.current = [...turnsRef.current, pending];
-    setTurns(turnsRef.current);
-    if (options.select !== false) setSelectedId(localId);
-
-    let current = pending;
-    const write = (turn: Turn) => {
-      current = turn;
-      turnsRef.current = turnsRef.current.map((existing) =>
-        existing.localId === localId ? turn : existing
+  const send = useCallback(
+    async (message: string, options: SendOptions = {}): Promise<Turn> => {
+      const priorMessages = recentHistory(
+        options.priorMessages ??
+          turnsRef.current.flatMap<ChatMessageInput>((turn) => {
+            const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+            if (turn.bulk || turn.status !== 'ok' || !answer) return [];
+            return [
+              { role: 'user', content: turn.question },
+              { role: 'assistant', content: answer },
+            ];
+          }),
+        message
       );
+      const body = buildBody({ message }, priorMessages);
+      const requestText = JSON.stringify(body);
+      const localId = crypto.randomUUID();
+      const startedAt = Date.now();
+      const pending: Turn = {
+        localId,
+        question: message.trim(),
+        request: body,
+        requestText,
+        status: 'pending',
+        startedAt,
+        bulk: options.bulk,
+      };
+
+      turnsRef.current = [...turnsRef.current, pending];
       setTurns(turnsRef.current);
-    };
-    const settle = (patch: Partial<Turn>): Turn => {
-      const finishedAt = Date.now();
-      write({
-        ...current,
-        ...patch,
-        draft: undefined,
-        finishedAt,
-        latencyMs: finishedAt - startedAt,
-      });
-      return current;
-    };
+      if (options.select !== false) setSelectedId(localId);
 
-    try {
-      const response = await fetch('/api/brain/chat', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
-        body: requestText,
-        signal: options.signal,
-      });
-      let httpStatus = response.status;
-      let rawText: string;
-      let raw: Record<string, unknown> | undefined;
-      if (response.ok && isEventStream(response)) {
-        // Each step lands on the turn as it happens, so the inspector fills in
-        // while the Brain works instead of all at once at the end.
-        const result = await readChatStream(response, (update) => {
-          const atMs = Date.now() - startedAt;
-          const draft =
-            update.stage === 'reviewing' && typeof update.draft === 'string'
-              ? update.draft
-              : undefined;
-          write({
-            ...current,
-            steps: addStep(current.steps ?? [], update, atMs),
-            draft: draft ?? current.draft,
-            firstProgressMs: current.firstProgressMs ?? atMs,
-            draftPreview: current.draftPreview ?? (draft ? { text: draft, atMs } : undefined),
-          });
+      let current = pending;
+      const write = (turn: Turn) => {
+        current = turn;
+        turnsRef.current = turnsRef.current.map((existing) =>
+          existing.localId === localId ? turn : existing
+        );
+        setTurns(turnsRef.current);
+      };
+      const settle = (patch: Partial<Turn>): Turn => {
+        const finishedAt = Date.now();
+        write({
+          ...current,
+          ...patch,
+          draft: undefined,
+          finishedAt,
+          latencyMs: finishedAt - startedAt,
         });
-        httpStatus = result.status;
-        raw =
-          result.status >= 200 && result.status < 300
-            ? (result.body as Record<string, unknown>)
-            : brainFailureBody(result.status, result.body, 'POST /v1/chat');
-        rawText = JSON.stringify(raw);
-      } else {
-        rawText = await response.text();
-        try {
-          raw = JSON.parse(rawText) as Record<string, unknown>;
-        } catch {
-          raw = undefined;
-        }
-      }
-      const ok = httpStatus >= 200 && httpStatus < 300;
+        return current;
+      };
 
-      return settle({
-        status: ok ? 'ok' : 'failed',
-        httpStatus,
-        rawText,
-        raw,
-        requestId:
-          response.headers.get('x-request-id') ??
-          (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
-        failure: ok ? undefined : describeFailure(httpStatus, raw),
-      });
-    } catch (error) {
-      const stopped = error instanceof DOMException && error.name === 'AbortError';
-      const raw = stopped
-        ? {
-            error: 'The request was stopped before the Brain answered.',
-            reason: 'cancelled',
-            detail: 'The Dev UI cancelled this request.',
-            retryable: true,
+      try {
+        const response = await fetch('/api/brain/chat', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+          body: requestText,
+          signal: options.signal,
+        });
+        let httpStatus = response.status;
+        let rawText: string;
+        let raw: Record<string, unknown> | undefined;
+        if (response.ok && isEventStream(response)) {
+          // Each step lands on the turn as it happens, so the inspector fills in
+          // while the Brain works instead of all at once at the end.
+          const result = await readChatStream(response, (update) => {
+            const atMs = Date.now() - startedAt;
+            const draft =
+              update.stage === 'reviewing' && typeof update.draft === 'string'
+                ? update.draft
+                : undefined;
+            write({
+              ...current,
+              steps: addStep(current.steps ?? [], update, atMs),
+              draft: draft ?? current.draft,
+              firstProgressMs: current.firstProgressMs ?? atMs,
+              draftPreview: current.draftPreview ?? (draft ? { text: draft, atMs } : undefined),
+            });
+          });
+          httpStatus = result.status;
+          raw =
+            result.status >= 200 && result.status < 300
+              ? (result.body as Record<string, unknown>)
+              : brainFailureBody(result.status, result.body, 'POST /v1/chat');
+          rawText = JSON.stringify(raw);
+        } else {
+          rawText = await response.text();
+          try {
+            raw = JSON.parse(rawText) as Record<string, unknown>;
+          } catch {
+            raw = undefined;
           }
-        : error instanceof ChatStreamError
+        }
+        const ok = httpStatus >= 200 && httpStatus < 300;
+
+        return settle({
+          status: ok ? 'ok' : 'failed',
+          httpStatus,
+          rawText,
+          raw,
+          requestId:
+            response.headers.get('x-request-id') ??
+            (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
+          failure: ok ? undefined : describeFailure(httpStatus, raw),
+        });
+      } catch (error) {
+        const stopped = error instanceof DOMException && error.name === 'AbortError';
+        const raw = stopped
           ? {
-              error: error.message,
-              reason: 'stream_interrupted',
-              detail: 'The Brain stopped sending steps without a final answer.',
+              error: 'The request was stopped before the Brain answered.',
+              reason: 'cancelled',
+              detail: 'The Dev UI cancelled this request.',
               retryable: true,
             }
-          : {
-              error: 'The Dev UI could not complete the request.',
-              reason: 'client_network_error',
-              detail: error instanceof Error ? error.message : String(error),
-              retryable: true,
-            };
-      return settle({
-        status: 'failed',
-        raw,
-        failure: describeFailure(0, raw),
-      });
-    }
-  }, [setSelectedId, setTurns]);
+          : error instanceof ChatStreamError
+            ? {
+                error: error.message,
+                reason: 'stream_interrupted',
+                detail: 'The Brain stopped sending steps without a final answer.',
+                retryable: true,
+              }
+            : {
+                error: 'The Dev UI could not complete the request.',
+                reason: 'client_network_error',
+                detail: error instanceof Error ? error.message : String(error),
+                retryable: true,
+              };
+        return settle({
+          status: 'failed',
+          raw,
+          failure: describeFailure(0, raw),
+        });
+      }
+    },
+    [setSelectedId, setTurns]
+  );
 
   const sendFromComposer = useCallback(async () => {
     if (busy || bulk?.running || problems.length > 0) return;
@@ -265,7 +268,7 @@ export function AskWorkbench() {
     }
   }, [bulk?.running, busy, problems.length, send, setState, state.message]);
 
-  const conversationJson = () => JSON.stringify(turns.map(exportTurn), null, 2);
+  const conversationJson = () => exportConversation(turns);
 
   const showConversationExportStatus = (status: ConversationExportStatus) => {
     if (conversationExportTimerRef.current !== null) {
@@ -288,9 +291,7 @@ export function AskWorkbench() {
   };
 
   const downloadConversation = () => {
-    const url = URL.createObjectURL(
-      new Blob([conversationJson()], { type: 'application/json' })
-    );
+    const url = URL.createObjectURL(new Blob([conversationJson()], { type: 'application/json' }));
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `rockygpt-dev-conversation-${new Date().toISOString().slice(0, 19)}.json`;

@@ -198,3 +198,106 @@ export function describeStep(step: Pick<TurnStep, 'stage' | 'subjects' | 'operat
   const subjects = [...new Set(step.subjects.map(describeSubject))];
   return subjects.length ? { label, detail: subjects.join(', ') } : { label };
 }
+
+/** Who did a step's work: Jev, GPT, or the Brain's own code. */
+export type Worker = 'jev' | 'gpt' | 'code';
+
+export interface WorkShare {
+  who: Worker;
+  /** Wall time, so two overlapping calls count once. */
+  ms: number;
+  /** The Jev or GPT calls behind it, as `draft`, `routing ×2` or `review (failed)`. */
+  calls: string[];
+}
+
+export interface WorkedStep extends TurnStep {
+  ms: number;
+  work: WorkShare[];
+}
+
+interface WorkCall {
+  who: 'jev' | 'gpt';
+  what: string;
+  step: number;
+  startMs: number;
+  ms: number;
+  failed?: boolean;
+}
+
+const CALLS: Record<string, string> = {
+  routing: 'routing',
+  filter: 'record check',
+  draft: 'draft',
+  review: 'review',
+};
+
+/**
+ * The turn's steps as the Brain timed them, each with who did its work. A development
+ * Brain sends this as `diagnostics.work`: every step it reported, when it began, and
+ * every Jev and GPT call with the step it ran in. Steps merge the way `addStep` merged
+ * them live. Whatever a step spent outside its calls was the Brain's own code:
+ * lookups, calculations, rendering and the ledger's bookkeeping.
+ */
+export function workedSteps(work: unknown): { steps: WorkedStep[]; endMs: number } | undefined {
+  if (!work || typeof work !== 'object') return undefined;
+  const { steps: rawSteps, calls: rawCalls, endMs } = work as Record<string, unknown>;
+  if (!Array.isArray(rawSteps) || !rawSteps.length || typeof endMs !== 'number') return undefined;
+  let steps: TurnStep[] = [];
+  // Which merged step each reported step became.
+  const merged: number[] = [];
+  for (const raw of rawSteps) {
+    const step = raw as Partial<ProgressUpdate & { atMs: number }>;
+    if (typeof step?.stage !== 'string' || typeof step.atMs !== 'number') return undefined;
+    steps = addStep(steps, step as ProgressUpdate, step.atMs);
+    merged.push(steps.length - 1);
+  }
+  const calls = (Array.isArray(rawCalls) ? rawCalls : []).filter(
+    (call): call is WorkCall =>
+      (call?.who === 'jev' || call?.who === 'gpt') &&
+      typeof call.what === 'string' &&
+      Number.isInteger(call.step) &&
+      typeof call.startMs === 'number' &&
+      typeof call.ms === 'number'
+  );
+  return {
+    endMs,
+    steps: steps.map((step, index) => {
+      const from = step.atMs;
+      const to = Math.max(from, steps[index + 1]?.atMs ?? endMs);
+      const mine = calls.filter((call) => merged[call.step] === index);
+      const work: WorkShare[] = [];
+      for (const who of ['jev', 'gpt'] as const) {
+        const theirs = mine.filter((call) => call.who === who);
+        if (theirs.length) work.push({ who, ms: covered(theirs, from, to), calls: named(theirs) });
+      }
+      const code = to - from - covered(mine, from, to);
+      if (code > 0 || !work.length) work.push({ who: 'code', ms: code, calls: [] });
+      return { ...step, ms: to - from, work };
+    }),
+  };
+}
+
+/** How much of `from`..`to` the calls cover, counting overlaps once. */
+function covered(calls: WorkCall[], from: number, to: number): number {
+  const spans = calls
+    .map((call) => [Math.max(from, call.startMs), Math.min(to, call.startMs + call.ms)])
+    .filter(([start, end]) => end > start)
+    .sort((a, b) => a[0] - b[0]);
+  let total = 0;
+  let reached = from;
+  for (const [start, end] of spans) {
+    if (end <= reached) continue;
+    total += end - Math.max(start, reached);
+    reached = end;
+  }
+  return total;
+}
+
+function named(calls: WorkCall[]): string[] {
+  const counts = new Map<string, number>();
+  for (const call of calls) {
+    const name = `${CALLS[call.what] ?? call.what.replaceAll('_', ' ')}${call.failed ? ' (failed)' : ''}`;
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return [...counts].map(([name, count]) => (count > 1 ? `${name} ×${count}` : name));
+}

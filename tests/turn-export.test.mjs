@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ExportTables, exportConversation, exportTurn } from '../lib/turn-export.ts';
+import {
+  ExportTables,
+  exportConversation,
+  exportTurn,
+  exportedEvidence,
+} from '../lib/turn-export.ts';
 
 const request = { messages: [{ role: 'user', content: 'Where is the Registrar?' }] };
 const startedAt = Date.parse('2026-09-28T21:40:00.000Z');
@@ -162,6 +167,7 @@ test('the conversation lists its messages and evidence once, and each turn its t
   );
   // Evidence is written once and named by ID.
   assert.deepEqual(exported.evidence, { 'contacts:registrar': registrar });
+  assert.deepEqual(exported.evidenceVersions, {});
   assert.deepEqual(exported.turns[1].response.diagnostics.evidenceIds, ['contacts:registrar']);
   // `trace` keeps its arguments; its copy without them is gone.
   const [one] = exported.turns;
@@ -205,4 +211,117 @@ test('a single turn can still be exported on its own', () => {
   );
   assert.deepEqual(exported.request.messages, [0]);
   assert.deepEqual(tables.messages, [{ role: 'user', content: 'Hi' }]);
+});
+
+/** Turns that each received `evidence`, exported together and parsed back. */
+function exportEvidence(...perTurn) {
+  const turns = perTurn.map((evidence, index) => ({
+    localId: String(index),
+    question: `Question ${index + 1}`,
+    request,
+    requestText: JSON.stringify(request),
+    status: 'ok',
+    httpStatus: 200,
+    startedAt,
+    raw: { answer: 'An answer.', diagnostics: { evidence } },
+  }));
+  const exported = JSON.parse(exportConversation(turns, new Date(startedAt)));
+  const received = exported.turns.map((turn) =>
+    turn.response.diagnostics.evidenceIds.map((ref) => exportedEvidence(exported, ref))
+  );
+  return { exported, received };
+}
+
+test('the same record received twice is stored once, whatever its key order', () => {
+  const office = { id: 'contacts:registrar', title: 'Registrar', content: 'Office: D-224' };
+  const reordered = { content: 'Office: D-224', title: 'Registrar', id: 'contacts:registrar' };
+  const { exported, received } = exportEvidence([office], [reordered]);
+  assert.deepEqual(exported.evidence, { 'contacts:registrar': office });
+  assert.deepEqual(exported.evidenceVersions, {});
+  assert.deepEqual(
+    exported.turns.map((turn) => turn.response.diagnostics.evidenceIds),
+    [['contacts:registrar'], ['contacts:registrar']]
+  );
+  assert.deepEqual(received, [[office], [office]]);
+});
+
+test('each turn reconstructs the exact representation it received (09-29)', () => {
+  // Q7/Q8 of the 09-28 replay: a profile lookup and a search returned the same
+  // Birch hours ID with different identity, scope and limitations.
+  const id = 'dining_hours:823a0076-7cab-41e8-9757-cc92d491ed27:2026-09-28';
+  const profile = {
+    id,
+    canonical_entity_id: 'c98a4db7-9948-4e2c-98b5-4fe3f73ae488',
+    related_to_entity_id: null,
+    fields: { name: 'Birch Tree Inn', day: 'Monday', availability_scope: 'dining_service' },
+    limitations: ['Published operating schedule; it does not establish staff availability.'],
+    source_record_key: 'Birch Tree Inn:Monday',
+  };
+  const search = {
+    id,
+    canonical_entity_id: null,
+    related_to_entity_id: 'c98a4db7-9948-4e2c-98b5-4fe3f73ae488',
+    fields: { name: 'Birch Tree Inn', day: 'Monday' },
+    limitations: [],
+    source_record_key: null,
+  };
+  const other = { id: 'menu:birch', title: 'Birch menu' };
+  const { exported, received } = exportEvidence([profile, other], [other, search], [profile]);
+  assert.deepEqual(received, [[profile, other], [other, search], [profile]]);
+  // The first representation stays under its ID; the other is a version.
+  assert.deepEqual(exported.evidence[id], profile);
+  assert.deepEqual(exported.evidenceVersions, { [id]: [search] });
+  assert.deepEqual(exported.turns[1].response.diagnostics.evidenceIds, [
+    'menu:birch',
+    { id, version: 1 },
+  ]);
+  assert.deepEqual(exported.turns[2].response.diagnostics.evidenceIds, [id]);
+});
+
+test('a later release of the same record is not replaced by the first (client audit C04)', () => {
+  const release1 = { id: 'contacts:office', release: 'release-1', fields: { room: 'D-221' } };
+  const release2 = { id: 'contacts:office', release: 'release-2', fields: { room: 'D-222' } };
+  const { received } = exportEvidence([release1], [release2], [release2]);
+  assert.equal(received[0][0].fields.room, 'D-221');
+  assert.equal(received[1][0].fields.room, 'D-222');
+  assert.equal(received[1][0].release, 'release-2');
+  assert.deepEqual(received[2], [release2]);
+});
+
+test('a turn sent without older messages says how many were left out', () => {
+  const exported = exportTurn({
+    localId: 'late',
+    question: 'What did you tell me the first shuttle was?',
+    request: {
+      messages: [
+        { role: 'user', content: 'Where is the Registrar?' },
+        { role: 'assistant', content: 'D-224.' },
+        { role: 'user', content: 'What did you tell me the first shuttle was?' },
+      ],
+      omittedMessages: 56,
+    },
+    requestText: '',
+    status: 'ok',
+    startedAt,
+  });
+  assert.equal(exported.sentWith, '2 earlier messages (56 older not sent)');
+  assert.equal(exported.request.omittedMessages, 56);
+});
+
+test('early emergency guidance is the first text the student read', () => {
+  const exported = exportTurn({
+    localId: 'danger',
+    question: "Someone passed out and isn't waking up.",
+    request,
+    requestText: '',
+    status: 'ok',
+    httpStatus: 200,
+    startedAt,
+    latencyMs: 19_000,
+    safety: { answer: "If you're in danger right now, call 911.", atMs: 900 },
+    draftPreview: { text: 'Call emergency services.', atMs: 12_000 },
+    raw: { answer: "If you're in danger right now, call 911." },
+  });
+  assert.equal(exported.timing.firstAnswerText, 'safety');
+  assert.equal(exported.timing.firstAnswerTextMs, 900);
 });

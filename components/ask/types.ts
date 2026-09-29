@@ -18,6 +18,19 @@ export const OUTCOMES: ReadonlyArray<{ id: TurnOutcome; label: string }> = [
   { id: 'failed', label: 'Failed' },
 ];
 
+/**
+ * The outcome from the Brain's own answer status, not the HTTP code: a 30-turn run
+ * on 09-28 read as 30 "Answered" while the Brain said 18 answered, 4 partial and 8
+ * unavailable. `partial` and `clarification` stay `ok`; the raw status still shows
+ * beside it.
+ */
+export function turnOutcome(httpStatus: number, body: unknown): TurnOutcome {
+  if (httpStatus < 200 || httpStatus >= 300) return 'failed';
+  const status =
+    body && typeof body === 'object' ? (body as Record<string, unknown>).status : undefined;
+  return status === 'unavailable' ? 'declined' : 'ok';
+}
+
 export interface Turn {
   localId: string;
   question: string;
@@ -25,7 +38,8 @@ export interface Turn {
   request: ChatRequestBody;
   requestText: string;
   /**
-   * `declined` is a guard refusing on purpose — no answer, nothing broken.
+   * `declined` is the Brain answering that it can't: status `unavailable`, from a
+   * guard or a fact it could not verify. Nothing broken, and its reply is kept.
    * `failed` is the system: an unreachable brain, campus data down, a crash.
    */
   status: 'pending' | TurnOutcome;
@@ -48,4 +62,6 @@ export interface Turn {
   draft?: string;
   /** The first draft the Brain showed while checking it, kept for the export. */
   draftPreview?: { text: string; atMs: number };
+  /** Emergency guidance the Brain sent as soon as it saw danger, before the answer. */
+  safety?: { answer: string; atMs: number };
 }

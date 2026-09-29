@@ -62,6 +62,8 @@ export function TurnList({
         const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;
         const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
         const step = turn.steps?.[turn.steps.length - 1];
+        // The Brain's own verdict: a partial answer is not the same green as a full one.
+        const verdict = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
         return (
           <button
             key={turn.localId}
@@ -78,10 +80,14 @@ export function TurnList({
                 {turn.status === 'pending' ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                 ) : turn.status === 'ok' ? (
-                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <Check
+                    className={`h-3.5 w-3.5 ${
+                      verdict && verdict !== 'answered' ? 'text-amber-400' : 'text-emerald-400'
+                    }`}
+                  />
                 ) : turn.status === 'declined' ? (
-                  // A guard stopped this one. Amber, and a shield rather than
-                  // an alarm: nothing broke, there is simply no answer.
+                  // The Brain said it couldn't answer. Amber, and a shield rather
+                  // than an alarm: nothing broke; its reply shows below.
                   <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
                 ) : (
                   <AlertCircle className="h-3.5 w-3.5 text-red-400" />
@@ -103,7 +109,7 @@ export function TurnList({
                 {describeStep(step).label}…
               </p>
             )}
-            {turn.status === 'ok' && answer && (
+            {(turn.status === 'ok' || turn.status === 'declined') && answer && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
                 {answer}
               </p>

@@ -95,9 +95,17 @@ debugging later, often by an AI reading only the file. The conversation's
 `messages` and every `evidence` record (keyed by ID) are written once; each
 turn's `request.messages` are indexes into `messages`, and its
 `diagnostics.evidenceIds` name the records the writer and reviewer were given.
+A record whose ID came back later with a different representation (a profile
+lookup adds its canonical identity and scope to a record a search returned) is
+kept as another version in `evidenceVersions[id]`, so each turn keeps exactly
+what it was given: an `evidenceIds` entry is either an ID (the `evidence`
+record) or `{id, version}`, meaning `evidenceVersions[id][version - 1]`.
+`exportedEvidence()` in `lib/turn-export.ts` reads them back. A request that
+left earlier messages out says so in `sentWith` and `request.omittedMessages`.
 
 Each turn has `sentAt` and `finishedAt`, `timing` (the first progress line, the
-first answer text the student would read and whether that was the draft shown
+first answer text the student would read and whether that was the safety
+block the Brain sends as soon as it reads danger (`safety`), the draft shown
 while it was checked, the answer or a failure's emergency help, the total and
 the Brain's own time), `brain` (commit, release, configuration hash and campus
 data release), `timeline` (what the Timeline panel shows: the Jev, GPT and code

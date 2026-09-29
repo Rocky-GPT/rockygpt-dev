@@ -25,9 +25,10 @@
  *   the objects it received (`exportedEvidence` below).
  */
 
-import type { Turn } from '@/components/ask/types';
+import { currentOutcome, type Turn } from '../components/ask/types.ts';
 import type { ChatMessageInput } from './chat-request.ts';
 import { describeStep, lookupCounts, stepReasons, workTotals, workedSteps } from './chat-stream.ts';
+import { JEV_SKIPPED, readJevDecision } from './jev-route.ts';
 
 type Json = Record<string, unknown>;
 
@@ -165,29 +166,40 @@ export function exportTimeline(raw: Json | undefined) {
   };
 }
 
-/** Why a development Brain went on without Jev, in words; its `metrics.jev.skipped` code. */
-export const JEV_SKIPPED: Record<string, string> = {
-  routing_unavailable: 'Jev is not set up on this Brain, or could not be reached',
-  routing_timeout: 'Jev ran out of time',
-  routing_rate_limited: 'Typesafe said too many calls',
-  routing_provider_error: 'Typesafe returned an error',
-  routing_invalid_response: "Jev's answers didn't check out",
-  routing_usage_unknown: "Typesafe didn't say what the call used",
-  routing_model_changed: 'Typesafe answered with another Jev model',
-  routing_context_limit: 'The conversation was too long for Jev',
-  routing_price_unavailable: 'Jev had no current price',
-  budget_exhausted: 'The allowance is spent, so all paid work stopped',
-  accounting_unavailable: "The spending ledger couldn't be reached, so all paid work stopped",
-  accounting_paused: 'Spending is paused, so all paid work stopped',
-  accounting_bound_exceeded: 'Spending is paused, so all paid work stopped',
-};
+/**
+ * The "What Jev decided" box on the Trace tab, in its words: the route and how sure Jev
+ * was of the least sure pick on the way to it, the picks under 90%, each reading with
+ * its answer and percent, and what code did. The raw picks and probabilities are
+ * under `jev`. Absent when Jev picked nothing and no danger phrase named the route.
+ */
+function whatJevDecided(raw: Json | undefined) {
+  const decision = readJevDecision(raw);
+  if (!decision?.route && !decision?.readings.length) return undefined;
+  const { route, routePercent, readings, codeDid } = decision;
+  return {
+    route: route?.label ?? null,
+    ...(routePercent === undefined ? {} : { surePercent: routePercent }),
+    ...(route?.lowConfidence.length ? { underNinetyPercent: route.lowConfidence } : {}),
+    ...(readings.length
+      ? {
+          readings: Object.fromEntries(
+            readings.map(({ label, answer, percent, low }) => [
+              label,
+              `${answer} (${percent}%${low ? ', under 90%' : ''})`,
+            ])
+          ),
+        }
+      : {}),
+    ...(codeDid ? { codeDid } : {}),
+  };
+}
 
 /**
- * What a development Brain decided for a turn, from its `metrics`: how the answer
- * was made (`answerMode`), the danger the phrase list heard, and Jev's one call with
- * its readings, what code decided from them, its cost and Typesafe's time, or why the
- * turn went on without Jev. Null when the Brain sent no metrics (production, or the
- * dev UI didn't ask for diagnostics).
+ * What a development Brain decided for a turn, from its `metrics`: the Trace tab's
+ * "What Jev decided" box in words, how the answer was made (`answerMode`), the danger
+ * the phrase list heard, and Jev's one call with its readings, what code decided from
+ * them, its cost and Typesafe's time, or why the turn went on without Jev. Null when
+ * the Brain sent no metrics (production, or the dev UI didn't ask for diagnostics).
  */
 export function exportDecisions(raw: Json | undefined) {
   const metrics = record(raw?.metrics) ?? record(record(raw?.upstreamResponse)?.metrics);
@@ -195,7 +207,9 @@ export function exportDecisions(raw: Json | undefined) {
   const jev = record(metrics.jev);
   const skipped = text(jev?.skipped);
   const cost = jev?.costNusd;
+  const box = whatJevDecided(raw);
   return {
+    ...(box ? { whatJevDecided: box } : {}),
     answerMode: text(metrics.responseMode),
     ...('dangerPhrase' in metrics ? { dangerPhrase: text(metrics.dangerPhrase) } : {}),
     ...(skipped
@@ -264,7 +278,9 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
         : turn.bulk
           ? 'no history (bulk run, each question on its own)'
           : 'no history (first question)',
-    status: turn.status,
+    // As the inspector reads it now: a not-ready turn from before "not built yet"
+    // existed exports as `not_built`, not `failed` (09-29).
+    status: currentOutcome(turn).status,
     httpStatus: turn.httpStatus,
     // Up top, since it's usually the first question about a turn: what the Brain made
     // of it. The full metrics are in `response`.

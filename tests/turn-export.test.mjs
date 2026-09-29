@@ -327,6 +327,16 @@ test('early emergency guidance is the first text the student read', () => {
 });
 
 test("the new Brain's decisions go at the top of its turn, and its timeline shows Jev", () => {
+  const decided = {
+    danger: null,
+    ownAccount: true,
+    needsEarlier: false,
+    work: 'cant_do',
+    handler: 'account_action',
+    goesTo: 'capability limit',
+    handlerPath: ['danger', 'ownAccount'],
+    lowConfidence: {},
+  };
   const exported = exportTurn({
     localId: 'three',
     question: 'What are my grades?',
@@ -351,8 +361,9 @@ test("the new Brain's decisions go at the top of its turn, and its timeline show
             own_account: { yes: 0.96 },
             own_account_only: { yes: 0.9 },
             needs_earlier: { yes: 0.03 },
+            work: { choice: 'cant_do', probability: 0.62, confidence: 0.5 },
           },
-          decided: { danger: null, ownAccount: true, needsEarlier: false },
+          decided,
           costNusd: 42_000,
           inputTokens: 1_000,
           elapsedMs: 480,
@@ -379,15 +390,30 @@ test("the new Brain's decisions go at the top of its turn, and its timeline show
   });
   assert.equal(Object.keys(exported).indexOf('decisions'), 4);
   assert.deepEqual(exported.decisions, {
+    // The Trace tab's box, in its words: a reading under 90% says so.
+    whatJevDecided: {
+      route: 'account action → capability limit',
+      surePercent: 96,
+      readings: {
+        'Kind of work': "something it can't do (62%, under 90%)",
+        'Needs earlier messages': 'no (97%)',
+        Danger: 'none (97%)',
+        'Their own account': 'yes (96%)',
+        'Only their account': 'yes (90%)',
+      },
+      codeDid:
+        "Code followed Jev's picks (danger, then own account) to account action → capability limit. Code wrote what RockyGPT can't reach, with no GPT.",
+    },
     answerMode: 'access_limit',
     dangerPhrase: null,
     jev: {
-      decided: { danger: null, ownAccount: true, needsEarlier: false },
+      decided,
       answers: {
         danger: { choice: 'none', probability: 0.97, confidence: 0.95 },
         own_account: { yes: 0.96 },
         own_account_only: { yes: 0.9 },
         needs_earlier: { yes: 0.03 },
+        work: { choice: 'cant_do', probability: 0.62, confidence: 0.5 },
       },
       costUsd: 0.000042,
       inputTokens: 1_000,
@@ -404,7 +430,7 @@ test("the new Brain's decisions go at the top of its turn, and its timeline show
   );
 });
 
-test('a new Brain failure says why Jev was skipped, from inside the Brain body', () => {
+test('a not-ready turn says why Jev was skipped, and exports as not built even if it settled as failed', () => {
   const exported = exportTurn({
     localId: 'four',
     question: 'Hi',
@@ -430,6 +456,8 @@ test('a new Brain failure says why Jev was skipped, from inside the Brain body',
       },
     },
   });
+  // Settled before "not built yet" existed; the inspector and the export both read it now.
+  assert.equal(exported.status, 'not_built');
   assert.deepEqual(exported.decisions, {
     answerMode: 'not_ready',
     dangerPhrase: null,

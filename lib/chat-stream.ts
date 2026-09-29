@@ -233,6 +233,8 @@ export interface RoutingFact {
   confidence?: number | null;
   directRetrieval?: boolean;
   fallbackReason?: string | null;
+  /** How many lookups Jev ran itself, when it split the request or code chose them. */
+  parts?: number;
 }
 
 /** One draft call: Jev's own first lookup, or a GPT draft that answered or asked for lookups. */
@@ -475,6 +477,8 @@ export function routingNote(routing: RoutingFact): string {
   const route = routing.route && routing.route !== 'unresolved' ? routing.route : undefined;
   if (routing.mode === 'shadow')
     return `Jev in shadow${route ? `: ${route}${percent(routing.confidence)}` : ''} → GPT plans`;
+  if (routing.directRetrieval && !route && routing.parts)
+    return `Jev ran ${routing.parts} lookups itself${percent(routing.confidence)}`;
   if (routing.directRetrieval)
     return `Jev picked ${route ?? 'a route'}${percent(routing.confidence)} and looked it up itself`;
   const reason = routing.fallbackReason;

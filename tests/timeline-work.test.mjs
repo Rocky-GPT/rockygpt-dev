@@ -270,6 +270,20 @@ test('Jev handoffs read as one line', () => {
   assert.deepEqual(stepReasons(accessLimit, 1), [
     'Code wrote what RockyGPT can’t reach, with no GPT call',
   ]);
+  // The new Brain's 911 help (09-29), also written by code.
+  const safetyNet = workedSteps({
+    steps: [
+      {
+        stage: 'understanding',
+        subjects: [],
+        atMs: 0,
+        safety: true,
+        written: { by: 'code', mode: 'safety_net' },
+      },
+    ],
+    endMs: 1,
+  }).steps[0];
+  assert.deepEqual(stepReasons(safetyNet, 1), ['Code wrote the emergency help, with no GPT call']);
   // Several lookups, like today's hours and the meal on now, and no one route.
   assert.deepEqual(
     reasons({ route: 'unresolved', confidence: 0.77, directRetrieval: true, parts: 2 }),

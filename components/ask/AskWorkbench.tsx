@@ -13,12 +13,7 @@ import {
 import { BulkQuestionModal } from '@/components/BulkQuestionModal';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { brainFailureBody } from '@/lib/brain-failure';
-import {
-  buildBody,
-  validate,
-  windowHistory,
-  type ChatMessageInput,
-} from '@/lib/chat-request';
+import { buildBody, validate, windowHistory, type ChatMessageInput } from '@/lib/chat-request';
 import { addStep, ChatStreamError, isEventStream, readChatStream } from '@/lib/chat-stream';
 import { exportConversation } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
@@ -305,6 +300,24 @@ export function AskWorkbench() {
     if (next >= 0 && next < turns.length) setSelectedId(turns[next].localId);
   };
 
+  // Up and Down step through the questions like the inspector's arrows, except while
+  // typing or picking in a field or menu (Dan, 09-29).
+  useEffect(() => {
+    const step = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.shiftKey || bulkOpen || typesHere(event.target) || turns.length === 0) return;
+      const down = event.key === 'ArrowDown';
+      const current = turns.findIndex((turn) => turn.localId === selectedId);
+      const next = current < 0 ? (down ? 0 : turns.length - 1) : current + (down ? 1 : -1);
+      if (next < 0 || next >= turns.length) return;
+      event.preventDefault();
+      setSelectedId(turns[next].localId);
+    };
+    document.addEventListener('keydown', step);
+    return () => document.removeEventListener('keydown', step);
+  }, [turns, selectedId, bulkOpen, setSelectedId]);
+
   return (
     <>
       <PageHeader
@@ -415,6 +428,15 @@ export function AskWorkbench() {
   );
 }
 
+/** Whether a key pressed here belongs to a field or menu rather than the page. */
+function typesHere(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target.isContentEditable ||
+    target.closest('input, textarea, select, [role="menu"], [role="listbox"]') !== null
+  );
+}
+
 function describeFailure(status: number, body?: Record<string, unknown>): string {
   const message =
     typeof body?.error === 'string'
@@ -447,10 +469,20 @@ async function runBulk(
   let failed = 0;
   let declined = 0;
   let partial = 0;
+  let notBuilt = 0;
   // Every exchange so far; `send` windows it like a typed question's history.
   const history: ChatMessageInput[] = [];
 
-  setBulk({ running: true, asked, failed, declined, partial, total: questions.length, stop });
+  setBulk({
+    running: true,
+    asked,
+    failed,
+    declined,
+    partial,
+    notBuilt,
+    total: questions.length,
+    stop,
+  });
 
   for (const question of questions) {
     if (controller.signal.aborted) break;
@@ -463,6 +495,7 @@ async function runBulk(
     asked += 1;
     if (turn.status === 'failed') failed += 1;
     else if (turn.status === 'declined') declined += 1;
+    else if (turn.status === 'not_built') notBuilt += 1;
     else if (turn.raw?.status === 'partial') partial += 1;
     if (preserveHistory && turn.status !== 'failed' && typeof turn.raw?.answer === 'string') {
       history.push(
@@ -470,7 +503,16 @@ async function runBulk(
         { role: 'assistant', content: turn.raw.answer }
       );
     }
-    setBulk({ running: true, asked, failed, declined, partial, total: questions.length, stop });
+    setBulk({
+      running: true,
+      asked,
+      failed,
+      declined,
+      partial,
+      notBuilt,
+      total: questions.length,
+      stop,
+    });
 
     if (delayMs > 0 && !controller.signal.aborted) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -483,6 +525,7 @@ async function runBulk(
     failed,
     declined,
     partial,
+    notBuilt,
     total: questions.length,
     stop,
     stopped: controller.signal.aborted,

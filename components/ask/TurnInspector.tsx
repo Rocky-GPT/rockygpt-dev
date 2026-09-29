@@ -5,6 +5,7 @@ import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { JsonViewer } from '@/components/JsonViewer';
 import { describeStep } from '@/lib/chat-stream';
+import { readJevRoute } from '@/lib/jev-route';
 import { SourcesPanel } from './SourcesPanel';
 import { LiveStepBar, TONE, TraceView, formatMs, readRouting, summarizeRouting } from './TraceView';
 import { useNow } from './useNow';
@@ -135,13 +136,34 @@ function Summary({ turn, onOpenTrace }: { turn: Turn; onOpenTrace: () => void })
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
   const routing = readRouting((turn.raw?.metrics as Record<string, unknown> | undefined)?.routing);
   const jev = routing ? summarizeRouting(routing) : undefined;
+  const route = readJevRoute(turn.raw);
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-1.5 px-5">
       <StatusPill turn={turn} />
       {turn.latencyMs !== undefined && <Pill>{formatMs(turn.latencyMs)}</Pill>}
       {turn.httpStatus !== undefined && (turn.httpStatus < 200 || turn.httpStatus >= 300) && (
-        <Pill className="border-red-500/30 bg-red-500/10 text-red-300">HTTP {turn.httpStatus}</Pill>
+        <Pill
+          className={
+            turn.status === 'not_built'
+              ? TONE.neutral
+              : 'border-red-500/30 bg-red-500/10 text-red-300'
+          }
+        >
+          HTTP {turn.httpStatus}
+        </Pill>
+      )}
+      {route && (
+        <Pill className={TONE.info}>
+          <span title="The route Jev picked for this question">{route.label}</span>
+        </Pill>
+      )}
+      {route && route.lowConfidence.length > 0 && (
+        <Pill className={TONE.attention}>
+          <span title="Jev was under 90% sure of these picks; the Brain still followed them">
+            under 90%: {route.lowConfidence.map((low) => `${low.pick} ${low.percent}%`).join(', ')}
+          </span>
+        </Pill>
       )}
       {model && (
         <Pill className="border-white/10 bg-white/[0.04] font-mono text-muted-foreground">
@@ -180,17 +202,21 @@ function StatusPill({ turn }: { turn: Turn }) {
   const label =
     turn.status === 'failed'
       ? 'Failed'
-      : verdict
-        ? humanizeIdentifier(verdict)
-        : turn.status === 'declined'
-          ? 'Declined'
-          : 'Answered';
+      : turn.status === 'not_built'
+        ? 'Not built yet'
+        : verdict
+          ? humanizeIdentifier(verdict)
+          : turn.status === 'declined'
+            ? 'Declined'
+            : 'Answered';
   const tone =
     turn.status === 'failed'
       ? 'border-red-500/30 bg-red-500/10 text-red-300'
-      : turn.status === 'declined' || (verdict && verdict !== 'answered')
-        ? TONE.attention
-        : TONE.positive;
+      : turn.status === 'not_built'
+        ? TONE.neutral
+        : turn.status === 'declined' || (verdict && verdict !== 'answered')
+          ? TONE.attention
+          : TONE.positive;
   return <Pill className={tone}>{label}</Pill>;
 }
 
@@ -228,6 +254,7 @@ function AnswerTab({ turn }: { turn: Turn }) {
     );
   }
   if (turn.status === 'failed') return <FailurePanel turn={turn} />;
+  if (turn.status === 'not_built') return <NotBuiltPanel turn={turn} />;
   return (
     <div className="px-5 py-4">
       <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-border bg-neutral-950/70 p-3 font-mono text-xs leading-5 text-foreground">
@@ -333,6 +360,23 @@ function FailurePanel({ turn }: { turn: Turn }) {
             <FailureDetail label="Retryable" value={retryable ? 'Yes' : 'No'} />
           )}
         </dl>
+      </div>
+    </div>
+  );
+}
+
+/** The new Brain picked a route whose step isn't built yet: nothing broke. */
+function NotBuiltPanel({ turn }: { turn: Turn }) {
+  const route = readJevRoute(turn.raw);
+  return (
+    <div className="px-5 py-4">
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <p className="text-base font-semibold text-foreground">Not built yet</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {route
+            ? `Jev sent this question to ${route.label}. That step comes with a later milestone, so the Brain answered "not ready".`
+            : 'The Brain answered "not ready": the step for this question comes with a later milestone.'}
+        </p>
       </div>
     </div>
   );

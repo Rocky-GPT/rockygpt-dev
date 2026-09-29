@@ -10,11 +10,12 @@ import type { TurnStep } from '@/lib/chat-stream';
  * change. On a turn that went wrong that difference is sometimes the finding.
  */
 /** How a turn came out, once it has. `pending` is not one of these. */
-export type TurnOutcome = 'ok' | 'declined' | 'failed';
+export type TurnOutcome = 'ok' | 'declined' | 'not_built' | 'failed';
 
 export const OUTCOMES: ReadonlyArray<{ id: TurnOutcome; label: string }> = [
   { id: 'ok', label: 'Answered' },
   { id: 'declined', label: 'Declined' },
+  { id: 'not_built', label: 'Not built yet' },
   { id: 'failed', label: 'Failed' },
 ];
 
@@ -25,10 +26,25 @@ export const OUTCOMES: ReadonlyArray<{ id: TurnOutcome; label: string }> = [
  * beside it.
  */
 export function turnOutcome(httpStatus: number, body: unknown): TurnOutcome {
+  // The new Brain answers `not_ready` (503) for every route whose step isn't built
+  // yet. Nothing broke, and a 50-question run read as all red (09-29).
+  if (reasonOf(body) === 'not_ready') return 'not_built';
   if (httpStatus < 200 || httpStatus >= 300) return 'failed';
   const status =
     body && typeof body === 'object' ? (body as Record<string, unknown>).status : undefined;
   return status === 'unavailable' ? 'declined' : 'ok';
+}
+
+function reasonOf(body: unknown): unknown {
+  if (!body || typeof body !== 'object') return undefined;
+  const record = body as Record<string, unknown>;
+  const upstream = record.upstreamResponse;
+  return (
+    record.reason ??
+    (upstream && typeof upstream === 'object'
+      ? (upstream as Record<string, unknown>).reason
+      : undefined)
+  );
 }
 
 export interface Turn {
@@ -40,6 +56,7 @@ export interface Turn {
   /**
    * `declined` is the Brain answering that it can't: status `unavailable`, from a
    * guard or a fact it could not verify. Nothing broken, and its reply is kept.
+   * `not_built` is the new Brain saying its step for this route isn't built yet.
    * `failed` is the system: an unreachable brain, campus data down, a crash.
    */
   status: 'pending' | TurnOutcome;

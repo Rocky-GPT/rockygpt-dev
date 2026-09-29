@@ -9,7 +9,7 @@ import {
   windowHistory,
   withoutOmittedMessages,
 } from '../lib/chat-request.ts';
-import { turnOutcome } from '../components/ask/types.ts';
+import { conversationHistory, historyOf, turnOutcome } from '../components/ask/types.ts';
 
 const exchanges = (count, question = (i) => `Question ${i}`, answer = (i) => `Answer ${i}`) =>
   Array.from({ length: count }, (_, i) => [
@@ -100,4 +100,76 @@ test('an older Brain refusing omittedMessages gets the request again without it'
   assert.equal(refusesOmittedMessages(other), false);
   assert.equal(refusesOmittedMessages('not json'), false);
   assert.equal(withoutOmittedMessages(JSON.stringify({ messages: [] })), null);
+});
+
+// A turn as the workbench keeps it, with just what history reads.
+const turn = (question, status, raw, httpStatus = 200) => ({ question, status, raw, httpStatus });
+const notReady = { error: { code: 'not_ready' }, reason: 'not_ready' };
+
+test('a turn the Brain answered adds its question and its answer', () => {
+  const answered = turn('nvm', 'ok', { answer: 'Which one?', status: 'clarification' });
+  assert.deepEqual(historyOf(answered), [
+    { role: 'user', content: 'nvm' },
+    { role: 'assistant', content: 'Which one?' },
+  ]);
+});
+
+test('a "not ready" turn adds its question alone, so a follow-up keeps it (09-29)', () => {
+  assert.deepEqual(historyOf(turn("What's the next shuttle?", 'not_built', notReady, 503)), [
+    { role: 'user', content: "What's the next shuttle?" },
+  ]);
+  // One saved before "not built yet" existed still counts, whatever it settled as.
+  assert.deepEqual(historyOf(turn('Where is Financial Aid?', 'failed', notReady, 503)), [
+    { role: 'user', content: 'Where is Financial Aid?' },
+  ]);
+});
+
+test('a turn that failed, or has not finished, adds nothing', () => {
+  const crashed = { error: { code: 'internal_error' }, reason: 'internal_error' };
+  assert.deepEqual(historyOf(turn('Hi', 'failed', crashed, 500)), []);
+  assert.deepEqual(historyOf(turn('Hi', 'failed', undefined, 0)), []);
+  assert.deepEqual(historyOf(turn('Hi', 'pending', undefined, undefined)), []);
+});
+
+test('"what about tomorrow?" after a not-ready shuttle question carries that question', () => {
+  const turns = [
+    turn('Where is Financial Aid?', 'not_built', notReady, 503),
+    turn("What's the next shuttle?", 'not_built', notReady, 503),
+    turn('nvm', 'ok', { answer: 'Which one?' }),
+  ];
+  const { messages, omittedMessages } = windowHistory(
+    turns.flatMap(historyOf),
+    'What about tomorrow?'
+  );
+  const sent = buildBody({ message: 'What about tomorrow?' }, messages, omittedMessages);
+  assert.deepEqual(
+    sent.messages.map((m) => `${m.role}: ${m.content}`),
+    [
+      'user: Where is Financial Aid?',
+      "user: What's the next shuttle?",
+      'user: nvm',
+      'assistant: Which one?',
+      'user: What about tomorrow?',
+    ]
+  );
+  assert.equal(sent.omittedMessages, undefined);
+});
+
+test('a failed or pending turn adds nothing even when its body carries an answer', () => {
+  assert.deepEqual(historyOf(turn('Hi', 'failed', { answer: 'x' }, 500)), []);
+  assert.deepEqual(historyOf(turn('Hi', 'pending', { answer: 'x' }, undefined)), []);
+});
+
+test("a typed conversation never replays the bulk runner's turns", () => {
+  const turns = [
+    { ...turn('Bulk one', 'not_built', notReady, 503), bulk: true },
+    { ...turn('Bulk two', 'ok', { answer: 'A' }), bulk: true },
+    turn('Typed one', 'ok', { answer: 'B' }),
+    turn('Typed two', 'not_built', notReady, 503),
+  ];
+  assert.deepEqual(conversationHistory(turns), [
+    { role: 'user', content: 'Typed one' },
+    { role: 'assistant', content: 'B' },
+    { role: 'user', content: 'Typed two' },
+  ]);
 });

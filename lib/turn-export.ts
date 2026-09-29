@@ -273,7 +273,9 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
     // follow-up graded without its history read as the bot forgetting (09-28).
     sentWith:
       turn.request.messages.length > 1 || turn.request.omittedMessages
-        ? `${turn.request.messages.length - 1} earlier messages` +
+        ? `${turn.request.messages.length - 1} earlier message${
+            turn.request.messages.length === 2 ? '' : 's'
+          }` +
           (turn.request.omittedMessages ? ` (${turn.request.omittedMessages} older not sent)` : '')
         : turn.bulk
           ? 'no history (bulk run, each question on its own)'

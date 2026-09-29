@@ -308,6 +308,23 @@ test('a turn sent without older messages says how many were left out', () => {
   assert.equal(exported.request.omittedMessages, 56);
 });
 
+test('one earlier question with no answer reads "1 earlier message"', () => {
+  const exported = exportTurn({
+    localId: 'follow-up',
+    question: 'What about tomorrow?',
+    request: {
+      messages: [
+        { role: 'user', content: "What's the next shuttle?" },
+        { role: 'user', content: 'What about tomorrow?' },
+      ],
+    },
+    requestText: '',
+    status: 'ok',
+    startedAt,
+  });
+  assert.equal(exported.sentWith, '1 earlier message');
+});
+
 test('early emergency guidance is the first text the student read', () => {
   const exported = exportTurn({
     localId: 'danger',

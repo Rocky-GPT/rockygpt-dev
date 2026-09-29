@@ -21,7 +21,7 @@ import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
 import { TurnInspector } from './TurnInspector';
 import { TurnList } from './TurnList';
-import { currentOutcome, turnOutcome, type Turn } from './types';
+import { conversationHistory, currentOutcome, historyOf, turnOutcome, type Turn } from './types';
 
 interface SendOptions {
   signal?: AbortSignal;
@@ -35,17 +35,6 @@ interface SendOptions {
  * including an "unavailable" one, since its reply is part of what the student would
  * have read. Failed and bulk turns are not. Bulk runs build their own.
  */
-function conversationHistory(turns: Turn[]): ChatMessageInput[] {
-  return turns.flatMap<ChatMessageInput>((turn) => {
-    const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-    if (turn.bulk || turn.status === 'failed' || !answer) return [];
-    return [
-      { role: 'user', content: turn.question },
-      { role: 'assistant', content: answer },
-    ];
-  });
-}
-
 type ConversationExportStatus = 'idle' | 'copied' | 'downloaded' | 'copy-error';
 
 export function AskWorkbench() {
@@ -498,12 +487,7 @@ async function runBulk(
     else if (turn.status === 'declined') declined += 1;
     else if (turn.status === 'not_built') notBuilt += 1;
     else if (turn.raw?.status === 'partial') partial += 1;
-    if (preserveHistory && turn.status !== 'failed' && typeof turn.raw?.answer === 'string') {
-      history.push(
-        { role: 'user', content: turn.question },
-        { role: 'assistant', content: turn.raw.answer }
-      );
-    }
+    if (preserveHistory) history.push(...historyOf(turn));
     setBulk({
       running: true,
       asked,

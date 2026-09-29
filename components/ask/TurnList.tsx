@@ -1,7 +1,9 @@
 'use client';
 
-import { AlertCircle, Check, Loader2, ShieldAlert } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { AlertCircle, Check, CircleDashed, Loader2, ShieldAlert } from 'lucide-react';
 import { describeStep } from '@/lib/chat-stream';
+import { readJevRoute } from '@/lib/jev-route';
 import type { Turn } from './types';
 
 const ROUTE_TONE: Record<string, string> = {
@@ -24,6 +26,15 @@ export function TurnList({
   filtered?: boolean;
   onShowAll?: () => void;
 }) {
+  // Stepping with the arrow keys keeps the picked question in view.
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!selectedId) return;
+    listRef.current
+      ?.querySelector(`[data-turn-id="${CSS.escape(selectedId)}"]`)
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [selectedId]);
+
   // A filter that hides everything must say so and offer the way back, or an
   // empty list reads as a lost session.
   if (turns.length === 0 && filtered) {
@@ -47,16 +58,15 @@ export function TurnList({
     return (
       <div className="flex flex-1 items-center justify-center p-8 text-center">
         <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-          Nothing asked yet. Every turn you send is kept whole — the exact
-          request, the exact response bytes, and the latency — so you can compare
-          two of them.
+          Nothing asked yet. Every turn you send is kept whole — the exact request, the exact
+          response bytes, and the latency — so you can compare two of them.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
+    <div ref={listRef} className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
       {turns.map((turn) => {
         const selected = turn.localId === selectedId;
         const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;
@@ -64,9 +74,11 @@ export function TurnList({
         const step = turn.steps?.[turn.steps.length - 1];
         // The Brain's own verdict: a partial answer is not the same green as a full one.
         const verdict = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
+        const jev = readJevRoute(turn.raw);
         return (
           <button
             key={turn.localId}
+            data-turn-id={turn.localId}
             type="button"
             onClick={() => onSelect(turn.localId)}
             className={`w-full rounded-xl border px-3 py-2.5 text-left transition-colors ${
@@ -85,6 +97,9 @@ export function TurnList({
                       verdict && verdict !== 'answered' ? 'text-amber-400' : 'text-emerald-400'
                     }`}
                   />
+                ) : turn.status === 'not_built' ? (
+                  // The new Brain's step for this route isn't built yet. Grey, not red.
+                  <CircleDashed className="h-3.5 w-3.5 text-muted-foreground" />
                 ) : turn.status === 'declined' ? (
                   // The Brain said it couldn't answer. Amber, and a shield rather
                   // than an alarm: nothing broke; its reply shows below.
@@ -114,6 +129,9 @@ export function TurnList({
                 {answer}
               </p>
             )}
+            {turn.status === 'not_built' && (
+              <p className="mt-1.5 pl-5.5 text-xs leading-5 text-muted-foreground">Not built yet</p>
+            )}
             {(turn.status === 'failed' || turn.status === 'declined') && turn.failure && (
               <p
                 className={`mt-1.5 font-mono text-xs leading-5 ${
@@ -125,13 +143,36 @@ export function TurnList({
             )}
 
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+              {jev && (
+                <span
+                  title="The route Jev picked for this question"
+                  className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-medium text-sky-300"
+                >
+                  {jev.label}
+                </span>
+              )}
+              {jev && jev.lowConfidence.length > 0 && (
+                <span
+                  title="Jev was under 90% sure of these picks; the Brain still followed them"
+                  className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-300"
+                >
+                  under 90%:{' '}
+                  {jev.lowConfidence.map((low) => `${low.pick} ${low.percent}%`).join(', ')}
+                </span>
+              )}
               {route && (
-                <span className={`rounded border px-1.5 py-0.5 font-medium ${ROUTE_TONE[route] ?? 'border-white/10'}`}>
+                <span
+                  className={`rounded border px-1.5 py-0.5 font-medium ${ROUTE_TONE[route] ?? 'border-white/10'}`}
+                >
                   {route}
                 </span>
               )}
-              {turn.latencyMs !== undefined && <span className="font-mono">{turn.latencyMs} ms</span>}
-              {turn.requestId && <span className="truncate font-mono opacity-60">{turn.requestId}</span>}
+              {turn.latencyMs !== undefined && (
+                <span className="font-mono">{turn.latencyMs} ms</span>
+              )}
+              {turn.requestId && (
+                <span className="truncate font-mono opacity-60">{turn.requestId}</span>
+              )}
             </div>
           </button>
         );

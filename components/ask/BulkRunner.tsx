@@ -15,17 +15,15 @@ export interface BulkProgress {
   declined: number;
   /** Answered in part: the Brain's `partial` status. */
   partial: number;
+  /** The new Brain's step for the route isn't built yet: not a failure (09-29). */
+  notBuilt: number;
   total: number;
   stop: () => void;
   stopped?: boolean;
 }
 
-export function BulkRunner({
-  progress,
-}: {
-  progress: BulkProgress;
-}) {
-  const { running, asked, failed, declined, partial, total, stop, stopped } = progress;
+export function BulkRunner({ progress }: { progress: BulkProgress }) {
+  const { running, asked, failed, declined, partial, notBuilt, total, stop, stopped } = progress;
   const percent = total === 0 ? 0 : Math.round((asked / total) * 100);
 
   return (
@@ -42,6 +40,11 @@ export function BulkRunner({
         {declined > 0 && (
           <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-amber-300">
             {declined} declined
+          </span>
+        )}
+        {notBuilt > 0 && (
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
+            {notBuilt} not built yet
           </span>
         )}
         {failed > 0 && (

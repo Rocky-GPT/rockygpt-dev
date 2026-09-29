@@ -166,7 +166,7 @@ export function exportTimeline(raw: Json | undefined) {
 }
 
 /** Why a development Brain went on without Jev, in words; its `metrics.jev.skipped` code. */
-const JEV_SKIPPED: Record<string, string> = {
+export const JEV_SKIPPED: Record<string, string> = {
   routing_unavailable: 'Jev is not set up on this Brain, or could not be reached',
   routing_timeout: 'Jev ran out of time',
   routing_rate_limited: 'Typesafe said too many calls',

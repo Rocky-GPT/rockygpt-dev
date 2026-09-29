@@ -5,6 +5,8 @@
  * not, so a low-confidence one is shown rather than hidden.
  */
 
+import { JEV_SKIPPED } from './turn-export.ts';
+
 type Json = Record<string, unknown>;
 
 export interface JevRoute {
@@ -14,6 +16,29 @@ export interface JevRoute {
   label: string;
   /** The picks under 0.90 on the way to the route, least sure first. */
   lowConfidence: Array<{ pick: string; percent: number }>;
+}
+
+/** One thing Jev read about the question, in words. */
+export interface JevReading {
+  label: string;
+  answer: string;
+  /** How likely Jev put that answer. */
+  percent: number;
+  low: boolean;
+}
+
+/** Everything a development Brain says Jev decided for one turn. */
+export interface JevDecision {
+  route?: JevRoute;
+  /** How sure the route is: the least sure pick on the way to it. */
+  routePercent?: number;
+  /** Why the turn went on without Jev, in words. */
+  skipped?: string;
+  readings: JevReading[];
+  /** What code did with the picks, in one line. */
+  codeDid: string;
+  costUsd?: number;
+  ms?: number;
 }
 
 const ROUTE_WORDS: Record<string, string> = {
@@ -65,4 +90,145 @@ export function readJevRoute(raw: Json | undefined): JevRoute | undefined {
       percent: Math.round(sureness * 100),
     }));
   return { route, label: goesTo ? `${words} → ${goesTo}` : words, lowConfidence };
+}
+
+// Jev's questions in the order the card lists them, each with its answers in words.
+const READINGS: Array<[string, string, Record<string, string>?]> = [
+  [
+    'work',
+    'Kind of work',
+    {
+      calculate: 'calculate',
+      look_up: 'look up a campus fact',
+      policy: 'a rule or policy',
+      general: 'general question',
+      reasoning: 'thinking it through',
+      cant_do: "something it can't do",
+      unclear: 'unclear',
+    },
+  ],
+  ['needs_earlier', 'Needs earlier messages'],
+  ['danger', 'Danger', { none: 'none', danger: 'danger right now', self_harm: 'self-harm' }],
+  ['own_account', 'Their own account'],
+  ['own_account_only', 'Only their account'],
+  ['multi_part', 'Several separate asks'],
+  [
+    'needs',
+    'What answering needs',
+    {
+      campus_info: 'campus information',
+      conversation: 'this conversation',
+      own_account: 'their own account',
+      private: "someone's private information",
+      right_now: 'a live look right now',
+      guess: 'a guess',
+      outside: 'outside knowledge',
+    },
+  ],
+  [
+    'named',
+    'Kind of thing named',
+    {
+      place: 'a place',
+      office: 'an office',
+      person: 'a person',
+      group: 'a club',
+      event: 'an event',
+      course: 'a course',
+      several: 'several things',
+      none: 'nothing in particular',
+    },
+  ],
+  ['subject', 'Campus area', { student_life: 'student life', none: 'none' }],
+];
+const REACH_WORDS: Record<string, string> = {
+  supported: 'answerable',
+  private: 'private',
+  live_only: 'live-only',
+  unsupported: 'unsupported',
+};
+// handlerPath names, and the reading each one's sureness comes from.
+const PATH_READINGS: Record<string, string> = {
+  danger: 'danger',
+  ownAccount: 'own_account',
+  multiPart: 'multi_part',
+  work: 'work',
+};
+
+function reading(answer: Json | undefined): { answer: string; sureness: number } | undefined {
+  if (typeof answer?.yes === 'number') {
+    const yes = answer.yes >= 0.5;
+    return { answer: yes ? 'yes' : 'no', sureness: yes ? answer.yes : 1 - answer.yes };
+  }
+  if (typeof answer?.choice === 'string' && typeof answer.probability === 'number') {
+    return { answer: answer.choice, sureness: answer.probability };
+  }
+  return undefined;
+}
+
+function whatCodeDid(metrics: Json, route: JevRoute | undefined, path: string[]): string {
+  const mode = metrics.responseMode;
+  const phrase = typeof metrics.dangerPhrase === 'string' ? metrics.dangerPhrase : undefined;
+  const steps = path.map((step) => PICK_WORDS[step] ?? step).join(', then ');
+  const chose = phrase
+    ? `The danger phrases heard ${phrase.replaceAll('_', ' ')}, so code chose the danger route.`
+    : route && steps
+      ? `Code followed Jev's picks (${steps}) to ${route.label}.`
+      : route
+        ? `Code chose ${route.label}.`
+        : '';
+  const ending =
+    mode === 'safety_net'
+      ? 'Code gave the safety help first, with no GPT.'
+      : mode === 'access_limit'
+        ? "Code wrote what RockyGPT can't reach, with no GPT."
+        : mode === 'not_ready'
+          ? `That step isn't built yet, so the Brain said "not ready".`
+          : typeof mode === 'string'
+            ? `The turn ended as ${mode.replaceAll('_', ' ')}.`
+            : '';
+  return [chose, ending].filter(Boolean).join(' ');
+}
+
+export function readJevDecision(raw: Json | undefined): JevDecision | undefined {
+  const metrics = brainMetrics(raw);
+  if (!metrics) return undefined;
+  const jev = record(metrics.jev);
+  const decided = record(jev?.decided);
+  const answers = record(jev?.answers) ?? {};
+  const route = readJevRoute(raw);
+  const skippedCode = typeof jev?.skipped === 'string' ? jev.skipped : undefined;
+  const readings: JevReading[] = [];
+  for (const [key, label, words] of READINGS) {
+    const read = reading(record(answers[key]));
+    if (!read) continue;
+    let answer = words?.[read.answer] ?? read.answer.replaceAll('_', ' ');
+    if (key === 'needs' && typeof decided?.reach === 'string') {
+      answer += ` (${REACH_WORDS[decided.reach] ?? decided.reach})`;
+    }
+    const percent = Math.round(read.sureness * 100);
+    readings.push({ label, answer, percent, low: read.sureness < 0.9 });
+  }
+  const path = Array.isArray(decided?.handlerPath)
+    ? decided.handlerPath.filter((step): step is string => typeof step === 'string')
+    : [];
+  // Exact for picks under 0.90 (the Brain lists them); from Jev's answers otherwise.
+  const low = record(decided?.lowConfidence) ?? {};
+  const sureness = path.map((step) =>
+    typeof low[step] === 'number'
+      ? (low[step] as number)
+      : (reading(record(answers[PATH_READINGS[step] ?? step]))?.sureness ?? 1)
+  );
+  const cost = jev?.costNusd;
+  return {
+    route,
+    routePercent: sureness.length ? Math.round(Math.min(...sureness) * 100) : undefined,
+    skipped: skippedCode
+      ? (JEV_SKIPPED[skippedCode] ?? skippedCode.replaceAll('_', ' '))
+      : undefined,
+    readings,
+    codeDid: whatCodeDid(metrics, route, path),
+    costUsd: typeof cost === 'number' ? cost / 1e9 : undefined,
+    ms: typeof jev?.elapsedMs === 'number' ? jev.elapsedMs : undefined,
+  };
 }

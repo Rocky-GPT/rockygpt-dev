@@ -1,6 +1,14 @@
 'use client';
 
-import { describeStep, displayDate, type TurnStep } from '@/lib/chat-stream';
+import {
+  describeStep,
+  displayDate,
+  workedSteps,
+  type TurnStep,
+  type WorkShare,
+  type Worker,
+} from '@/lib/chat-stream';
+import { turnDiagnostics } from '@/lib/turn-export';
 import { useNow } from './useNow';
 import type { Turn } from './types';
 
@@ -18,6 +26,7 @@ export function TraceView({ turn }: { turn: Turn }) {
   const timings = Array.isArray(metrics?.toolResults)
     ? metrics.toolResults.filter(isRecordValue)
     : [];
+  const worked = live ? undefined : workedSteps(turnDiagnostics(turn.raw)?.work);
 
   return (
     <div className="space-y-6 px-5 py-4">
@@ -28,6 +37,7 @@ export function TraceView({ turn }: { turn: Turn }) {
             live={live}
             startedAt={turn.startedAt}
             totalMs={turn.latencyMs}
+            worked={worked}
           />
         </Section>
       )}
@@ -322,30 +332,55 @@ const STAGE_COLOR: Record<string, string> = {
   reviewing: 'bg-amber-400',
 };
 
+const WORKERS: Record<Worker, { label: string; className: string; about: string }> = {
+  jev: {
+    label: 'Jev',
+    className: 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200',
+    about: 'Jev',
+  },
+  gpt: {
+    label: 'GPT',
+    className: 'border-teal-400/30 bg-teal-400/10 text-teal-200',
+    about: 'GPT',
+  },
+  code: {
+    label: 'Code',
+    className: 'border-white/10 bg-white/[0.04] text-neutral-300',
+    about: "The Brain's own code: lookups, calculations, rendering and bookkeeping",
+  },
+};
+
 /**
  * Where the time went: one bar split by stage, then each stage with how long
  * it took. The last stage runs until the answer arrived, or until now while
- * the Brain is still on it.
+ * the Brain is still on it. Once a development Brain has answered, the stages
+ * are the Brain's own timings, each tagged with who did the work.
  */
 function Timeline({
   steps,
   live,
   startedAt,
   totalMs,
+  worked,
 }: {
   steps: TurnStep[];
   live: boolean;
   startedAt: number;
   totalMs?: number;
+  worked?: ReturnType<typeof workedSteps>;
 }) {
-  const { spans, end, total } = useSpans(steps, live, startedAt, totalMs);
+  const timed = useSpans(steps, live, startedAt, totalMs);
+  const spans: Span[] = worked
+    ? worked.steps.map((step) => ({ step, ms: step.ms, work: step.work }))
+    : timed.spans;
+  const total = worked ? Math.max(worked.endMs, 1) : timed.total;
 
   return (
     <div className="rounded-xl border border-border bg-neutral-950/60 p-4">
       <StageBar spans={spans} live={live} total={total} />
 
       <ol className="mt-3.5 space-y-2">
-        {spans.map(({ step, ms }, index) => {
+        {spans.map(({ step, ms, work }, index) => {
           const { label, detail } = describeStep(step);
           const running = live && index === spans.length - 1;
           return (
@@ -358,6 +393,7 @@ function Timeline({
                   {label}
                   {running ? '…' : ''}
                 </span>
+                {work && <WorkTags work={work} />}
                 {detail && (
                   <span className="block text-xs leading-5 text-muted-foreground">{detail}</span>
                 )}
@@ -371,16 +407,47 @@ function Timeline({
       </ol>
 
       <p className="mt-3 border-t border-border pt-2.5 text-right font-mono text-[11px] text-muted-foreground">
+        {worked && (
+          <>
+            in the Brain <span className="text-foreground">{formatMs(worked.endMs)}</span>
+            {' · '}
+          </>
+        )}
         {live ? 'so far ' : 'total '}
-        <span className="text-foreground">{formatMs(end)}</span>
+        <span className="text-foreground">{formatMs(timed.end)}</span>
       </p>
     </div>
+  );
+}
+
+/**
+ * Who did a step's work, with how long each took. Code under 50 ms beside a Jev
+ * or GPT call is only the hand-off between them, so it is left out.
+ */
+function WorkTags({ work }: { work: WorkShare[] }) {
+  const shown = work.filter((share) => share.who !== 'code' || share.ms >= 50 || work.length === 1);
+  return (
+    <span className="ml-2 inline-flex flex-wrap gap-1 align-[1px]">
+      {shown.map((share) => {
+        const worker = WORKERS[share.who];
+        return (
+          <span
+            key={share.who}
+            title={`${worker.about}${share.calls.length ? `: ${share.calls.join(', ')}` : ''}, ${formatMs(share.ms)}`}
+            className={`rounded border px-1.5 py-px font-mono text-[10px] leading-4 ${worker.className}`}
+          >
+            {worker.label} {formatMs(share.ms)}
+          </span>
+        );
+      })}
+    </span>
   );
 }
 
 interface Span {
   step: TurnStep;
   ms: number;
+  work?: WorkShare[];
 }
 
 /** How long each step lasted: until the next one began, or until the end. */

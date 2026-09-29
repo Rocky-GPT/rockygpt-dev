@@ -57,7 +57,11 @@ test("each turn names Jev's route and the picks it wasn't sure of", () => {
 
 test('without Jev, the danger phrases still name the route; without metrics, nothing shows', () => {
   const phrases = { metrics: { handler: 'danger', jev: { skipped: 'routing_timeout' } } };
-  assert.deepEqual(readJevRoute(phrases), { route: 'danger', label: 'danger', lowConfidence: [] });
+  assert.deepEqual(readJevRoute(phrases), {
+    route: 'danger',
+    label: 'danger → safety path',
+    lowConfidence: [],
+  });
   assert.equal(readJevRoute({ answer: 'hi' }), undefined);
   assert.equal(readJevRoute(undefined), undefined);
 });
@@ -132,7 +136,7 @@ test('a turn without Jev says why', () => {
     },
   });
   assert.equal(decision.skipped, 'Jev ran out of time');
-  assert.equal(decision.route.label, 'danger');
+  assert.equal(decision.route.label, 'danger → safety path');
   assert.match(decision.codeDid, /danger phrases heard danger/);
   assert.equal(readJevDecision({ answer: 'hi' }), undefined);
 });

@@ -161,13 +161,11 @@ the one at `BRAIN_URL`, and, for the Storage page, the production Brain at `PROD
 
 ## Root-to-answer inspection
 
-Ask & Inspect's trace starts with a **Root → answer** section. It displays the
-Brain's recorded Ramapo → Offices → office → Published records paths in order,
-including failed steps, answer contributions, citations and dataset versions.
-The final answer is shown separately because it can combine several branches and
-nonfactual response parts. Emergency contact paths are labelled as code traversal.
+Ask & Inspect's Trace tab shows a measured timing breakdown followed by the
+recorded Ramapo → Offices → office → Published records paths, including failures.
+Answer text and sources remain in their own tabs; tool details are collapsed. Emergency contact paths are labelled as code traversal.
 Older responses without paths are labelled as having no recorded graph path.
-Each path node opens Campus Graph in a new tab, preserving the conversation. The
+Each path node opens Campus Graph in the same tab, preserving the conversation. The
 link carries the dataset, identity hash, selected fields and lookup time. Campus
 Graph uses `GET /v1/dev/graph/node` to show that node's children and evidence. It
 exposes only the office branch; other entity kinds are not yet browsable here.
@@ -176,4 +174,20 @@ A changed publication produces an explicit error with a link to the current root
 One `graph_lookup` runs the complete path in code. The trace distinguishes this
 from older `graph_open` results, which made one model decision per step.
 
-The root-first changes have not been tested or built at the user's request.
+The conversation, composer draft, selected turn, and inspector tab are saved in
+`sessionStorage` for the current browser tab. They survive section navigation and
+reloads. Clear turns also clears the saved turns. A request interrupted by a reload
+is kept as failed rather than left pending or automatically resent. If tab storage
+cannot save, the UI prompts the developer to export before leaving.
+
+Timing covers Send → response ready (before React paints). Browser preparation,
+Brain stages, response encoding, transport/proxy overhead, body reading and decoding
+are accounted for exactly once, in integer microseconds displayed as milliseconds.
+Nested server work replaces its parent interval; it is not counted twice. Provider
+time includes its network round trip. Surrounding transport/proxy/browser wait is
+combined, not attributed to invented individual stages. The total matches the turn
+header and exported timing. Older or interrupted responses without detailed timings
+show their unmeasured interval explicitly.
+
+The root-first, timing, trace cleanup and tab persistence changes have not been
+tested or built at the user's request.

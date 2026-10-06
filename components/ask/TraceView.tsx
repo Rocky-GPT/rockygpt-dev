@@ -1,10 +1,10 @@
 'use client';
 
-import { BrainMarkdown } from '@/components/BrainMarkdown';
 import Link from 'next/link';
 import { brainMetrics, brainTrace } from '@/lib/brain-metrics';
 import { campusGraphHref } from '@/lib/campus-graph-link';
 import type { Turn } from './types';
+import { TimingView } from './TimingView';
 
 /**
  * How a turn got to its answer: which office lookups the model asked for and how each
@@ -22,30 +22,36 @@ export function TraceView({ turn }: { turn: Turn }) {
 
   return (
     <div className="space-y-6 px-5 py-4">
+      <Section title="Timing">
+        <TimingView turn={turn} />
+      </Section>
       <Section title="Root → answer">
-        <TraversalView calls={calls} raw={turn.raw} live={live} />
+        <TraversalView calls={calls} live={live} />
       </Section>
-      <Section title="Tool calls" count={live || !hasTrace ? undefined : calls.length}>
-        {calls.length > 0 ? (
-          <div className="space-y-2">
-            {calls.map((call, index) => (
-              <ToolCallCard key={index} call={call} />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            {live
-              ? 'Tool calls arrive with the answer.'
-              : hasTrace
-                ? metrics?.decidedBy === 'error'
-                  ? 'No tool calls. The turn ended in an error before any lookup ran.'
-                  : 'No tool calls. The Brain answered without looking anything up.'
-                : 'This Brain sent no trace, so what it looked up is unknown.'}
-          </Empty>
-        )}
-      </Section>
+      <details>
+        <summary className="cursor-pointer text-xs text-muted-foreground">Tool details{hasTrace && !live ? ` (${calls.length})` : ''}</summary>
+        <div className="mt-3">
+          {calls.length > 0 ? (
+            <div className="space-y-2">
+              {calls.map((call, index) => (
+                <ToolCallCard key={index} call={call} />
+              ))}
+            </div>
+          ) : (
+            <Empty>
+              {live
+                ? 'Tool calls arrive with the answer.'
+                : hasTrace
+                  ? metrics?.decidedBy === 'error'
+                    ? 'No tool calls. The turn ended in an error before any lookup ran.'
+                    : 'No tool calls. The Brain answered without looking anything up.'
+                  : 'This Brain sent no trace, so what it looked up is unknown.'}
+            </Empty>
+          )}
+        </div>
+      </details>
 
-      {metrics && (
+      {metrics && (typeof metrics.modelCalls === 'number' || typeof metrics.decidedBy === 'string') && (
         <Section title="Details">
           <Details metrics={metrics} datasetVersion={turn.raw?.datasetVersion} />
         </Section>
@@ -54,36 +60,22 @@ export function TraceView({ turn }: { turn: Turn }) {
   );
 }
 
-function TraversalView({ calls, raw, live }: {
+function TraversalView({ calls, live }: {
   calls: Record<string, unknown>[];
-  raw: Record<string, unknown> | undefined;
   live: boolean;
 }) {
   const traversals = calls.filter(call => Array.isArray(call.path) && call.path.length > 0);
-  const body = isRecordValue(raw?.upstreamResponse) ? raw.upstreamResponse : raw;
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">
-        Recorded navigation from this turn. Root and category links organize the lookup;
-        published records provide the evidence. Retrieved text can be withheld if a later
-        step fails; the final answer below shows what was actually returned. Click a node
-        to inspect it in Campus Graph in a new tab.
+        Click a node to open its published data in Campus Graph. These are the paths
+        recorded during this turn; the Answer tab shows what was returned.
       </p>
       {traversals.map((call, index) => {
         const path = (call.path as unknown[]).filter(isRecordValue);
-        const answer = isRecordValue(call.answer) ? call.answer : undefined;
         const args = isRecordValue(call.arguments) ? call.arguments : undefined;
         const fields = Array.isArray(args?.fields)
           ? args.fields.filter((field): field is string => typeof field === 'string') : undefined;
-        const seenUrls = new Set<string>();
-        // One link per source page; the full evidence records remain in the raw trace.
-        const citations = (Array.isArray(answer?.citations) ? answer.citations.filter(isRecordValue) : [])
-          .filter(citation => {
-            if (typeof citation.url !== 'string') return true;
-            if (seenUrls.has(citation.url)) return false;
-            seenUrls.add(citation.url);
-            return true;
-          });
         return (
           <article key={index} className="rounded-xl border border-border p-3">
             <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -101,14 +93,12 @@ function TraversalView({ calls, raw, live }: {
                     <Link
                       href={campusGraphHref(node.id, call.dataset_version, call.identity_hash,
                         typeof call.as_of === 'string' ? call.as_of : undefined, fields)}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       prefetch={false}
-                      title="Open this node in Campus Graph (new tab)"
+                      title="Open this node in Campus Graph"
                       className="break-words rounded border border-sky-400/30 px-2 py-1 text-sky-400 hover:bg-sky-400/10 hover:underline"
                     >
                       {typeof node.label === 'string' ? node.label : node.id}
-                      <span className="sr-only"> — open in Campus Graph, new tab</span>
+                      <span className="sr-only"> — open in Campus Graph</span>
                     </Link>
                   ) : (
                     <span className="break-words rounded border border-border px-2 py-1">
@@ -117,42 +107,12 @@ function TraversalView({ calls, raw, live }: {
                   )}
                 </li>
               ))}
-              {answer && <li className="flex items-center gap-2"><span aria-hidden="true">→</span><span>Answer contribution</span></li>}
             </ol>
-            {answer && typeof answer.text === 'string' && (
-              <div className="mt-3 break-words text-sm">
-                <BrainMarkdown>{answer.text}</BrainMarkdown>
-              </div>
-            )}
-            {citations.length > 0 && (
-              <ul aria-label="Source pages" className="mt-2 space-y-1 text-xs">
-                {citations.map((citation, citationIndex) => (
-                  <li key={citationIndex} className="break-words">
-                    {typeof citation.url === 'string' && citation.url.startsWith('https://') ? (
-                      <a href={citation.url} target="_blank" rel="noreferrer" className="text-sky-400 underline">
-                        {typeof citation.title === 'string' ? citation.title : citation.url}
-                      </a>
-                    ) : 'Source URL unavailable'}
-                  </li>
-                ))}
-              </ul>
-            )}
-            {typeof call.dataset_version === 'string' && (
-              <p className="mt-2 break-all font-mono text-xs text-muted-foreground">Release: {call.dataset_version}</p>
-            )}
           </article>
         );
       })}
       {traversals.length === 0 && (
         <Empty>{live ? 'The recorded path arrives with the answer.' : 'No graph path was recorded for this turn.'}</Empty>
-      )}
-      {typeof body?.answer === 'string' && (
-        <details className="rounded-xl border border-border p-3">
-          <summary className="cursor-pointer text-sm">Final answer</summary>
-          <div className="mt-2 break-words text-sm">
-            <BrainMarkdown>{body.answer}</BrainMarkdown>
-          </div>
-        </details>
       )}
     </div>
   );
@@ -291,17 +251,6 @@ function Details({
   if (typeof metrics.situation === 'string') {
     rows.push(['Kind of emergency', metrics.situation.replaceAll('_', ' ')]);
   }
-  if (Array.isArray(metrics.finish)) {
-    rows.push([
-      'Model finished with',
-      metrics.finish.length
-        ? metrics.finish.map(String).join(', ')
-        : 'nothing extra (the lookups only)',
-    ]);
-  }
-  if (typeof metrics.officesListed === 'number') {
-    rows.push(['Offices shown to the model', String(metrics.officesListed)]);
-  }
   if (typeof metrics.committedNusd === 'number' && metrics.committedNusd > 0) {
     rows.push(['Model spend', `$${(metrics.committedNusd / 1e9).toFixed(4)}`]);
   }
@@ -359,7 +308,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 }
 
 export function formatMs(ms: number): string {
-  return ms < 1_000 ? `${Math.round(ms)} ms` : `${(ms / 1_000).toFixed(1)} s`;
+  return `${ms.toFixed(3)} ms`;
 }
 
 function isRecordValue(value: unknown): value is Record<string, unknown> {

@@ -29,14 +29,14 @@ function failure(
 
 async function proxyResponse(upstream: Response, operation: string): Promise<Response> {
   const contentType = upstream.headers.get('content-type') ?? 'application/json';
-  const requestId = upstream.headers.get('x-request-id');
+  const forwarded = new Headers();
+  for (const name of ['x-request-id', 'cache-control', 'x-rockygpt-brain-total-us']) {
+    const value = upstream.headers.get(name);
+    if (value) forwarded.set(name, value);
+  }
   if (upstream.ok) {
-    const headers = new Headers({ 'content-type': contentType });
-    for (const name of ['x-request-id', 'cache-control']) {
-      const value = upstream.headers.get(name);
-      if (value) headers.set(name, value);
-    }
-    return new Response(upstream.body, { status: upstream.status, headers });
+    forwarded.set('content-type', contentType);
+    return new Response(upstream.body, { status: upstream.status, headers: forwarded });
   }
 
   const rawText = await upstream.text();
@@ -50,7 +50,7 @@ async function proxyResponse(upstream: Response, operation: string): Promise<Res
     brainFailureBody(upstream.status, upstreamResponse, operation),
     {
       status: upstream.status,
-      headers: requestId ? { 'x-request-id': requestId } : undefined,
+      headers: forwarded,
     }
   );
 }

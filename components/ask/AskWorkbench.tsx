@@ -45,6 +45,8 @@ export function AskWorkbench() {
     setSelectedId,
     inspectorOpen,
     setInspectorOpen,
+    ready,
+    storageWarning,
   } = useAskSession();
   const [busy, setBusy] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -56,6 +58,7 @@ export function AskWorkbench() {
   const conversationExportTimerRef = useRef<number | null>(null);
   const turnsRef = useRef(turns);
   const problems = useMemo(() => validate(state), [state]);
+  const pendingReply = turns.some(turn => turn.status === 'pending');
 
   useEffect(() => {
     turnsRef.current = turns;
@@ -102,6 +105,9 @@ export function AskWorkbench() {
 
   const send = useCallback(
     async (message: string, options: SendOptions = {}): Promise<Turn> => {
+      const startedAt = Date.now();
+      const startedMono = performance.now();
+      const elapsedUs = () => Math.round((performance.now() - startedMono) * 1_000);
       // Typed questions and bulk runs with history share one window, and the Brain
       // is told how much was left out (09-29).
       const history = windowHistory(
@@ -111,7 +117,6 @@ export function AskWorkbench() {
       const body = buildBody({ message }, history.messages, history.omittedMessages);
       const requestText = JSON.stringify(body);
       const localId = crypto.randomUUID();
-      const startedAt = Date.now();
       const pending: Turn = {
         localId,
         question: message.trim(),
@@ -123,37 +128,53 @@ export function AskWorkbench() {
       };
 
       turnsRef.current = [...turnsRef.current, pending];
-      setTurns(turnsRef.current);
+      setTurns(previous => [...previous, pending]);
       if (options.select !== false) setSelectedId(localId);
 
       let current = pending;
+      let preparedUs = 0;
+      let headersUs: number | undefined;
+      let bodyUs: number | undefined;
+      let brainTotalUs: number | undefined;
       const write = (turn: Turn) => {
         current = turn;
         turnsRef.current = turnsRef.current.map((existing) =>
           existing.localId === localId ? turn : existing
         );
-        setTurns(turnsRef.current);
+        // Read the shared session, including turns created after page navigation.
+        // A cleared conversation also stays cleared when a late reply arrives.
+        setTurns(previous => previous.map(existing => existing.localId === localId ? turn : existing));
       };
       const settle = (patch: Partial<Turn>): Turn => {
         const finishedAt = Date.now();
+        const totalUs = elapsedUs();
         write({
           ...current,
           ...patch,
           finishedAt,
-          latencyMs: finishedAt - startedAt,
+          latencyMs: totalUs / 1_000,
+          timing: { totalUs, preparedUs, headersUs, bodyUs, brainTotalUs },
         });
         return current;
       };
 
       try {
+        preparedUs = elapsedUs();
         const response = await fetch('/api/brain/chat', {
           method: 'POST',
           headers: { 'content-type': 'application/json', accept: 'application/json' },
           body: requestText,
           signal: options.signal,
         });
+        headersUs = elapsedUs();
+        const serverTime = response.headers.get('x-rockygpt-brain-total-us');
+        if (serverTime !== null && /^\d+$/.test(serverTime)) {
+          const duration = Number(serverTime);
+          if (Number.isSafeInteger(duration)) brainTotalUs = duration;
+        }
         const httpStatus = response.status;
         const rawText = await response.text();
+        bodyUs = elapsedUs();
         let raw: Record<string, unknown> | undefined;
         try {
           raw = JSON.parse(rawText) as Record<string, unknown>;
@@ -198,7 +219,7 @@ export function AskWorkbench() {
   );
 
   const sendFromComposer = useCallback(async () => {
-    if (busy || bulk?.running || problems.length > 0) return;
+    if (!ready || busy || pendingReply || bulk?.running || problems.length > 0) return;
     const message = state.message;
     setState({ message: '' });
     setBusy(true);
@@ -207,7 +228,7 @@ export function AskWorkbench() {
     } finally {
       setBusy(false);
     }
-  }, [bulk?.running, busy, problems.length, send, setState, state.message]);
+  }, [ready, pendingReply, bulk?.running, busy, problems.length, send, setState, state.message]);
 
   const conversationJson = () => exportConversation(turns);
 
@@ -342,6 +363,7 @@ export function AskWorkbench() {
         }
       />
 
+      {storageWarning && <p role="status" className="px-5 py-2 text-xs text-amber-300">{storageWarning}</p>}
       <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
         <div className="flex min-w-0 flex-1 flex-col border-border lg:min-h-0 lg:border-r">
           {bulk && <BulkRunner progress={bulk} />}
@@ -351,7 +373,7 @@ export function AskWorkbench() {
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}
             onSend={() => void sendFromComposer()}
             onOpenBulk={() => setBulkOpen(true)}
-            busy={busy || bulk?.running === true}
+            busy={!ready || busy || pendingReply || bulk?.running === true}
             problems={problems}
           />
         </div>

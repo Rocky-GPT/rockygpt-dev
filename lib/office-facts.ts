@@ -95,3 +95,26 @@ export function countFacts(facts: OfficeFacts): FactCounts {
       .length,
   };
 }
+
+/** The weekdays of an hours value as published, with runs of identical hours as one span. */
+export function formatHours(value: unknown): string | null {
+  if (!isObject(value) || !Array.isArray(value.days)) return null;
+  const runs: Array<{ first: string; last: string; hours: string; count: number }> = [];
+  for (const entry of value.days) {
+    if (!isObject(entry) || typeof entry.day !== 'string' || typeof entry.hours !== 'string') return null;
+    const run = runs[runs.length - 1];
+    if (run && run.hours === entry.hours) {
+      run.last = entry.day;
+      run.count += 1;
+    } else {
+      runs.push({ first: entry.day, last: entry.day, hours: entry.hours, count: 1 });
+    }
+  }
+  const span = (run: (typeof runs)[number]) =>
+    run.count === 1 ? run.first : run.count === 2 ? `${run.first} and ${run.last}` : `${run.first} to ${run.last}`;
+  const name = typeof value.schedule === 'string' && value.schedule ? `${value.schedule}. ` : '';
+  const notes = Array.isArray(value.notes) ? value.notes.filter((n): n is string => typeof n === 'string') : [];
+  return `${name}${runs.map((run) => `${span(run)}: ${run.hours}`).join('; ')}${
+    notes.length ? `. Published note: ${notes.join(' ')}` : ''
+  }`;
+}

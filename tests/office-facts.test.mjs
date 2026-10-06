@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { countFacts, readFacts } from '../lib/office-facts.ts';
+import { countFacts, formatHours, readFacts } from '../lib/office-facts.ts';
 
 const facts = {
   entity: { id: 'a', kind: 'office', name: 'Admissions' },
@@ -38,4 +38,16 @@ test('a body that is not facts is not read', () => {
   assert.equal(readFacts({ ...facts, properties: undefined }), null);
   assert.equal(readFacts({ ...facts, entity: null }), null);
   assert.equal(readFacts(facts), facts);
+});
+
+test('hours read as weekday spans with the published note, and anything else falls back', () => {
+  const week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => ({ day, hours: '8:30am-4:30pm' }))
+    .concat([{ day: 'Saturday', hours: 'Hours unavailable' }, { day: 'Sunday', hours: 'Hours unavailable' }]);
+  assert.equal(
+    formatHours({ schedule: 'Registrar', days: week, notes: ['Fall/Spring Hours: 8:30 A.M. - 4:30 P.M.'] }),
+    'Registrar. Monday to Friday: 8:30am-4:30pm; Saturday and Sunday: Hours unavailable. Published note: Fall/Spring Hours: 8:30 A.M. - 4:30 P.M.',
+  );
+  assert.equal(formatHours({ days: [{ day: 'Monday', hours: '24 hours' }] }), 'Monday: 24 hours');
+  assert.equal(formatHours('8:30'), null);
+  assert.equal(formatHours({ days: [{ day: 'Monday' }] }), null);
 });

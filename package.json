@@ -18,7 +18,7 @@
     "test:feedback": "node --experimental-strip-types --test tests/feedback-tags.test.mjs",
     "test:export": "node --experimental-strip-types --test tests/turn-export.test.mjs",
     "test:chat": "node --experimental-strip-types --test tests/chat-request.test.mjs tests/turn-outcome.test.mjs tests/brain-metrics.test.mjs",
-    "test:dev": "node --experimental-strip-types --test tests/dev-format.test.mjs tests/office-facts.test.mjs tests/alias-lookup.test.mjs"
+    "test:dev": "node --experimental-strip-types --test tests/dev-format.test.mjs tests/office-facts.test.mjs tests/alias-lookup.test.mjs tests/knowledge-roadmap.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

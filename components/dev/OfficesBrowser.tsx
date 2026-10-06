@@ -204,7 +204,7 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
   );
 }
 
-function FactsView({
+export function FactsView({
   facts,
   aliases,
   entityId,

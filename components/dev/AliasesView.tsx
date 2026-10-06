@@ -99,9 +99,9 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
       <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
         <h2 className="text-sm font-semibold text-foreground">Every office and its aliases</h2>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          These published names and aliases help the model select office nodes after it opens
+          Code matches the model’s query against these published names and aliases after traversing
           Ramapo → Offices. This inspection page may be truncated independently of the traversal.
-          The search below previews directory matching; chat follows returned node IDs.
+          The search below previews the matching rules used by chat.
         </p>
         {offices.truncated && (
           <p className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">

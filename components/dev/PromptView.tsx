@@ -10,7 +10,7 @@ const INPUT_MEANINGS: Record<string, string> = {
   campus_now: 'The campus date and time for this turn, as a timestamp with its UTC offset.',
   client_omitted_messages: 'How many older messages the app did not send.',
   server_omitted_messages: 'How many older messages the Brain left out to fit.',
-  published_offices: 'Published offices with their aliases, up to 200.',
+  graph_root: 'Ramapo and its available category children. Office names arrive only after opening Offices.',
   earlier_messages:
     'The most recent earlier messages that fit, oldest first, each with its index among those kept.',
   latest_message: 'The student’s message.',

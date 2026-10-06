@@ -38,9 +38,9 @@ export function ConfigView({ runtime }: { runtime: DevRuntime }) {
       />
 
       <Table
-        title="Office lookups"
+        title="Graph traversal"
         rows={[
-          ['Office lookups allowed', limits.maxToolAttempts.toLocaleString('en-US')],
+          ['Node opens allowed', limits.maxToolAttempts.toLocaleString('en-US')],
           ['Office results kept', limits.maxLookupResults.toLocaleString('en-US')],
         ]}
       />

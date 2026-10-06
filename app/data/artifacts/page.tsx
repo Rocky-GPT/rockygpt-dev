@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default function ArtifactsPage() {
   return (
     <>
-      <PageHeader title="Artifacts" subtitle="Not built for this Brain" />
+      <PageHeader title="Artifacts" subtitle="Not built yet" />
       <main className="min-w-0 px-6 py-6">
-        <BrainFeaturePending contract="a new artifact contract" />
+        <BrainFeaturePending kind="planned" contract="a new artifact contract" />
       </main>
     </>
   );

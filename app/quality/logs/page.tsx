@@ -4,15 +4,15 @@ import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Chat Logs | RockyGPT Dev',
-  description: 'Not built for this Brain.',
+  description: 'Switched off: the current Brain does not serve what this page reads.',
 };
 
 export default function LogsPage() {
   return (
     <>
-      <PageHeader title="Chat Logs" subtitle="Not built for this Brain" />
+      <PageHeader title="Chat Logs" subtitle="Switched off for this Brain" />
       <main className="min-w-0 px-6 py-6">
-        <BrainFeaturePending contract="a GET /v1/logs route" />
+        <BrainFeaturePending kind="off" contract="a GET /v1/logs route" />
       </main>
     </>
   );

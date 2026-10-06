@@ -1,3 +1,5 @@
+> Dormant: `/data/entities` is switched off because the current Brain serves no `/v1/dev/graph` or `/v1/dev/identities` routes. This describes the page as it worked against an older Brain.
+
 > Superseded for the Campus Graph UI by [the entity-first explorer](campus-knowledge-graph.md). The source browsing API remains available for operational inspection.
 
 # Campus Graph source navigation — development checkpoint

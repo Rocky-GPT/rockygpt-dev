@@ -35,7 +35,11 @@ import {
   Tags,
 } from 'lucide-react';
 
-export type ItemStatus = 'ready' | 'partial' | 'planned';
+/**
+ * `ready` is connected to the current Brain. `partial` has one working half. `off` was built and is
+ * switched off because the current Brain does not serve what it reads. `planned` does not exist yet.
+ */
+export type ItemStatus = 'ready' | 'partial' | 'off' | 'planned';
 
 export interface NavItem {
   href: string;
@@ -91,10 +95,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/brain/capabilities',
         label: 'Capabilities',
-        description: 'The lookups the assistant can make, and the records behind them',
+        description: 'What the model can do: the tools and answer parts it is given',
         icon: Boxes,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/capabilities',
+        status: 'ready',
+        upstream: 'GET /v1/dev/runtime',
       },
       {
         href: '/brain/trace-replay',
@@ -102,26 +106,25 @@ export const NAVIGATION: NavSection[] = [
         description: "Inspect a student's turn the way you inspect your own",
         icon: Sparkles,
         status: 'planned',
-        // Five of the eight trace boxes are never written to the database, and
-        // no route returns a stored trace or fetches one log by id. Re-asking
-        // the question is not the same turn.
-        upstream: 'no endpoint returns a stored brainTrace',
+        // The Brain keeps no turn log, so there is nothing to replay. Re-asking the question
+        // is not the same turn.
+        upstream: 'this Brain keeps no stored turns to replay',
       },
       {
         href: '/brain/prompts',
         label: 'Prompts & Models',
         description: 'The assistant\'s instructions and the model that runs them',
         icon: Settings2,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/prompts',
+        status: 'ready',
+        upstream: 'GET /v1/dev/runtime',
       },
       {
         href: '/brain/templates',
         label: 'Templates',
-        description: 'The fixed texts the code writes itself',
+        description: 'Every text the code writes itself',
         icon: LayoutTemplate,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/templates',
+        status: 'ready',
+        upstream: 'GET /v1/dev/runtime',
       },
     ],
   },
@@ -139,18 +142,18 @@ export const NAVIGATION: NavSection[] = [
       },
       {
         href: '/data/records',
-        label: 'Records',
-        description: 'What each capability returns when nothing narrows it',
+        label: 'Offices',
+        description: 'The published offices and the facts the Brain reads for each',
         icon: Table2,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/capabilities/{name}/records',
+        status: 'ready',
+        upstream: 'GET /v1/dev/offices + GET /v1/entities/{id}/facts',
       },
       {
         href: '/data/documents',
         label: 'Documents',
         description: 'Full campus policies, handbooks, and source documents',
         icon: FileText,
-        status: 'planned',
+        status: 'off',
         upstream: 'this Brain serves no GET /v1/documents',
       },
       {
@@ -163,11 +166,11 @@ export const NAVIGATION: NavSection[] = [
       },
       {
         href: '/data/releases',
-        label: 'Releases',
-        description: 'Dataset versions, publish history, ingestion runs',
+        label: 'Release',
+        description: 'The published data the Brain answers from',
         icon: Database,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/releases',
+        status: 'ready',
+        upstream: 'GET /v1/dev/offices',
       },
       {
         href: '/data/storage',
@@ -182,16 +185,16 @@ export const NAVIGATION: NavSection[] = [
         label: 'Campus Graph',
         description: 'Explore campus entities, relationships, and source-backed properties',
         icon: Tags,
-        status: 'planned',
+        status: 'off',
         upstream: 'this Brain serves no GET /v1/dev/graph/*, only GET /v1/entities/{id}/facts',
       },
       {
         href: '/data/aliases',
         label: 'Aliases',
-        description: 'Every other name an entity answers to, what it finds, and why',
+        description: 'The other names an office answers to, and what a name finds',
         icon: Signpost,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/dev/identities/aliases',
+        status: 'ready',
+        upstream: 'GET /v1/dev/offices + GET /v1/dev/offices/search',
       },
     ],
   },
@@ -204,7 +207,7 @@ export const NAVIGATION: NavSection[] = [
         label: 'Chat Logs',
         description: 'Student turns, routes, and latency',
         icon: ScrollText,
-        status: 'planned',
+        status: 'off',
         upstream: 'this Brain serves no GET /v1/logs',
       },
       {
@@ -212,7 +215,7 @@ export const NAVIGATION: NavSection[] = [
         label: 'Feedback',
         description: 'Ratings and comments from students',
         icon: MessageSquareCode,
-        status: 'planned',
+        status: 'off',
         upstream: 'this Brain serves no GET or POST /v1/feedback',
       },
       {
@@ -220,7 +223,7 @@ export const NAVIGATION: NavSection[] = [
         label: 'Eval Runs',
         description: 'Scored corpus runs, failures, and regressions from PostgreSQL',
         icon: FlaskConical,
-        status: 'planned',
+        status: 'off',
         upstream: 'this Brain serves no GET or POST /v1/evals/runs',
       },
     ],
@@ -240,10 +243,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/operations/config',
         label: 'Configuration',
-        description: 'Models, timezone, flags, and the active dataset',
+        description: 'The limits and model this Brain runs with',
         icon: Settings2,
-        status: 'planned',
-        upstream: 'this Brain serves no GET /v1/config',
+        status: 'ready',
+        upstream: 'GET /v1/dev/runtime',
       },
     ],
   },

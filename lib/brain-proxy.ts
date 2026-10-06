@@ -197,3 +197,49 @@ export async function readBrainProbe<T>(
     return { problem: 'The brain is not reachable.' };
   }
 }
+
+/**
+ * A development-only Brain route (`/v1/dev/...`). The Brain serves these only when it runs in
+ * development and the request asks for diagnostics; a production Brain answers 404.
+ */
+function devHeaders(): Headers {
+  const headers = new Headers({ accept: 'application/json', 'x-rockygpt-diagnostics': '1' });
+  const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
+  if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
+  return headers;
+}
+
+export async function proxyBrainDev(path: string, search = ''): Promise<Response> {
+  const target = targetFor(`${path}${search}`);
+  if (target === null) return misconfigured();
+  try {
+    const upstream = await fetch(target, {
+      headers: devHeaders(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    });
+    return proxyResponse(upstream, `GET ${path}`);
+  } catch (error) {
+    return upstreamFailure(error, `GET ${path}`);
+  }
+}
+
+/** Server components read a development route here. Says plainly why a read failed. */
+export async function readBrainDev<T>(path: string): Promise<BrainRead<T>> {
+  const target = targetFor(path);
+  if (target === null) return { problem: 'BRAIN_URL is not set in this environment.' };
+  try {
+    const response = await fetch(target, {
+      headers: devHeaders(),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    });
+    if (response.status === 404) {
+      return { problem: `This Brain does not serve ${path}. It serves it only in development.` };
+    }
+    if (!response.ok) return { problem: `The Brain answered HTTP ${response.status}.` };
+    return { data: (await response.json()) as T };
+  } catch {
+    return { problem: 'The Brain is not reachable.' };
+  }
+}

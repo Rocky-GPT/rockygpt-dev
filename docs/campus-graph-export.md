@@ -1,5 +1,7 @@
 # Published campus knowledge graph download
 
+> Dormant: `/data/entities` is switched off because the current Brain serves no `/v1/dev/graph` or `/v1/dev/identities` routes. This describes the page as it worked against an older Brain.
+
 **Download graph** on `/data/entities` requests a new, complete server export from
 `GET /api/brain/graph/export`, which proxies the development-only Brain endpoint
 `GET /v1/dev/graph/export`. The button does not serialize the Explorer's index,

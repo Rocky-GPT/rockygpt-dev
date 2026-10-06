@@ -6,6 +6,7 @@ import { NAVIGATION, type ItemStatus, type NavItem } from '@/lib/navigation';
 
 const STATUS_PILL: Record<Exclude<ItemStatus, 'ready'>, { label: string; className: string }> = {
   partial: { label: 'Partial', className: 'border-amber-500/40 bg-amber-500/10 text-amber-300' },
+  off: { label: 'Off', className: 'border-white/10 bg-white/5 text-muted-foreground' },
   planned: { label: 'Planned', className: 'border-white/10 bg-white/5 text-muted-foreground' },
 };
 
@@ -27,15 +28,15 @@ function ItemRow({ item, active }: { item: NavItem; active: boolean }) {
     </>
   );
 
-  // A planned item is not a link. Rendering it as one would 404, and rendering
-  // nothing would hide the fact that the section is intended to exist — so it
-  // is an inert row that carries its own reason in the tooltip.
-  if (item.status === 'planned') {
+  // An off or planned item is not a link. Rendering it as one would show an error or a 404, and
+  // rendering nothing would hide that the section exists, so it is an inert row that carries its
+  // reason in the tooltip.
+  if (item.status === 'planned' || item.status === 'off') {
     return (
       <span
         aria-disabled="true"
         tabIndex={-1}
-        title={`Not built yet — ${item.upstream}`}
+        title={`${item.status === 'off' ? 'Switched off' : 'Not built yet'} — ${item.upstream}`}
         className="flex cursor-not-allowed items-center gap-2.5 rounded-lg px-3 py-2 text-muted-foreground/50"
       >
         {body}
@@ -90,7 +91,7 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-border px-5 py-3 text-[11px] leading-4 text-muted-foreground/70">
-        Clean-room Brain connection · HTTP only
+        Brain connection · HTTP only
       </div>
     </nav>
   );

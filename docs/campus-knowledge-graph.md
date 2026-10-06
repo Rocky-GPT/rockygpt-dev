@@ -1,5 +1,7 @@
 # Campus knowledge graph
 
+> Dormant: `/data/entities` is switched off because the current Brain serves no `/v1/dev/graph` or `/v1/dev/identities` routes. This describes the page as it worked against an older Brain.
+
 `/data/entities` uses one entity-first explorer. Its model is entities, directed
 relationships, and source-backed properties. The UI uses entity kinds only for
 category labels; it has no event, club, faculty, or course-specific renderer.

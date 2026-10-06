@@ -8,55 +8,13 @@ import { JsonViewer } from '@/components/JsonViewer';
 import { StatusPill, type PillTone } from '@/components/shell/StatusPill';
 import { failureMessage } from '@/lib/brain-failure';
 import type { DevOffices } from '@/lib/brain-dev-types';
-
-interface FactValue {
-  value: unknown;
-  assertion_ids: string[];
-  source_ids: string[];
-}
-
-interface FactAssertion {
-  id: string;
-  source_id: string;
-  field: string;
-  raw_value: unknown;
-  value: unknown;
-  caveats: string[];
-}
-
-interface FactProperty {
-  key: string;
-  label: string;
-  category: string;
-  status: string;
-  values: FactValue[];
-  assertions: FactAssertion[];
-}
-
-interface FactSource {
-  id: string;
-  collection: string;
-  source_key: string;
-  source_record_key: string;
-  url: string | null;
-  citation_urls: string[];
-  collected_at: string | null;
-  valid_from: string | null;
-  valid_until: string | null;
-  freshness: string;
-  validity: string;
-  freshness_sla_hours: number | null;
-  caveats?: string[];
-}
-
-interface OfficeFacts {
-  entity: { id: string; kind: string; name: string };
-  properties: FactProperty[];
-  sources: FactSource[];
-  evidence_count: number;
-  caveats: string[];
-  complete: boolean;
-}
+import {
+  countFacts,
+  readFacts,
+  type FactProperty,
+  type FactSource,
+  type OfficeFacts,
+} from '@/lib/office-facts';
 
 type FactsResult =
   | { key: string; facts: OfficeFacts }
@@ -68,9 +26,7 @@ function formatValue(value: unknown): string {
   if (Array.isArray(value)) return value.map(formatValue).join(', ');
   if (typeof value === 'object') {
     const entries = Object.entries(value);
-    return entries.length === 1
-      ? formatValue(entries[0][1])
-      : entries.map(([name, item]) => `${name}: ${formatValue(item)}`).join(', ');
+    return entries.map(([name, item]) => `${name}: ${formatValue(item)}`).join(', ');
   }
   return String(value);
 }
@@ -78,7 +34,7 @@ function formatValue(value: unknown): string {
 function formatTime(iso: string | null): string {
   if (!iso) return '—';
   const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? iso : date.toLocaleString();
+  return Number.isNaN(date.getTime()) ? iso : date.toLocaleString(undefined, { timeZoneName: 'short' });
 }
 
 function plural(count: number, one: string, many: string): string {
@@ -101,7 +57,7 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
   const router = useRouter();
   const [reloading, startReload] = useTransition();
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState<string | null>(data.offices[0]?.entityId ?? null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [result, setResult] = useState<FactsResult | null>(null);
 
   const needle = query.trim().toLowerCase();
@@ -112,11 +68,13 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
           office.aliases.some((alias) => alias.toLowerCase().includes(needle))
       )
     : data.offices;
-  const selected = data.offices.find((office) => office.entityId === selectedId) ?? null;
-  const key = selected ? `${selected.entityId}|${data.datasetVersion}|${data.identityHash}` : null;
+  const selected =
+    data.offices.find((office) => office.entityId === selectedId) ?? data.offices[0] ?? null;
+  const entityId = selected?.entityId ?? null;
+  const key = entityId ? `${entityId}|${data.datasetVersion}|${data.identityHash}` : null;
 
   useEffect(() => {
-    if (!selectedId || !key) return;
+    if (!entityId || !key) return;
     const controller = new AbortController();
     const params = new URLSearchParams({
       dataset_version: data.datasetVersion,
@@ -126,13 +84,19 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
       let next: FactsResult;
       try {
         const response = await fetch(
-          `/api/brain/offices/${encodeURIComponent(selectedId)}/facts?${params}`,
+          `/api/brain/offices/${encodeURIComponent(entityId)}/facts?${params}`,
           { cache: 'no-store', signal: controller.signal }
         );
         const body: unknown = await response.json().catch(() => null);
+        if (controller.signal.aborted) return;
         if (response.status === 409) next = { key, changed: true };
         else if (!response.ok) next = { key, error: failureMessage(body, response.status) };
-        else next = { key, facts: body as OfficeFacts };
+        else {
+          const facts = readFacts(body);
+          next = facts
+            ? { key, facts }
+            : { key, error: 'The Brain returned an unreadable response.' };
+        }
       } catch {
         if (controller.signal.aborted) return;
         next = { key, error: 'The Dev UI could not reach the Brain.' };
@@ -140,7 +104,7 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
       setResult(next);
     })();
     return () => controller.abort();
-  }, [selectedId, key, data.datasetVersion, data.identityHash]);
+  }, [entityId, key, data.datasetVersion, data.identityHash]);
 
   const current = result && result.key === key ? result : null;
 
@@ -173,9 +137,9 @@ export function OfficesBrowser({ data }: { data: DevOffices }) {
               <button
                 type="button"
                 onClick={() => setSelectedId(office.entityId)}
-                aria-current={office.entityId === selectedId}
+                aria-current={office.entityId === entityId}
                 className={`flex w-full items-baseline justify-between gap-3 rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
-                  office.entityId === selectedId
+                  office.entityId === entityId
                     ? 'border-sky-400/40 bg-sky-400/10 text-foreground'
                     : 'border-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground'
                 }`}
@@ -248,6 +212,7 @@ function FactsView({
   aliases: string[];
   entityId: string;
 }) {
+  const counts = countFacts(facts);
   const categories = new Map<string, FactProperty[]>();
   for (const property of facts.properties) {
     categories.set(property.category, [...(categories.get(property.category) ?? []), property]);
@@ -258,10 +223,26 @@ function FactsView({
       <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold text-foreground">{facts.entity.name}</h2>
-          <StatusPill tone={facts.complete ? 'ok' : 'warn'}>
-            {facts.complete ? 'Complete' : 'Incomplete'}
+          <span title="The Brain's complete flag. It means no linked evidence record is missing. It says nothing about unknown properties or how fresh the sources are.">
+            <StatusPill tone={facts.complete ? 'idle' : 'warn'}>
+              {facts.complete ? 'All linked evidence present' : 'Linked evidence missing'}
+            </StatusPill>
+          </span>
+          <StatusPill tone={counts.known === counts.total ? 'ok' : 'idle'}>
+            {counts.known} of {plural(counts.total, 'property', 'properties')} known
+            {counts.several > 0 && `, ${counts.several} with several values`}
           </StatusPill>
-          <StatusPill tone="idle">{plural(facts.evidence_count, 'piece of evidence', 'pieces of evidence')}</StatusPill>
+          {counts.stale > 0 && (
+            <StatusPill tone="warn">
+              {counts.stale} of {plural(counts.sources, 'source', 'sources')} stale
+            </StatusPill>
+          )}
+          {counts.freshnessUnknown > 0 && (
+            <StatusPill tone="idle">{counts.freshnessUnknown} with unknown freshness</StatusPill>
+          )}
+          <span title="The Brain's evidence_count. The sources list can be longer, because it also lists sources derived from the same records.">
+            <StatusPill tone="idle">{plural(facts.evidence_count, 'evidence row', 'evidence rows')}</StatusPill>
+          </span>
         </div>
         <p className="mt-2 break-all font-mono text-[11px] text-muted-foreground">{entityId}</p>
         {aliases.length > 0 && (
@@ -352,12 +333,15 @@ function PropertyRow({ property }: { property: FactProperty }) {
         )}
         {property.values.length > 1 && (
           <p className="mt-1 text-xs text-amber-300">
-            The Brain reports {property.values.length} different values for this property.
+            {property.status === 'multiple'
+              ? `The Brain reports ${property.values.length} values from sources with different validity dates.`
+              : `The Brain reports ${property.values.length} values that conflict.`}
           </p>
         )}
         <details className="mt-1.5">
           <summary className="cursor-pointer select-none text-xs text-muted-foreground hover:text-foreground">
             {plural(property.assertions.length, 'assertion', 'assertions')}
+            {property.values.length === 0 && ' (no value)'}
           </summary>
           <ul className="mt-2 space-y-2">
             {property.assertions.map((assertion) => (

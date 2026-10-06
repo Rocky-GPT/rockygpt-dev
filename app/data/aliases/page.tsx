@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Aliases | RockyGPT Dev',
-  description: 'The other names an office answers to, and what a name finds.',
+  description: 'The other names an office answers to, and what the office lookup returns for a query.',
 };
 
 export default async function AliasesPage() {
@@ -17,7 +17,7 @@ export default async function AliasesPage() {
 
   return (
     <>
-      <PageHeader title="Aliases" subtitle="The other names an office answers to, and what a name finds" />
+      <PageHeader title="Aliases" subtitle="The other names an office answers to, and what the office lookup returns for a query" />
       <main className="min-w-0 px-6 py-6">
         {offices.data ? (
           <AliasesView offices={offices.data} />

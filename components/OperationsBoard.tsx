@@ -135,7 +135,7 @@ function CurrentSurfaceCard() {
       <Row label="Probes" value="GET /health, /readiness" />
       <Row label="Chat" value="POST /v1/chat" />
       <Row label="Facts" value="GET /v1/entities/{id}/facts" />
-      <p className="pt-1">The Brain&rsquo;s /openapi.json lists every route it serves.</p>
+      <p className="pt-1">/openapi.json lists the public routes; a development Brain also serves three /v1/dev/* routes it hides.</p>
     </Card>
   );
 }

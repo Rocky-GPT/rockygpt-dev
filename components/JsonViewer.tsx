@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Copy, Check, FileCode, ChevronDown, Download } from 'lucide-react';
+import { copyText } from '@/lib/copy';
 
 interface JsonViewerProps {
   data: unknown;
@@ -141,6 +142,7 @@ export function JsonViewer({
   const isOpen = alwaysOpen || isExpanded;
   const setIsOpen = setIsExpanded;
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   // `jsonString` is the whole record — copied, downloaded, and measured.
   // `preview` is only what is drawn: reshaped, then stripped, then unwrapped.
@@ -155,11 +157,15 @@ export function JsonViewer({
   const lines = preview.split('\n');
   const byteSize = new Blob([jsonString]).size;
 
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(jsonString);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const ok = await copyText(jsonString);
+    setCopied(ok);
+    setCopyFailed(!ok);
+    setTimeout(() => {
+      setCopied(false);
+      setCopyFailed(false);
+    }, 2000);
   };
 
   const handleDownload = (e: React.MouseEvent) => {
@@ -220,7 +226,7 @@ export function JsonViewer({
               title="Copy JSON Payload"
             >
               {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-              <span>{copied ? 'Copied' : 'Copy JSON'}</span>
+              <span>{copied ? 'Copied' : copyFailed ? 'Copy not available' : 'Copy JSON'}</span>
             </button>
           )}
 

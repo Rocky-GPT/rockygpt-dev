@@ -16,6 +16,9 @@ export const metadata: Metadata = {
 export default async function ReleasePage() {
   const result = await readBrainDev<DevOffices>('/v1/dev/offices');
   const release = result.data;
+  const distinctAliases = release
+    ? new Set(release.offices.flatMap((office) => office.aliases)).size
+    : 0;
 
   return (
     <>
@@ -35,12 +38,13 @@ export default async function ReleasePage() {
               </div>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-4">
               <Tile label="Offices" value={release.offices.length} />
               <Tile
-                label="Aliases"
+                label="Alias entries"
                 value={release.offices.reduce((total, office) => total + office.aliases.length, 0)}
               />
+              <Tile label="Distinct alias names" value={distinctAliases} />
               <Tile
                 label="Offices with no alias"
                 value={release.offices.filter((office) => office.aliases.length === 0).length}
@@ -74,19 +78,19 @@ export default async function ReleasePage() {
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-muted-foreground">
           <h2 className="font-semibold text-foreground">What this page cannot show</h2>
           <p className="mt-2">
-            This Brain does not report publish history, ingestion runs or sources, so none of them
-            appear here. The page shows only the data the Brain is serving now.
+            This Brain does not report publish history or ingestion runs, so neither appears here.
+            The page shows only the data the Brain is serving now.
           </p>
           <p className="mt-2">
             See{' '}
             <Link href="/data/records" className="text-sky-300 hover:underline">
               Offices
             </Link>{' '}
-            for the facts the Brain reads for each office, and{' '}
+            for the facts and sources the Brain reads for each office. The{' '}
             <Link href="/data/storage" className="text-sky-300 hover:underline">
               Storage
             </Link>{' '}
-            for what the database holds.
+            page shows the production Brain&rsquo;s numbers only, not this Brain&rsquo;s database.
           </p>
         </section>
       </main>

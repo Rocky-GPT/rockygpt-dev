@@ -96,6 +96,13 @@ export function brainMetrics(raw: Json | undefined): Json | undefined {
   return record(raw?.metrics) ?? record(record(raw?.upstreamResponse)?.metrics);
 }
 
+/** The office lookups a development Brain reports, or undefined when it sent none. */
+export function brainTrace(raw: Json | undefined): unknown[] | undefined {
+  if (Array.isArray(raw?.trace)) return raw.trace;
+  const wrapped = record(raw?.upstreamResponse)?.trace;
+  return Array.isArray(wrapped) ? wrapped : undefined;
+}
+
 export function readJevRoute(raw: Json | undefined): JevRoute | undefined {
   const metrics = brainMetrics(raw);
   const decided = record(record(metrics?.jev)?.decided);

@@ -1,7 +1,9 @@
 'use client';
 
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import Link from 'next/link';
 import { brainMetrics, brainTrace } from '@/lib/brain-metrics';
+import { campusGraphHref } from '@/lib/campus-graph-link';
 import type { Turn } from './types';
 
 /**
@@ -64,11 +66,15 @@ function TraversalView({ calls, raw, live }: {
       <p className="text-xs text-muted-foreground">
         Recorded navigation from this turn. Root and category links organize the lookup;
         published records provide the evidence. Retrieved text can be withheld if a later
-        step fails; the final answer below shows what was actually returned.
+        step fails; the final answer below shows what was actually returned. Click a node
+        to inspect it in Campus Graph in a new tab.
       </p>
       {traversals.map((call, index) => {
         const path = (call.path as unknown[]).filter(isRecordValue);
         const answer = isRecordValue(call.answer) ? call.answer : undefined;
+        const args = isRecordValue(call.arguments) ? call.arguments : undefined;
+        const fields = Array.isArray(args?.fields)
+          ? args.fields.filter((field): field is string => typeof field === 'string') : undefined;
         const seenUrls = new Set<string>();
         // One link per source page; the full evidence records remain in the raw trace.
         const citations = (Array.isArray(answer?.citations) ? answer.citations.filter(isRecordValue) : [])
@@ -81,17 +87,34 @@ function TraversalView({ calls, raw, live }: {
         return (
           <article key={index} className="rounded-xl border border-border p-3">
             <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span>Step {index + 1}</span>
-              <span>{call.tool === 'emergency_contacts' ? 'Code traversal' : 'Model traversal'}</span>
+              <span>{call.tool === 'graph_open' ? 'Step' : 'Lookup'} {index + 1}</span>
+              <span>{call.tool === 'emergency_contacts' ? 'Code traversal'
+                : call.traversedBy === 'code' ? 'Model request · code traversal' : 'Model traversal'}</span>
               <span>{typeof call.status === 'string' ? call.status.replaceAll('_', ' ') : 'Unknown status'}</span>
             </div>
             <ol aria-label={`Traversal ${index + 1}`} className="flex flex-wrap items-center gap-2 text-sm">
               {path.map((node, nodeIndex) => (
                 <li key={String(node.id)} className="flex min-w-0 items-center gap-2">
                   {nodeIndex > 0 && <span aria-hidden="true" className="text-muted-foreground">→</span>}
-                  <span className="break-words rounded border border-border px-2 py-1">
-                    {typeof node.label === 'string' ? node.label : String(node.id)}
-                  </span>
+                  {typeof node.id === 'string' && typeof call.dataset_version === 'string'
+                    && typeof call.identity_hash === 'string' ? (
+                    <Link
+                      href={campusGraphHref(node.id, call.dataset_version, call.identity_hash,
+                        typeof call.as_of === 'string' ? call.as_of : undefined, fields)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      prefetch={false}
+                      title="Open this node in Campus Graph (new tab)"
+                      className="break-words rounded border border-sky-400/30 px-2 py-1 text-sky-400 hover:bg-sky-400/10 hover:underline"
+                    >
+                      {typeof node.label === 'string' ? node.label : node.id}
+                      <span className="sr-only"> — open in Campus Graph, new tab</span>
+                    </Link>
+                  ) : (
+                    <span className="break-words rounded border border-border px-2 py-1">
+                      {typeof node.label === 'string' ? node.label : String(node.id)}
+                    </span>
+                  )}
                 </li>
               ))}
               {answer && <li className="flex items-center gap-2"><span aria-hidden="true">→</span><span>Answer contribution</span></li>}

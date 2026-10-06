@@ -192,10 +192,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/data/entities',
         label: 'Campus Graph',
-        description: 'Explore campus entities, relationships, and source-backed properties',
+        description: 'Follow the office branch from Ramapo to its published evidence',
         icon: Tags,
-        status: 'off',
-        upstream: 'this Brain serves no GET /v1/dev/graph/*, only GET /v1/entities/{id}/facts',
+        status: 'partial',
+        upstream: 'GET /v1/dev/graph/node (office branch)',
       },
       {
         href: '/data/aliases',

@@ -6,7 +6,7 @@ turn.
 
 ## What is connected
 
-The current Brain is a bounded assistant: one model with two tools, `graph_open` and `finish`, and
+The current Brain is a bounded assistant: one model with two tools, `graph_lookup` and `finish`, and
 code that writes every answer text. It serves `GET /health`, `GET /readiness`, `POST /v1/chat` and
 `GET /v1/entities/{id}/facts`. A Brain running in development also serves `GET /v1/dev/runtime`,
 `GET /v1/dev/offices` and `GET /v1/dev/offices/search`, but only to a request that sends
@@ -26,7 +26,7 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 | Configuration | The limits and model the Brain runs with | `/v1/dev/runtime` |
 | Storage | Partial: the production Brain's numbers load; this Brain has no storage route | `/v1/storage` |
 
-Documents, Campus Graph, Chat Logs, Feedback and Eval Runs are switched off: they were built for an
+Documents, Chat Logs, Feedback and Eval Runs are switched off: they were built for an
 older Brain and read routes this one does not serve, so each shows a "switched off" card. Their code
 is kept. Artifacts, Endpoints and Trace Replay do not exist yet. The Roadmap page lists all of this
 from `lib/navigation.ts`; its "connected" count is of pages, and the Roadmap page itself is one.
@@ -167,6 +167,13 @@ including failed steps, answer contributions, citations and dataset versions.
 The final answer is shown separately because it can combine several branches and
 nonfactual response parts. Emergency contact paths are labelled as code traversal.
 Older responses without paths are labelled as having no recorded graph path.
-This does not restore the separate full Campus Graph explorer.
+Each path node opens Campus Graph in a new tab, preserving the conversation. The
+link carries the dataset, identity hash, selected fields and lookup time. Campus
+Graph uses `GET /v1/dev/graph/node` to show that node's children and evidence. It
+exposes only the office branch; other entity kinds are not yet browsable here.
+A changed publication produces an explicit error with a link to the current root.
+
+One `graph_lookup` runs the complete path in code. The trace distinguishes this
+from older `graph_open` results, which made one model decision per step.
 
 The root-first changes have not been tested or built at the user's request.

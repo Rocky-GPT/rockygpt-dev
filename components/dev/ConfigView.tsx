@@ -40,7 +40,7 @@ export function ConfigView({ runtime }: { runtime: DevRuntime }) {
       <Table
         title="Graph traversal"
         rows={[
-          ['Node opens allowed', limits.maxToolAttempts.toLocaleString('en-US')],
+          ['Root-to-record lookups allowed', limits.maxToolAttempts.toLocaleString('en-US')],
           ['Office results kept', limits.maxLookupResults.toLocaleString('en-US')],
         ]}
       />

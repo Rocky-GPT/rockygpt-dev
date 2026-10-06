@@ -51,3 +51,10 @@ test('hours read as weekday spans with the published note, and anything else fal
   assert.equal(formatHours('8:30'), null);
   assert.equal(formatHours({ days: [{ day: 'Monday' }] }), null);
 });
+
+test('a weekday with no record is never inside an hours span', () => {
+  const days = [['Monday', '9am-5pm'], ['Tuesday', '9am-5pm'], ['Thursday', '9am-5pm']].map(([day, hours]) => ({ day, hours }));
+  assert.equal(formatHours({ days }), 'Monday and Tuesday: 9am-5pm; Thursday: 9am-5pm');
+  const gap = [['Monday', 'x'], ['Wednesday', 'x'], ['Friday', 'x']].map(([day, hours]) => ({ day, hours }));
+  assert.equal(formatHours({ days: gap }), 'Monday: x; Wednesday: x; Friday: x');
+});

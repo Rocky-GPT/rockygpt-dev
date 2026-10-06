@@ -96,18 +96,22 @@ export function countFacts(facts: OfficeFacts): FactCounts {
   };
 }
 
-/** The weekdays of an hours value as published, with runs of identical hours as one span. */
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+/** The weekdays of an hours value as published. Next weekdays with the same hours share a span; a day with no record is never inside one. */
 export function formatHours(value: unknown): string | null {
   if (!isObject(value) || !Array.isArray(value.days)) return null;
-  const runs: Array<{ first: string; last: string; hours: string; count: number }> = [];
+  const runs: Array<{ first: string; last: string; hours: string; count: number; index: number }> = [];
   for (const entry of value.days) {
     if (!isObject(entry) || typeof entry.day !== 'string' || typeof entry.hours !== 'string') return null;
+    const index = WEEKDAYS.indexOf(entry.day);
     const run = runs[runs.length - 1];
-    if (run && run.hours === entry.hours) {
+    if (run && run.hours === entry.hours && index >= 0 && run.index >= 0 && index === run.index + 1) {
       run.last = entry.day;
+      run.index = index;
       run.count += 1;
     } else {
-      runs.push({ first: entry.day, last: entry.day, hours: entry.hours, count: 1 });
+      runs.push({ first: entry.day, last: entry.day, hours: entry.hours, count: 1, index });
     }
   }
   const span = (run: (typeof runs)[number]) =>

@@ -10,6 +10,7 @@ import { failureMessage } from '@/lib/brain-failure';
 import type { DevOffices } from '@/lib/brain-dev-types';
 import {
   countFacts,
+  formatHours,
   readFacts,
   type FactProperty,
   type FactSource,
@@ -323,7 +324,9 @@ function PropertyRow({ property }: { property: FactProperty }) {
           <ul className="space-y-1">
             {property.values.map((value, index) => (
               <li key={index} className="flex flex-wrap items-baseline gap-x-3">
-                <span className="break-all font-mono text-foreground">{formatValue(value.value)}</span>
+                <span className="break-all font-mono text-foreground">
+                  {(property.key === 'hours' ? formatHours(value.value) : null) ?? formatValue(value.value)}
+                </span>
                 <span className="text-[11px] text-muted-foreground">
                   {plural(value.source_ids.length, 'source', 'sources')}
                 </span>

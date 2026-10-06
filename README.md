@@ -6,7 +6,7 @@ turn.
 
 ## What is connected
 
-The current Brain is a bounded assistant: one model with two tools, `office_facts` and `finish`, and
+The current Brain is a bounded assistant: one model with two tools, `graph_open` and `finish`, and
 code that writes every answer text. It serves `GET /health`, `GET /readiness`, `POST /v1/chat` and
 `GET /v1/entities/{id}/facts`. A Brain running in development also serves `GET /v1/dev/runtime`,
 `GET /v1/dev/offices` and `GET /v1/dev/offices/search`, but only to a request that sends
@@ -158,3 +158,15 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 
 The Dev UI does not connect to a database or import another repository's source. It calls only Brains:
 the one at `BRAIN_URL`, and, for the Storage page, the production Brain at `PRODUCTION_BRAIN_URL`.
+
+## Root-to-answer inspection
+
+Ask & Inspect's trace starts with a **Root → answer** section. It displays the
+Brain's recorded Ramapo → Offices → office → Published records paths in order,
+including failed steps, answer contributions, citations and dataset versions.
+The final answer is shown separately because it can combine several branches and
+nonfactual response parts. Emergency contact paths are labelled as code traversal.
+Older responses without paths are labelled as having no recorded graph path.
+This does not restore the separate full Campus Graph explorer.
+
+The root-first changes have not been tested or built at the user's request.

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readJevDecision, readJevRoute } from '../lib/jev-route.ts';
+import { brainTrace, readJevDecision, readJevRoute } from '../lib/jev-route.ts';
 import { currentOutcome, turnOutcome } from '../components/ask/types.ts';
 
 // A development Brain's not-ready turn, as the page keeps it (09-29).
@@ -153,4 +153,14 @@ test('a not-ready turn settled before the rule changed now reads not built', () 
   assert.equal(currentOutcome(broken), broken);
   const offline = { localId: 'c', status: 'failed', raw: { reason: 'client_network_error' } };
   assert.equal(currentOutcome(offline), offline);
+});
+
+test('the Brain\'s trace is read from a good turn, a failed turn, and absent when none was sent', () => {
+  const lookup = { tool: 'office_facts', status: 'ok' };
+  assert.deepEqual(brainTrace({ answer: 'x', trace: [lookup] }), [lookup]);
+  assert.deepEqual(brainTrace({ answer: 'x', trace: [] }), []);
+  assert.deepEqual(brainTrace({ reason: 'x', upstreamResponse: { trace: [lookup] } }), [lookup]);
+  assert.equal(brainTrace({ reason: 'x', upstreamResponse: { metrics: {} } }), undefined);
+  assert.equal(brainTrace({ answer: 'x' }), undefined);
+  assert.equal(brainTrace(undefined), undefined);
 });

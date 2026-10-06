@@ -12,7 +12,7 @@ import {
   type WorkShare,
   type Worker,
 } from '@/lib/chat-stream';
-import { brainMetrics, readJevDecision } from '@/lib/jev-route';
+import { brainMetrics, brainTrace, readJevDecision } from '@/lib/jev-route';
 import { turnDiagnostics } from '@/lib/turn-export';
 import { JevCard } from './JevCard';
 import { useNow } from './useNow';
@@ -30,8 +30,9 @@ export function TraceView({ turn }: { turn: Turn }) {
   const metrics = brainMetrics(turn.raw);
   const decision = live ? undefined : readJevDecision(turn.raw);
   const routing = readRouting(metrics?.routing);
-  const hasTrace = Array.isArray(turn.raw?.trace);
-  const calls = Array.isArray(turn.raw?.trace) ? turn.raw.trace.filter(isRecordValue) : [];
+  const trace = brainTrace(turn.raw);
+  const hasTrace = trace !== undefined;
+  const calls = trace ? trace.filter(isRecordValue) : [];
   const timings = Array.isArray(metrics?.toolResults)
     ? metrics.toolResults.filter(isRecordValue)
     : [];
@@ -635,7 +636,9 @@ function Details({
       'Decided by',
       metrics.decidedBy === 'phrase_floor'
         ? 'the danger phrase list (no model call)'
-        : metrics.decidedBy.replaceAll('_', ' '),
+        : metrics.decidedBy === 'error' && typeof metrics.errorCode === 'string'
+          ? `an error (${metrics.errorCode.replaceAll('_', ' ')})`
+          : metrics.decidedBy.replaceAll('_', ' '),
     ]);
   }
   if (Array.isArray(metrics.finish)) {
@@ -648,7 +651,7 @@ function Details({
     rows.push(['Offices shown to the model', String(metrics.officesListed)]);
   }
   if (typeof metrics.committedNusd === 'number' && metrics.committedNusd > 0) {
-    rows.push(['Spend reserved', `$${(metrics.committedNusd / 1e9).toFixed(4)}`]);
+    rows.push(['Model spend', `$${(metrics.committedNusd / 1e9).toFixed(4)}`]);
   }
   if (typeof metrics.retrievalMs === 'number')
     rows.push(['Lookup time', formatMs(metrics.retrievalMs)]);

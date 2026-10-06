@@ -15,7 +15,7 @@ prior user and assistant messages on every turn. The Brain returns JSON with an
 answer, status (`answered`, `partial`, `clarification`, or `unavailable`), trusted
 citations, request ID, and dataset version. Because this app sends
 `x-rockygpt-diagnostics: 1`, a development Brain also returns a `trace` (each office
-lookup the model made) and `metrics` (who decided, model calls, spend reserved, offices
+lookup the model made) and `metrics` (who decided, model calls, model spend, offices
 shown, how the model finished). The Trace tab says "This Brain sent no trace" when a Brain
 sends neither. The inspector shows those results and the exact request and response bytes.
 It does not depend on internal classifier labels or pipeline stages.

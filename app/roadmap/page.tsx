@@ -25,9 +25,10 @@ export default function RoadmapPage() {
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          The existing developer surfaces remain visible in the plan, but only
-          the dashboard and service-health views are connected. Every other
-          section waits for a new clean-room Brain contract.
+          Only the dashboard, Ask &amp; Inspect and service health are connected to the current
+          Brain. Storage is partial: the production Brain serves its numbers and this one does not.
+          Every other page is switched off because it reads a route the current Brain does not
+          serve. Its code is kept for when the Brain serves it.
         </p>
 
         {NAVIGATION.map((section) => (
@@ -69,9 +70,14 @@ export default function RoadmapPage() {
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
           <h2 className="text-sm font-semibold">Current boundary</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            The Dev UI talks to the Brain only over HTTP: the health and readiness probes,{' '}
-            <code className="font-mono text-foreground/80">POST /v1/chat</code>, and the Brain&rsquo;s read
-            routes for logs, feedback, evals, documents, capabilities, releases and the campus graph.
+            The Dev UI talks to the Brain only over HTTP. The current Brain serves{' '}
+            <code className="font-mono text-foreground/80">GET /health</code>,{' '}
+            <code className="font-mono text-foreground/80">GET /readiness</code>,{' '}
+            <code className="font-mono text-foreground/80">POST /v1/chat</code> and{' '}
+            <code className="font-mono text-foreground/80">GET /v1/entities/&#123;id&#125;/facts</code>.
+            In development, <code className="font-mono text-foreground/80">/v1/chat</code> also
+            returns a <code className="font-mono text-foreground/80">trace</code> and{' '}
+            <code className="font-mono text-foreground/80">metrics</code> when this app asks for them.
             It never reads the database directly.
           </p>
         </section>

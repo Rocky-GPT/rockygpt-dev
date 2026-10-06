@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function EndpointsPage() {
   return (
     <>
-      <PageHeader title="Endpoints" subtitle="Waiting on the clean-room Brain" />
+      <PageHeader title="Endpoints" subtitle="Not built for this Brain" />
       <main className="min-w-0 px-6 py-6">
         <BrainFeaturePending contract="new data endpoint contracts" />
       </main>

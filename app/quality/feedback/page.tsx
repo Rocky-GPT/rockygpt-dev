@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { FeedbackDashboard } from '@/components/FeedbackDashboard';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Feedback | RockyGPT Dev',
-  description: 'Real-time student ratings and operator reviews stored in PostgreSQL.',
+  description: 'Not built for this Brain.',
 };
 
 export default function FeedbackPage() {
-  return <FeedbackDashboard />;
+  return (
+    <>
+      <PageHeader title="Feedback" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="the GET and POST /v1/feedback routes" />
+      </main>
+    </>
+  );
 }

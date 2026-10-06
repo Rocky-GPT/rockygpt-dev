@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'RockyGPT Dev',
-  description: 'Brain connection and student assistant tools at a glance.',
+  description: 'Brain connection and answer inspection at a glance.',
 };
 
 interface ProbeBody {
@@ -26,10 +26,12 @@ export default async function OverviewPage() {
     readBrainProbe<ProbeBody>('/readiness'),
     readBrainProbe<OpenApiSchema>('/openapi.json'),
   ]);
-  // Counted from the Brain's own schema; a typed-in "3 endpoints" went stale
-  // as soon as the Brain grew logs, feedback, evals and panel routes.
+  // Counted from the Brain's own schema. HEAD is the same route as GET, so it is not counted.
   const routeCount = schema.data?.paths
-    ? Object.values(schema.data.paths).reduce((total, methods) => total + Object.keys(methods).length, 0)
+    ? Object.values(schema.data.paths).reduce(
+        (total, methods) => total + Object.keys(methods).filter((method) => method !== 'head').length,
+        0
+      )
     : null;
 
   const problem = readiness.problem ?? health.problem;
@@ -40,7 +42,7 @@ export default async function OverviewPage() {
     <>
       <PageHeader
         title="Overview"
-        subtitle="The student assistant over HTTP"
+        subtitle="The Brain over HTTP"
         actions={<StatusPill tone={tone}>Brain · {ready ? 'Ready' : 'Unavailable'}</StatusPill>}
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
@@ -54,7 +56,7 @@ export default async function OverviewPage() {
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
           <Tile label="Brain routes" value={routeCount === null ? '—' : String(routeCount)} />
-          <Tile label="Assistant" value="Campus + study help" />
+          <Tile label="Answers" value="Office contact details" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -68,7 +70,7 @@ export default async function OverviewPage() {
             href="/brain/ask"
             icon={<MessageSquareCode className="h-4 w-4" />}
             title="Ask & Inspect"
-            body="Ask student questions and inspect answers, sources, and tool calls."
+            body="Ask questions and inspect answers, sources, the lookups the model made, and who decided."
           />
         </div>
       </main>

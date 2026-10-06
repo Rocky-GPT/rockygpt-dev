@@ -38,12 +38,14 @@ export interface DevRuntime {
   environment: string | null;
   model: string | null;
   prices: DevPrices | null;
+  /** Nanodollars in a dollar: the unit of every `*_nusd*` and `*Nusd` number. */
+  nusdPerDollar: number;
   limits: DevLimits;
   prompt: string;
   modelInputKeys: string[];
   tools: DevTool[];
   parts: Array<{ kind: string; note: string }>;
-  fixedTexts: Array<{ id: string; when: string; text: string }>;
+  fixedTexts: Array<{ id: string; pickedBy: string[]; when: string; text: string }>;
 }
 
 export interface DevOffice {
@@ -64,5 +66,9 @@ export interface DevSearch {
   datasetVersion: string;
   identityHash: string;
   truncated: boolean;
+  /** What the Brain's own lookup does with this result: answer for one office, ask which, or find none. */
+  outcome: 'answers' | 'asks' | 'not_found';
+  /** The office a lookup would answer for, when the outcome is `answers`. */
+  chosen: string[];
   candidates: Array<{ entityId: string; name: string; match: 'exact' | 'partial' }>;
 }

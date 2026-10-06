@@ -26,7 +26,7 @@ export default async function OverviewPage() {
     readBrainProbe<ProbeBody>('/readiness'),
     readBrainProbe<OpenApiSchema>('/openapi.json'),
   ]);
-  // Counted from the Brain's own schema. HEAD is the same route as GET, so it is not counted.
+  // Counted from the Brain's own schema, which hides the /v1/dev/* routes. HEAD is the same route as GET, so it is not counted.
   const routeCount = schema.data?.paths
     ? Object.values(schema.data.paths).reduce(
         (total, methods) => total + Object.keys(methods).filter((method) => method !== 'head').length,
@@ -55,7 +55,7 @@ export default async function OverviewPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Tile label="Brain health" value={health.data?.status ?? '—'} />
           <Tile label="Brain readiness" value={readiness.data?.status ?? '—'} />
-          <Tile label="Brain routes" value={routeCount === null ? '—' : String(routeCount)} />
+          <Tile label="Public routes" value={routeCount === null ? '—' : String(routeCount)} />
           <Tile label="Answers" value="Office contact details" />
         </div>
 

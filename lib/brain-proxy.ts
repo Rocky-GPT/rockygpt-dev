@@ -2,11 +2,13 @@
 
 import 'server-only';
 import { brainAddress, type ServiceAddress } from './brain-address';
-import { brainFailureBody, type FailureReason } from './brain-failure';
+import { brainFailureBody, failureMessage, type FailureReason } from './brain-failure';
 import { refusesOmittedMessages, withoutOmittedMessages } from './chat-request';
 
 const PROBE_TIMEOUT_MS = 5_000;
 const CHAT_TIMEOUT_MS = 60_000;
+// The Brain gives its own database 5 seconds before it answers 503, so a read waits longer than that.
+const DEV_READ_TIMEOUT_MS = 7_000;
 
 function targetFor(path: string, address: ServiceAddress = brainAddress()): string | null {
   const { url } = address;
@@ -228,18 +230,32 @@ export async function proxyBrainDev(path: string, search = ''): Promise<Response
 export async function readBrainDev<T>(path: string): Promise<BrainRead<T>> {
   const target = targetFor(path);
   if (target === null) return { problem: 'BRAIN_URL is not set in this environment.' };
+  let response: Response;
   try {
-    const response = await fetch(target, {
+    response = await fetch(target, {
       headers: devHeaders(),
       cache: 'no-store',
-      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(DEV_READ_TIMEOUT_MS),
     });
-    if (response.status === 404) {
-      return { problem: `This Brain does not serve ${path}. It serves it only in development.` };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'TimeoutError') {
+      return { problem: `The Brain did not answer within ${DEV_READ_TIMEOUT_MS / 1_000} seconds.` };
     }
-    if (!response.ok) return { problem: `The Brain answered HTTP ${response.status}.` };
-    return { data: (await response.json()) as T };
-  } catch {
     return { problem: 'The Brain is not reachable.' };
   }
+  if (response.status === 404) {
+    return { problem: `This Brain does not serve ${path}. It serves it only in development.` };
+  }
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    return {
+      problem: response.ok
+        ? 'The Brain returned an unreadable response.'
+        : `The Brain answered HTTP ${response.status} with an unreadable response.`,
+    };
+  }
+  if (!response.ok) return { problem: failureMessage(body, response.status) };
+  return { data: body as T };
 }

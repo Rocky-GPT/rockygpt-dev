@@ -3,28 +3,17 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { ErrorPanel } from '@/components/ErrorPanel';
+import {
+  lookupProblem,
+  lookupToShow,
+  MATCH_MEANING,
+  outcomeSentence,
+  QUERY_MAX_CHARS,
+  type Lookup,
+} from '@/lib/alias-lookup';
 import type { DevOffices, DevSearch } from '@/lib/brain-dev-types';
 
 const DEBOUNCE_MS = 300;
-
-type Lookup =
-  | { state: 'idle' }
-  | { state: 'searching' }
-  | { state: 'done'; result: DevSearch }
-  | { state: 'failed'; problem: string };
-
-interface FailureBody {
-  error?: string;
-  detail?: string;
-}
-
-const MEANING = {
-  exact:
-    'The text equals an office name or alias, ignoring case and extra spaces, so the Brain picks that office.',
-  partial:
-    'The text shares words with an office name or alias, so several offices may match and the Brain asks which office.',
-  none: 'Nothing matched, so the Brain says it found no matching office.',
-} as const;
 
 export function AliasesView({ offices }: { offices: DevOffices }) {
   const [text, setText] = useState('');
@@ -36,22 +25,26 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
     if (!query) return;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
-      setLookup({ state: 'searching' });
       try {
         const response = await fetch(`/api/brain/offices/search?q=${encodeURIComponent(query)}`, {
           cache: 'no-store',
           signal: controller.signal,
         });
-        const body = (await response.json()) as DevSearch & FailureBody;
+        const body = (await response.json().catch(() => null)) as DevSearch | null;
         if (!response.ok) {
-          setLookup({ state: 'failed', problem: body.error ?? `The Brain answered HTTP ${response.status}.` });
+          setLookup({ state: 'failed', query, problem: lookupProblem(response.status, body) });
           return;
         }
-        setLookup({ state: 'done', result: body });
+        if (!body) {
+          setLookup({ state: 'failed', query, problem: 'The Brain returned an unreadable response.' });
+          return;
+        }
+        setLookup({ state: 'done', query, result: body });
       } catch (error) {
         if (controller.signal.aborted) return;
         setLookup({
           state: 'failed',
+          query,
           problem: error instanceof Error ? error.message : 'The search did not complete.',
         });
       }
@@ -62,7 +55,7 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
     };
   }, [query]);
 
-  const shown = query ? lookup : ({ state: 'idle' } as const);
+  const shown = lookupToShow(lookup, query);
   const needle = filter.trim().toLowerCase();
   const rows = needle
     ? offices.offices.filter(
@@ -77,9 +70,11 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
-        <h2 className="text-sm font-semibold text-foreground">What a name finds</h2>
+        <h2 className="text-sm font-semibold text-foreground">What the office lookup returns for a query</h2>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Type a name the way a student would. This runs the Brain&rsquo;s own office lookup.
+          This runs the Brain&rsquo;s own office lookup on the text you type. In a chat, the model picks the
+          query from the published list below, so this shows what that lookup returns, not a search of a
+          student&rsquo;s own words.
         </p>
         <label className="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -87,10 +82,12 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder="Career Center, CSI, financial aid…"
-            aria-label="Name to look up"
+            aria-label="Query for the office lookup"
+            maxLength={QUERY_MAX_CHARS}
             className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
           />
         </label>
+        <p className="mt-1 text-[11px] text-muted-foreground">Up to {QUERY_MAX_CHARS} characters.</p>
 
         <div className="mt-3 space-y-2 text-xs">
           {shown.state === 'searching' && <p className="text-muted-foreground">Searching…</p>}
@@ -102,8 +99,9 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
       <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
         <h2 className="text-sm font-semibold text-foreground">Every office and its aliases</h2>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          This is the complete list the model is shown each turn (<span className="font-mono">published_offices</span>).
-          A nickname that is not here will not be matched by name alone.
+          This is the list the model is shown each turn (<span className="font-mono">published_offices</span>),
+          complete unless the Brain says below that it cut the list short. A nickname that is not listed here
+          cannot match exactly, but it may still match partially.
         </p>
         {offices.truncated && (
           <p className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
@@ -170,9 +168,11 @@ export function AliasesView({ offices }: { offices: DevOffices }) {
 function Result({ result, loadedVersion }: { result: DevSearch; loadedVersion: string }) {
   return (
     <>
-      {result.candidates.length === 0 ? (
-        <p className="text-muted-foreground">{MEANING.none}</p>
-      ) : (
+      <p className="text-muted-foreground">
+        Result for <span className="font-mono text-foreground">{result.query}</span>
+      </p>
+      <p className="text-sm text-foreground">{outcomeSentence(result)}</p>
+      {result.candidates.length > 0 && (
         <ul className="space-y-2">
           {result.candidates.map((candidate) => (
             <li key={candidate.entityId} className="rounded-xl border border-white/10 bg-black/20 p-3">
@@ -188,7 +188,7 @@ function Result({ result, loadedVersion }: { result: DevSearch; loadedVersion: s
                   {candidate.match}
                 </span>
               </div>
-              <p className="mt-1 leading-5 text-muted-foreground">{MEANING[candidate.match]}</p>
+              <p className="mt-1 leading-5 text-muted-foreground">{MATCH_MEANING[candidate.match]}</p>
             </li>
           ))}
         </ul>

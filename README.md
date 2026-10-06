@@ -14,13 +14,14 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 
 | Page | Shows | Reads |
 |---|---|---|
-| Dashboard, Service Health | Liveness, readiness, the routes the Brain serves | `/health`, `/readiness`, `/openapi.json` |
+| Dashboard | Liveness, readiness, a count of the public routes | `/health`, `/readiness`, `/openapi.json` |
+| Service Health | Liveness and readiness, with a fixed list of the Brain's routes | `/health`, `/readiness` |
 | Ask & Inspect | Answer, sources, the lookups the model made, who decided, the exact request and response; a bulk runner | `POST /v1/chat` |
 | Capabilities | The tools and answer parts the model is given | `/v1/dev/runtime` |
 | Prompts & Models | The system prompt, the model and its prices, what the model receives each turn | `/v1/dev/runtime` |
 | Templates | Every text the code writes itself, and when | `/v1/dev/runtime` |
 | Offices | The published offices and the facts the shared reader returns for each | `/v1/dev/offices`, `/v1/entities/{id}/facts` |
-| Release | The dataset version, identity hash and counts | `/v1/dev/offices` |
+| Release | The dataset version, identity hash, and counts of offices and alias entries | `/v1/dev/offices` |
 | Aliases | Every alias, and what a name would find | `/v1/dev/offices`, `/v1/dev/offices/search` |
 | Configuration | The limits and model the Brain runs with | `/v1/dev/runtime` |
 | Storage | Partial: the production Brain's numbers load; this Brain has no storage route | `/v1/storage` |
@@ -28,7 +29,7 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 Documents, Campus Graph, Chat Logs, Feedback and Eval Runs are switched off: they were built for an
 older Brain and read routes this one does not serve, so each shows a "switched off" card. Their code
 is kept. Artifacts, Endpoints and Trace Replay do not exist yet. The Roadmap page lists all of this
-from `lib/navigation.ts`.
+from `lib/navigation.ts`; its "connected" count is of pages, and the Roadmap page itself is one.
 
 ## Ask & Inspect
 
@@ -155,5 +156,5 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 | `PRODUCTION_BRAIN_URL` | no | The production Brain the Storage page reads; defaults to the public service. |
 | `TYPESAFE_API_KEY` | no | Used only by the switched-off Feedback page; no current use. |
 
-The Dev UI does not connect to a database or import another repository's source. It calls only the
-Brain.
+The Dev UI does not connect to a database or import another repository's source. It calls only Brains:
+the one at `BRAIN_URL`, and, for the Storage page, the production Brain at `PRODUCTION_BRAIN_URL`.

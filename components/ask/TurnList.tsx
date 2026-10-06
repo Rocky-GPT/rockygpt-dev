@@ -2,15 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AlertCircle, Check, CircleDashed, Loader2, ShieldAlert } from 'lucide-react';
-import { describeStep } from '@/lib/chat-stream';
-import { readJevRoute } from '@/lib/jev-route';
 import type { Turn } from './types';
-
-const ROUTE_TONE: Record<string, string> = {
-  code: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
-  rag: 'border-violet-500/30 bg-violet-500/10 text-violet-300',
-  general: 'border-sky-500/30 bg-sky-500/10 text-sky-300',
-};
 
 export function TurnList({
   turns,
@@ -69,12 +61,9 @@ export function TurnList({
     <div ref={listRef} className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
       {turns.map((turn) => {
         const selected = turn.localId === selectedId;
-        const route = typeof turn.raw?.route === 'string' ? turn.raw.route : undefined;
         const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-        const step = turn.steps?.[turn.steps.length - 1];
         // The Brain's own verdict: a partial answer is not the same green as a full one.
         const verdict = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
-        const jev = readJevRoute(turn.raw);
         return (
           <button
             key={turn.localId}
@@ -118,12 +107,6 @@ export function TurnList({
               placeholder bubble would be text the brain did not send, which is
               exactly the thing a control room must never show.
             */}
-            {/* What the Brain says it is doing: a status line, not an answer. */}
-            {turn.status === 'pending' && step && (
-              <p className="mt-1.5 truncate pl-5.5 text-xs italic leading-5 text-muted-foreground">
-                {describeStep(step).label}…
-              </p>
-            )}
             {(turn.status === 'ok' || turn.status === 'declined') && answer && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
                 {answer}
@@ -143,30 +126,6 @@ export function TurnList({
             )}
 
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
-              {jev && (
-                <span
-                  title="The route Jev picked for this question"
-                  className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-medium text-sky-300"
-                >
-                  {jev.label}
-                </span>
-              )}
-              {jev && jev.lowConfidence.length > 0 && (
-                <span
-                  title="Jev was under 90% sure of these picks; the Brain still followed them"
-                  className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-300"
-                >
-                  under 90%:{' '}
-                  {jev.lowConfidence.map((low) => `${low.pick} ${low.percent}%`).join(', ')}
-                </span>
-              )}
-              {route && (
-                <span
-                  className={`rounded border px-1.5 py-0.5 font-medium ${ROUTE_TONE[route] ?? 'border-white/10'}`}
-                >
-                  {route}
-                </span>
-              )}
               {turn.latencyMs !== undefined && (
                 <span className="font-mono">{turn.latencyMs} ms</span>
               )}

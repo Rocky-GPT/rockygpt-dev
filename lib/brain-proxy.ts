@@ -30,9 +30,7 @@ async function proxyResponse(upstream: Response, operation: string): Promise<Res
   const requestId = upstream.headers.get('x-request-id');
   if (upstream.ok) {
     const headers = new Headers({ 'content-type': contentType });
-    // `no-transform` keeps Next's gzip from holding a streamed turn's events
-    // back until the answer is done.
-    for (const name of ['x-request-id', 'cache-control', 'x-accel-buffering']) {
+    for (const name of ['x-request-id', 'cache-control']) {
       const value = upstream.headers.get(name);
       if (value) headers.set(name, value);
     }
@@ -121,11 +119,8 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
   }
 
   try {
-    // A caller that asks for events gets the Brain's live steps as they
-    // happen; anything else gets one JSON answer at the end.
-    const streaming = request.headers.get('accept')?.includes('text/event-stream') ?? false;
     const headers = new Headers({
-      accept: streaming ? 'text/event-stream' : 'application/json',
+      accept: 'application/json',
       'content-type': 'application/json',
     });
     const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();

@@ -3,12 +3,9 @@
  * The Ask & Inspect conversation as the export writes it.
  *
  * The export is read by whoever debugs a turn later, often an AI with only the
- * file: it has to say when each turn ran, which Brain and release answered, what it
- * decided, what evidence and drafts were behind the answer, how long the student
- * waited before seeing anything, and where the time went, as the Timeline panel
- * shows it. The Brain sends its decisions (`metrics`) and the evidence, drafts and
- * work record (`diagnostics`) only to this app, in development; everything else is
- * timed here.
+ * file: it has to say when each turn ran, which dataset answered, how long the student
+ * waited, and what the Brain did. A development Brain sends its lookups (`trace`) and its
+ * decisions (`metrics`) only to this app; both stay inside `response`, as sent.
  *
  * Nothing is written twice: the conversation's messages and the evidence records
  * are listed once, and each turn names them. A 30-turn export on 09-28 was 445 KB,
@@ -27,8 +24,6 @@
 
 import { currentOutcome, type Turn } from '../components/ask/types.ts';
 import type { ChatMessageInput } from './chat-request.ts';
-import { describeStep, lookupCounts, stepReasons, workTotals, workedSteps } from './chat-stream.ts';
-import { JEV_SKIPPED, readJevDecision } from './jev-route.ts';
 
 type Json = Record<string, unknown>;
 
@@ -45,15 +40,8 @@ export function turnDiagnostics(raw: Json | undefined): Json | undefined {
   return record(raw?.diagnostics) ?? record(record(raw?.upstreamResponse)?.diagnostics);
 }
 
-/**
- * What the student would first read as an answer, and when: early emergency
- * guidance, else the draft shown while it is checked, else the final answer, else a
- * failure's emergency help.
- */
+/** What the student would first read as an answer, and when: the answer, else a failure's emergency help. */
 function firstAnswerText(turn: Turn): { kind: string | null; atMs: number | null } {
-  // The emergency guidance sent as soon as danger is seen comes before any draft.
-  if (turn.safety) return { kind: 'safety', atMs: turn.safety.atMs };
-  if (turn.draftPreview) return { kind: 'draft_preview', atMs: turn.draftPreview.atMs };
   const atMs = turn.latencyMs ?? null;
   if (turn.status === 'pending') return { kind: null, atMs: null };
   if (text(turn.raw?.answer)) return { kind: 'answer', atMs };
@@ -132,122 +120,12 @@ export function exportedEvidence(
     : exported.evidenceVersions?.[ref.id]?.[ref.version - 1];
 }
 
-/**
- * What the Timeline panel shows for a turn a development Brain timed: the line on
- * top, then each step with who worked in it, why it ran and what its lookups got
- * back. Null when the Brain sent no work record.
- */
-export function exportTimeline(raw: Json | undefined) {
-  const worked = workedSteps(turnDiagnostics(raw)?.work);
-  if (!worked) return null;
-  return {
-    brainMs: worked.endMs,
-    summary: workTotals(worked).map(({ who, ms, share, calls }) => ({
-      who,
-      ms,
-      share: Math.round(share * 100) / 100,
-      calls,
-    })),
-    steps: worked.steps.map((step, index, steps) => {
-      const { label, detail } = describeStep(step);
-      const tries = steps.slice(0, index + 1).filter((earlier) => earlier.stage === 'composing');
-      return {
-        step: label,
-        ...(detail ? { detail } : {}),
-        atMs: step.atMs,
-        ms: step.ms,
-        work: step.work.map(({ who, ms, calls }) =>
-          calls.length ? { who, ms, calls } : { who, ms }
-        ),
-        why: stepReasons(step, tries.length),
-        found: lookupCounts(step),
-      };
-    }),
-  };
-}
-
-/**
- * The "What Jev decided" box on the Trace tab, in its words: the route and how sure Jev
- * was of the least sure pick on the way to it, the picks under 90%, each reading with
- * its answer and percent, and what code did. The raw picks and probabilities are
- * under `jev`. Absent when Jev picked nothing and no danger phrase named the route.
- */
-function whatJevDecided(raw: Json | undefined) {
-  const decision = readJevDecision(raw);
-  if (!decision?.route && !decision?.readings.length) return undefined;
-  const { route, routePercent, readings, codeDid } = decision;
-  return {
-    route: route?.label ?? null,
-    ...(routePercent === undefined ? {} : { surePercent: routePercent }),
-    ...(route?.lowConfidence.length ? { underNinetyPercent: route.lowConfidence } : {}),
-    ...(readings.length
-      ? {
-          readings: Object.fromEntries(
-            readings.map(({ label, answer, percent, low }) => [
-              label,
-              `${answer} (${percent}%${low ? ', under 90%' : ''})`,
-            ])
-          ),
-        }
-      : {}),
-    ...(codeDid ? { codeDid } : {}),
-  };
-}
-
-/**
- * What a development Brain decided for a turn, from its `metrics`: the Trace tab's
- * "What Jev decided" box in words, how the answer was made (`answerMode`), the danger
- * the phrase list heard, and Jev's one call with its readings, what code decided from
- * them, its cost and Typesafe's time, or why the turn went on without Jev. Null when
- * the Brain sent no metrics (production, or the dev UI didn't ask for diagnostics).
- */
-export function exportDecisions(raw: Json | undefined) {
-  const metrics = record(raw?.metrics) ?? record(record(raw?.upstreamResponse)?.metrics);
-  if (!metrics) return null;
-  const jev = record(metrics.jev);
-  const skipped = text(jev?.skipped);
-  const cost = jev?.costNusd;
-  const box = whatJevDecided(raw);
-  return {
-    ...(box ? { whatJevDecided: box } : {}),
-    answerMode: text(metrics.responseMode),
-    ...('dangerPhrase' in metrics ? { dangerPhrase: text(metrics.dangerPhrase) } : {}),
-    ...(skipped
-      ? {
-          jev: {
-            skipped,
-            why: JEV_SKIPPED[skipped] ?? skipped.replaceAll('_', ' '),
-            // A call that went out and failed is still paid for.
-            calls: typeof metrics.routingCalls === 'number' ? metrics.routingCalls : null,
-          },
-        }
-      : jev
-        ? {
-            jev: {
-              decided: record(jev.decided) ?? null,
-              answers: record(jev.answers) ?? null,
-              costUsd: typeof cost === 'number' ? cost / 1e9 : null,
-              inputTokens: typeof jev.inputTokens === 'number' ? jev.inputTokens : null,
-              ms: typeof jev.elapsedMs === 'number' ? jev.elapsedMs : null,
-            },
-          }
-        : {}),
-  };
-}
-
-/** The response without what the export keeps elsewhere or doesn't need twice. */
+/** The response without the evidence records the export keeps once in its table. */
 function slimResponse(raw: Json | undefined, tables: ExportTables): Json | undefined {
   if (!raw) return raw;
   const slim = (body: Json): Json => {
-    const metrics = record(body.metrics);
     const diagnostics = record(body.diagnostics);
     const out: Json = { ...body };
-    if (metrics) {
-      // A copy of `trace` without its arguments.
-      const rest = { ...metrics };
-      delete rest.toolResults;
-      out.metrics = rest;
-    }
     if (diagnostics) {
       const { evidence, ...rest } = diagnostics;
       const evidenceIds = tables.records(evidence);
@@ -262,11 +140,7 @@ function slimResponse(raw: Json | undefined, tables: ExportTables): Json | undef
 }
 
 export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()) {
-  const diagnostics = turnDiagnostics(turn.raw);
-  const brain = record(diagnostics?.brain);
   const first = firstAnswerText(turn);
-  const timeline = exportTimeline(turn.raw);
-  const decisions = exportDecisions(turn.raw);
   return {
     question: turn.question,
     // A bulk run sends each question alone unless history was kept; say so, since a
@@ -280,48 +154,22 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
         : turn.bulk
           ? 'no history (bulk run, each question on its own)'
           : 'no history (first question)',
-    // As the inspector reads it now: a not-ready turn from before "not built yet"
-    // existed exports as `not_built`, not `failed` (09-29).
+    // As the inspector reads it now: a not-ready turn exports as `not_built`, not `failed`.
     status: currentOutcome(turn).status,
     httpStatus: turn.httpStatus,
-    // Up top, since it's usually the first question about a turn: what the Brain made
-    // of it. The full metrics are in `response`.
-    ...(decisions ? { decisions } : {}),
     sentAt: new Date(turn.startedAt).toISOString(),
     finishedAt: turn.finishedAt === undefined ? null : new Date(turn.finishedAt).toISOString(),
     timing: {
-      // The first status line the student sees ("Sending your question...").
-      firstProgressMs: turn.firstProgressMs ?? null,
       firstAnswerTextMs: first.atMs,
       firstAnswerText: first.kind,
       totalMs: turn.latencyMs ?? null,
-      // The new Brain (09-29) sends no `elapsedMs`; its work record ends when it replied.
-      brainElapsedMs:
-        typeof turn.raw?.elapsedMs === 'number' ? turn.raw.elapsedMs : (timeline?.brainMs ?? null),
     },
-    // Null revision: the Brain wasn't started by the deploy script (run-local.sh's
-    // working-tree Brain), or it predates diagnostics. The new Brain (09-29) reads its
-    // own commit from git, marked "-dirty" for uncommitted changes, and has no
-    // release, configuration hash or dataset yet.
-    brain: {
-      revision: text(brain?.revision),
-      release: text(brain?.release),
-      configurationHash: text(brain?.configurationHash),
-      datasetVersion: text(turn.raw?.datasetVersion),
-      startedAt: text(diagnostics?.startedAt),
-    },
+    brain: { datasetVersion: text(turn.raw?.datasetVersion) },
     requestId: turn.requestId,
-    // The Brain's own step timings are in `timeline` and `diagnostics.work`; the steps
-    // as this app saw them arrive are kept only when the Brain sent no work record.
-    ...(timeline ? { timeline } : { steps: turn.steps ?? [] }),
-    draftPreview: turn.draftPreview?.text ?? null,
-    ...(turn.safety ? { safety: turn.safety } : {}),
     // Indexes into the export's `messages`, oldest first; the last is this question.
     request: { ...turn.request, messages: turn.request.messages.map((m) => tables.message(m)) },
-    // Carries `diagnostics.evidenceIds` (every record the writer and reviewer were
-    // given, each as this turn received it: see the module comment),
-    // `diagnostics.drafts` (each draft as written, with the reviewer's verdicts) and
-    // `diagnostics.work` (the Brain's step timings).
+    // The Brain's reply as sent, with its `trace` (each office lookup) and `metrics` (who
+    // decided, model calls, spend) when a development Brain was asked for them.
     response: slimResponse(turn.raw, tables),
   };
 }

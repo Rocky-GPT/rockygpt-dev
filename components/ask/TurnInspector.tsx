@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { JsonViewer } from '@/components/JsonViewer';
-import { describeStep } from '@/lib/chat-stream';
-import { readJevRoute } from '@/lib/jev-route';
+import { brainTrace } from '@/lib/brain-metrics';
 import { SourcesPanel } from './SourcesPanel';
-import { LiveStepBar, TONE, TraceView, formatMs, readRouting, summarizeRouting } from './TraceView';
+import { TONE, TraceView, formatMs } from './TraceView';
 import { useNow } from './useNow';
 import type { Turn } from './types';
 
@@ -42,7 +41,7 @@ export function TurnInspector({
 
   const live = turn.status === 'pending';
   const citations = Array.isArray(turn.raw?.citations) ? turn.raw.citations : [];
-  const calls = Array.isArray(turn.raw?.trace) ? turn.raw.trace.length : 0;
+  const calls = brainTrace(turn.raw)?.length ?? 0;
   const tabs: Array<{ id: Tab; label: string; count?: number | string }> = [
     { id: 'answer', label: 'Answer' },
     { id: 'sources', label: 'Sources', count: live ? undefined : citations.length },
@@ -75,7 +74,7 @@ export function TurnInspector({
             </IconButton>
           </div>
         </div>
-        <Summary turn={turn} onOpenTrace={() => setTab('trace')} />
+        <Summary turn={turn} />
         <div
           role="tablist"
           aria-label="Turn details"
@@ -131,12 +130,9 @@ export function TurnInspector({
 
 /* --------------------------------------------------------------- Header */
 
-/** The turn at a glance: how it came out, how long it took, who answered, and what Jev did. */
-function Summary({ turn, onOpenTrace }: { turn: Turn; onOpenTrace: () => void }) {
+/** The turn at a glance: how it came out, how long it took, and who answered. */
+function Summary({ turn }: { turn: Turn }) {
   const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
-  const routing = readRouting((turn.raw?.metrics as Record<string, unknown> | undefined)?.routing);
-  const jev = routing ? summarizeRouting(routing) : undefined;
-  const route = readJevRoute(turn.raw);
 
   return (
     <div className="mt-2 flex flex-wrap items-center gap-1.5 px-5">
@@ -153,32 +149,10 @@ function Summary({ turn, onOpenTrace }: { turn: Turn; onOpenTrace: () => void })
           HTTP {turn.httpStatus}
         </Pill>
       )}
-      {route && (
-        <Pill className={TONE.info}>
-          <span title="The route Jev picked for this question">{route.label}</span>
-        </Pill>
-      )}
-      {route && route.lowConfidence.length > 0 && (
-        <Pill className={TONE.attention}>
-          <span title="Jev was under 90% sure of these picks; the Brain still followed them">
-            under 90%: {route.lowConfidence.map((low) => `${low.pick} ${low.percent}%`).join(', ')}
-          </span>
-        </Pill>
-      )}
       {model && (
         <Pill className="border-white/10 bg-white/[0.04] font-mono text-muted-foreground">
           {model}
         </Pill>
-      )}
-      {jev && (
-        <button
-          type="button"
-          onClick={onOpenTrace}
-          title={jev.sentence}
-          className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition-opacity hover:opacity-80 ${TONE[jev.tone]}`}
-        >
-          {jev.short}
-        </button>
       )}
       {turn.requestId && <RequestId id={turn.requestId} />}
     </div>
@@ -243,7 +217,7 @@ function RequestId({ id }: { id: string }) {
 
 function AnswerTab({ turn }: { turn: Turn }) {
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  if (turn.status === 'pending') return <LiveAnswer turn={turn} />;
+  if (turn.status === 'pending') return <LiveAnswer />;
   if (answer) {
     return (
       <div className="px-5 py-4">
@@ -254,7 +228,7 @@ function AnswerTab({ turn }: { turn: Turn }) {
     );
   }
   if (turn.status === 'failed') return <FailurePanel turn={turn} />;
-  if (turn.status === 'not_built') return <NotBuiltPanel turn={turn} />;
+  if (turn.status === 'not_built') return <NotBuiltPanel />;
   return (
     <div className="px-5 py-4">
       <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-border bg-neutral-950/70 p-3 font-mono text-xs leading-5 text-foreground">
@@ -264,15 +238,8 @@ function AnswerTab({ turn }: { turn: Turn }) {
   );
 }
 
-/**
- * What the Brain is doing right now, from the steps it has sent so far, then
- * its draft once there is one to check. The draft is drawn apart from a real
- * answer on purpose: the check can still cut it.
- */
-function LiveAnswer({ turn }: { turn: Turn }) {
-  const step = turn.steps?.[turn.steps.length - 1];
-  const { label, detail } = step ? describeStep(step) : { label: 'Sending the question' };
-
+/** The Brain sends one answer at the end, so a turn in flight only shows that it is waiting. */
+function LiveAnswer() {
   return (
     <div className="px-5 py-4">
       <div
@@ -282,35 +249,9 @@ function LiveAnswer({ turn }: { turn: Turn }) {
       >
         <div className="flex items-center gap-2.5">
           <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sky-300" />
-          <p className="min-w-0 flex-1 truncate text-sm text-foreground">{label}…</p>
+          <p className="min-w-0 flex-1 truncate text-sm text-foreground">Sending the question…</p>
         </div>
-        {detail && <p className="mt-1 truncate pl-6.5 text-xs text-muted-foreground">{detail}</p>}
-        {turn.steps && turn.steps.length > 0 && (
-          <div className="mt-3">
-            <LiveStepBar steps={turn.steps} startedAt={turn.startedAt} />
-          </div>
-        )}
       </div>
-      {turn.safety && (
-        <div className="mt-3 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-red-300/80">
-            Emergency guidance · sent at {turn.safety.atMs} ms
-          </p>
-          <div className="text-[15px] leading-7 text-foreground">
-            <BrainMarkdown>{turn.safety.answer}</BrainMarkdown>
-          </div>
-        </div>
-      )}
-      {turn.draft && (
-        <div className="mt-3 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-4">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-300/80">
-            Draft · not checked yet
-          </p>
-          <div className="text-[15px] leading-7 text-muted-foreground">
-            <BrainMarkdown>{turn.draft}</BrainMarkdown>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -365,17 +306,14 @@ function FailurePanel({ turn }: { turn: Turn }) {
   );
 }
 
-/** The new Brain picked a route whose step isn't built yet: nothing broke. */
-function NotBuiltPanel({ turn }: { turn: Turn }) {
-  const route = readJevRoute(turn.raw);
+/** The Brain answered "not ready": nothing broke, the step for this question isn't built. */
+function NotBuiltPanel() {
   return (
     <div className="px-5 py-4">
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
         <p className="text-base font-semibold text-foreground">Not built yet</p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {route
-            ? `Jev sent this question to ${route.label}. That step comes with a later milestone, so the Brain answered "not ready".`
-            : 'The Brain answered "not ready": the step for this question comes with a later milestone.'}
+          The Brain answered &quot;not ready&quot;: the step for this question isn&apos;t built yet.
         </p>
       </div>
     </div>

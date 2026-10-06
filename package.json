@@ -17,8 +17,7 @@
     "test:storage": "node --experimental-strip-types --test tests/storage.test.mjs",
     "test:feedback": "node --experimental-strip-types --test tests/feedback-tags.test.mjs",
     "test:export": "node --experimental-strip-types --test tests/turn-export.test.mjs",
-    "test:chat": "node --experimental-strip-types --test tests/chat-request.test.mjs tests/chat-stream.test.mjs tests/jev-route.test.mjs",
-    "test:timeline": "node --experimental-strip-types --test tests/timeline-work.test.mjs"
+    "test:chat": "node --experimental-strip-types --test tests/chat-request.test.mjs tests/turn-outcome.test.mjs tests/brain-metrics.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

@@ -95,38 +95,19 @@ the button on; verify changes with `npm run test:feedback`.
 
 **Ask & Inspect**'s download button saves the conversation as compact JSON for
 debugging later, often by an AI reading only the file. The conversation's
-`messages` and every `evidence` record (keyed by ID) are written once; each
-turn's `request.messages` are indexes into `messages`, and its
-`diagnostics.evidenceIds` name the records the writer and reviewer were given.
-A record whose ID came back later with a different representation (a profile
-lookup adds its canonical identity and scope to a record a search returned) is
-kept as another version in `evidenceVersions[id]`, so each turn keeps exactly
-what it was given: an `evidenceIds` entry is either an ID (the `evidence`
-record) or `{id, version}`, meaning `evidenceVersions[id][version - 1]`.
-`exportedEvidence()` in `lib/turn-export.ts` reads them back. A request that
-left earlier messages out says so in `sentWith` and `request.omittedMessages`.
+`messages` are written once, and each turn's `request.messages` are indexes into
+`messages`. A request that left earlier messages out says so in `sentWith` and
+`request.omittedMessages`.
 
-Each turn starts with `decisions`, what the Brain made of it: `answerMode` (how
-the answer was made, or why there was none), the danger the phrase list heard
-(`dangerPhrase`), and Jev's one call with its readings, what code `decided` from
-them, its cost and time, or why the turn went on without Jev (`jev.skipped` and
-`jev.why`). A Brain that sent no metrics gets no `decisions`.
-
-Each turn has `sentAt` and `finishedAt`, `timing` (the first progress line, the
-first answer text the student would read and whether that was the safety
-block the Brain sends as soon as it reads danger (`safety`), the draft shown
-while it was checked, the answer or a failure's emergency help, the total and
-the Brain's own time), `brain` (commit, release, configuration hash and campus
-data release), `timeline` (what the Timeline panel shows: the Jev, GPT and code
-totals, then each step with who worked in it, why it ran and what its lookups
-got back) and the Brain's response. The chat proxy asks a development Brain for
-`diagnostics`, so the response also carries each draft as written with the
-reviewer's verdict on every paragraph (`diagnostics.drafts`) and the Brain's
-step timings (`diagnostics.work`). A turn without a work record keeps the
-`steps` as they arrived instead. `metrics.toolResults` is left out: it is
-`trace` without the arguments. The old Brain reports its commit only when the
-deploy script started it; the new Brain (09-29) reads it from git, marked
-`-dirty` for uncommitted changes. Verify changes with `npm run test:export`.
+Each turn has `sentAt` and `finishedAt`, `timing` (when the answer text the student
+would read arrived and whether it was the answer or a failure's emergency help, and
+the total), `brain.datasetVersion`, and the Brain's `response` exactly as sent. Because
+this app asks a development Brain for diagnostics, the response carries its `trace` (each
+office lookup the model made) and `metrics` (who decided, model calls, spend, offices
+shown, how the model finished). Any `diagnostics.evidence` a Brain sends is listed once in
+`evidence`, keyed by ID, with later different versions of a record in `evidenceVersions`;
+`exportedEvidence()` in `lib/turn-export.ts` reads them back. Verify changes with
+`npm run test:export`.
 
 ## Running
 

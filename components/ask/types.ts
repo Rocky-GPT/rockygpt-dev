@@ -1,5 +1,4 @@
 import type { ChatMessageInput, ChatRequestBody } from '@/lib/chat-request';
-import type { TurnStep } from '@/lib/chat-stream';
 
 /**
  * One asked question and everything that came back.
@@ -105,16 +104,6 @@ export interface Turn {
   startedAt: number;
   finishedAt?: number;
   latencyMs?: number;
-  /** When the first progress event arrived, counted from when it was sent. */
-  firstProgressMs?: number;
   /** Sent by the bulk runner; never replayed as a typed question's history. */
   bulk?: boolean;
-  /** The stages the Brain reported while it worked, in order. */
-  steps?: TurnStep[];
-  /** The answer as drafted, while the Brain checks it. Gone once the turn settles. */
-  draft?: string;
-  /** The first draft the Brain showed while checking it, kept for the export. */
-  draftPreview?: { text: string; atMs: number };
-  /** Emergency guidance the Brain sent as soon as it saw danger, before the answer. */
-  safety?: { answer: string; atMs: number };
 }

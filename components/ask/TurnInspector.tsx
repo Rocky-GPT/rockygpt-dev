@@ -279,9 +279,7 @@ function FailurePanel({ turn }: { turn: Turn }) {
             ? 'Request stopped'
             : reason === 'client_network_error'
               ? 'Browser request failed'
-              : reason === 'stream_interrupted'
-                ? 'Brain stopped mid-answer'
-                : 'Brain request failed';
+              : 'Brain request failed';
 
   return (
     <div className="px-5 py-4">

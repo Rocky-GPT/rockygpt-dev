@@ -1,28 +1,51 @@
 # rockygpt-dev
 
-The RockyGPT developer control room remains a sibling product to `rockygpt-ui`,
-not a mode of it.
+The RockyGPT developer control room is a sibling product to `rockygpt-ui`, not a mode of it. It talks
+to the Brain only over HTTP and shows what the Brain is, what it published, and what it did on a
+turn.
 
-Its live Brain surface is:
+## What is connected
 
-- `GET /health`
-- `GET /readiness`
-- `POST /v1/chat`
+The current Brain is a bounded assistant: one model with two tools, `office_facts` and `finish`, and
+code that writes every answer text. It serves `GET /health`, `GET /readiness`, `POST /v1/chat` and
+`GET /v1/entities/{id}/facts`. A Brain running in development also serves `GET /v1/dev/runtime`,
+`GET /v1/dev/offices` and `GET /v1/dev/offices/search`, but only to a request that sends
+`x-rockygpt-diagnostics: 1`, which this app does.
 
-The Ask & Inspect screen sends the complete ordered conversation as
-`{ "messages": [{ "role": "user", "content": "..." }] }`. The client carries
-prior user and assistant messages on every turn. The Brain returns JSON with an
-answer, status (`answered`, `partial`, `clarification`, or `unavailable`), trusted
-citations, request ID, and dataset version. Because this app sends
-`x-rockygpt-diagnostics: 1`, a development Brain also returns a `trace` (each office
-lookup the model made) and `metrics` (who decided, model calls, model spend, offices
-shown, how the model finished). The Trace tab says "This Brain sent no trace" when a Brain
-sends neither. The inspector shows those results and the exact request and response bytes.
-It does not depend on internal classifier labels or pipeline stages.
+| Page | Shows | Reads |
+|---|---|---|
+| Dashboard, Service Health | Liveness, readiness, the routes the Brain serves | `/health`, `/readiness`, `/openapi.json` |
+| Ask & Inspect | Answer, sources, the lookups the model made, who decided, the exact request and response; a bulk runner | `POST /v1/chat` |
+| Capabilities | The tools and answer parts the model is given | `/v1/dev/runtime` |
+| Prompts & Models | The system prompt, the model and its prices, what the model receives each turn | `/v1/dev/runtime` |
+| Templates | Every text the code writes itself, and when | `/v1/dev/runtime` |
+| Offices | The published offices and the facts the shared reader returns for each | `/v1/dev/offices`, `/v1/entities/{id}/facts` |
+| Release | The dataset version, identity hash and counts | `/v1/dev/offices` |
+| Aliases | Every alias, and what a name would find | `/v1/dev/offices`, `/v1/dev/offices/search` |
+| Configuration | The limits and model the Brain runs with | `/v1/dev/runtime` |
+| Storage | Partial: the production Brain's numbers load; this Brain has no storage route | `/v1/storage` |
+
+Documents, Campus Graph, Chat Logs, Feedback and Eval Runs are switched off: they were built for an
+older Brain and read routes this one does not serve, so each shows a "switched off" card. Their code
+is kept. Artifacts, Endpoints and Trace Replay do not exist yet. The Roadmap page lists all of this
+from `lib/navigation.ts`.
+
+## Ask & Inspect
+
+It sends the conversation as `{ "messages": [...], "omittedMessages": n }`: the most recent part of
+the history, with a count of older messages left out. The Brain returns JSON with an answer, a status
+(`answered`, `partial`, `clarification` or `unavailable`), trusted citations, a request ID and the
+dataset version. Because this app sends `x-rockygpt-diagnostics: 1`, a development Brain also returns
+a `trace` (each office lookup the model made) and `metrics` (who decided, model calls, model spend,
+offices shown, how the model finished). The Trace tab says "This Brain sent no trace" when a Brain
+sends neither.
 
 Answer-quality evaluation lives in the sibling `rockygpt-evals` repository.
 
-## Campus Graph
+## Campus Graph (switched off)
+
+> Switched off: the current Brain serves no `/v1/dev/graph` or `/v1/dev/identities` routes, so
+> `/data/entities` shows the "switched off" card. The code and docs below are kept for when it does.
 
 Open **Data → Campus Graph** (`/data/entities`) to inspect the active
 identity release. Start at Ramapo College, browse a category, or search names,
@@ -72,7 +95,10 @@ release. The Student UI is unchanged.
 Verify changes with `npm run test:identities`, `npm run typecheck`,
 `npm run lint`, and `npm run build`.
 
-## Feedback sorting
+## Feedback sorting (switched off)
+
+> Switched off: the current Brain serves no `/v1/feedback` route, so `/quality/feedback` shows the
+> "switched off" card and nothing reaches Jev. `TYPESAFE_API_KEY` has no use until it returns.
 
 **Quality → Feedback** (`/quality/feedback`) can sort the recent ratings with
 Jev, TypeSafe's classifier. Press **Sort with Jev** and each rating gets a topic
@@ -126,7 +152,8 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 |---|---|---|
 | `BRAIN_URL` | in production | Brain service address; local development falls back to `http://127.0.0.1:8000`. |
 | `STAGING_SERVICE_TOKEN` | for a protected Brain | Shared server-side environment token; must match the Brain. |
-| `TYPESAFE_API_KEY` | to sort feedback | Jev key for the Feedback page's Sort button; the same key as the Brain's `BRAIN_TYPESAFE_API_KEY`. |
+| `PRODUCTION_BRAIN_URL` | no | The production Brain the Storage page reads; defaults to the public service. |
+| `TYPESAFE_API_KEY` | no | Used only by the switched-off Feedback page; no current use. |
 
-The Dev UI does not connect to a database or import another repository's source.
-Besides the Brain, it calls only Jev, and only when you press Sort on the Feedback page.
+The Dev UI does not connect to a database or import another repository's source. It calls only the
+Brain.

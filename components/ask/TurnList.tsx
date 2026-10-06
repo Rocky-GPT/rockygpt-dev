@@ -8,15 +8,10 @@ export function TurnList({
   turns,
   selectedId,
   onSelect,
-  filtered = false,
-  onShowAll,
 }: {
   turns: Turn[];
   selectedId?: string;
   onSelect: (localId: string) => void;
-  /** Whether `turns` has already been narrowed to the failures. */
-  filtered?: boolean;
-  onShowAll?: () => void;
 }) {
   // Stepping with the arrow keys keeps the picked question in view.
   const listRef = useRef<HTMLDivElement>(null);
@@ -26,25 +21,6 @@ export function TurnList({
       ?.querySelector(`[data-turn-id="${CSS.escape(selectedId)}"]`)
       ?.scrollIntoView({ block: 'nearest' });
   }, [selectedId]);
-
-  // A filter that hides everything must say so and offer the way back, or an
-  // empty list reads as a lost session.
-  if (turns.length === 0 && filtered) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 p-8 text-center">
-        <p className="text-sm text-muted-foreground">No turns match this filter.</p>
-        {onShowAll && (
-          <button
-            type="button"
-            onClick={onShowAll}
-            className="rounded-lg border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Show every turn
-          </button>
-        )}
-      </div>
-    );
-  }
 
   if (turns.length === 0) {
     return (

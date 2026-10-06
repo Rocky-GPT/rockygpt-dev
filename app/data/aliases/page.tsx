@@ -1,18 +1,29 @@
 import type { Metadata } from 'next';
-import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { AliasesView } from '@/components/dev/AliasesView';
+import { ErrorPanel } from '@/components/ErrorPanel';
 import { PageHeader } from '@/components/shell/PageHeader';
+import type { DevOffices } from '@/lib/brain-dev-types';
+import { readBrainDev } from '@/lib/brain-proxy';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Aliases | RockyGPT Dev',
-  description: 'Not built for this Brain.',
+  description: 'The other names an office answers to, and what a name finds.',
 };
 
-export default function AliasesPage() {
+export default async function AliasesPage() {
+  const offices = await readBrainDev<DevOffices>('/v1/dev/offices');
+
   return (
     <>
-      <PageHeader title="Aliases" subtitle="Not built for this Brain" />
+      <PageHeader title="Aliases" subtitle="The other names an office answers to, and what a name finds" />
       <main className="min-w-0 px-6 py-6">
-        <BrainFeaturePending contract="a GET /v1/dev/identities/aliases route" />
+        {offices.data ? (
+          <AliasesView offices={offices.data} />
+        ) : (
+          <ErrorPanel title="The office list could not be read" detail={offices.problem} />
+        )}
       </main>
     </>
   );

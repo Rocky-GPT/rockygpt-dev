@@ -9,26 +9,32 @@ export const metadata: Metadata = {
   description: 'What is built, and what each gap is waiting on.',
 };
 
-const TONE: Record<ItemStatus, PillTone> = { ready: 'ok', partial: 'warn', planned: 'idle' };
+const TONE: Record<ItemStatus, PillTone> = {
+  ready: 'ok',
+  partial: 'warn',
+  off: 'idle',
+  planned: 'idle',
+};
 
 export default function RoadmapPage() {
   const counts = ALL_ITEMS.reduce<Record<ItemStatus, number>>(
     (totals, item) => ({ ...totals, [item.status]: totals[item.status] + 1 }),
-    { ready: 0, partial: 0, planned: 0 }
+    { ready: 0, partial: 0, off: 0, planned: 0 }
   );
 
   return (
     <>
       <PageHeader
         title="Roadmap"
-        subtitle={`${counts.ready} built · ${counts.partial} partial · ${counts.planned} waiting on the brain`}
+        subtitle={`${counts.ready} connected · ${counts.partial} partial · ${counts.off} switched off · ${counts.planned} not built`}
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Only the dashboard, Ask &amp; Inspect and service health are connected to the current
-          Brain. Storage is partial: the production Brain serves its numbers and this one does not.
-          Every other page is switched off because it reads a route the current Brain does not
-          serve. Its code is kept for when the Brain serves it.
+          Connected pages read the current Brain: Ask &amp; Inspect, the pages about its prompt,
+          tools, texts, offices and configuration, and service health. Storage is partial: the
+          production Brain serves its numbers and this one does not. Switched-off pages were built
+          for an older Brain and read routes this one does not serve; their code is kept for when it
+          does. Not-built pages do not exist yet.
         </p>
 
         {NAVIGATION.map((section) => (

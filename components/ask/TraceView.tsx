@@ -31,7 +31,9 @@ export function TraceView({ turn }: { turn: Turn }) {
             {live
               ? 'Tool calls arrive with the answer.'
               : hasTrace
-                ? 'No tool calls. The Brain answered without looking anything up.'
+                ? metrics?.decidedBy === 'error'
+                  ? 'No tool calls. The turn ended in an error before any lookup ran.'
+                  : 'No tool calls. The Brain answered without looking anything up.'
                 : 'This Brain sent no trace, so what it looked up is unknown.'}
           </Empty>
         )}

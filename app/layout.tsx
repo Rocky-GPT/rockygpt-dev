@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'RockyGPT Dev',
-  description: 'The RockyGPT developer control room for the clean-room Brain.',
+  description: 'The RockyGPT developer control room for the Brain.',
   applicationName: 'RockyGPT Dev',
   robots: { index: false, follow: false },
 };

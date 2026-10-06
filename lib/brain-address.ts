@@ -1,4 +1,4 @@
-/** Resolve the clean-room Brain service address. */
+/** Resolve the Brain service address. */
 
 const LOCAL_BRAIN_URL = 'http://127.0.0.1:8000';
 const PRODUCTION_BRAIN_URL = 'https://rockygpt-brain.onrender.com';

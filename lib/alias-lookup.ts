@@ -40,16 +40,14 @@ export const MATCH_MEANING = {
 /** The sentence for the Brain's own outcome. Says plainly when this Brain did not return one. */
 export function outcomeSentence(result: DevSearch): string {
   switch (result.outcome) {
-    case 'answers': {
-      const names = (result.chosen ?? []).map(
-        (id) => result.candidates.find((candidate) => candidate.entityId === id)?.name ?? id
-      );
-      return names.length > 0
-        ? `The lookup would use ${names.join(', ')}.`
+    case 'answers':
+      return result.chosen?.length
+        ? `The lookup would use ${result.chosen.join(', ')}.`
         : 'The Brain says the lookup would answer, but it did not name the office.';
-    }
     case 'asks':
-      return 'Several offices fit, so the Brain asks which one is meant. These are the offices it would ask about.';
+      return result.truncated
+        ? 'The search found more offices than it lists, so the Brain asks which one is meant. It names up to five.'
+        : 'Several offices fit, so the Brain asks which one is meant. It names up to five of them.';
     case 'not_found':
       return 'No office matched, so the Brain says it found no matching office.';
     default:

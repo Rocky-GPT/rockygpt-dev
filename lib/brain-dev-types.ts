@@ -68,7 +68,7 @@ export interface DevSearch {
   truncated: boolean;
   /** What the Brain's own lookup does with this result: answer for one office, ask which, or find none. */
   outcome: 'answers' | 'asks' | 'not_found';
-  /** The office a lookup would answer for, when the outcome is `answers`. */
+  /** The names of the office a lookup would answer for, when the outcome is `answers`. */
   chosen: string[];
   candidates: Array<{ entityId: string; name: string; match: 'exact' | 'partial' }>;
 }

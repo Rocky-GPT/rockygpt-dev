@@ -1,5 +1,6 @@
 'use client';
 
+import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { brainMetrics, brainTrace } from '@/lib/brain-metrics';
 import type { Turn } from './types';
 
@@ -68,7 +69,15 @@ function TraversalView({ calls, raw, live }: {
       {traversals.map((call, index) => {
         const path = (call.path as unknown[]).filter(isRecordValue);
         const answer = isRecordValue(call.answer) ? call.answer : undefined;
-        const citations = Array.isArray(answer?.citations) ? answer.citations.filter(isRecordValue) : [];
+        const seenUrls = new Set<string>();
+        // One link per source page; the full evidence records remain in the raw trace.
+        const citations = (Array.isArray(answer?.citations) ? answer.citations.filter(isRecordValue) : [])
+          .filter(citation => {
+            if (typeof citation.url !== 'string') return true;
+            if (seenUrls.has(citation.url)) return false;
+            seenUrls.add(citation.url);
+            return true;
+          });
         return (
           <article key={index} className="rounded-xl border border-border p-3">
             <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -88,10 +97,12 @@ function TraversalView({ calls, raw, live }: {
               {answer && <li className="flex items-center gap-2"><span aria-hidden="true">→</span><span>Answer contribution</span></li>}
             </ol>
             {answer && typeof answer.text === 'string' && (
-              <p className="mt-3 whitespace-pre-wrap break-words text-sm">{answer.text}</p>
+              <div className="mt-3 break-words text-sm">
+                <BrainMarkdown>{answer.text}</BrainMarkdown>
+              </div>
             )}
             {citations.length > 0 && (
-              <ul className="mt-2 space-y-1 text-xs">
+              <ul aria-label="Source pages" className="mt-2 space-y-1 text-xs">
                 {citations.map((citation, citationIndex) => (
                   <li key={citationIndex} className="break-words">
                     {typeof citation.url === 'string' && citation.url.startsWith('https://') ? (
@@ -115,7 +126,9 @@ function TraversalView({ calls, raw, live }: {
       {typeof body?.answer === 'string' && (
         <details className="rounded-xl border border-border p-3">
           <summary className="cursor-pointer text-sm">Final answer</summary>
-          <p className="mt-2 whitespace-pre-wrap break-words text-sm">{body.answer}</p>
+          <div className="mt-2 break-words text-sm">
+            <BrainMarkdown>{body.answer}</BrainMarkdown>
+          </div>
         </details>
       )}
     </div>

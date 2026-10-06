@@ -30,6 +30,7 @@ export function TraceView({ turn }: { turn: Turn }) {
   const metrics = brainMetrics(turn.raw);
   const decision = live ? undefined : readJevDecision(turn.raw);
   const routing = readRouting(metrics?.routing);
+  const hasTrace = Array.isArray(turn.raw?.trace);
   const calls = Array.isArray(turn.raw?.trace) ? turn.raw.trace.filter(isRecordValue) : [];
   const timings = Array.isArray(metrics?.toolResults)
     ? metrics.toolResults.filter(isRecordValue)
@@ -62,7 +63,7 @@ export function TraceView({ turn }: { turn: Turn }) {
         </Section>
       )}
 
-      <Section title="Tool calls" count={live ? undefined : calls.length}>
+      <Section title="Tool calls" count={live || !hasTrace ? undefined : calls.length}>
         {calls.length > 0 ? (
           <div className="space-y-2">
             {calls.map((call, index) => (
@@ -73,7 +74,9 @@ export function TraceView({ turn }: { turn: Turn }) {
           <Empty>
             {live
               ? 'Tool calls arrive with the answer.'
-              : 'No tool calls. The Brain answered without looking anything up.'}
+              : hasTrace
+                ? 'No tool calls. The Brain answered without looking anything up.'
+                : 'This Brain sent no trace, so what it looked up is unknown.'}
           </Empty>
         )}
       </Section>
@@ -289,6 +292,16 @@ function ToolCallCard({
         </ul>
       )}
 
+      {typeof call.office === 'string' && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Matched <span className="text-foreground">{call.office}</span>
+        </p>
+      )}
+      {Array.isArray(call.candidates) && call.candidates.length > 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Could be <span className="text-foreground">{call.candidates.map(String).join(', ')}</span>
+        </p>
+      )}
       {reason && <p className="mt-2 text-xs text-amber-300">{reason.replaceAll('_', ' ')}</p>}
 
       <details className="mt-2.5">
@@ -616,6 +629,27 @@ function Details({
     rows.push(['Answer style', metrics.responseMode.replaceAll('_', ' ')]);
   }
   if (modelCalls) rows.push(['Model calls', modelCalls]);
+  else if (typeof metrics.modelCalls === 'number') rows.push(['Model calls', String(metrics.modelCalls)]);
+  if (typeof metrics.decidedBy === 'string') {
+    rows.push([
+      'Decided by',
+      metrics.decidedBy === 'phrase_floor'
+        ? 'the danger phrase list (no model call)'
+        : metrics.decidedBy.replaceAll('_', ' '),
+    ]);
+  }
+  if (Array.isArray(metrics.finish)) {
+    rows.push([
+      'Model finished with',
+      metrics.finish.length ? metrics.finish.map(String).join(', ') : 'nothing extra (the lookups only)',
+    ]);
+  }
+  if (typeof metrics.officesListed === 'number') {
+    rows.push(['Offices shown to the model', String(metrics.officesListed)]);
+  }
+  if (typeof metrics.committedNusd === 'number' && metrics.committedNusd > 0) {
+    rows.push(['Spend reserved', `$${(metrics.committedNusd / 1e9).toFixed(4)}`]);
+  }
   if (typeof metrics.retrievalMs === 'number')
     rows.push(['Lookup time', formatMs(metrics.retrievalMs)]);
   if (typeof metrics.fallbackUsed === 'boolean') {
@@ -633,14 +667,16 @@ function Details({
       ),
     ]);
   }
-  rows.push([
-    'Checks failed',
-    failures.length ? (
-      <span className="text-amber-300">{failures.map(String).join(', ')}</span>
-    ) : (
-      'none'
-    ),
-  ]);
+  if (Array.isArray(metrics.validationFailures)) {
+    rows.push([
+      'Checks failed',
+      failures.length ? (
+        <span className="text-amber-300">{failures.map(String).join(', ')}</span>
+      ) : (
+        'none'
+      ),
+    ]);
+  }
   if (typeof datasetVersion === 'string') {
     rows.push([
       'Dataset',

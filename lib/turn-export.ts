@@ -163,6 +163,7 @@ export function exportTurn(turn: Turn, tables: ExportTables = new ExportTables()
       firstAnswerTextMs: first.atMs,
       firstAnswerText: first.kind,
       totalMs: turn.latencyMs ?? null,
+      browser: turn.timing ?? null,
     },
     brain: { datasetVersion: text(turn.raw?.datasetVersion) },
     requestId: turn.requestId,

@@ -104,6 +104,14 @@ export interface Turn {
   startedAt: number;
   finishedAt?: number;
   latencyMs?: number;
+  /** Monotonic browser boundaries; all times are integer microseconds from Send. */
+  timing?: {
+    totalUs: number;
+    preparedUs: number;
+    headersUs?: number;
+    bodyUs?: number;
+    brainTotalUs?: number;
+  };
   /** Sent by the bulk runner; never replayed as a typed question's history. */
   bulk?: boolean;
 }

@@ -4,13 +4,11 @@ import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { JsonViewer } from '@/components/JsonViewer';
-import { brainTrace } from '@/lib/brain-metrics';
 import { SourcesPanel } from './SourcesPanel';
 import { TONE, TraceView, formatMs } from './TraceView';
 import { useNow } from './useNow';
+import { useAskSession, type InspectorTab } from './AskSession';
 import type { Turn } from './types';
-
-type Tab = 'answer' | 'sources' | 'trace' | 'request' | 'raw';
 
 /**
  * One turn, read top to bottom: a header that says how it went at a glance,
@@ -27,7 +25,7 @@ export function TurnInspector({
   onPrev?: () => void;
   onNext?: () => void;
 }) {
-  const [tab, setTab] = useState<Tab>('answer');
+  const { inspectorTab: tab, setInspectorTab: setTab } = useAskSession();
 
   if (!turn) {
     return (
@@ -41,14 +39,12 @@ export function TurnInspector({
 
   const live = turn.status === 'pending';
   const citations = Array.isArray(turn.raw?.citations) ? turn.raw.citations : [];
-  const calls = brainTrace(turn.raw)?.length ?? 0;
-  const tabs: Array<{ id: Tab; label: string; count?: number | string }> = [
+  const tabs: Array<{ id: InspectorTab; label: string; count?: number | string }> = [
     { id: 'answer', label: 'Answer' },
     { id: 'sources', label: 'Sources', count: live ? undefined : citations.length },
     {
       id: 'trace',
       label: 'Trace',
-      count: live ? undefined : calls ? `${calls} tool${calls === 1 ? '' : 's'}` : undefined,
     },
     { id: 'request', label: 'Request', count: turn.request.messages.length },
     { id: 'raw', label: 'Raw' },

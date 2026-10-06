@@ -1,21 +1,18 @@
 import type { Metadata } from 'next';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { DocumentBrowser } from '@/components/DocumentBrowser';
 
 export const metadata: Metadata = {
   title: 'Documents | RockyGPT Dev',
-  description: 'Official campus handbooks, policies, catalogs, and source documents stored in PostgreSQL',
+  description: 'Not built for this Brain.',
 };
 
 export default function DocumentsPage() {
   return (
     <>
-      <PageHeader
-        title="Documents"
-        subtitle="Official campus handbooks, policies, catalogs, and source documents stored in PostgreSQL"
-      />
+      <PageHeader title="Documents" subtitle="Not built for this Brain" />
       <main className="min-w-0 px-6 py-6">
-        <DocumentBrowser />
+        <BrainFeaturePending contract="a GET /v1/documents route" />
       </main>
     </>
   );

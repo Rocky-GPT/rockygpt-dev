@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { ConfigurationDashboard } from '@/components/ConfigurationDashboard';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Configuration | RockyGPT Dev',
-  description: 'Models, budget constraints, timing limits, and active deployment parameters',
+  description: 'Not built for this Brain.',
 };
 
-export default function ConfigPage() {
-  return <ConfigurationDashboard />;
+export default function ConfigurationPage() {
+  return (
+    <>
+      <PageHeader title="Configuration" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="a GET /v1/config route" />
+      </main>
+    </>
+  );
 }

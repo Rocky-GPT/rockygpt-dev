@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { AliasTable } from '@/components/identities/AliasTable';
 
 export const metadata: Metadata = {
   title: 'Aliases | RockyGPT Dev',
-  description: 'Every other name a campus entity answers to, what a lookup by it finds, and why the alias exists.',
+  description: 'Not built for this Brain.',
 };
 
 export default function AliasesPage() {
-  return <>
-    <PageHeader title="Aliases" subtitle="Every other name a campus entity answers to: what a lookup by it finds, and why the alias exists." />
-    <main className="min-w-0 p-4 lg:p-6"><AliasTable /></main>
-  </>;
+  return (
+    <>
+      <PageHeader title="Aliases" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="a GET /v1/dev/identities/aliases route" />
+      </main>
+    </>
+  );
 }

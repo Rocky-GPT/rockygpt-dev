@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { PromptsDashboard } from '@/components/PromptsDashboard';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Prompts & Models | RockyGPT Dev',
-  description: 'The instructions and models behind each stage of turn execution',
+  description: 'Not built for this Brain.',
 };
 
 export default function PromptsPage() {
-  return <PromptsDashboard />;
+  return (
+    <>
+      <PageHeader title="Prompts & Models" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="a GET /v1/prompts route" />
+      </main>
+    </>
+  );
 }

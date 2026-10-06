@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
-import { EvalRunsDashboard } from '@/components/EvalRunsDashboard';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
+import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Eval Runs | RockyGPT Dev',
-  description: 'Historical evaluation benchmark runs and regression scorecards from PostgreSQL.',
+  description: 'Not built for this Brain.',
 };
 
 export default function EvalRunsPage() {
-  return <EvalRunsDashboard />;
+  return (
+    <>
+      <PageHeader title="Eval Runs" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="the GET and POST /v1/evals/runs routes" />
+      </main>
+    </>
+  );
 }

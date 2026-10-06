@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
+import { BrainFeaturePending } from '@/components/shell/BrainFeaturePending';
 import { PageHeader } from '@/components/shell/PageHeader';
-import { KnowledgeExplorer } from '@/components/identities/KnowledgeExplorer';
 
 export const metadata: Metadata = {
   title: 'Campus Graph | RockyGPT Dev',
-  description: 'Explore campus entities, their properties and published relationships.',
+  description: 'Not built for this Brain.',
 };
 
-export default function EntitiesPage() {
-  return <>
-    <PageHeader title="Campus Graph" subtitle="Explore the people, places, courses, and communities connected across Ramapo College." />
-    <main className="min-w-0 p-4 lg:p-6"><KnowledgeExplorer /></main>
-  </>;
+export default function CampusGraphPage() {
+  return (
+    <>
+      <PageHeader title="Campus Graph" subtitle="Not built for this Brain" />
+      <main className="min-w-0 px-6 py-6">
+        <BrainFeaturePending contract="the GET /v1/dev/graph routes" />
+      </main>
+    </>
+  );
 }

@@ -162,7 +162,7 @@ the one at `BRAIN_URL`, and, for the Storage page, the production Brain at `PROD
 ## Root-to-answer inspection
 
 Ask & Inspect's Trace tab shows a measured timing breakdown followed by the
-recorded Ramapo → Offices → office → Published records paths, including failures.
+recorded Ramapo → Offices → office paths, including failures.
 Answer text and sources remain in their own tabs; tool details are collapsed. Emergency contact paths are labelled as code traversal.
 Older responses without paths are labelled as having no recorded graph path.
 Each path node opens Campus Graph in the same tab, preserving the conversation. The

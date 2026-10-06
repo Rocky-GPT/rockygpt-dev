@@ -54,7 +54,7 @@ export default async function CampusGraphPage({ searchParams }: {
 
   return (
     <>
-      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices → office → published records" />
+      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices → office" />
       <main className="min-w-0 space-y-5 px-6 py-6">
         {!graph ? (
           <>

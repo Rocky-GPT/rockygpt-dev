@@ -73,6 +73,11 @@ function ToolCallCard({ call }: { call: Record<string, unknown> }) {
     <article className="rounded-xl border border-border bg-neutral-950/60 p-3.5">
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <span className="font-mono text-sm font-semibold text-foreground">{name}</span>
+        {name === 'emergency_contacts' && (
+          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${TONE.info}`}>
+            looked up by the code, not the model
+          </span>
+        )}
         {status && (
           <span
             className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${
@@ -172,6 +177,9 @@ function Details({
           ? `an error (${metrics.errorCode.replaceAll('_', ' ')})`
           : metrics.decidedBy.replaceAll('_', ' '),
     ]);
+  }
+  if (typeof metrics.situation === 'string') {
+    rows.push(['Kind of emergency', metrics.situation.replaceAll('_', ' ')]);
   }
   if (Array.isArray(metrics.finish)) {
     rows.push([

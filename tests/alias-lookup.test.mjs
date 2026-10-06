@@ -12,22 +12,19 @@ const result = (extra) => ({
   ...extra,
 });
 
-test('an answer names the office the Brain chose, by its candidate name', () => {
+test('an answer names the office the Brain chose', () => {
   const found = result({
     outcome: 'answers',
-    chosen: ['e1'],
+    chosen: ['Registrar'],
     candidates: [candidate('e1', 'Registrar', 'partial')],
   });
   assert.equal(outcomeSentence(found), 'The lookup would use Registrar.');
-});
-
-test('an answer with no matching candidate shows the Brain\'s own value, and with none says so', () => {
-  assert.equal(outcomeSentence(result({ outcome: 'answers', chosen: ['x'] })), 'The lookup would use x.');
   assert.match(outcomeSentence(result({ outcome: 'answers', chosen: [] })), /did not name the office/);
 });
 
-test('asking and finding nothing each get their own sentence', () => {
-  assert.match(outcomeSentence(result({ outcome: 'asks', chosen: [] })), /asks which one/);
+test('asking says it names up to five, and a truncated search says there were more', () => {
+  assert.match(outcomeSentence(result({ outcome: 'asks', chosen: [] })), /Several offices fit.*up to five/);
+  assert.match(outcomeSentence(result({ outcome: 'asks', chosen: [], truncated: true })), /more offices than it lists.*up to five/);
   assert.match(outcomeSentence(result({ outcome: 'not_found', chosen: [] })), /found no matching office/);
 });
 

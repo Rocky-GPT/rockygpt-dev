@@ -122,11 +122,21 @@ test('notices that carry wording, a quote or a clock are summarised, and an empt
   assert.equal(packetSummary(packet({ status: 'not_found', facts: [] })), 'not_found');
 });
 
-test('a value that is an object is shown whole on one line, as the reader returned it', () => {
-  const phones = packet({
-    facts: [{ ...packet().facts[0], predicate: 'phones', value: { number: '+12016846666' } }],
-  });
-  assert.equal(packetSummary(phones), 'Registrar: phones {"number":"+12016846666"}');
+test('a preview reads phones as numbers and hours by day, and keeps any other object whole', () => {
+  const fact = (value, id = 'f1', predicate = 'phones') => ({ ...packet().facts[0], id, predicate, value });
+  assert.equal(
+    packetSummary(packet({ facts: [fact([{ number: '+12016846666' }, { number: '+12016840000' }])] })),
+    'Registrar: phones +12016846666, +12016840000'
+  );
+  const hours = { schedule: 'Registrar', days: [{ day: 'Monday', hours: '8:30am-4:30pm' }, { day: 'Sunday', hours: 'Hours unavailable' }] };
+  assert.equal(
+    packetSummary(packet({ facts: [fact(hours, 'f2', 'hours')] })),
+    'Registrar: hours Registrar, Monday 8:30am-4:30pm, Sunday Hours unavailable'
+  );
+  assert.equal(
+    packetSummary(packet({ facts: [fact({ number: '+1201', extension: '12' })] })),
+    'Registrar: phones {"number":"+1201","extension":"12"}'
+  );
 });
 
 test('a summary adds no word the packet does not hold', () => {

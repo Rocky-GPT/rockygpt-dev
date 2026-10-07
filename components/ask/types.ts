@@ -1,4 +1,5 @@
 import type { ChatMessageInput, ChatRequestBody } from '@/lib/chat-request';
+import { factPacketOf, packetSummary } from '../../lib/fact-packet.ts';
 
 /**
  * One asked question and everything that came back.
@@ -55,7 +56,10 @@ export function currentOutcome(turn: Turn): Turn {
  */
 export function historyOf(turn: Turn): ChatMessageInput[] {
   const status = currentOutcome(turn).status;
-  const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  const written = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  // A Brain that sends facts and no written answer is remembered by what its packet held.
+  const packet = factPacketOf(turn.raw);
+  const answer = written || (packet ? packetSummary(packet) : undefined);
   if (status === 'not_built') return [{ role: 'user', content: turn.question }];
   if (status === 'failed' || status === 'pending' || !answer) return [];
   return [

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AlertCircle, Check, CircleDashed, Loader2, ShieldAlert } from 'lucide-react';
+import { factPacketOf, packetSummary } from '@/lib/fact-packet';
 import { plainPreview } from '@/lib/markdown-preview';
 import type { Turn } from './types';
 
@@ -38,7 +39,10 @@ export function TurnList({
     <div ref={listRef} className="max-h-[55dvh] flex-1 space-y-2 overflow-y-auto p-4 lg:max-h-none">
       {turns.map((turn) => {
         const selected = turn.localId === selectedId;
-        const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+        const written = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+        // With no written answer the Brain sent a Fact Packet: preview what it holds.
+        const packet = factPacketOf(turn.raw);
+        const preview = written ? plainPreview(written) : packet ? packetSummary(packet) : undefined;
         // The Brain's own verdict: a partial answer is not the same green as a full one.
         const verdict = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
         return (
@@ -84,9 +88,9 @@ export function TurnList({
               placeholder bubble would be text the brain did not send, which is
               exactly the thing a control room must never show.
             */}
-            {(turn.status === 'ok' || turn.status === 'declined') && answer && (
+            {(turn.status === 'ok' || turn.status === 'declined') && preview && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
-                {plainPreview(answer)}
+                {preview}
               </p>
             )}
             {turn.status === 'not_built' && (

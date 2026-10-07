@@ -8,121 +8,105 @@ import type { Turn } from './types';
 import { PacketSteps } from './PacketSteps';
 import { TimingView } from './TimingView';
 
+/** The Fact Packet the Brain sent for this turn, step by step. */
+export function PacketTab({ turn }: { turn: Turn }) {
+  const packet = factPacketOf(turn.raw);
+  return (
+    <div className="px-5 py-4">
+      {packet ? <PacketSteps packet={packet} /> : <Empty>This turn has no Fact Packet.</Empty>}
+    </div>
+  );
+}
+
 /**
  * How a turn got to its answer: which office lookups the model asked for and how each
  * ended, then who decided the reply, how many model calls it took and what they cost.
  * Everything here is read from the response a development Brain sends when this app asks
  * for diagnostics.
  */
-export function TraceView({ turn }: { turn: Turn }) {
+export function LookupsTab({ turn }: { turn: Turn }) {
   const live = turn.status === 'pending';
   // A failed turn keeps the Brain's own body under `upstreamResponse`.
   const metrics = brainMetrics(turn.raw);
   const trace = brainTrace(turn.raw);
   const hasTrace = trace !== undefined;
   const calls = trace ? trace.filter(isRecordValue) : [];
-  const packet = factPacketOf(turn.raw);
+  const hasDetails =
+    !!metrics && (typeof metrics.modelCalls === 'number' || typeof metrics.decidedBy === 'string');
+  // The Fact Packet already names the dataset it was read from.
+  const datasetVersion = factPacketOf(turn.raw) ? undefined : turn.raw?.datasetVersion;
 
   return (
     <div className="space-y-6 px-5 py-4">
-      <Section title="Timing">
-        <TimingView turn={turn} />
+      <Section title="Lookups" count={hasTrace && !live ? calls.length : undefined}>
+        {calls.length > 0 ? (
+          <div className="space-y-2">
+            {calls.map((call, index) => (
+              <ToolCallCard key={index} call={call} />
+            ))}
+          </div>
+        ) : (
+          <Empty>
+            {live
+              ? 'Lookups arrive with the answer.'
+              : hasTrace
+                ? metrics?.decidedBy === 'error'
+                  ? 'No lookups. The turn ended in an error before any lookup ran.'
+                  : 'No lookups. The Brain answered without looking anything up.'
+                : 'This Brain sent no trace, so what it looked up is unknown.'}
+          </Empty>
+        )}
       </Section>
-      <Section title="Root → answer">
-        <TraversalView calls={calls} live={live} />
-      </Section>
-      {packet && (
-        <Section title="Fact Packet">
-          <PacketSteps packet={packet} />
-        </Section>
-      )}
-      <details>
-        <summary className="cursor-pointer text-xs text-muted-foreground">Tool details{hasTrace && !live ? ` (${calls.length})` : ''}</summary>
-        <div className="mt-3">
-          {calls.length > 0 ? (
-            <div className="space-y-2">
-              {calls.map((call, index) => (
-                <ToolCallCard key={index} call={call} />
-              ))}
-            </div>
-          ) : (
-            <Empty>
-              {live
-                ? 'Tool calls arrive with the answer.'
-                : hasTrace
-                  ? metrics?.decidedBy === 'error'
-                    ? 'No tool calls. The turn ended in an error before any lookup ran.'
-                    : 'No tool calls. The Brain answered without looking anything up.'
-                  : 'This Brain sent no trace, so what it looked up is unknown.'}
-            </Empty>
-          )}
-        </div>
-      </details>
-
-      {metrics && (typeof metrics.modelCalls === 'number' || typeof metrics.decidedBy === 'string') && (
-        <Section title="Details">
-          <Details metrics={metrics} datasetVersion={turn.raw?.datasetVersion} />
+      {hasDetails && metrics && (
+        <Section title="Model">
+          <Details metrics={metrics} datasetVersion={datasetVersion} />
         </Section>
       )}
     </div>
   );
 }
 
-function TraversalView({ calls, live }: {
-  calls: Record<string, unknown>[];
-  live: boolean;
-}) {
-  const traversals = calls.filter(call => Array.isArray(call.path) && call.path.length > 0);
+/** Where the time went, from Send to the answer on screen. */
+export function TimingTab({ turn }: { turn: Turn }) {
   return (
-    <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        Click a node to open its published data in Campus Graph. These are the paths
-        recorded during this turn; the Answer tab shows what was returned.
-      </p>
-      {traversals.map((call, index) => {
-        const path = (call.path as unknown[]).filter(isRecordValue);
-        const args = isRecordValue(call.arguments) ? call.arguments : undefined;
-        const fields = Array.isArray(args?.fields)
-          ? args.fields.filter((field): field is string => typeof field === 'string') : undefined;
-        return (
-          <article key={index} className="rounded-xl border border-border p-3">
-            <div className="mb-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span>{call.tool === 'graph_open' ? 'Step' : 'Lookup'} {index + 1}</span>
-              <span>{call.tool === 'emergency_contacts' ? 'Code traversal'
-                : call.traversedBy === 'code' ? 'Model request · code traversal' : 'Model traversal'}</span>
-              <span>{typeof call.status === 'string' ? call.status.replaceAll('_', ' ') : 'Unknown status'}</span>
-            </div>
-            <ol aria-label={`Traversal ${index + 1}`} className="flex flex-wrap items-center gap-2 text-sm">
-              {path.map((node, nodeIndex) => (
-                <li key={String(node.id)} className="flex min-w-0 items-center gap-2">
-                  {nodeIndex > 0 && <span aria-hidden="true" className="text-muted-foreground">→</span>}
-                  {typeof node.id === 'string' && typeof call.dataset_version === 'string'
-                    && typeof call.identity_hash === 'string' ? (
-                    <Link
-                      href={campusGraphHref(node.id, call.dataset_version, call.identity_hash,
-                        typeof call.as_of === 'string' ? call.as_of : undefined, fields)}
-                      prefetch={false}
-                      title="Open this node in Campus Graph"
-                      className="break-words rounded border border-sky-400/30 px-2 py-1 text-sky-400 hover:bg-sky-400/10 hover:underline"
-                    >
-                      {typeof node.label === 'string' ? node.label : node.id}
-                      <span className="sr-only"> — open in Campus Graph</span>
-                    </Link>
-                  ) : (
-                    <span className="break-words rounded border border-border px-2 py-1">
-                      {typeof node.label === 'string' ? node.label : String(node.id)}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </article>
-        );
-      })}
-      {traversals.length === 0 && (
-        <Empty>{live ? 'The recorded path arrives with the answer.' : 'No graph path was recorded for this turn.'}</Empty>
-      )}
+    <div className="px-5 py-4">
+      <TimingView turn={turn} />
     </div>
+  );
+}
+
+/** The nodes one lookup walked, each a link to its published data in Campus Graph. */
+function PathTrail({ call }: { call: Record<string, unknown> }) {
+  const path = Array.isArray(call.path) ? call.path.filter(isRecordValue) : [];
+  if (path.length === 0) return null;
+  const args = isRecordValue(call.arguments) ? call.arguments : undefined;
+  const fields = Array.isArray(args?.fields)
+    ? args.fields.filter((field): field is string => typeof field === 'string') : undefined;
+  return (
+    <ol aria-label="Path walked" className="mt-2.5 flex flex-wrap items-center gap-2 text-sm">
+      {path.map((node, nodeIndex) => (
+        <li key={String(node.id)} className="flex min-w-0 items-center gap-2">
+          {nodeIndex > 0 && <span aria-hidden="true" className="text-muted-foreground">→</span>}
+          {typeof node.id === 'string' && typeof call.dataset_version === 'string'
+            && typeof call.identity_hash === 'string' ? (
+            <Link
+              href={campusGraphHref(node.id, call.dataset_version, call.identity_hash,
+                typeof call.as_of === 'string' ? call.as_of : undefined, fields)}
+              prefetch={false}
+              title="Open this node in Campus Graph"
+              className="break-words rounded border border-sky-400/30 px-2 py-1 text-sky-400 hover:bg-sky-400/10 hover:underline"
+            >
+              {typeof node.label === 'string' ? node.label : node.id}
+              <span className="sr-only"> — open in Campus Graph</span>
+            </Link>
+          ) : (
+            <span className="break-words rounded border border-border px-2 py-1">
+              {typeof node.label === 'string' ? node.label : String(node.id)}
+            </span>
+          )}
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -177,6 +161,8 @@ function ToolCallCard({ call }: { call: Record<string, unknown> }) {
         </span>
       </div>
 
+      <PathTrail call={call} />
+
       {args.length > 0 && (
         <ul className="mt-2.5 flex flex-wrap gap-1.5">
           {args.map(([key, value]) => (
@@ -191,7 +177,7 @@ function ToolCallCard({ call }: { call: Record<string, unknown> }) {
         </ul>
       )}
 
-      {typeof call.office === 'string' && (
+      {typeof call.office === 'string' && !Array.isArray(call.path) && (
         <p className="mt-2 text-xs text-muted-foreground">
           Matched <span className="text-foreground">{call.office}</span>
         </p>

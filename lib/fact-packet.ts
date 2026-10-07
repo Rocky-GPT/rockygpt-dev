@@ -137,3 +137,50 @@ export function packetSummary(packet: FactPacket): string {
   }
   return parts.join(' · ') || packet.status;
 }
+
+/** A fact value as lines a person can read. Strings stay as sent; nothing is dropped. */
+export function valueLines(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (typeof value === 'number' || typeof value === 'boolean') return [String(value)];
+  if (Array.isArray(value)) return value.flatMap(valueLines);
+  const object = record(value);
+  if (!object) return [JSON.stringify(value)];
+  const keys = Object.keys(object);
+  if (keys.length === 1 && typeof object.number === 'string') return [object.number];
+  const days = Array.isArray(object.days) ? object.days.map(record) : [];
+  if (days.length > 0 && days.every((day) => day && typeof day.day === 'string' && typeof day.hours === 'string')) {
+    const lines = typeof object.schedule === 'string' ? [object.schedule] : [];
+    lines.push(...days.map((day) => `${day?.day}  ${day?.hours}`));
+    for (const [key, extra] of Object.entries(object)) {
+      if (key !== 'schedule' && key !== 'days') lines.push(`${key}: ${valueLines(extra).join('; ')}`);
+    }
+    return lines;
+  }
+  return [JSON.stringify(value)];
+}
+
+/**
+ * Why the packet's status is not a plain "complete": every reason is a field the packet holds.
+ * Mirrors what makes the Brain call a packet `partial`; it only reads, it decides nothing.
+ */
+export function packetReasons(packet: FactPacket): string[] {
+  const reasons: string[] = [];
+  for (const fact of packet.facts.filter((item) => !item.purpose)) {
+    const name = `${fact.subject.name} ${fact.predicate}`;
+    if (!fact.current) reasons.push(`${name} is not current`);
+    if (fact.status === 'conflicting') reasons.push(`${name} has conflicting values`);
+    else if (fact.status !== 'known') reasons.push(`${name} has more than one value`);
+  }
+  for (const entry of packet.missing) reasons.push(`${entry.subject.name} ${entry.predicate} is not published`);
+  for (const entry of packet.ambiguities) reasons.push(`"${entry.query}" matches more than one office`);
+  for (const entry of packet.unresolved) reasons.push(`no office matched "${entry.query}"`);
+  for (const notice of packet.notices) {
+    if (notice.type === 'evidence_incomplete') reasons.push('some of the evidence is incomplete');
+    else if (notice.type === 'incomplete') {
+      reasons.push(`the turn was cut short${typeof notice.code === 'string' ? ` (${notice.code.replaceAll('_', ' ')})` : ''}`);
+    } else if (['unsupported', 'account_limit', 'clarification'].includes(notice.type)) {
+      reasons.push(`part of the question can't be answered (${notice.type.replaceAll('_', ' ')})`);
+    }
+  }
+  return reasons;
+}

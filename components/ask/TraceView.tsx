@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { brainMetrics, brainTrace } from '@/lib/brain-metrics';
 import { campusGraphHref } from '@/lib/campus-graph-link';
+import { factPacketOf } from '@/lib/fact-packet';
 import type { Turn } from './types';
+import { PacketSteps } from './PacketSteps';
 import { TimingView } from './TimingView';
 
 /**
@@ -19,6 +21,7 @@ export function TraceView({ turn }: { turn: Turn }) {
   const trace = brainTrace(turn.raw);
   const hasTrace = trace !== undefined;
   const calls = trace ? trace.filter(isRecordValue) : [];
+  const packet = factPacketOf(turn.raw);
 
   return (
     <div className="space-y-6 px-5 py-4">
@@ -28,6 +31,11 @@ export function TraceView({ turn }: { turn: Turn }) {
       <Section title="Root → answer">
         <TraversalView calls={calls} live={live} />
       </Section>
+      {packet && (
+        <Section title="Fact Packet">
+          <PacketSteps packet={packet} />
+        </Section>
+      )}
       <details>
         <summary className="cursor-pointer text-xs text-muted-foreground">Tool details{hasTrace && !live ? ` (${calls.length})` : ''}</summary>
         <div className="mt-3">

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { factPacketOf, packetSummary } from '../lib/fact-packet.ts';
+import { factPacketOf, packetReasons, packetSummary, valueLines } from '../lib/fact-packet.ts';
 import { historyOf } from '../components/ask/types.ts';
 import { exportTurn } from '../lib/turn-export.ts';
 
@@ -161,4 +161,49 @@ test('an export names a packet as the first thing the student could read', () =>
   });
   assert.equal(exported.timing.firstAnswerText, 'fact_packet');
   assert.equal(exported.timing.firstAnswerTextMs, 3_000);
+});
+
+test('values read as lines: strings as sent, phone objects as numbers, hours by day, anything else whole', () => {
+  assert.deepEqual(valueLines('D-224'), ['D-224']);
+  assert.deepEqual(valueLines([{ number: '+12016847695' }, { number: '+12016840000' }]), ['+12016847695', '+12016840000']);
+  assert.deepEqual(valueLines(['D-224', 'D-225']), ['D-224', 'D-225']);
+  assert.deepEqual(
+    valueLines({ schedule: 'Registrar', days: [{ day: 'Monday', hours: '8:30am-4:30pm' }, { day: 'Sunday', hours: 'Hours unavailable' }], notes: 'Fall hours' }),
+    ['Registrar', 'Monday  8:30am-4:30pm', 'Sunday  Hours unavailable', 'notes: Fall hours']
+  );
+  // An object with more than a number keeps every key.
+  assert.deepEqual(valueLines({ number: '+1201', extension: '12' }), ['{"number":"+1201","extension":"12"}']);
+  assert.deepEqual(valueLines(7), ['7']);
+});
+
+test('the reasons for a status are only what the packet holds, and a clean packet has none', () => {
+  assert.deepEqual(packetReasons(packet()), []);
+  const reasons = packetReasons(
+    packet({
+      facts: [
+        { ...packet().facts[0], current: false },
+        { ...packet().facts[0], id: 'f2', predicate: 'phones', status: 'conflicting' },
+        { ...packet().facts[0], id: 'f3', predicate: 'offices', status: 'multiple' },
+        { ...packet().facts[0], id: 'f4', predicate: 'phones', purpose: 'emergency_contact', current: false },
+      ],
+      missing: [{ subject: registrar, predicate: 'hours', reason: 'not_published' }],
+      ambiguities: [{ query: 'student', truncated: false, candidates: [] }],
+      unresolved: [{ query: 'Cafeteria', reason: 'no_matching_office' }],
+      notices: [
+        { type: 'incomplete', code: 'provider_unavailable' },
+        { type: 'unsupported', afterLookup: false },
+        { type: 'greeting' },
+      ],
+    })
+  );
+  assert.deepEqual(reasons, [
+    'Registrar email is not current',
+    'Registrar phones has conflicting values',
+    'Registrar offices has more than one value',
+    'Registrar hours is not published',
+    '"student" matches more than one office',
+    'no office matched "Cafeteria"',
+    'the turn was cut short (provider unavailable)',
+    "part of the question can't be answered (unsupported)",
+  ]);
 });

@@ -5,6 +5,7 @@ import {
   type FactPacket,
   type PacketFact,
   type PacketNotice,
+  type PacketNotPublished,
   type PacketSource,
 } from '@/lib/fact-packet';
 
@@ -107,6 +108,42 @@ function FactRows({ facts }: { facts: PacketFact[] }) {
   );
 }
 
+function groupAbsences(entries: PacketNotPublished[]): Array<[string, PacketNotPublished[]]> {
+  const groups = new Map<string, PacketNotPublished[]>();
+  for (const entry of entries) groups.set(entry.subject.name, [...(groups.get(entry.subject.name) ?? []), entry]);
+  return [...groups];
+}
+
+/** What the office's own pages were read for and do not publish: an answer, with the pages and the date. */
+function AbsenceRows({ entries }: { entries: PacketNotPublished[] }) {
+  return (
+    <div className="divide-y divide-border rounded-xl border border-border bg-neutral-950/60">
+      {entries.map((entry) => (
+        <div key={`${entry.subject.id}-${entry.predicate}`} className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1 px-3 py-2 text-sm">
+          <span className="pt-px text-xs text-muted-foreground">{entry.predicate}</span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <Chip tone="info">not published</Chip>
+              <span className="text-foreground">checked {entry.checked_at.slice(0, 10)}</span>
+              {!entry.current && <Chip tone="warn">not current</Chip>}
+            </div>
+            <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
+              {entry.checks.map((check) => (
+                <li key={`${check.url}-${check.section}`} className="break-words">
+                  read “{check.section}” on{' '}
+                  <a href={check.url} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">
+                    {check.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function NoticeRow({ notice }: { notice: PacketNotice }) {
   const { type, approved_text: approved, ...rest } = notice;
   const extra = Object.entries(rest).filter(([, value]) => value !== null && value !== undefined && value !== '');
@@ -171,6 +208,7 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
   const { request } = packet;
   const asked = packet.facts.filter((fact) => !fact.purpose);
   const emergency = packet.facts.filter((fact) => fact.purpose);
+  const absent = packet.not_published.filter((entry) => !entry.purpose);
   const unsettled = packet.missing.length + packet.ambiguities.length + packet.unresolved.length;
   const reasons = packetReasons(packet);
   const status = packet.status;
@@ -226,16 +264,31 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
           </Step>
         )}
 
+        {absent.length > 0 && (
+          <Step n={++step} title="Confirmed not published" hint="the office's pages were read; they state no value">
+            <div className="space-y-3">
+              {groupAbsences(absent).map(([office, entries]) => (
+                <div key={office}>
+                  <p className="mb-1.5 text-xs font-medium text-sky-300">{office}</p>
+                  <AbsenceRows entries={entries} />
+                </div>
+              ))}
+            </div>
+          </Step>
+        )}
+
         {unsettled > 0 && (
           <Step n={++step} title="Could not settle" hint={`${unsettled} item${unsettled === 1 ? '' : 's'}`}>
             <div className="space-y-1.5 text-xs">
               {packet.missing.map((entry) => (
                 <div key={`${entry.subject.id}-${entry.predicate}`} className="flex flex-wrap items-center gap-1.5">
-                  <Chip tone="warn">missing</Chip>
+                  <Chip tone="warn">unknown</Chip>
                   <span className="text-foreground">
                     {entry.subject.name} · {entry.predicate}
                   </span>
-                  <span className="text-muted-foreground">{entry.reason.replaceAll('_', ' ')}</span>
+                  <span className="text-muted-foreground">
+                    {entry.reason === 'unknown' ? 'no information either way' : entry.reason.replaceAll('_', ' ')}
+                  </span>
                 </div>
               ))}
               {packet.ambiguities.map((entry) => (

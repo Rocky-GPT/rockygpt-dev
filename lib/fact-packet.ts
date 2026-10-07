@@ -38,6 +38,17 @@ export interface PacketSource {
   limitations: string[];
 }
 
+/** A field the office's own pages were read for and do not publish: an answer, with its proof. */
+export interface PacketNotPublished {
+  subject: PacketSubject;
+  predicate: string;
+  checked_at: string;
+  current: boolean;
+  checks: Array<{ url: string; section: string; checked_at: string }>;
+  source_ids: string[];
+  purpose?: string;
+}
+
 export interface PacketNotice {
   type: string;
   approved_text?: string;
@@ -56,7 +67,9 @@ export interface FactPacket {
   status: string;
   facts: PacketFact[];
   derived_facts: unknown[];
+  /** Facts we hold no information about (nobody checked, or the page could not be read). */
   missing: Array<{ subject: PacketSubject; predicate: string; reason: string }>;
+  not_published: PacketNotPublished[];
   ambiguities: Array<{
     query: string;
     truncated: boolean;
@@ -80,7 +93,9 @@ export function factPacketOf(raw: Record<string, unknown> | undefined): FactPack
   const packet = record(raw?.facts);
   if (!packet || typeof packet.version !== 'string' || typeof packet.status !== 'string') return undefined;
   if (!record(packet.request) || !LISTS.every((key) => Array.isArray(packet[key]))) return undefined;
-  return packet as unknown as FactPacket;
+  // A packet from before confirmed absences existed has no such list: none were confirmed.
+  if (packet.not_published !== undefined && !Array.isArray(packet.not_published)) return undefined;
+  return { ...packet, not_published: packet.not_published ?? [] } as unknown as FactPacket;
 }
 
 /** A value on one line, for previews: the same readable form the Trace view shows. */
@@ -106,8 +121,10 @@ export function packetSummary(packet: FactPacket): string {
   parts.push(...safety.map((notice) => notice.approved_text as string));
 
   const byOffice = new Map<string, string[]>();
-  for (const fact of packet.facts.filter((item) => !item.purpose)) {
-    byOffice.set(fact.subject.name, [...(byOffice.get(fact.subject.name) ?? []), factText(fact)]);
+  const add = (office: string, text: string) => byOffice.set(office, [...(byOffice.get(office) ?? []), text]);
+  for (const fact of packet.facts.filter((item) => !item.purpose)) add(fact.subject.name, factText(fact));
+  for (const entry of packet.not_published.filter((item) => !item.purpose)) {
+    add(entry.subject.name, `${entry.predicate} not published (checked ${entry.checked_at.slice(0, 10)}${entry.current ? '' : ', not current'})`);
   }
   for (const [office, items] of byOffice) parts.push(`${office}: ${items.join('; ')}`);
 
@@ -118,9 +135,7 @@ export function packetSummary(packet: FactPacket): string {
     );
   }
   if (packet.missing.length) {
-    parts.push(
-      `Not published: ${packet.missing.map((entry) => `${entry.subject.name} ${entry.predicate}`).join(', ')}`
-    );
+    parts.push(`Unknown: ${packet.missing.map((entry) => `${entry.subject.name} ${entry.predicate}`).join(', ')}`);
   }
   for (const entry of packet.ambiguities) {
     parts.push(`"${entry.query}" could be ${entry.candidates.map((candidate) => candidate.name).join(' or ')}`);
@@ -170,7 +185,10 @@ export function packetReasons(packet: FactPacket): string[] {
     if (fact.status === 'conflicting') reasons.push(`${name} has conflicting values`);
     else if (fact.status !== 'known') reasons.push(`${name} has more than one value`);
   }
-  for (const entry of packet.missing) reasons.push(`${entry.subject.name} ${entry.predicate} is not published`);
+  for (const entry of packet.not_published.filter((item) => !item.purpose && !item.current)) {
+    reasons.push(`${entry.subject.name} ${entry.predicate}: the "not published" check is not current`);
+  }
+  for (const entry of packet.missing) reasons.push(`${entry.subject.name} ${entry.predicate} is unknown (no information)`);
   for (const entry of packet.ambiguities) reasons.push(`"${entry.query}" matches more than one office`);
   for (const entry of packet.unresolved) reasons.push(`no office matched "${entry.query}"`);
   for (const notice of packet.notices) {

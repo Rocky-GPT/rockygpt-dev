@@ -30,6 +30,7 @@ function packet(changes = {}) {
     ],
     derived_facts: [],
     missing: [],
+    not_published: [],
     ambiguities: [],
     unresolved: [],
     notices: [],
@@ -81,7 +82,7 @@ test('missing facts, ambiguous names and unmatched names are said, in that order
   );
   assert.equal(
     summary,
-    'Registrar: email registrar@ramapo.edu · Not published: Registrar hours · "student" could be ' +
+    'Registrar: email registrar@ramapo.edu · Unknown: Registrar hours · "student" could be ' +
       'Student Accounts or Student Conduct · No office matched "Cafeteria"'
   );
 });
@@ -210,10 +211,46 @@ test('the reasons for a status are only what the packet holds, and a clean packe
     'Registrar email is not current',
     'Registrar phones has conflicting values',
     'Registrar offices has more than one value',
-    'Registrar hours is not published',
+    'Registrar hours is unknown (no information)',
     '"student" matches more than one office',
     'no office matched "Cafeteria"',
     'the turn was cut short (provider unavailable)',
     "part of the question can't be answered (unsupported)",
   ]);
+});
+
+const nursing = { id: 'nursing', name: 'Nursing Programs Office', kind: 'office' };
+const absence = (changes = {}) => ({
+  subject: nursing,
+  predicate: 'email',
+  checked_at: '2026-10-05T08:00:00+00:00',
+  current: true,
+  checks: [{ url: 'https://www.ramapo.edu/nursing/', section: 'Contact Us', checked_at: '2026-10-05T08:00:00+00:00' }],
+  source_ids: ['s1'],
+  ...changes,
+});
+
+test('a confirmed "not published" reads differently from unknown in the preview, and old packets still load', () => {
+  const confirmed = packet({ facts: [], not_published: [absence()] });
+  assert.equal(packetSummary(confirmed), 'Nursing Programs Office: email not published (checked 2026-10-05)');
+  assert.deepEqual(packetReasons(confirmed), []);
+  const unknown = packet({ facts: [], missing: [{ subject: nursing, predicate: 'email', reason: 'unknown' }] });
+  assert.equal(packetSummary(unknown), 'Unknown: Nursing Programs Office email');
+  assert.deepEqual(packetReasons(unknown), ['Nursing Programs Office email is unknown (no information)']);
+  // Beside facts, the absence joins its office's line.
+  assert.equal(
+    packetSummary(packet({ facts: [{ ...packet().facts[0], subject: nursing }], not_published: [absence({ predicate: 'hours' })] })),
+    'Nursing Programs Office: email registrar@ramapo.edu; hours not published (checked 2026-10-05)'
+  );
+  // A confirmation that is no longer current is a reason the packet is not complete.
+  assert.deepEqual(packetReasons(packet({ facts: [], not_published: [absence({ current: false })] })), [
+    'Nursing Programs Office email: the "not published" check is not current',
+  ]);
+  // Emergency numbers' absences are not the question asked.
+  assert.deepEqual(packetReasons(packet({ not_published: [absence({ current: false, purpose: 'emergency_contact' })] })), []);
+  // A packet saved before the list existed has none; a malformed list is not a packet.
+  const { not_published, ...old } = packet();
+  assert.deepEqual(factPacketOf({ facts: old })?.not_published, []);
+  assert.equal(not_published.length, 0);
+  assert.equal(factPacketOf({ facts: { ...packet(), not_published: 'x' } }), undefined);
 });

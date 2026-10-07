@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { brainMetrics, brainTrace } from '@/lib/brain-metrics';
+import { brainTrace } from '@/lib/brain-metrics';
 import { campusGraphHref } from '@/lib/campus-graph-link';
 import { factPacketOf } from '@/lib/fact-packet';
 import type { Turn } from './types';
 import { PacketSteps } from './PacketSteps';
-import { TimingView } from './TimingView';
 
 /** The Fact Packet the Brain sent for this turn, step by step. */
 export function PacketTab({ turn }: { turn: Turn }) {
@@ -19,58 +18,18 @@ export function PacketTab({ turn }: { turn: Turn }) {
 }
 
 /**
- * How a turn got to its answer: which office lookups the model asked for and how each
- * ended, then who decided the reply, how many model calls it took and what they cost.
- * Everything here is read from the response a development Brain sends when this app asks
- * for diagnostics.
+ * The office lookups the Brain made for this turn, one card each: the path it walked (every node a
+ * link to its published data in Campus Graph), the order the model gave, how it ended, and the
+ * whole call. This is the detail of the Pipeline tab's Lookup stage; with no lookups it is empty.
  */
-export function LookupsTab({ turn }: { turn: Turn }) {
-  const live = turn.status === 'pending';
-  // A failed turn keeps the Brain's own body under `upstreamResponse`.
-  const metrics = brainMetrics(turn.raw);
-  const trace = brainTrace(turn.raw);
-  const hasTrace = trace !== undefined;
-  const calls = trace ? trace.filter(isRecordValue) : [];
-  const hasDetails =
-    !!metrics && (typeof metrics.modelCalls === 'number' || typeof metrics.decidedBy === 'string');
-  // The Fact Packet already names the dataset it was read from.
-  const datasetVersion = factPacketOf(turn.raw) ? undefined : turn.raw?.datasetVersion;
-
+export function LookupCards({ turn }: { turn: Turn }) {
+  const calls = (brainTrace(turn.raw) ?? []).filter(isRecordValue);
+  if (calls.length === 0) return null;
   return (
-    <div className="space-y-6 px-5 py-4">
-      <Section title="Lookups" count={hasTrace && !live ? calls.length : undefined}>
-        {calls.length > 0 ? (
-          <div className="space-y-2">
-            {calls.map((call, index) => (
-              <ToolCallCard key={index} call={call} />
-            ))}
-          </div>
-        ) : (
-          <Empty>
-            {live
-              ? 'Lookups arrive with the answer.'
-              : hasTrace
-                ? metrics?.decidedBy === 'error'
-                  ? 'No lookups. The turn ended in an error before any lookup ran.'
-                  : 'No lookups. The Brain answered without looking anything up.'
-                : 'This Brain sent no trace, so what it looked up is unknown.'}
-          </Empty>
-        )}
-      </Section>
-      {hasDetails && metrics && (
-        <Section title="Model">
-          <Details metrics={metrics} datasetVersion={datasetVersion} />
-        </Section>
-      )}
-    </div>
-  );
-}
-
-/** Where the time went, from Send to the answer on screen. */
-export function TimingTab({ turn }: { turn: Turn }) {
-  return (
-    <div className="px-5 py-4">
-      <TimingView turn={turn} />
+    <div className="mt-2.5 space-y-2">
+      {calls.map((call, index) => (
+        <ToolCallCard key={index} call={call} />
+      ))}
     </div>
   );
 }
@@ -221,77 +180,7 @@ function argumentChips(args: Record<string, unknown> | undefined): Array<[string
   return chips;
 }
 
-/* -------------------------------------------------------------- Details */
-
-function Details({
-  metrics,
-  datasetVersion,
-}: {
-  metrics: Record<string, unknown>;
-  datasetVersion: unknown;
-}) {
-  const rows: Array<[string, React.ReactNode]> = [];
-  if (typeof metrics.modelCalls === 'number') rows.push(['Model calls', String(metrics.modelCalls)]);
-  if (typeof metrics.decidedBy === 'string') {
-    rows.push([
-      'Decided by',
-      metrics.decidedBy === 'phrase_floor'
-        ? 'the danger phrase list (no model call)'
-        : metrics.decidedBy === 'error' && typeof metrics.errorCode === 'string'
-          ? `an error (${metrics.errorCode.replaceAll('_', ' ')})`
-          : metrics.decidedBy.replaceAll('_', ' '),
-    ]);
-  }
-  if (typeof metrics.situation === 'string') {
-    rows.push(['Kind of emergency', metrics.situation.replaceAll('_', ' ')]);
-  }
-  if (typeof metrics.committedNusd === 'number' && metrics.committedNusd > 0) {
-    rows.push(['Model spend', `$${(metrics.committedNusd / 1e9).toFixed(4)}`]);
-  }
-  if (typeof datasetVersion === 'string') {
-    rows.push([
-      'Dataset',
-      <span key="dataset" className="font-mono">
-        {datasetVersion}
-      </span>,
-    ]);
-  }
-
-  return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border border-border bg-neutral-950/60 p-4 text-xs">
-      {rows.map(([label, value]) => (
-        <div key={label} className="contents">
-          <dt className="text-muted-foreground">{label}</dt>
-          <dd className="break-words text-foreground">{value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 /* -------------------------------------------------------------- Helpers */
-
-function Section({
-  title,
-  count,
-  children,
-}: {
-  title: string;
-  count?: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <section>
-      <h3 className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-        {title}
-        {count !== undefined && (
-          <span className="font-mono text-[10px] font-normal text-muted-foreground">{count}</span>
-        )}
-      </h3>
-      {children}
-    </section>
-  );
-}
 
 function Empty({ children }: { children: React.ReactNode }) {
   return (

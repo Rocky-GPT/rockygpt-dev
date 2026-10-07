@@ -51,7 +51,7 @@ test('a day question goes through every stage, and only the order slip is the AI
   const s = byId(stages);
   assert.equal(s.model.summary, 'Asked for hours of “testing center”, day saturday');
   assert.deepEqual(s.model.details.map((d) => `${d.label}=${d.value}`), ['model calls=2', 'spend=$0.0001', 'AI model time=2.33 s', 'spending ledger time=2.79 s']);
-  assert.equal(s.lookup.summary, 'Ramapo → Offices → Testing Center, ok');
+  assert.equal(s.lookup.summary, 'Testing Center');
   assert.deepEqual(s.lookup.details.map((d) => d.value), ['release-1', '103 ms']);
   assert.equal(s.worked_out.state, 'done');
   assert.equal(s.worked_out.summary, 'hours on Saturday 2026-10-10: Hours unavailable');
@@ -62,6 +62,9 @@ test('a day question goes through every stage, and only the order slip is the AI
   assert.ok(s.writer_input.details.some((d) => d.label === 'full-week facts replaced by a day' && d.value === '1'));
   assert.equal(s.writer.state, 'not_built');
   assert.equal(s.writer.open, 'answer');
+  // The lookups and the time are shown in the tab itself, so those stages link nowhere.
+  assert.equal(s.lookup.open, undefined);
+  assert.equal(s.model.open, undefined);
 });
 
 test('with no day asked there is nothing to work out, and no lookup skips the lookup', () => {
@@ -97,7 +100,7 @@ test('a failed turn marks the model stage and the missing answer, and the danger
 test('an ambiguous lookup names its choices, and long questions are clipped', () => {
   const ambiguous = { ...call({ query: 'the center', fields: ['phones'], day: null }), status: 'ambiguous', candidates: ['A Center', 'B Center'] };
   const stages = byId(pipelineStages(input({ answer: '', facts: packet(), trace: [ambiguous] }, { question: 'x'.repeat(200), earlierMessages: 3 })));
-  assert.equal(stages.lookup.summary, 'Ramapo → Offices → Testing Center, ambiguous: A Center or B Center');
+  assert.equal(stages.lookup.summary, 'ambiguous: A Center or B Center');
   // 89 letters, an ellipsis and the two quotation marks around them.
   assert.equal(stages.question.summary.length, 92);
   assert.deepEqual(stages.question.details, [{ label: 'earlier messages sent with it', value: '3' }]);
@@ -107,4 +110,15 @@ test('times read as a person would say them', () => {
   assert.equal(pipelineTime(117_000), '117 ms');
   assert.equal(pipelineTime(5_570_000), '5.57 s');
   assert.equal(pipelineTime(200), '1 ms');
+});
+
+test('a Brain that sent no trace says it cannot tell what was looked up', () => {
+  const stages = byId(pipelineStages(input({ answer: 'Hello.' })));
+  assert.equal(stages.lookup.summary, 'This Brain sent no trace, so what it looked up is unknown.');
+  assert.equal(byId(pipelineStages(input({ answer: '', trace: [] }))).lookup.summary, 'Nothing to look up.');
+});
+
+test('who decided the reply and the kind of emergency are said when the Brain says them', () => {
+  const stages = byId(pipelineStages(input({ answer: 'Call 911.', trace: [], metrics: { decidedBy: 'phrase_floor', situation: 'medical', modelCalls: 0 } })));
+  assert.deepEqual(stages.model.details.map((d) => `${d.label}=${d.value}`), ['model calls=0', 'decided by=phrase floor', 'kind of emergency=medical']);
 });

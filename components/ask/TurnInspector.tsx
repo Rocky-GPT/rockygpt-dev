@@ -7,7 +7,7 @@ import { factPacketOf, writerInputOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { PipelineTab } from './PipelineTab';
-import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
+import { PacketTab, TONE, formatMs } from './TraceView';
 import { useNow } from './useNow';
 import { useAskSession } from './AskSession';
 import { shownTab } from '@/lib/inspector-tabs';
@@ -125,8 +125,6 @@ export function TurnInspector({
             </Placeholder>
           ))}
         {shown === 'packet' && <PacketTab turn={turn} />}
-        {shown === 'lookups' && <LookupsTab turn={turn} />}
-        {shown === 'timing' && <TimingTab turn={turn} />}
         {shown === 'raw' && <RawTab turn={turn} />}
       </div>
     </div>

@@ -68,14 +68,16 @@ function orderText(call: Json): string {
   return `${fields.join(', ') || 'details'} of “${query}”${day}`;
 }
 
-function pathText(call: Json): string {
+/** How one lookup ended, in a few words; the card under the stage shows the whole path. */
+function endText(call: Json): string {
   const path = Array.isArray(call.path) ? call.path.filter(isRecord) : [];
-  const labels = path.map((node) => (typeof node.label === 'string' ? node.label : String(node.id)));
+  const last = path[path.length - 1];
+  const office = last ? (typeof last.label === 'string' ? last.label : String(last.id)) : undefined;
   const status = typeof call.status === 'string' ? call.status.replaceAll('_', ' ') : 'unknown';
   if (call.status === 'ambiguous' && Array.isArray(call.candidates)) {
-    return `${labels.join(' → ') || 'Ramapo'}, ambiguous: ${call.candidates.map(String).join(' or ')}`;
+    return `ambiguous: ${call.candidates.map(String).join(' or ')}`;
   }
-  return `${labels.join(' → ') || 'no path recorded'}, ${status}`;
+  return office && call.status === 'ok' ? office : `${office ? `${office}, ` : ''}${status}`;
 }
 
 /** The stages of one turn, in the order they ran. */
@@ -109,7 +111,6 @@ export function pipelineStages(input: PipelineInput): PipelineStage[] {
     state: 'done',
     summary: '',
     details: [],
-    open: 'timing',
   };
   if (phraseFloor) {
     model.summary = 'The danger phrase list decided this reply, with no model call.';
@@ -127,19 +128,31 @@ export function pipelineStages(input: PipelineInput): PipelineStage[] {
   if (typeof metrics?.committedNusd === 'number' && metrics.committedNusd > 0) {
     model.details.push({ label: 'spend', value: `$${(metrics.committedNusd / 1e9).toFixed(4)}` });
   }
+  if (typeof metrics?.decidedBy === 'string' && metrics.decidedBy !== 'model') {
+    model.details.push({ label: 'decided by', value: metrics.decidedBy.replaceAll('_', ' ') });
+  }
+  if (typeof metrics?.situation === 'string') {
+    model.details.push({ label: 'kind of emergency', value: metrics.situation.replaceAll('_', ' ') });
+  }
   if (totalsUs?.model) model.details.push({ label: 'AI model time', value: pipelineTime(totalsUs.model) });
   if (totalsUs?.ledger) model.details.push({ label: 'spending ledger time', value: pipelineTime(totalsUs.ledger) });
   stages.push(model);
 
-  // Code walks Ramapo → Offices → the office and reads its published records.
+  // Code walks Ramapo → Offices → the office and reads its published records. The cards under this
+  // stage in the tab show each walk in full.
+  const traced = brainTrace(raw) !== undefined;
   const lookup: PipelineStage = {
     id: 'lookup',
     title: 'Lookup',
     doer: 'plain code',
     state: calls.length > 0 ? 'done' : 'skipped',
-    summary: calls.length > 0 ? calls.map(pathText).join('; ') : 'Nothing to look up.',
+    summary:
+      calls.length > 0
+        ? calls.map(endText).join('; ')
+        : traced || input.failed
+          ? 'Nothing to look up.'
+          : 'This Brain sent no trace, so what it looked up is unknown.',
     details: [],
-    open: 'lookups',
   };
   const dataset = calls.find((call) => typeof call.dataset_version === 'string')?.dataset_version;
   if (typeof dataset === 'string') lookup.details.push({ label: 'dataset', value: dataset });

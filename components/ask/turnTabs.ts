@@ -1,4 +1,3 @@
-import { brainTrace } from '@/lib/brain-metrics';
 import { factPacketOf } from '@/lib/fact-packet';
 import { inspectorTabs, type InspectorTabInfo } from '@/lib/inspector-tabs';
 import type { Turn } from './types';
@@ -10,6 +9,5 @@ export function turnTabs(turn: Turn): InspectorTabInfo[] {
     live: turn.status === 'pending',
     packet: factPacketOf(turn.raw) !== undefined,
     sources: citations.length,
-    lookups: (brainTrace(turn.raw) ?? []).length,
   });
 }

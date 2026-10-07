@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { factPacketOf, packetReasons, packetSummary, valueLines } from '../lib/fact-packet.ts';
+import {
+  factPacketOf,
+  packetReasons,
+  packetSummary,
+  valueLines,
+  writerInputOf,
+} from '../lib/fact-packet.ts';
 import { historyOf } from '../components/ask/types.ts';
 import { exportTurn } from '../lib/turn-export.ts';
 
@@ -265,4 +271,12 @@ test('a confirmed "not published" reads differently from unknown in the preview,
     assert.equal(factPacketOf({ facts: { ...packet(), not_published: [broken] } }), undefined);
   }
   assert.ok(factPacketOf({ facts: { ...packet(), not_published: [absence()] } }));
+});
+
+test('the writer input is read from the response when the Brain sends it, and only then', () => {
+  assert.deepEqual(writerInputOf({ writerInput: { status: 'complete' } }), { status: 'complete' });
+  assert.equal(writerInputOf({}), undefined);
+  assert.equal(writerInputOf(undefined), undefined);
+  assert.equal(writerInputOf({ writerInput: ['x'] }), undefined);
+  assert.equal(writerInputOf({ writerInput: 'x' }), undefined);
 });

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
-import { factPacketOf } from '@/lib/fact-packet';
+import { factPacketOf, writerInputOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
@@ -221,11 +221,23 @@ function AnswerTab({ turn }: { turn: Turn }) {
   if (turn.status === 'pending') return <LiveAnswer />;
   const packet = factPacketOf(turn.raw);
   if (!answer && packet) {
-    // A Brain in JSON mode writes no text: its output is the Fact Packet, shown as it was sent.
+    // A Brain in JSON mode writes no text. Its output is what a writer would be handed, and the
+    // Fact Packet it was cut from.
+    const writerInput = writerInputOf(turn.raw);
     return (
-      <div className="px-5 py-4">
+      <div className="space-y-4 px-5 py-4">
+        {writerInput && (
+          <div className="overflow-hidden rounded-xl border border-border">
+            <JsonViewer data={writerInput} title="Writer input · what the writer receives" alwaysOpen className="border-t-0" />
+          </div>
+        )}
         <div className="overflow-hidden rounded-xl border border-border">
-          <JsonViewer data={packet} title="Answer · Fact Packet JSON" alwaysOpen className="border-t-0" />
+          <JsonViewer
+            data={packet}
+            title={writerInput ? 'Fact Packet · the Brain’s full record' : 'Answer · Fact Packet JSON'}
+            alwaysOpen={!writerInput}
+            className="border-t-0"
+          />
         </div>
       </div>
     );

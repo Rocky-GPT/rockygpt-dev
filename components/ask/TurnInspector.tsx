@@ -6,15 +6,16 @@ import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { factPacketOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
-import { TONE, TraceView, formatMs } from './TraceView';
+import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
 import { useNow } from './useNow';
-import { useAskSession, type InspectorTab } from './AskSession';
+import { useAskSession } from './AskSession';
+import { brainTrace } from '@/lib/brain-metrics';
+import { inspectorTabs, shownTab } from '@/lib/inspector-tabs';
 import type { Turn } from './types';
 
 /**
  * One turn, read top to bottom: a header that says how it went at a glance,
- * then tabs for the answer, its sources, how it got there, what was sent, and
- * the raw bytes. The tab you pick stays picked as you step between turns, so
+ * then tabs for the answer, how it got there and the raw bytes. The tab you pick stays picked as you step between turns, so
  * comparing the same view across a run is one click per turn.
  */
 export function TurnInspector({
@@ -40,16 +41,14 @@ export function TurnInspector({
 
   const live = turn.status === 'pending';
   const citations = Array.isArray(turn.raw?.citations) ? turn.raw.citations : [];
-  const tabs: Array<{ id: InspectorTab; label: string; count?: number | string }> = [
-    { id: 'answer', label: 'Answer' },
-    { id: 'sources', label: 'Sources', count: live ? undefined : citations.length },
-    {
-      id: 'trace',
-      label: 'Trace',
-    },
-    { id: 'request', label: 'Request', count: turn.request.messages.length },
-    { id: 'raw', label: 'Raw' },
-  ];
+  const tabs = inspectorTabs({
+    live,
+    packet: factPacketOf(turn.raw) !== undefined,
+    answer: typeof turn.raw?.answer === 'string' && turn.raw.answer !== '',
+    sources: citations.length,
+    lookups: (brainTrace(turn.raw) ?? []).length,
+  });
+  const shown = shownTab(tabs, tab);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -78,7 +77,7 @@ export function TurnInspector({
           className="mt-3 flex gap-1 overflow-x-auto px-3"
         >
           {tabs.map((item) => {
-            const selected = tab === item.id;
+            const selected = shown === item.id;
             return (
               <button
                 key={item.id}
@@ -108,8 +107,8 @@ export function TurnInspector({
       </header>
 
       <div role="tabpanel" className="min-h-0 flex-1 overflow-auto">
-        {tab === 'answer' && <AnswerTab turn={turn} onOpenTrace={() => setTab('trace')} />}
-        {tab === 'sources' &&
+        {shown === 'answer' && <AnswerTab turn={turn} />}
+        {shown === 'sources' &&
           (citations.length > 0 ? (
             <SourcesPanel citations={citations} />
           ) : (
@@ -117,9 +116,10 @@ export function TurnInspector({
               {live ? 'Sources arrive with the answer.' : 'This answer cites no sources.'}
             </Placeholder>
           ))}
-        {tab === 'trace' && <TraceView turn={turn} />}
-        {tab === 'request' && <RequestTab messages={turn.request.messages} />}
-        {tab === 'raw' && <RawTab turn={turn} />}
+        {shown === 'packet' && <PacketTab turn={turn} />}
+        {shown === 'lookups' && <LookupsTab turn={turn} />}
+        {shown === 'timing' && <TimingTab turn={turn} />}
+        {shown === 'raw' && <RawTab turn={turn} />}
       </div>
     </div>
   );
@@ -212,27 +212,9 @@ function RequestId({ id }: { id: string }) {
 
 /* --------------------------------------------------------------- Answer */
 
-function AnswerTab({ turn, onOpenTrace }: { turn: Turn; onOpenTrace: () => void }) {
+function AnswerTab({ turn }: { turn: Turn }) {
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  const hasPacket = factPacketOf(turn.raw) !== undefined;
   if (turn.status === 'pending') return <LiveAnswer />;
-  if (!answer && hasPacket) {
-    // A Brain in JSON mode writes no answer. Say so; the facts it sent are in the Trace tab.
-    return (
-      <div className="px-5 py-4">
-        <p className="text-sm leading-6 text-muted-foreground">
-          The Brain sent facts and no written answer.{' '}
-          <button
-            type="button"
-            onClick={onOpenTrace}
-            className="text-sky-300 underline-offset-2 hover:underline"
-          >
-            See the Fact Packet in Trace
-          </button>
-        </p>
-      </div>
-    );
-  }
   if (answer) {
     return (
       <div className="px-5 py-4">
@@ -338,41 +320,6 @@ function FailureDetail({ label, value }: { label: string; value: string }) {
     <div>
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="mt-0.5 font-mono text-foreground">{value}</dd>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------- Request */
-
-function RequestTab({ messages }: { messages: Turn['request']['messages'] }) {
-  return (
-    <div className="space-y-2 px-5 py-4">
-      <p className="text-xs text-muted-foreground">
-        {messages.length} message{messages.length === 1 ? '' : 's'} sent, oldest first. The last one
-        is the question.
-      </p>
-      {messages.map((message, index) => {
-        const user = message.role === 'user';
-        return (
-          <div
-            key={`${message.role}-${index}`}
-            className={`rounded-lg border px-3 py-2.5 ${
-              user ? 'border-sky-500/20 bg-sky-500/10' : 'border-white/10 bg-white/[0.04]'
-            }`}
-          >
-            <p
-              className={`mb-1 text-[10px] font-semibold uppercase tracking-wider ${
-                user ? 'text-sky-300' : 'text-emerald-300'
-              }`}
-            >
-              {user ? 'User' : 'RockyGPT'}
-            </p>
-            <p className="whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
-              {message.content}
-            </p>
-          </div>
-        );
-      })}
     </div>
   );
 }

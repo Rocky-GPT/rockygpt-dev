@@ -12,11 +12,11 @@ import {
   type SetStateAction,
 } from 'react';
 import type { ComposerState } from '@/lib/chat-request';
+import { restoredTab, type InspectorTab } from '@/lib/inspector-tabs';
 import type { Turn } from './types';
 
-export type InspectorTab = 'answer' | 'sources' | 'trace' | 'request' | 'raw';
+export type { InspectorTab };
 const STORAGE_KEY = 'rockygpt-dev.ask-session.v1';
-const TABS: InspectorTab[] = ['answer', 'sources', 'trace', 'request', 'raw'];
 
 interface AskSession {
   state: ComposerState;
@@ -67,9 +67,8 @@ export function AskSessionProvider({ children }: { children: ReactNode }) {
         setSelectedId(restored.some(turn => turn.localId === session.selectedId)
           ? session.selectedId as string : restored.at(-1)?.localId);
         if (typeof session.inspectorOpen === 'boolean') setInspectorOpen(session.inspectorOpen);
-        if (TABS.includes(session.inspectorTab as InspectorTab)) {
-          setInspectorTab(session.inspectorTab as InspectorTab);
-        }
+        const savedTab = restoredTab(session.inspectorTab);
+        if (savedTab) setInspectorTab(savedTab);
       }
     } catch {
       // Preserve unreadable saved data instead of overwriting it with empty turns.

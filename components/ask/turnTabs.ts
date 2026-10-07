@@ -9,7 +9,6 @@ export function turnTabs(turn: Turn): InspectorTabInfo[] {
   return inspectorTabs({
     live: turn.status === 'pending',
     packet: factPacketOf(turn.raw) !== undefined,
-    answer: typeof turn.raw?.answer === 'string' && turn.raw.answer !== '',
     sources: citations.length,
     lookups: (brainTrace(turn.raw) ?? []).length,
   });

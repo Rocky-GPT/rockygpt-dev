@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { factPacketOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
@@ -218,6 +219,17 @@ function RequestId({ id }: { id: string }) {
 function AnswerTab({ turn }: { turn: Turn }) {
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
   if (turn.status === 'pending') return <LiveAnswer />;
+  const packet = factPacketOf(turn.raw);
+  if (!answer && packet) {
+    // A Brain in JSON mode writes no text: its output is the Fact Packet, shown as it was sent.
+    return (
+      <div className="px-5 py-4">
+        <div className="overflow-hidden rounded-xl border border-border">
+          <JsonViewer data={packet} title="Answer · Fact Packet JSON" alwaysOpen className="border-t-0" />
+        </div>
+      </div>
+    );
+  }
   if (answer) {
     return (
       <div className="px-5 py-4">

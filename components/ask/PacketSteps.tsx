@@ -1,4 +1,3 @@
-import { JsonViewer } from '@/components/JsonViewer';
 import {
   packetReasons,
   valueLines,
@@ -362,10 +361,6 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
           ) : null}
         </Step>
       </ol>
-
-      <div className="mt-4">
-        <JsonViewer data={packet} title="Fact Packet JSON" />
-      </div>
     </div>
   );
 }

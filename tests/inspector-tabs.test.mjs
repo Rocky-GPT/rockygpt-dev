@@ -2,34 +2,30 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { INSPECTOR_TABS, inspectorTabs, neighborTab, restoredTab, shownTab } from '../lib/inspector-tabs.ts';
 
-const packetTurn = { live: false, packet: true, answer: false, sources: 2, lookups: 1 };
-const textTurn = { live: false, packet: false, answer: true, sources: 2, lookups: 1 };
+const packetTurn = { live: false, packet: true, sources: 2, lookups: 1 };
+const textTurn = { live: false, packet: false, sources: 2, lookups: 1 };
 const ids = (turn) => inspectorTabs(turn).map((tab) => tab.id);
 
-test('a packet with no written answer has no Answer or Sources tab: the packet holds its sources', () => {
-  assert.deepEqual(ids(packetTurn), ['packet', 'lookups', 'timing', 'raw']);
+test('a packet turn has Answer (the JSON), Fact Packet, Lookups, Timing and Raw: the packet holds its sources', () => {
+  assert.deepEqual(ids(packetTurn), ['answer', 'packet', 'lookups', 'timing', 'raw']);
 });
 
-test('a written answer keeps its Answer and Sources tabs', () => {
+test('a written answer keeps its Sources tab', () => {
   assert.deepEqual(ids(textTurn), ['answer', 'sources', 'lookups', 'timing', 'raw']);
-  assert.deepEqual(ids({ ...packetTurn, answer: true }), ['answer', 'packet', 'lookups', 'timing', 'raw']);
 });
 
-test('a failed turn, which has neither packet nor answer, still has its Answer tab', () => {
-  assert.deepEqual(ids({ ...textTurn, answer: false }), ['answer', 'sources', 'lookups', 'timing', 'raw']);
-});
-
-test('a turn in flight shows the Answer tab and no counts it does not have yet', () => {
-  const tabs = inspectorTabs({ live: true, packet: false, answer: false, sources: 0, lookups: 0 });
+test('a turn in flight shows no counts it does not have yet', () => {
+  const tabs = inspectorTabs({ live: true, packet: false, sources: 0, lookups: 0 });
   assert.equal(tabs[0].id, 'answer');
   assert.equal(tabs.find((tab) => tab.id === 'sources')?.count, undefined);
   assert.equal(tabs.find((tab) => tab.id === 'lookups')?.count, undefined);
   assert.equal(inspectorTabs(textTurn).find((tab) => tab.id === 'lookups')?.count, 1);
+  assert.equal(inspectorTabs(textTurn).find((tab) => tab.id === 'sources')?.count, 2);
 });
 
 test('the chosen tab stays when this turn has it, otherwise the first tab shows', () => {
   assert.equal(shownTab(inspectorTabs(packetTurn), 'timing'), 'timing');
-  assert.equal(shownTab(inspectorTabs(packetTurn), 'answer'), 'packet');
+  assert.equal(shownTab(inspectorTabs(packetTurn), 'sources'), 'answer');
   assert.equal(shownTab(inspectorTabs(textTurn), 'packet'), 'answer');
 });
 

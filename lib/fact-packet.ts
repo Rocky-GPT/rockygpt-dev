@@ -56,9 +56,12 @@ export interface PacketDerived {
   predicate: string;
   day: string;
   date: string;
-  value: { schedule?: string; hours: string | null; notes?: string[]; window?: { from?: string; until?: string } };
-  /** False when the date falls outside the schedule's published validity window. */
+  value: { schedule?: string; season?: string; hours: string | null; notes?: string[]; window?: { from?: string; until?: string } };
+  /** False when outside published dates or when applicability cannot be verified. */
   applies: boolean;
+  status?: string;
+  applicability?: 'unverified';
+  applicability_reason?: string;
   current: boolean;
   /** The ids of the full-week facts it was read from. */
   from: string[];
@@ -83,8 +86,12 @@ export interface FactPacket {
   status: string;
   facts: PacketFact[];
   derived_facts: PacketDerived[];
-  /** Facts we hold no information about (nobody checked, or the page could not be read). */
-  missing: Array<{ subject: PacketSubject; predicate: string; reason: string }>;
+  /** Missing or disputed facts, with any explanation supplied by the shared reader. */
+  missing: Array<{
+    subject: PacketSubject; predicate: string; reason: string;
+    schedule?: string; status?: string; details?: string; days?: string[];
+    source_statements?: string[]; source_ids?: string[];
+  }>;
   not_published: PacketNotPublished[];
   ambiguities: Array<{
     query: string;
@@ -172,12 +179,15 @@ export function replacedFactIds(packet: FactPacket): Set<string> {
 export function derivedText(entry: PacketDerived): string {
   const label = entry.predicate === 'hours_on' ? 'hours' : entry.predicate.replaceAll('_', ' ');
   const when = `${entry.day} ${entry.date}`;
+  if (entry.applicability === 'unverified') {
+    return `${label} on ${when}: ${entry.applicability_reason ?? 'schedule applicability is unverified'}`;
+  }
   if (!entry.applies) {
     const window = entry.value.window;
     const range = window ? [window.from, window.until].filter(Boolean).join(' to ') : '';
     return `${label} on ${when}: outside the dates it was published for${range ? ` (${range})` : ''}`;
   }
-  return `${label} on ${when}: ${entry.value.hours ?? 'not listed for that day'}${entry.current ? '' : ' (not current)'}`;
+  return `${label} on ${when}: ${entry.value.hours ?? 'not listed for that day'}${entry.status === 'conflicting' ? ' (conflicting)' : ''}${entry.current ? '' : ' (not current)'}`;
 }
 
 /** A value on one line, for previews: the same readable form the Trace view shows. */
@@ -248,9 +258,10 @@ export function valueLines(value: unknown): string[] {
   const keys = Object.keys(object);
   if (keys.length === 1 && typeof object.number === 'string') return [object.number];
   const days = Array.isArray(object.days) ? object.days.map(record) : [];
-  if (days.length > 0 && days.every((day) => day && typeof day.day === 'string' && typeof day.hours === 'string')) {
+  if (days.length > 0 && days.every((day) => day && typeof day.day === 'string' &&
+    (typeof day.hours === 'string' || day.hours === null))) {
     const lines = typeof object.schedule === 'string' ? [object.schedule] : [];
-    lines.push(...days.map((day) => `${day?.day}  ${day?.hours}`));
+    lines.push(...days.map((day) => `${day?.day}  ${day?.hours ?? 'Hours unavailable'}`));
     for (const [key, extra] of Object.entries(object)) {
       if (key !== 'schedule' && key !== 'days') lines.push(`${key}: ${valueLines(extra).join('; ')}`);
     }
@@ -267,8 +278,10 @@ export function packetReasons(packet: FactPacket): string[] {
   const reasons: string[] = [];
   for (const entry of packet.derived_facts) {
     const name = `${entry.subject.name} ${entry.predicate === 'hours_on' ? 'hours' : entry.predicate} on ${entry.day} ${entry.date}`;
-    if (!entry.applies) reasons.push(`${name} is outside the dates the schedule was published for`);
+    if (entry.applicability === 'unverified') reasons.push(`${name}: ${entry.applicability_reason ?? 'schedule applicability is unverified'}`);
+    else if (!entry.applies) reasons.push(`${name} is outside the dates the schedule was published for`);
     else if (!entry.current) reasons.push(`${name} is not current`);
+    if (entry.status === 'conflicting') reasons.push(`${name} has conflicting values`);
   }
   const replaced = replacedFactIds(packet);
   for (const fact of packet.facts.filter((item) => !item.purpose && !replaced.has(item.id))) {
@@ -280,7 +293,7 @@ export function packetReasons(packet: FactPacket): string[] {
   for (const entry of packet.not_published.filter((item) => !item.purpose && !item.current)) {
     reasons.push(`${entry.subject.name} ${entry.predicate}: the "not published" check is not current`);
   }
-  for (const entry of packet.missing) reasons.push(`${entry.subject.name} ${entry.predicate} is unknown (no information)`);
+  for (const entry of packet.missing) reasons.push(`${entry.subject.name} ${entry.predicate}${entry.schedule ? ` (${entry.schedule})` : ''}: ${entry.details ?? entry.reason.replaceAll('_', ' ')}`);
   for (const entry of packet.ambiguities) reasons.push(`"${entry.query}" matches more than one office`);
   for (const entry of packet.unresolved) reasons.push(`no office matched "${entry.query}"`);
   for (const notice of packet.notices) {

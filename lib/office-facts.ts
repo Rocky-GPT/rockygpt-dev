@@ -36,6 +36,16 @@ export interface FactProperty {
   assertions: FactAssertion[];
   /** Present when the office's own pages were read and do not publish this property. */
   absence?: FactAbsence;
+  /** The shared reader's explanation of missing or conflicting schedule evidence. */
+  issues?: Array<{
+    schedule: string;
+    season?: string;
+    status: string;
+    reason: string;
+    source_statements: string[];
+    days: string[];
+    source_ids: string[];
+  }>;
 }
 
 export interface FactSource {
@@ -52,6 +62,7 @@ export interface FactSource {
   validity: string;
   freshness_sla_hours: number | null;
   caveats?: string[];
+  season?: string;
 }
 
 export interface OfficeFacts {
@@ -116,22 +127,25 @@ export function formatHours(value: unknown): string | null {
   if (!isObject(value) || !Array.isArray(value.days)) return null;
   const runs: Array<{ first: string; last: string; hours: string; count: number; index: number }> = [];
   for (const entry of value.days) {
-    if (!isObject(entry) || typeof entry.day !== 'string' || typeof entry.hours !== 'string') return null;
+    if (!isObject(entry) || typeof entry.day !== 'string' ||
+      (typeof entry.hours !== 'string' && entry.hours !== null)) return null;
+    const hours = entry.hours ?? 'Hours unavailable';
     const index = WEEKDAYS.indexOf(entry.day);
     const run = runs[runs.length - 1];
-    if (run && run.hours === entry.hours && index >= 0 && run.index >= 0 && index === run.index + 1) {
+    if (run && run.hours === hours && index >= 0 && run.index >= 0 && index === run.index + 1) {
       run.last = entry.day;
       run.index = index;
       run.count += 1;
     } else {
-      runs.push({ first: entry.day, last: entry.day, hours: entry.hours, count: 1, index });
+      runs.push({ first: entry.day, last: entry.day, hours, count: 1, index });
     }
   }
   const span = (run: (typeof runs)[number]) =>
     run.count === 1 ? run.first : run.count === 2 ? `${run.first} and ${run.last}` : `${run.first} to ${run.last}`;
   const name = typeof value.schedule === 'string' && value.schedule ? `${value.schedule}. ` : '';
+  const season = typeof value.season === 'string' && value.season ? `Season: ${value.season}. ` : '';
   const notes = Array.isArray(value.notes) ? value.notes.filter((n): n is string => typeof n === 'string') : [];
-  return `${name}${runs.map((run) => `${span(run)}: ${run.hours}`).join('; ')}${
+  return `${name}${season}${runs.map((run) => `${span(run)}: ${run.hours}`).join('; ')}${
     notes.length ? `. Published note: ${notes.join(' ')}` : ''
   }`;
 }

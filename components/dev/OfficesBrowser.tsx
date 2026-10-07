@@ -354,11 +354,25 @@ function PropertyRow({ property }: { property: FactProperty }) {
         )}
         {property.values.length > 1 && (
           <p className="mt-1 text-xs text-amber-300">
-            {property.status === 'multiple'
-              ? `The Brain reports ${property.values.length} values from sources with different validity dates.`
-              : `The Brain reports ${property.values.length} values that conflict.`}
+            {property.status === 'conflicting'
+              ? `The Brain reports ${property.values.length} values that conflict.`
+              : `The Brain reports ${property.values.length} published values. Check each schedule or validity period.`}
           </p>
         )}
+        {property.issues?.map((issue, index) => (
+          <div key={`${issue.schedule}-${index}`} className="mt-2 space-y-1 rounded-lg border border-amber-500/30 bg-amber-500/5 p-2 text-xs text-amber-200">
+            <p className="font-medium">{issue.schedule}: {issue.status.replaceAll('_', ' ')}</p>
+            {issue.season && <p>Season: {issue.season}</p>}
+            <p>{issue.reason}</p>
+            {issue.days.length > 0 && <p>Unverified days: {issue.days.join(', ')}</p>}
+            <p className="text-muted-foreground">{plural(issue.source_ids.length, 'source', 'sources')} listed below</p>
+            {issue.source_statements.length > 0 && (
+              <ul className="list-disc space-y-1 pl-4">
+                {issue.source_statements.map((statement, statementIndex) => <li key={statementIndex}>{statement}</li>)}
+              </ul>
+            )}
+          </div>
+        ))}
         <details className="mt-1.5">
           <summary className="cursor-pointer select-none text-xs text-muted-foreground hover:text-foreground">
             {plural(property.assertions.length, 'assertion', 'assertions')}
@@ -428,6 +442,7 @@ function SourceCard({ source }: { source: FactSource }) {
           </div>
         ))}
         <Line label="collected" value={formatTime(source.collected_at)} />
+        {source.season && <Line label="season" value={source.season} />}
         <Line
           label="freshness SLA"
           value={source.freshness_sla_hours === null ? '—' : `${source.freshness_sla_hours} hours`}

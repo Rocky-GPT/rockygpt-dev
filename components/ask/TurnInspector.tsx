@@ -6,6 +6,7 @@ import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { factPacketOf, writerInputOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
+import { PipelineTab } from './PipelineTab';
 import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
 import { useNow } from './useNow';
 import { useAskSession } from './AskSession';
@@ -112,6 +113,9 @@ export function TurnInspector({
 
       <div role="tabpanel" className="min-h-0 flex-1 overflow-auto">
         {shown === 'answer' && <AnswerTab turn={turn} />}
+        {shown === 'pipeline' && (
+          <PipelineTab turn={turn} tabs={tabs.map((item) => item.id)} onOpen={setTab} />
+        )}
         {shown === 'sources' &&
           (citations.length > 0 ? (
             <SourcesPanel citations={citations} />

@@ -7,6 +7,7 @@ import {
   formatDuration,
   percent,
   summarizeTiming,
+  type TimingCategory,
   type TimingStep as Step,
   type TimingSummary,
 } from '@/lib/timing-groups';
@@ -139,6 +140,13 @@ function Slowest({ summary }: { summary: TimingSummary }) {
       </ol>
     </div>
   );
+}
+
+/** The turn's time per kind of work, in microseconds, or undefined when it was not measured. */
+export function timingTotalsOf(turn: Turn): Partial<Record<TimingCategory, number>> | undefined {
+  const result = breakdown(turn);
+  if (!result) return undefined;
+  return Object.fromEntries(summarizeTiming(result.steps).totals.map((row) => [row.category, row.durationUs]));
 }
 
 export function TimingView({ turn }: { turn: Turn }) {

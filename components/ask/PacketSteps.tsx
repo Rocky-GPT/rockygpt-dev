@@ -23,9 +23,10 @@ const CHIP = {
   good: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
   warn: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
   bad: 'border-red-500/30 bg-red-500/10 text-red-300',
+  model: 'border-violet-500/30 bg-violet-500/10 text-violet-300',
 } as const;
 
-type Tone = keyof typeof CHIP;
+export type Tone = keyof typeof CHIP;
 
 const STATUS_TONE: Record<string, Tone> = {
   complete: 'good',
@@ -37,7 +38,7 @@ const STATUS_TONE: Record<string, Tone> = {
   emergency: 'bad',
 };
 
-function Chip({ tone = 'neutral', title, children }: { tone?: Tone; title?: string; children: React.ReactNode }) {
+export function Chip({ tone = 'neutral', title, children }: { tone?: Tone; title?: string; children: React.ReactNode }) {
   return (
     <span title={title} className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] leading-4 ${CHIP[tone]}`}>
       {children}
@@ -45,7 +46,7 @@ function Chip({ tone = 'neutral', title, children }: { tone?: Tone; title?: stri
   );
 }
 
-function Step({ n, title, hint, children }: { n: number; title: string; hint?: string; children: React.ReactNode }) {
+export function Step({ n, title, hint, children }: { n: number; title: string; hint?: string; children: React.ReactNode }) {
   return (
     <li className="relative pb-5 last:pb-0">
       <span

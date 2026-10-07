@@ -1,14 +1,24 @@
 /**
  * @module lib/inspector-tabs
- * The tabs of a turn's inspector. Each fact is shown in one place: the Answer tab holds what the
+ * The tabs of a turn's inspector. The Pipeline tab is the overview: each stage the turn went through,
+ * who did it and what it produced, with a link to the tab that holds it in full. Each fact is shown
+ * in one place: the Answer tab holds what the
  * Brain returned (its written answer, or the Fact Packet as JSON when it writes none), the Fact
  * Packet tab explains that packet step by step and lists its sources, so Sources is left out for a
  * packet; the request is the first half of the Raw tab.
  */
 
-export type InspectorTab = 'answer' | 'sources' | 'packet' | 'lookups' | 'timing' | 'raw';
+export type InspectorTab = 'answer' | 'pipeline' | 'sources' | 'packet' | 'lookups' | 'timing' | 'raw';
 
-export const INSPECTOR_TABS: InspectorTab[] = ['answer', 'sources', 'packet', 'lookups', 'timing', 'raw'];
+export const INSPECTOR_TABS: InspectorTab[] = [
+  'answer',
+  'pipeline',
+  'sources',
+  'packet',
+  'lookups',
+  'timing',
+  'raw',
+];
 
 export interface InspectorTabInfo {
   id: InspectorTab;
@@ -25,7 +35,10 @@ export function inspectorTabs(turn: {
   sources: number;
   lookups: number;
 }): InspectorTabInfo[] {
-  const tabs: InspectorTabInfo[] = [{ id: 'answer', label: 'Answer' }];
+  const tabs: InspectorTabInfo[] = [
+    { id: 'answer', label: 'Answer' },
+    { id: 'pipeline', label: 'Pipeline' },
+  ];
   // The packet lists its own sources.
   if (!turn.packet) tabs.push({ id: 'sources', label: 'Sources', ...(turn.live ? {} : { count: turn.sources }) });
   if (turn.packet) tabs.push({ id: 'packet', label: 'Fact Packet' });

@@ -128,8 +128,8 @@ function AbsenceRows({ entries }: { entries: PacketNotPublished[] }) {
               {!entry.current && <Chip tone="warn">not current</Chip>}
             </div>
             <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
-              {entry.checks.map((check) => (
-                <li key={`${check.url}-${check.section}`} className="break-words">
+              {entry.checks.map((check, index) => (
+                <li key={`${index}-${check.url}`} className="break-words">
                   read “{check.section}” on{' '}
                   <a href={check.url} target="_blank" rel="noopener noreferrer" className="text-sky-400 hover:underline">
                     {check.url}
@@ -353,7 +353,12 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
               ))}
             </ul>
           ) : status === 'complete' ? (
-            <p className="mt-2 text-xs text-muted-foreground">Every fact is known and current.</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {asked.length > 0
+                ? 'Every fact is known and current.'
+                : 'Every field asked about is answered and current.'}
+              {absent.length > 0 && ` ${absent.length === 1 ? 'One field' : `${absent.length} fields`} confirmed not published.`}
+            </p>
           ) : null}
         </Step>
       </ol>

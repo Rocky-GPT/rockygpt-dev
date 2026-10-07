@@ -253,4 +253,16 @@ test('a confirmed "not published" reads differently from unknown in the preview,
   assert.deepEqual(factPacketOf({ facts: old })?.not_published, []);
   assert.equal(not_published.length, 0);
   assert.equal(factPacketOf({ facts: { ...packet(), not_published: 'x' } }), undefined);
+  // So is a list whose entries the Trace view could not draw.
+  for (const broken of [
+    null,
+    absence({ checks: 'x' }),
+    absence({ checks: [{ section: 'Contact Us' }] }),
+    absence({ checked_at: undefined }),
+    absence({ subject: null }),
+    absence({ current: 'yes' }),
+  ]) {
+    assert.equal(factPacketOf({ facts: { ...packet(), not_published: [broken] } }), undefined);
+  }
+  assert.ok(factPacketOf({ facts: { ...packet(), not_published: [absence()] } }));
 });

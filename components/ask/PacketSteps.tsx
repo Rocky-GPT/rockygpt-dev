@@ -123,11 +123,16 @@ function DerivedRows({ entries }: { entries: PacketDerived[] }) {
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
               <Chip tone="info">{entry.day}</Chip>
               <span className="font-mono text-muted-foreground">{entry.date}</span>
-              {!entry.applies && <Chip tone="warn">outside its dates</Chip>}
+              {entry.status && entry.status !== 'known' && <Chip tone="warn">{entry.status}</Chip>}
+              {entry.applicability === 'unverified'
+                ? <Chip tone="warn">applicability unverified</Chip>
+                : !entry.applies && <Chip tone="warn">outside its dates</Chip>}
               {entry.applies && !entry.current && <Chip tone="warn">not current</Chip>}
             </div>
             <p className="mt-1.5 break-words font-mono text-[13px] leading-5 text-foreground">
-              {entry.applies
+              {entry.applicability === 'unverified'
+                ? (entry.applicability_reason ?? 'Cannot verify this schedule applies on the requested date.')
+                : entry.applies
                 ? (entry.value.hours ?? 'not listed for that day')
                 : `published for ${[entry.value.window?.from, entry.value.window?.until].filter(Boolean).join(' to ') || 'other dates'}`}
             </p>
@@ -329,15 +334,21 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
         {unsettled > 0 && (
           <Step n={++step} title="Could not settle" hint={`${unsettled} item${unsettled === 1 ? '' : 's'}`}>
             <div className="space-y-1.5 text-xs">
-              {packet.missing.map((entry) => (
-                <div key={`${entry.subject.id}-${entry.predicate}`} className="flex flex-wrap items-center gap-1.5">
-                  <Chip tone="warn">unknown</Chip>
+              {packet.missing.map((entry, index) => (
+                <div key={`${entry.subject.id}-${entry.predicate}-${index}`} className="flex flex-wrap items-center gap-1.5">
+                  <Chip tone="warn">{entry.status ?? 'unknown'}</Chip>
                   <span className="text-foreground">
                     {entry.subject.name} · {entry.predicate}
+                    {entry.schedule && ` · ${entry.schedule}`}
                   </span>
                   <span className="text-muted-foreground">
-                    {entry.reason === 'unknown' ? 'no information either way' : entry.reason.replaceAll('_', ' ')}
+                    {entry.details ?? (entry.reason === 'unknown' ? 'no information either way' : entry.reason.replaceAll('_', ' '))}
                   </span>
+                  {!!entry.source_statements?.length && (
+                    <ul className="w-full list-disc space-y-1 pl-5 text-muted-foreground">
+                      {entry.source_statements.map((statement, statementIndex) => <li key={statementIndex}>{statement}</li>)}
+                    </ul>
+                  )}
                 </div>
               ))}
               {packet.ambiguities.map((entry) => (

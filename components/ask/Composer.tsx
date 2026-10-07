@@ -1,6 +1,6 @@
 'use client';
 
-import { Layers, Loader2, Send } from 'lucide-react';
+import { Layers, Loader2, Send, Trash2 } from 'lucide-react';
 import type { ComposerState, ValidationProblem } from '@/lib/chat-request';
 
 export function Composer({
@@ -8,6 +8,8 @@ export function Composer({
   onChange,
   onSend,
   onOpenBulk,
+  onClear,
+  canClear,
   busy,
   problems,
 }: {
@@ -15,6 +17,8 @@ export function Composer({
   onChange: (next: Partial<ComposerState>) => void;
   onSend: () => void;
   onOpenBulk: () => void;
+  onClear: () => void;
+  canClear: boolean;
   busy: boolean;
   problems: ValidationProblem[];
 }) {
@@ -45,7 +49,17 @@ export function Composer({
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </button>
       </div>
-      <div className="mt-2 flex justify-end">
+      <div className="mt-2 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={!canClear}
+          title="Clear the chat and start a new conversation"
+          className="flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          Clear chat
+        </button>
         <button
           type="button"
           onClick={onOpenBulk}

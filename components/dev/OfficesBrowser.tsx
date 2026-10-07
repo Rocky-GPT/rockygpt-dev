@@ -43,7 +43,7 @@ function plural(count: number, one: string, many: string): string {
 }
 
 function statusTone(status: string): PillTone {
-  if (status === 'known') return 'ok';
+  if (status === 'known' || status === 'not_published') return 'ok';
   if (status === 'unknown') return 'idle';
   return 'warn';
 }
@@ -229,8 +229,9 @@ export function FactsView({
               {facts.complete ? 'All linked evidence present' : 'Linked evidence missing'}
             </StatusPill>
           </span>
-          <StatusPill tone={counts.known === counts.total ? 'ok' : 'idle'}>
+          <StatusPill tone={counts.known + counts.notPublished === counts.total ? 'ok' : 'idle'}>
             {counts.known} of {plural(counts.total, 'property', 'properties')} known
+            {counts.notPublished > 0 && `, ${counts.notPublished} confirmed not published`}
             {counts.several > 0 && `, ${counts.several} with several values`}
           </StatusPill>
           {counts.stale > 0 && (
@@ -315,11 +316,28 @@ function PropertyRow({ property }: { property: FactProperty }) {
         <p className="font-mono text-[11px] text-muted-foreground">{property.key}</p>
       </td>
       <td className="px-4 py-2.5">
-        <StatusPill tone={statusTone(property.status)}>{property.status}</StatusPill>
+        <StatusPill tone={statusTone(property.status)}>{property.status.replaceAll('_', ' ')}</StatusPill>
       </td>
       <td className="min-w-0 px-4 py-2.5">
-        {property.values.length === 0 ? (
-          <p className="text-muted-foreground">No value. Status: {property.status}.</p>
+        {property.values.length === 0 && property.absence ? (
+          <div className="space-y-1 text-xs text-muted-foreground">
+            <p>
+              Not published on the office&apos;s own pages. Checked {property.absence.checked_at.slice(0, 10)}
+              {property.absence.current ? '.' : ', and that check is not current.'}
+            </p>
+            <ul className="space-y-0.5">
+              {property.absence.checks.map((check, index) => (
+                <li key={`${index}-${check.url}`} className="break-all">
+                  read “{check.section}” on{' '}
+                  <a href={check.url} target="_blank" rel="noreferrer" className="font-mono text-sky-300 hover:underline">
+                    {check.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : property.values.length === 0 ? (
+          <p className="text-muted-foreground">No value. Status: {property.status.replaceAll('_', ' ')}.</p>
         ) : (
           <ul className="space-y-1">
             {property.values.map((value, index) => (

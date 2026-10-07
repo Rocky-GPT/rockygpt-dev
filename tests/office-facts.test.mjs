@@ -9,6 +9,7 @@ const facts = {
     { key: 'email', status: 'unknown', values: [], assertions: [] },
     { key: 'fax', status: 'unknown', values: [], assertions: [] },
     { key: 'hours', status: 'conflicting', values: [], assertions: [] },
+    { key: 'offices', status: 'not_published', values: [], assertions: [] },
   ],
   sources: [
     { freshness: 'fresh', citation_urls: [] },
@@ -20,10 +21,11 @@ const facts = {
   complete: true,
 };
 
-test('counts known properties, several-valued ones and stale sources from the payload', () => {
+test('counts known, confirmed-not-published and several-valued properties and stale sources from the payload', () => {
   assert.deepEqual(countFacts(facts), {
-    total: 4,
+    total: 5,
     known: 1,
+    notPublished: 1,
     several: 1,
     sources: 3,
     stale: 1,

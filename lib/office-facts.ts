@@ -19,6 +19,14 @@ export interface FactAssertion {
   caveats: string[];
 }
 
+/** The proof behind a property whose status is `not_published`: the pages read and when. */
+export interface FactAbsence {
+  source_ids: string[];
+  checks: Array<{ url: string; section: string; checked_at: string }>;
+  checked_at: string;
+  current: boolean;
+}
+
 export interface FactProperty {
   key: string;
   label: string;
@@ -26,6 +34,8 @@ export interface FactProperty {
   status: string;
   values: FactValue[];
   assertions: FactAssertion[];
+  /** Present when the office's own pages were read and do not publish this property. */
+  absence?: FactAbsence;
 }
 
 export interface FactSource {
@@ -74,6 +84,8 @@ export function readFacts(body: unknown): OfficeFacts | null {
 export interface FactCounts {
   total: number;
   known: number;
+  /** Properties the office's own pages were read for and do not publish: answered, with no value. */
+  notPublished: number;
   /** Properties with several values: status `multiple` or `conflicting`. */
   several: number;
   sources: number;
@@ -88,6 +100,7 @@ export function countFacts(facts: OfficeFacts): FactCounts {
   return {
     total: facts.properties.length,
     known: status('known'),
+    notPublished: status('not_published'),
     several: status('multiple') + status('conflicting'),
     sources: facts.sources.length,
     stale: freshness('stale'),

@@ -94,8 +94,30 @@ export function factPacketOf(raw: Record<string, unknown> | undefined): FactPack
   if (!packet || typeof packet.version !== 'string' || typeof packet.status !== 'string') return undefined;
   if (!record(packet.request) || !LISTS.every((key) => Array.isArray(packet[key]))) return undefined;
   // A packet from before confirmed absences existed has no such list: none were confirmed.
-  if (packet.not_published !== undefined && !Array.isArray(packet.not_published)) return undefined;
+  if (packet.not_published !== undefined && !(Array.isArray(packet.not_published) && packet.not_published.every(absenceOk))) {
+    return undefined;
+  }
   return { ...packet, not_published: packet.not_published ?? [] } as unknown as FactPacket;
+}
+
+/** An absence entry the views can read: a subject, a predicate, a date and the pages that were read. */
+function absenceOk(entry: unknown): boolean {
+  const item = record(entry);
+  const subject = record(item?.subject);
+  return (
+    !!item &&
+    !!subject &&
+    typeof subject.id === 'string' &&
+    typeof subject.name === 'string' &&
+    typeof item.predicate === 'string' &&
+    typeof item.checked_at === 'string' &&
+    typeof item.current === 'boolean' &&
+    Array.isArray(item.checks) &&
+    item.checks.every((check) => {
+      const page = record(check);
+      return !!page && typeof page.url === 'string' && typeof page.section === 'string';
+    })
+  );
 }
 
 /** A value on one line, for previews: the same readable form the Trace view shows. */

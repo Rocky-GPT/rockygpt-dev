@@ -9,6 +9,7 @@ import {
   type PacketNotPublished,
   type PacketSource,
 } from '@/lib/fact-packet';
+import { absenceText, scheduleAbsenceLines } from '@/lib/office-facts';
 
 /**
  * The Brain's Fact Packet, read as the steps it took to get there: what it understood, what it
@@ -133,9 +134,13 @@ function DerivedRows({ entries }: { entries: PacketDerived[] }) {
               {entry.applicability === 'unverified'
                 ? (entry.applicability_reason ?? 'Cannot verify this schedule applies on the requested date.')
                 : entry.applies
-                ? (entry.value.hours ?? 'not listed for that day')
+                ? (entry.value.hours ?? (entry.value.status === 'not_published' ? 'Not published' : 'Hours unavailable'))
                 : `published for ${[entry.value.window?.from, entry.value.window?.until].filter(Boolean).join(' to ') || 'other dates'}`}
             </p>
+            {absenceText(entry.value.absence) && <p className="mt-1 text-xs text-muted-foreground">{absenceText(entry.value.absence)}</p>}
+            {scheduleAbsenceLines(entry.value).map((line, index) => (
+              <p key={index} className="mt-1 text-xs text-muted-foreground">{line}</p>
+            ))}
             {(entry.value.notes ?? []).map((note) => (
               <p key={note} className="mt-1 break-words text-xs text-muted-foreground">
                 {note}
@@ -170,6 +175,7 @@ function AbsenceRows({ entries }: { entries: PacketNotPublished[] }) {
               <span className="text-foreground">checked {entry.checked_at.slice(0, 10)}</span>
               {!entry.current && <Chip tone="warn">not current</Chip>}
             </div>
+            {absenceText(entry) && <p className="mt-1 text-xs text-muted-foreground">{absenceText(entry)}</p>}
             <ul className="mt-1.5 space-y-0.5 text-xs text-muted-foreground">
               {entry.checks.map((check, index) => (
                 <li key={`${index}-${check.url}`} className="break-words">

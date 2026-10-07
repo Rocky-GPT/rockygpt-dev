@@ -22,9 +22,11 @@ export interface FactAssertion {
 /** The proof behind a property whose status is `not_published`: the pages read and when. */
 export interface FactAbsence {
   source_ids: string[];
-  checks: Array<{ url: string; section: string; checked_at: string }>;
+  checks: Array<{ url: string; section: string; checked_at: string; text_sha256?: string; html_sha256?: string }>;
   checked_at: string;
   current: boolean;
+  scope?: string;
+  reason?: string;
 }
 
 export interface FactProperty {
@@ -122,6 +124,33 @@ export function countFacts(facts: OfficeFacts): FactCounts {
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+/** The supplied scope and reason for an absence; no conclusion is made from an empty value. */
+export function absenceText(value: unknown): string {
+  if (!isObject(value)) return '';
+  return [typeof value.scope === 'string' ? `Scope: ${value.scope.replaceAll('_', ' ')}` : '',
+    typeof value.reason === 'string' ? value.reason : '',
+    value.current === false ? 'Review is not current' : ''].filter(Boolean).join('. ');
+}
+
+/** Explicit date omissions and weekday review scope retained by the shared reader. */
+export function scheduleAbsenceLines(value: unknown): string[] {
+  if (!isObject(value)) return [];
+  const lines: string[] = [];
+  if (isObject(value.validity_absence)) {
+    for (const [bound, proof] of Object.entries(value.validity_absence)) {
+      if (!['valid_from', 'valid_until'].includes(bound) || !isObject(proof) || proof.status !== 'not_published') continue;
+      lines.push(`${bound === 'valid_from' ? 'Start' : 'End'} date: Not published${absenceText(proof) ? `. ${absenceText(proof)}` : ''}`);
+    }
+  }
+  for (const day of Array.isArray(value.days) ? value.days : []) {
+    if (isObject(day) && day.status === 'not_published') {
+      const text = absenceText(day.absence);
+      if (text && !lines.includes(text)) lines.push(text);
+    }
+  }
+  return lines;
+}
+
 /** The weekdays of an hours value as published. Next weekdays with the same hours share a span; a day with no record is never inside one. */
 export function formatHours(value: unknown): string | null {
   if (!isObject(value) || !Array.isArray(value.days)) return null;
@@ -129,7 +158,7 @@ export function formatHours(value: unknown): string | null {
   for (const entry of value.days) {
     if (!isObject(entry) || typeof entry.day !== 'string' ||
       (typeof entry.hours !== 'string' && entry.hours !== null)) return null;
-    const hours = entry.hours ?? 'Hours unavailable';
+    const hours = entry.hours ?? (entry.status === 'not_published' ? 'Not published' : 'Hours unavailable');
     const index = WEEKDAYS.indexOf(entry.day);
     const run = runs[runs.length - 1];
     if (run && run.hours === hours && index >= 0 && run.index >= 0 && index === run.index + 1) {
@@ -147,5 +176,5 @@ export function formatHours(value: unknown): string | null {
   const notes = Array.isArray(value.notes) ? value.notes.filter((n): n is string => typeof n === 'string') : [];
   return `${name}${season}${runs.map((run) => `${span(run)}: ${run.hours}`).join('; ')}${
     notes.length ? `. Published note: ${notes.join(' ')}` : ''
-  }`;
+  }${scheduleAbsenceLines(value).map((line) => `. ${line}`).join('')}`;
 }

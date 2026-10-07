@@ -24,6 +24,7 @@
 
 import { currentOutcome, type Turn } from '../components/ask/types.ts';
 import type { ChatMessageInput } from './chat-request.ts';
+import { factPacketOf } from './fact-packet.ts';
 
 type Json = Record<string, unknown>;
 
@@ -45,6 +46,7 @@ function firstAnswerText(turn: Turn): { kind: string | null; atMs: number | null
   const atMs = turn.latencyMs ?? null;
   if (turn.status === 'pending') return { kind: null, atMs: null };
   if (text(turn.raw?.answer)) return { kind: 'answer', atMs };
+  if (factPacketOf(turn.raw)) return { kind: 'fact_packet', atMs };
   if (turn.raw?.emergency) return { kind: 'emergency_help', atMs };
   return { kind: null, atMs: null };
 }

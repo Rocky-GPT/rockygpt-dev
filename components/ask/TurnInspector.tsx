@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { factPacketOf } from '@/lib/fact-packet';
+import { FactPacketView } from './FactPacketView';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { TONE, TraceView, formatMs } from './TraceView';
@@ -213,7 +215,9 @@ function RequestId({ id }: { id: string }) {
 
 function AnswerTab({ turn }: { turn: Turn }) {
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  const packet = factPacketOf(turn.raw);
   if (turn.status === 'pending') return <LiveAnswer />;
+  if (!answer && packet) return <FactPacketView packet={packet} />;
   if (answer) {
     return (
       <div className="px-5 py-4">

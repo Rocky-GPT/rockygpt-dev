@@ -4,7 +4,8 @@ import { ArrowRight } from 'lucide-react';
 import type { InspectorTab } from '@/lib/inspector-tabs';
 import { pipelineStages, type PipelineStage } from '@/lib/pipeline';
 import { Chip, Step, type Tone } from './PacketSteps';
-import { timingTotalsOf } from './TimingView';
+import { LookupCards } from './TraceView';
+import { TimingView, timingTotalsOf } from './TimingView';
 import type { Turn } from './types';
 
 const DOER: Record<PipelineStage['doer'], { tone: Tone; label: string; help: string }> = {
@@ -19,15 +20,14 @@ const TAB_LABEL: Record<InspectorTab, string> = {
   pipeline: 'Pipeline',
   sources: 'Sources',
   packet: 'Fact Packet',
-  lookups: 'Lookups',
-  timing: 'Timing',
   raw: 'Raw',
 };
 
 /**
  * The turn as a pipeline: the stages it went through, who did each (the AI model or plain code),
- * what each produced and how long it took. Each stage links to the tab that holds it in full.
- * Everything here is read from the response; nothing is added.
+ * what each produced and how long it took. The Lookup stage carries a card for each lookup, and
+ * the whole turn's timing is at the bottom; the other stages link to the tab that holds them in
+ * full. Everything here is read from the response; nothing is added.
  */
 export function PipelineTab({
   turn,
@@ -77,6 +77,7 @@ export function PipelineTab({
                     ))}
                   </div>
                 )}
+                {stage.id === 'lookup' && <LookupCards turn={turn} />}
                 {stage.open && tabs.includes(stage.open) && stage.state !== 'skipped' && (
                   <button
                     type="button"
@@ -92,6 +93,10 @@ export function PipelineTab({
           );
         })}
       </ol>
+      <section className="mt-6 border-t border-border pt-4">
+        <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-sky-300">Where the time went</h3>
+        <TimingView turn={turn} />
+      </section>
     </div>
   );
 }

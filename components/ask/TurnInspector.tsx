@@ -1,16 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
-import { factPacketOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { LookupsTab, PacketTab, TONE, TimingTab, formatMs } from './TraceView';
 import { useNow } from './useNow';
 import { useAskSession } from './AskSession';
-import { brainTrace } from '@/lib/brain-metrics';
-import { inspectorTabs, shownTab } from '@/lib/inspector-tabs';
+import { shownTab } from '@/lib/inspector-tabs';
+import { turnTabs } from './turnTabs';
 import type { Turn } from './types';
 
 /**
@@ -28,6 +27,14 @@ export function TurnInspector({
   onNext?: () => void;
 }) {
   const { inspectorTab: tab, setInspectorTab: setTab } = useAskSession();
+  const tabBar = useRef<HTMLDivElement>(null);
+  const turnId = turn?.localId;
+  // The arrow keys can step to a tab that is scrolled out of the bar.
+  useEffect(() => {
+    tabBar.current
+      ?.querySelector('[aria-selected="true"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab, turnId]);
 
   if (!turn) {
     return (
@@ -41,13 +48,7 @@ export function TurnInspector({
 
   const live = turn.status === 'pending';
   const citations = Array.isArray(turn.raw?.citations) ? turn.raw.citations : [];
-  const tabs = inspectorTabs({
-    live,
-    packet: factPacketOf(turn.raw) !== undefined,
-    answer: typeof turn.raw?.answer === 'string' && turn.raw.answer !== '',
-    sources: citations.length,
-    lookups: (brainTrace(turn.raw) ?? []).length,
-  });
+  const tabs = turnTabs(turn);
   const shown = shownTab(tabs, tab);
 
   return (
@@ -72,8 +73,10 @@ export function TurnInspector({
         </div>
         <Summary turn={turn} />
         <div
+          ref={tabBar}
           role="tablist"
           aria-label="Turn details"
+          title="Left and right arrow keys switch tabs"
           className="mt-3 flex gap-1 overflow-x-auto px-3"
         >
           {tabs.map((item) => {

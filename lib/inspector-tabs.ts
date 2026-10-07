@@ -51,3 +51,9 @@ export function restoredTab(saved: unknown): InspectorTab | undefined {
   if (saved === 'request') return 'raw';
   return INSPECTOR_TABS.find((tab) => tab === saved);
 }
+
+/** The tab one step left (-1) or right (1) of the current one, wrapping round at the ends. */
+export function neighborTab(tabs: InspectorTabInfo[], current: InspectorTab, step: 1 | -1): InspectorTab {
+  const index = Math.max(0, tabs.findIndex((tab) => tab.id === current));
+  return tabs[(index + step + tabs.length) % tabs.length].id;
+}

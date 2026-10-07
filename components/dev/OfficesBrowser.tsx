@@ -43,7 +43,8 @@ function plural(count: number, one: string, many: string): string {
 }
 
 function statusTone(status: string): PillTone {
-  if (status === 'known' || status === 'not_published') return 'ok';
+  if (status === 'known') return 'ok';
+  if (status === 'not_published') return 'info';
   if (status === 'unknown') return 'idle';
   return 'warn';
 }

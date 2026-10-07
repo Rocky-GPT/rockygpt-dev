@@ -120,6 +120,11 @@ function absenceOk(entry: unknown): boolean {
   );
 }
 
+/** What a writer would be handed for this turn, when the Brain sends it beside the packet. */
+export function writerInputOf(raw: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  return record(raw?.writerInput);
+}
+
 /** A value on one line, for previews: the same readable form the Trace view shows. */
 function valueText(value: unknown): string {
   return valueLines(value).join(', ').replace(/\s+/g, ' ');

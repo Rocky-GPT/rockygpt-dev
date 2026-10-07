@@ -1,8 +1,9 @@
 /**
  * @module lib/inspector-tabs
- * The tabs of a turn's inspector. Each fact is shown in one place: a Brain that sends a Fact Packet
- * has no written answer and its sources are in the packet, so those two tabs are left out; the
- * request is the first half of the Raw tab.
+ * The tabs of a turn's inspector. Each fact is shown in one place: the Answer tab holds what the
+ * Brain returned (its written answer, or the Fact Packet as JSON when it writes none), the Fact
+ * Packet tab explains that packet step by step and lists its sources, so Sources is left out for a
+ * packet; the request is the first half of the Raw tab.
  */
 
 export type InspectorTab = 'answer' | 'sources' | 'packet' | 'lookups' | 'timing' | 'raw';
@@ -21,14 +22,10 @@ export function inspectorTabs(turn: {
   live: boolean;
   /** The Brain sent a Fact Packet. */
   packet: boolean;
-  /** The Brain wrote an answer. */
-  answer: boolean;
   sources: number;
   lookups: number;
 }): InspectorTabInfo[] {
-  const tabs: InspectorTabInfo[] = [];
-  // A packet with no written answer leaves the Answer tab with nothing to say.
-  if (turn.live || !turn.packet || turn.answer) tabs.push({ id: 'answer', label: 'Answer' });
+  const tabs: InspectorTabInfo[] = [{ id: 'answer', label: 'Answer' }];
   // The packet lists its own sources.
   if (!turn.packet) tabs.push({ id: 'sources', label: 'Sources', ...(turn.live ? {} : { count: turn.sources }) });
   if (turn.packet) tabs.push({ id: 'packet', label: 'Fact Packet' });

@@ -9,6 +9,8 @@
  * every word of a summary comes from a field of the packet.
  */
 
+import { absenceText, scheduleAbsenceLines, type FactAbsence } from './office-facts.ts';
+
 export interface PacketSubject {
   id: string;
   name: string;
@@ -44,9 +46,11 @@ export interface PacketNotPublished {
   predicate: string;
   checked_at: string;
   current: boolean;
-  checks: Array<{ url: string; section: string; checked_at: string }>;
+  checks: FactAbsence['checks'];
   source_ids: string[];
   purpose?: string;
+  scope?: string;
+  reason?: string;
 }
 
 /** A value the Brain worked out so a writer never has to: the hours of the one weekday asked about. */
@@ -56,7 +60,12 @@ export interface PacketDerived {
   predicate: string;
   day: string;
   date: string;
-  value: { schedule?: string; season?: string; hours: string | null; notes?: string[]; window?: { from?: string; until?: string } };
+  value: {
+    schedule?: string; season?: string; hours: string | null; notes?: string[];
+    window?: { from?: string; until?: string };
+    status?: 'not_published'; absence?: FactAbsence;
+    validity_absence?: Record<string, FactAbsence & { status: 'not_published' }>;
+  };
   /** False when outside published dates or when applicability cannot be verified. */
   applies: boolean;
   status?: string;
@@ -187,7 +196,8 @@ export function derivedText(entry: PacketDerived): string {
     const range = window ? [window.from, window.until].filter(Boolean).join(' to ') : '';
     return `${label} on ${when}: outside the dates it was published for${range ? ` (${range})` : ''}`;
   }
-  return `${label} on ${when}: ${entry.value.hours ?? 'not listed for that day'}${entry.status === 'conflicting' ? ' (conflicting)' : ''}${entry.current ? '' : ' (not current)'}`;
+  const hours = entry.value.hours ?? (entry.value.status === 'not_published' ? 'Not published' : 'Hours unavailable');
+  return `${label} on ${when}: ${hours}${entry.status === 'conflicting' ? ' (conflicting)' : ''}${entry.current ? '' : ' (not current)'}`;
 }
 
 /** A value on one line, for previews: the same readable form the Trace view shows. */
@@ -220,7 +230,7 @@ export function packetSummary(packet: FactPacket): string {
   }
   for (const entry of packet.derived_facts) add(entry.subject.name, derivedText(entry));
   for (const entry of packet.not_published.filter((item) => !item.purpose)) {
-    add(entry.subject.name, `${entry.predicate} not published (checked ${entry.checked_at.slice(0, 10)}${entry.current ? '' : ', not current'})`);
+    add(entry.subject.name, `${entry.predicate} not published (checked ${entry.checked_at.slice(0, 10)}${entry.current ? '' : ', not current'})${absenceText(entry) ? `. ${absenceText(entry)}` : ''}`);
   }
   for (const [office, items] of byOffice) parts.push(`${office}: ${items.join('; ')}`);
 
@@ -261,9 +271,10 @@ export function valueLines(value: unknown): string[] {
   if (days.length > 0 && days.every((day) => day && typeof day.day === 'string' &&
     (typeof day.hours === 'string' || day.hours === null))) {
     const lines = typeof object.schedule === 'string' ? [object.schedule] : [];
-    lines.push(...days.map((day) => `${day?.day}  ${day?.hours ?? 'Hours unavailable'}`));
+    lines.push(...days.map((day) => `${day?.day}  ${day?.hours ?? (day?.status === 'not_published' ? 'Not published' : 'Hours unavailable')}`));
+    lines.push(...scheduleAbsenceLines(object));
     for (const [key, extra] of Object.entries(object)) {
-      if (key !== 'schedule' && key !== 'days') lines.push(`${key}: ${valueLines(extra).join('; ')}`);
+      if (!['schedule', 'days', 'validity_absence'].includes(key)) lines.push(`${key}: ${valueLines(extra).join('; ')}`);
     }
     return lines;
   }

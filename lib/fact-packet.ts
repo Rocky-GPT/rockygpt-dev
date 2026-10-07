@@ -83,10 +83,9 @@ export function factPacketOf(raw: Record<string, unknown> | undefined): FactPack
   return packet as unknown as FactPacket;
 }
 
+/** A value on one line, for previews: the same readable form the Trace view shows. */
 function valueText(value: unknown): string {
-  if (typeof value === 'string') return value;
-  if (Array.isArray(value)) return value.map(valueText).join(', ');
-  return JSON.stringify(value);
+  return valueLines(value).join(', ').replace(/\s+/g, ' ');
 }
 
 /** A fact's value with the two things a reader must not miss: it is not current, or it conflicts. */

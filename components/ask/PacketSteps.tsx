@@ -1,9 +1,11 @@
 import {
   packetReasons,
+  replacedFactIds,
   valueLines,
   type FactPacket,
   type PacketFact,
   type PacketNotice,
+  type PacketDerived,
   type PacketNotPublished,
   type PacketSource,
 } from '@/lib/fact-packet';
@@ -11,8 +13,8 @@ import {
 /**
  * The Brain's Fact Packet, read as the steps it took to get there: what it understood, what it
  * found, what it could not settle, what else it sent, where each fact came from, and how that
- * adds up to the packet's status. Nothing here is added; every line is a field of the packet,
- * and the whole JSON is at the bottom with a copy button.
+ * adds up to the packet's status. Nothing here is added; every line is a field of the packet.
+ * The JSON itself is in the Answer tab.
  */
 
 const CHIP = {
@@ -100,6 +102,42 @@ function FactRows({ facts }: { facts: PacketFact[] }) {
                 {fact.source_ids.length} source{fact.source_ids.length === 1 ? '' : 's'}
               </Chip>
             </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** What the Brain worked out for the day that was asked, so a writer is handed that day and no more. */
+function DerivedRows({ entries }: { entries: PacketDerived[] }) {
+  return (
+    <div className="divide-y divide-border rounded-xl border border-border bg-neutral-950/60">
+      {entries.map((entry) => (
+        <div key={entry.id} className="grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1 px-3 py-2 text-sm">
+          <span className="pt-px text-xs text-muted-foreground">
+            {entry.predicate === 'hours_on' ? 'hours' : entry.predicate.replaceAll('_', ' ')}
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <Chip tone="info">{entry.day}</Chip>
+              <span className="font-mono text-muted-foreground">{entry.date}</span>
+              {!entry.applies && <Chip tone="warn">outside its dates</Chip>}
+              {entry.applies && !entry.current && <Chip tone="warn">not current</Chip>}
+            </div>
+            <p className="mt-1.5 break-words font-mono text-[13px] leading-5 text-foreground">
+              {entry.applies
+                ? (entry.value.hours ?? 'not listed for that day')
+                : `published for ${[entry.value.window?.from, entry.value.window?.until].filter(Boolean).join(' to ') || 'other dates'}`}
+            </p>
+            {(entry.value.notes ?? []).map((note) => (
+              <p key={note} className="mt-1 break-words text-xs text-muted-foreground">
+                {note}
+              </p>
+            ))}
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              read from the full-week schedule ({entry.from.join(', ')})
+            </p>
           </div>
         </div>
       ))}
@@ -205,7 +243,8 @@ function SourceRow({ source }: { source: PacketSource }) {
 
 export function PacketSteps({ packet }: { packet: FactPacket }) {
   const { request } = packet;
-  const asked = packet.facts.filter((fact) => !fact.purpose);
+  const replaced = replacedFactIds(packet);
+  const asked = packet.facts.filter((fact) => !fact.purpose && !replaced.has(fact.id));
   const emergency = packet.facts.filter((fact) => fact.purpose);
   const absent = packet.not_published.filter((entry) => !entry.purpose);
   const unsettled = packet.missing.length + packet.ambiguities.length + packet.unresolved.length;
@@ -260,6 +299,16 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
                 </div>
               ))}
             </div>
+          </Step>
+        )}
+
+        {packet.derived_facts.length > 0 && (
+          <Step
+            n={++step}
+            title="Worked out"
+            hint="by the Brain, so a writer picks nothing"
+          >
+            <DerivedRows entries={packet.derived_facts} />
           </Step>
         )}
 
@@ -353,7 +402,7 @@ export function PacketSteps({ packet }: { packet: FactPacket }) {
             </ul>
           ) : status === 'complete' ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              {asked.length > 0
+              {asked.length + packet.derived_facts.length > 0
                 ? 'Every fact is known and current.'
                 : 'Every field asked about is answered and current.'}
               {absent.length > 0 && ` ${absent.length === 1 ? 'One field' : `${absent.length} fields`} confirmed not published.`}

@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  derivedText,
   factPacketOf,
   packetReasons,
   packetSummary,
+  replacedFactIds,
   valueLines,
   writerInputOf,
 } from '../lib/fact-packet.ts';
@@ -279,4 +281,52 @@ test('the writer input is read from the response when the Brain sends it, and on
   assert.equal(writerInputOf(undefined), undefined);
   assert.equal(writerInputOf({ writerInput: ['x'] }), undefined);
   assert.equal(writerInputOf({ writerInput: 'x' }), undefined);
+});
+
+const saturday = (changes = {}) => ({
+  id: 'd1',
+  subject: registrar,
+  predicate: 'hours_on',
+  day: 'Saturday',
+  date: '2026-10-10',
+  value: { schedule: 'Regular', hours: 'Hours unavailable', notes: ['Regular note'] },
+  applies: true,
+  current: true,
+  from: ['f1'],
+  source_ids: ['s1'],
+  ...changes,
+});
+
+test('a worked-out day reads on one line, and says so when the date is outside the schedule', () => {
+  assert.equal(derivedText(saturday()), 'hours on Saturday 2026-10-10: Hours unavailable');
+  assert.equal(
+    derivedText(saturday({ value: { hours: '8am-5pm' }, current: false })),
+    'hours on Saturday 2026-10-10: 8am-5pm (not current)'
+  );
+  assert.equal(derivedText(saturday({ value: { hours: null } })), 'hours on Saturday 2026-10-10: not listed for that day');
+  assert.equal(
+    derivedText(saturday({ applies: false, current: false, value: { hours: null, window: { from: '2026-08-26', until: '2026-12-16' } } })),
+    'hours on Saturday 2026-10-10: outside the dates it was published for (2026-08-26 to 2026-12-16)'
+  );
+});
+
+test('the preview and the reasons use the day that was asked, not the whole week it came from', () => {
+  const week = { ...packet().facts[0], id: 'f1', predicate: 'hours', value: { days: [{ day: 'Monday', hours: '9-5' }] } };
+  const asked = packet({ facts: [week], derived_facts: [saturday()] });
+  assert.deepEqual([...replacedFactIds(asked)], ['f1']);
+  assert.equal(packetSummary(asked), 'Registrar: hours on Saturday 2026-10-10: Hours unavailable');
+  assert.deepEqual(packetReasons(asked), []);
+  const outside = packet({ facts: [week], derived_facts: [saturday({ applies: false, current: false, value: { hours: null } })] });
+  assert.deepEqual(packetReasons(outside), [
+    'Registrar hours on Saturday 2026-10-10 is outside the dates the schedule was published for',
+  ]);
+  // A packet with no day asked still shows the whole week.
+  assert.match(packetSummary(packet({ facts: [week] })), /Monday/);
+});
+
+test('a derived entry the views could not read makes the packet unreadable', () => {
+  assert.ok(factPacketOf({ facts: packet({ derived_facts: [saturday()] }) }));
+  for (const broken of [null, saturday({ day: undefined }), saturday({ value: 'x' }), saturday({ applies: 'yes' }), saturday({ from: 'f1' })]) {
+    assert.equal(factPacketOf({ facts: packet({ derived_facts: [broken] }) }), undefined);
+  }
 });

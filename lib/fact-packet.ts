@@ -49,6 +49,22 @@ export interface PacketNotPublished {
   purpose?: string;
 }
 
+/** A value the Brain worked out so a writer never has to: the hours of the one weekday asked about. */
+export interface PacketDerived {
+  id: string;
+  subject: PacketSubject;
+  predicate: string;
+  day: string;
+  date: string;
+  value: { schedule?: string; hours: string | null; notes?: string[]; window?: { from?: string; until?: string } };
+  /** False when the date falls outside the schedule's published validity window. */
+  applies: boolean;
+  current: boolean;
+  /** The ids of the full-week facts it was read from. */
+  from: string[];
+  source_ids: string[];
+}
+
 export interface PacketNotice {
   type: string;
   approved_text?: string;
@@ -66,7 +82,7 @@ export interface FactPacket {
   };
   status: string;
   facts: PacketFact[];
-  derived_facts: unknown[];
+  derived_facts: PacketDerived[];
   /** Facts we hold no information about (nobody checked, or the page could not be read). */
   missing: Array<{ subject: PacketSubject; predicate: string; reason: string }>;
   not_published: PacketNotPublished[];
@@ -93,11 +109,33 @@ export function factPacketOf(raw: Record<string, unknown> | undefined): FactPack
   const packet = record(raw?.facts);
   if (!packet || typeof packet.version !== 'string' || typeof packet.status !== 'string') return undefined;
   if (!record(packet.request) || !LISTS.every((key) => Array.isArray(packet[key]))) return undefined;
+  if (!(packet.derived_facts as unknown[]).every(derivedOk)) return undefined;
   // A packet from before confirmed absences existed has no such list: none were confirmed.
   if (packet.not_published !== undefined && !(Array.isArray(packet.not_published) && packet.not_published.every(absenceOk))) {
     return undefined;
   }
   return { ...packet, not_published: packet.not_published ?? [] } as unknown as FactPacket;
+}
+
+/** A derived entry the views can read: what day, what it says, and whether it holds. */
+function derivedOk(entry: unknown): boolean {
+  const item = record(entry);
+  const subject = record(item?.subject);
+  const value = record(item?.value);
+  return (
+    !!item &&
+    !!subject &&
+    typeof subject.name === 'string' &&
+    typeof item.predicate === 'string' &&
+    typeof item.day === 'string' &&
+    typeof item.date === 'string' &&
+    !!value &&
+    (value.hours === null || typeof value.hours === 'string') &&
+    typeof item.applies === 'boolean' &&
+    typeof item.current === 'boolean' &&
+    Array.isArray(item.from) &&
+    item.from.every((id) => typeof id === 'string')
+  );
 }
 
 /** An absence entry the views can read: a subject, a predicate, a date and the pages that were read. */
@@ -125,6 +163,23 @@ export function writerInputOf(raw: Record<string, unknown> | undefined): Record<
   return record(raw?.writerInput);
 }
 
+/** The ids of full-week facts a derived fact stands in for: the writer is told the day, not these. */
+export function replacedFactIds(packet: FactPacket): Set<string> {
+  return new Set(packet.derived_facts.flatMap((entry) => entry.from));
+}
+
+/** A worked-out day on one line: "hours on Saturday 2026-10-10: Hours unavailable". */
+export function derivedText(entry: PacketDerived): string {
+  const label = entry.predicate === 'hours_on' ? 'hours' : entry.predicate.replaceAll('_', ' ');
+  const when = `${entry.day} ${entry.date}`;
+  if (!entry.applies) {
+    const window = entry.value.window;
+    const range = window ? [window.from, window.until].filter(Boolean).join(' to ') : '';
+    return `${label} on ${when}: outside the dates it was published for${range ? ` (${range})` : ''}`;
+  }
+  return `${label} on ${when}: ${entry.value.hours ?? 'not listed for that day'}${entry.current ? '' : ' (not current)'}`;
+}
+
 /** A value on one line, for previews: the same readable form the Trace view shows. */
 function valueText(value: unknown): string {
   return valueLines(value).join(', ').replace(/\s+/g, ' ');
@@ -149,7 +204,11 @@ export function packetSummary(packet: FactPacket): string {
 
   const byOffice = new Map<string, string[]>();
   const add = (office: string, text: string) => byOffice.set(office, [...(byOffice.get(office) ?? []), text]);
-  for (const fact of packet.facts.filter((item) => !item.purpose)) add(fact.subject.name, factText(fact));
+  const replaced = replacedFactIds(packet);
+  for (const fact of packet.facts.filter((item) => !item.purpose && !replaced.has(item.id))) {
+    add(fact.subject.name, factText(fact));
+  }
+  for (const entry of packet.derived_facts) add(entry.subject.name, derivedText(entry));
   for (const entry of packet.not_published.filter((item) => !item.purpose)) {
     add(entry.subject.name, `${entry.predicate} not published (checked ${entry.checked_at.slice(0, 10)}${entry.current ? '' : ', not current'})`);
   }
@@ -206,7 +265,13 @@ export function valueLines(value: unknown): string[] {
  */
 export function packetReasons(packet: FactPacket): string[] {
   const reasons: string[] = [];
-  for (const fact of packet.facts.filter((item) => !item.purpose)) {
+  for (const entry of packet.derived_facts) {
+    const name = `${entry.subject.name} ${entry.predicate === 'hours_on' ? 'hours' : entry.predicate} on ${entry.day} ${entry.date}`;
+    if (!entry.applies) reasons.push(`${name} is outside the dates the schedule was published for`);
+    else if (!entry.current) reasons.push(`${name} is not current`);
+  }
+  const replaced = replacedFactIds(packet);
+  for (const fact of packet.facts.filter((item) => !item.purpose && !replaced.has(item.id))) {
     const name = `${fact.subject.name} ${fact.predicate}`;
     if (!fact.current) reasons.push(`${name} is not current`);
     if (fact.status === 'conflicting') reasons.push(`${name} has conflicting values`);

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { factPacketOf } from '@/lib/fact-packet';
-import { FactPacketView } from './FactPacketView';
 import { JsonViewer } from '@/components/JsonViewer';
 import { SourcesPanel } from './SourcesPanel';
 import { TONE, TraceView, formatMs } from './TraceView';
@@ -109,7 +108,7 @@ export function TurnInspector({
       </header>
 
       <div role="tabpanel" className="min-h-0 flex-1 overflow-auto">
-        {tab === 'answer' && <AnswerTab turn={turn} />}
+        {tab === 'answer' && <AnswerTab turn={turn} onOpenTrace={() => setTab('trace')} />}
         {tab === 'sources' &&
           (citations.length > 0 ? (
             <SourcesPanel citations={citations} />
@@ -213,11 +212,27 @@ function RequestId({ id }: { id: string }) {
 
 /* --------------------------------------------------------------- Answer */
 
-function AnswerTab({ turn }: { turn: Turn }) {
+function AnswerTab({ turn, onOpenTrace }: { turn: Turn; onOpenTrace: () => void }) {
   const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
-  const packet = factPacketOf(turn.raw);
+  const hasPacket = factPacketOf(turn.raw) !== undefined;
   if (turn.status === 'pending') return <LiveAnswer />;
-  if (!answer && packet) return <FactPacketView packet={packet} />;
+  if (!answer && hasPacket) {
+    // A Brain in JSON mode writes no answer. Say so; the facts it sent are in the Trace tab.
+    return (
+      <div className="px-5 py-4">
+        <p className="text-sm leading-6 text-muted-foreground">
+          The Brain sent facts and no written answer.{' '}
+          <button
+            type="button"
+            onClick={onOpenTrace}
+            className="text-sky-300 underline-offset-2 hover:underline"
+          >
+            See the Fact Packet in Trace
+          </button>
+        </p>
+      </div>
+    );
+  }
   if (answer) {
     return (
       <div className="px-5 py-4">

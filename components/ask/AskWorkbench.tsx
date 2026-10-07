@@ -17,6 +17,8 @@ import { exportConversation } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
 import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
+import { neighborTab, shownTab } from '@/lib/inspector-tabs';
+import { turnTabs } from './turnTabs';
 import { TurnInspector } from './TurnInspector';
 import { TurnList } from './TurnList';
 import { conversationHistory, currentOutcome, historyOf, turnOutcome, type Turn } from './types';
@@ -45,6 +47,8 @@ export function AskWorkbench() {
     setSelectedId,
     inspectorOpen,
     setInspectorOpen,
+    inspectorTab,
+    setInspectorTab,
     ready,
     storageWarning,
   } = useAskSession();
@@ -290,6 +294,22 @@ export function AskWorkbench() {
     return () => document.removeEventListener('keydown', step);
   }, [turns, selectedId, bulkOpen, setSelectedId]);
 
+  // Left and Right switch the inspector's tabs, except while typing in a box that has text (the arrows
+  // move its caret) or picking in a menu. An empty question box does not count: there is nothing to move.
+  useEffect(() => {
+    const switchTab = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.shiftKey || bulkOpen || !inspectorOpen || !selected) return;
+      if (typesHere(event.target) && !emptyTextBox(event.target)) return;
+      event.preventDefault();
+      const tabs = turnTabs(selected);
+      setInspectorTab(neighborTab(tabs, shownTab(tabs, inspectorTab), event.key === 'ArrowRight' ? 1 : -1));
+    };
+    document.addEventListener('keydown', switchTab);
+    return () => document.removeEventListener('keydown', switchTab);
+  }, [selected, inspectorOpen, inspectorTab, bulkOpen, setInspectorTab]);
+
   // Clearing starts a new conversation: the history sent with a question is made from the turns.
   // A reply that arrives after this is ignored, so it stays cleared.
   const clearTurns = () => {
@@ -410,6 +430,15 @@ function typesHere(target: EventTarget | null): boolean {
   return (
     target.isContentEditable ||
     target.closest('input, textarea, select, [role="menu"], [role="listbox"]') !== null
+  );
+}
+
+/** An empty text box has no caret to move, so the arrow keys are free for the page. */
+function emptyTextBox(target: EventTarget | null): boolean {
+  return (
+    (target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLInputElement && ['text', 'search'].includes(target.type))) &&
+    target.value === ''
   );
 }
 

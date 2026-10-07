@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { INSPECTOR_TABS, inspectorTabs, restoredTab, shownTab } from '../lib/inspector-tabs.ts';
+import { INSPECTOR_TABS, inspectorTabs, neighborTab, restoredTab, shownTab } from '../lib/inspector-tabs.ts';
 
 const packetTurn = { live: false, packet: true, answer: false, sources: 2, lookups: 1 };
 const textTurn = { live: false, packet: false, answer: true, sources: 2, lookups: 1 };
@@ -40,4 +40,14 @@ test('a saved tab is restored; Trace became the Fact Packet tab and Request join
   assert.equal(restoredTab('nonsense'), undefined);
   assert.equal(restoredTab(undefined), undefined);
   assert.equal(INSPECTOR_TABS.length, 6);
+});
+
+test('the arrow keys step to the next tab and wrap round at the ends', () => {
+  const tabs = inspectorTabs(textTurn); // answer, sources, lookups, timing, raw
+  assert.equal(neighborTab(tabs, 'answer', 1), 'sources');
+  assert.equal(neighborTab(tabs, 'timing', -1), 'lookups');
+  assert.equal(neighborTab(tabs, 'raw', 1), 'answer');
+  assert.equal(neighborTab(tabs, 'answer', -1), 'raw');
+  // A tab this turn does not have counts as the first one.
+  assert.equal(neighborTab(tabs, 'packet', 1), 'sources');
 });

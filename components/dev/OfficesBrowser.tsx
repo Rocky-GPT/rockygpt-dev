@@ -309,6 +309,10 @@ export function FactsView({
 }
 
 function PropertyRow({ property }: { property: FactProperty }) {
+  const hasConflict = property.issues?.some((issue) => issue.status === 'conflicting');
+  const hasGaps = !!property.issues?.length;
+  const status = hasConflict ? 'unresolved conflict'
+    : property.status === 'known' && hasGaps ? 'known with gaps' : property.status.replaceAll('_', ' ');
   return (
     <tr className="border-t border-white/5 align-top">
       <td className="px-4 py-2.5">
@@ -316,7 +320,7 @@ function PropertyRow({ property }: { property: FactProperty }) {
         <p className="font-mono text-[11px] text-muted-foreground">{property.key}</p>
       </td>
       <td className="px-4 py-2.5">
-        <StatusPill tone={statusTone(property.status)}>{property.status.replaceAll('_', ' ')}</StatusPill>
+        <StatusPill tone={hasGaps ? 'warn' : statusTone(property.status)}>{status}</StatusPill>
       </td>
       <td className="min-w-0 px-4 py-2.5">
         {property.values.length === 0 && property.absence ? (

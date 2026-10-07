@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AlertCircle, Check, CircleDashed, Loader2, ShieldAlert } from 'lucide-react';
+import { plainPreview } from '@/lib/markdown-preview';
 import type { Turn } from './types';
 
 export function TurnList({
@@ -85,7 +86,7 @@ export function TurnList({
             */}
             {(turn.status === 'ok' || turn.status === 'declined') && answer && (
               <p className="mt-1.5 line-clamp-2 pl-5.5 text-xs leading-5 text-muted-foreground">
-                {answer}
+                {plainPreview(answer)}
               </p>
             )}
             {turn.status === 'not_built' && (

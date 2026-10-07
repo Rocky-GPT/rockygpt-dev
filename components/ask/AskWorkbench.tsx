@@ -290,6 +290,14 @@ export function AskWorkbench() {
     return () => document.removeEventListener('keydown', step);
   }, [turns, selectedId, bulkOpen, setSelectedId]);
 
+  // Clearing starts a new conversation: the history sent with a question is made from the turns.
+  // A reply that arrives after this is ignored, so it stays cleared.
+  const clearTurns = () => {
+    turnsRef.current = [];
+    setTurns([]);
+    setSelectedId(undefined);
+  };
+
   return (
     <>
       <PageHeader
@@ -297,14 +305,7 @@ export function AskWorkbench() {
         subtitle={`${turns.length} turn${turns.length === 1 ? '' : 's'} · POST /v1/chat`}
         actions={
           <>
-            <HeaderButton
-              onClick={() => {
-                turnsRef.current = [];
-                setTurns([]);
-                setSelectedId(undefined);
-              }}
-              title="Clear turns"
-            >
+            <HeaderButton onClick={clearTurns} title="Clear turns">
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
             {turns.length > 0 && (
@@ -373,6 +374,8 @@ export function AskWorkbench() {
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}
             onSend={() => void sendFromComposer()}
             onOpenBulk={() => setBulkOpen(true)}
+            onClear={clearTurns}
+            canClear={turns.length > 0}
             busy={!ready || busy || pendingReply || bulk?.running === true}
             problems={problems}
           />

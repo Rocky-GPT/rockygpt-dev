@@ -215,11 +215,12 @@ test('the reasons for a status are only what the packet holds, and a clean packe
       ],
     })
   );
+  // A gap says what the reader said about it, in its own words.
   assert.deepEqual(reasons, [
     'Registrar email is not current',
     'Registrar phones has conflicting values',
     'Registrar offices has more than one value',
-    'Registrar hours is unknown (no information)',
+    'Registrar hours: not published',
     '"student" matches more than one office',
     'no office matched "Cafeteria"',
     'the turn was cut short (provider unavailable)',
@@ -244,7 +245,7 @@ test('a confirmed "not published" reads differently from unknown in the preview,
   assert.deepEqual(packetReasons(confirmed), []);
   const unknown = packet({ facts: [], missing: [{ subject: nursing, predicate: 'email', reason: 'unknown' }] });
   assert.equal(packetSummary(unknown), 'Unknown: Nursing Programs Office email');
-  assert.deepEqual(packetReasons(unknown), ['Nursing Programs Office email is unknown (no information)']);
+  assert.deepEqual(packetReasons(unknown), ['Nursing Programs Office email: unknown']);
   // Beside facts, the absence joins its office's line.
   assert.equal(
     packetSummary(packet({ facts: [{ ...packet().facts[0], subject: nursing }], not_published: [absence({ predicate: 'hours' })] })),
@@ -303,7 +304,7 @@ test('a worked-out day reads on one line, and says so when the date is outside t
     derivedText(saturday({ value: { hours: '8am-5pm' }, current: false })),
     'hours on Saturday 2026-10-10: 8am-5pm (not current)'
   );
-  assert.equal(derivedText(saturday({ value: { hours: null } })), 'hours on Saturday 2026-10-10: not listed for that day');
+  assert.equal(derivedText(saturday({ value: { hours: null } })), 'hours on Saturday 2026-10-10: Hours unavailable');
   assert.equal(
     derivedText(saturday({ applies: false, current: false, value: { hours: null, window: { from: '2026-08-26', until: '2026-12-16' } } })),
     'hours on Saturday 2026-10-10: outside the dates it was published for (2026-08-26 to 2026-12-16)'

@@ -62,6 +62,8 @@ export interface PacketDerived {
   date: string;
   value: {
     schedule?: string; season?: string; hours: string | null; notes?: string[];
+    /** What an undated seasonal schedule lists for the weekday: said as listed, never as open. */
+    listed_hours?: string | null;
     window?: { from?: string; until?: string };
     status?: 'not_published'; absence?: FactAbsence;
     validity_absence?: Record<string, FactAbsence & { status: 'not_published' }>;
@@ -189,7 +191,13 @@ export function derivedText(entry: PacketDerived): string {
   const label = entry.predicate === 'hours_on' ? 'hours' : entry.predicate.replaceAll('_', ' ');
   const when = `${entry.day} ${entry.date}`;
   if (entry.applicability === 'unverified') {
-    return `${label} on ${when}: ${entry.applicability_reason ?? 'schedule applicability is unverified'}`;
+    const reason = entry.applicability_reason ?? 'schedule applicability is unverified';
+    if (!('listed_hours' in entry.value)) return `${label} on ${when}: ${reason}`;
+    const name = entry.value.schedule ?? entry.value.season ?? 'the schedule';
+    const listed = entry.value.listed_hours
+      ? `${name} lists ${entry.value.listed_hours} on ${entry.day}`
+      : `${name} lists no hours on ${entry.day}${entry.value.status === 'not_published' ? ' (confirmed not published)' : ''}`;
+    return `${label} on ${when}: ${listed}; ${reason}`;
   }
   if (!entry.applies) {
     const window = entry.value.window;

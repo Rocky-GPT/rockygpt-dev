@@ -117,6 +117,40 @@ test('an emergency leads with its approved wording and then lists the campus num
   assert.equal(summary, 'Call 911 right now. · Campus numbers: Public Safety (Emergency) +12015550911');
 });
 
+test("an office's own note read beside a contact that is not published is summarised as published beside it", () => {
+  const summary = packetSummary(
+    packet({
+      status: 'insufficient',
+      facts: [
+        {
+          id: 'f1',
+          subject: registrar,
+          predicate: 'contact_note',
+          value: 'Director: director@ramapo.edu',
+          status: 'known',
+          current: true,
+          source_ids: ['s1'],
+          purpose: 'also_published',
+        },
+      ],
+      missing: [{ subject: registrar, predicate: 'email', reason: 'unknown' }],
+    })
+  );
+  assert.equal(
+    summary,
+    'Also published: Registrar contact_note Director: director@ramapo.edu · Unknown: Registrar email'
+  );
+  // It is not one of the asked-for facts, so it is not a reason the packet is partial.
+  assert.deepEqual(
+    packetReasons(
+      packet({
+        facts: [{ ...packet().facts[0], id: 'f9', predicate: 'contact_note', purpose: 'also_published', current: false }],
+      })
+    ),
+    []
+  );
+});
+
 test('notices that carry wording, a quote or a clock are summarised, and an empty packet shows its status', () => {
   assert.equal(
     packetSummary(packet({ status: 'no_facts_needed', facts: [], notices: [{ type: 'greeting', approved_text: 'Hi!' }] })),

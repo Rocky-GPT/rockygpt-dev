@@ -248,6 +248,10 @@ export function packetSummary(packet: FactPacket): string {
       `Campus numbers: ${emergency.map((fact) => `${fact.subject.name} ${valueText(fact.value)}`).join('; ')}`
     );
   }
+  const also = packet.facts.filter((item) => item.purpose === 'also_published');
+  if (also.length) {
+    parts.push(`Also published: ${also.map((fact) => `${fact.subject.name} ${factText(fact)}`).join('; ')}`);
+  }
   if (packet.missing.length) {
     parts.push(`Unknown: ${packet.missing.map((entry) => `${entry.subject.name} ${entry.predicate}`).join(', ')}`);
   }

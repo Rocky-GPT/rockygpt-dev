@@ -311,6 +311,22 @@ test('a worked-out day reads on one line, and says so when the date is outside t
   );
 });
 
+test('an undated seasonal schedule reads as listed hours that are unverified for the date', () => {
+  const reason = 'The seasonal schedule has no complete published date range; its applicability to this date is unverified.';
+  const undated = (value) =>
+    saturday({ applies: false, current: false, applicability: 'unverified', applicability_reason: reason, value });
+  assert.equal(
+    derivedText(undated({ schedule: 'Testing Center', season: 'Fall and Spring', hours: null, listed_hours: '8:30am-4:30pm' })),
+    `hours on Saturday 2026-10-10: Testing Center lists 8:30am-4:30pm on Saturday; ${reason}`
+  );
+  assert.equal(
+    derivedText(undated({ schedule: 'Testing Center', hours: null, listed_hours: null, status: 'not_published' })),
+    `hours on Saturday 2026-10-10: Testing Center lists no hours on Saturday (confirmed not published); ${reason}`
+  );
+  // An older packet without listed hours still reads as before.
+  assert.equal(derivedText(undated({ schedule: 'Testing Center', hours: null })), `hours on Saturday 2026-10-10: ${reason}`);
+});
+
 test('the preview and the reasons use the day that was asked, not the whole week it came from', () => {
   const week = { ...packet().facts[0], id: 'f1', predicate: 'hours', value: { days: [{ day: 'Monday', hours: '9-5' }] } };
   const asked = packet({ facts: [week], derived_facts: [saturday()] });

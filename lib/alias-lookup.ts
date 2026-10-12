@@ -32,7 +32,8 @@ export function lookupProblem(status: number, body: unknown): string {
 }
 
 export const MATCH_MEANING = {
-  exact: 'Exact: the text equals a name or alias, ignoring case and extra spaces.',
+  exact:
+    'Exact: the text has the same words as a name or alias, in any order, ignoring case, punctuation and filler such as "office".',
   partial:
     'Partial: the text sits inside a name or alias, or all the words of one appear in the other.',
 } as const;

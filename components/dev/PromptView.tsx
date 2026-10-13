@@ -11,6 +11,8 @@ const INPUT_MEANINGS: Record<string, string> = {
   client_omitted_messages: 'How many older messages the app did not send.',
   server_omitted_messages: 'How many older messages the Brain left out to fit.',
   graph_root: 'Ramapo and its available categories. Code follows the complete office path for each lookup.',
+  published_offices:
+    'Every published office with the other names it is known by, so the model can send a real name.',
   earlier_messages:
     'The most recent earlier messages that fit, oldest first, each with its index among those kept.',
   latest_message: 'The student’s message.',

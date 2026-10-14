@@ -32,6 +32,8 @@ interface GraphRead {
   identity_hash: string;
   as_of: string;
   scope: string;
+  /** A venue's: every date it published a menu for. */
+  menu_dates?: string[];
 }
 
 export default async function CampusGraphPage({ searchParams }: {
@@ -39,7 +41,7 @@ export default async function CampusGraphPage({ searchParams }: {
 }) {
   const supplied = await searchParams;
   const params = new URLSearchParams();
-  for (const key of ['node_id', 'dataset_version', 'identity_hash', 'as_of', 'fields']) {
+  for (const key of ['node_id', 'dataset_version', 'identity_hash', 'as_of', 'fields', 'on']) {
     const value = supplied[key];
     if (typeof value === 'string') params.set(key, value);
   }
@@ -101,6 +103,25 @@ export default async function CampusGraphPage({ searchParams }: {
               )}
               {graph.truncated && <p className="text-sm text-amber-300">The office list is truncated; some nodes are not shown.</p>}
             </section>
+            {graph.menu_dates && graph.menu_dates.length > 0 && (
+              <nav aria-label="Menu date" className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-muted-foreground">Menu for</span>
+                {graph.menu_dates.map(day => {
+                  // The date the Brain read the menu for (the campus date, not the UTC one).
+                  const read = facts?.properties.find(property => property.key === 'menu')?.values[0]?.value as { date?: string } | undefined;
+                  const shown = params.get('on') ?? read?.date;
+                  const link = new URLSearchParams(href(graph.node.id).split('?')[1] ?? '');
+                  link.set('on', day);
+                  return (
+                    <Link key={day} href={`/data/entities?${link}`} prefetch={false}
+                      aria-current={day === shown ? 'date' : undefined}
+                      className={`rounded-lg border px-3 py-1.5 ${day === shown ? 'border-sky-400 text-sky-300' : 'border-border text-sky-400 hover:bg-white/5'}`}>
+                      {new Date(`${day}T12:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
             {facts && (
               <section className="space-y-4" aria-label="Published evidence">
                 <FactsView facts={facts} aliases={[]} entityId={facts.entity.id} />

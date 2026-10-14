@@ -32,6 +32,63 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
+interface Trip { departure?: string; arrival?: string; stops?: Array<{ location: string; time: string }> }
+
+/** A route's trips as its published timetable: one row per trip, one column per stop in route order. */
+function TripsTable({ value }: { value: unknown }) {
+  const trips = (value as { trips?: unknown })?.trips;
+  if (!Array.isArray(trips)) return null;
+  // A stop some trip visits twice (the train going out and coming back) gets two columns: a trip's
+  // first stop is the visit going out, and any later visit is the one coming back.
+  const twice = new Set((trips as Trip[]).flatMap((trip) => {
+    const names = (trip.stops ?? []).map((stop) => stop.location);
+    return names.filter((name, index) => names.indexOf(name) !== index);
+  }));
+  const rows = (trips as Trip[]).map((trip) => {
+    const cells = (trip.stops ?? []).map((stop, index) => ({
+      key: twice.has(stop.location) ? `${stop.location}#${index === 0 ? 'out' : 'back'}` : stop.location,
+      location: stop.location, time: stop.time,
+    }));
+    return { trip, cells };
+  });
+  const columns: Array<{ key: string; location: string }> = [];
+  // The trips with the most stops set the order; shorter trips fit between them.
+  for (const { cells } of [...rows].sort((a, b) => b.cells.length - a.cells.length)) {
+    let at = -1;
+    for (const cell of cells) {
+      const found = columns.findIndex((column) => column.key === cell.key);
+      if (found >= 0) at = found;
+      else columns.splice(++at, 0, { key: cell.key, location: cell.location });
+    }
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead className="text-left text-muted-foreground">
+          <tr>
+            <th className="px-2 py-1 font-medium">Leave campus</th>
+            {columns.map((column) => <th key={column.key} className="px-2 py-1 font-medium">{column.location}</th>)}
+            <th className="px-2 py-1 font-medium">Back on campus</th>
+          </tr>
+        </thead>
+        <tbody className="font-mono text-foreground">
+          {rows.map(({ trip, cells }, index) => (
+            <tr key={index} className="border-t border-white/5">
+              <td className="whitespace-nowrap px-2 py-1">{trip.departure ?? '–'}</td>
+              {columns.map((column) => (
+                <td key={column.key} className="whitespace-nowrap px-2 py-1">
+                  {cells.find((cell) => cell.key === column.key)?.time ?? <span className="text-muted-foreground">–</span>}
+                </td>
+              ))}
+              <td className="whitespace-nowrap px-2 py-1">{trip.arrival ?? '–'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function formatTime(iso: string | null): string {
   if (!iso) return '—';
   const date = new Date(iso);
@@ -349,9 +406,13 @@ function PropertyRow({ property }: { property: FactProperty }) {
           <ul className="space-y-1">
             {property.values.map((value, index) => (
               <li key={index} className="flex flex-wrap items-baseline gap-x-3">
-                <span className="break-all font-mono text-foreground">
-                  {(property.key === 'hours' ? formatHours(value.value) : null) ?? formatValue(value.value)}
-                </span>
+                {property.key === 'trips' && Array.isArray((value.value as { trips?: unknown })?.trips) ? (
+                  <TripsTable value={value.value} />
+                ) : (
+                  <span className="break-all font-mono text-foreground">
+                    {(property.key === 'hours' ? formatHours(value.value) : null) ?? formatValue(value.value)}
+                  </span>
+                )}
                 <span className="text-[11px] text-muted-foreground">
                   {plural(value.source_ids.length, 'source', 'sources')}
                 </span>

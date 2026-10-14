@@ -1,4 +1,5 @@
 import {
+  derivedText,
   packetReasons,
   replacedFactIds,
   valueLines,
@@ -133,6 +134,8 @@ function DerivedRows({ entries }: { entries: PacketDerived[] }) {
             <p className="mt-1.5 break-words font-mono text-[13px] leading-5 text-foreground">
               {entry.applicability === 'unverified'
                 ? (entry.applicability_reason ?? 'Cannot verify this schedule applies on the requested date.')
+                : entry.predicate === 'departures'
+                ? derivedText(entry).split(': ').slice(1).join(': ')
                 : entry.applies
                 ? (entry.value.hours ?? (entry.value.status === 'not_published' ? 'Not published' : 'Hours unavailable'))
                 : `published for ${[entry.value.window?.from, entry.value.window?.until].filter(Boolean).join(' to ') || 'other dates'}`}

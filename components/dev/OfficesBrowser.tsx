@@ -521,11 +521,17 @@ function PropertyRow({ property }: { property: FactProperty }) {
         {property.values.length === 0 && property.absence ? (
           <div className="space-y-1 text-xs text-muted-foreground">
             <p>
-              Not published on the office&apos;s own pages. Checked {property.absence.checked_at.slice(0, 10)}
+              Not published on its own pages. Checked {property.absence.checked_at.slice(0, 10)}
               {property.absence.current ? '.' : ', and that check is not current.'}
             </p>
             {property.absence.scope && <p>Scope: {property.absence.scope.replaceAll('_', ' ')}</p>}
             {property.absence.reason && <p>{property.absence.reason}</p>}
+            {((property as { documents_published?: Array<{ title: string; url: string }> }).documents_published ?? []).map((file) => (
+              <p key={file.url}>
+                Menu file:{' '}
+                <a href={file.url} target="_blank" rel="noreferrer" className="text-sky-300 hover:underline">{file.title}</a>
+              </p>
+            ))}
             <ul className="space-y-0.5">
               {property.absence.checks.map((check, index) => (
                 <li key={`${index}-${check.url}`} className="break-all">

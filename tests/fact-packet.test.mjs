@@ -178,7 +178,52 @@ test('a preview reads phones as numbers and hours by day, and keeps any other ob
   );
   assert.equal(
     packetSummary(packet({ facts: [fact({ number: '+1201', extension: '12' })] })),
-    'Registrar: phones {"number":"+1201","extension":"12"}'
+    'Registrar: phones +1201 ext. 12'
+  );
+  assert.equal(
+    packetSummary(packet({ facts: [fact([{ number: '+12016847695' }, { type: 'Fax', number: '+12016847956' }])] })),
+    'Registrar: phones +12016847695, +12016847956 (Fax)'
+  );
+  // A shape the preview does not know stays whole rather than being guessed at.
+  assert.equal(
+    packetSummary(packet({ facts: [fact({ number: '+1201', extra: { a: 1 } })] })),
+    'Registrar: phones {"number":"+1201","extra":{"a":1}}'
+  );
+});
+
+test('a menu reads meal by meal with every station, and keeps what else the Brain says of it', () => {
+  const menu = {
+    date: '2026-10-14',
+    meals: [
+      { meal: 'Breakfast', stations: [{ station: 'Savory', items: [{ name: 'Oatmeal' }, { name: 'Croissant' }] }] },
+      { meal: 'Dinner', stations: [{ station: 'Sizzle', items: [{ name: 'Black Bean Burger' }] }] },
+    ],
+  };
+  const fact = { ...packet().facts[0], id: 'f1', predicate: 'menu', value: menu };
+  assert.equal(
+    packetSummary(packet({ facts: [fact] })),
+    'Registrar: menu 2026-10-14, Breakfast — Savory: Oatmeal, Croissant, Dinner — Sizzle: Black Bean Burger'
+  );
+});
+
+test('shuttle departures keep the packet readable and say what the Brain worked out', () => {
+  const derived = {
+    id: 'd1', subject: { id: 'shuttle', name: 'Shuttle', kind: 'route' }, predicate: 'departures',
+    day: 'Wednesday', date: '2026-10-14', applies: true, current: true, from: ['f1'], source_ids: ['s1'],
+    value: {
+      date: '2026-10-14', which: 'next', none_left: false,
+      trips: [
+        { route: 'Ramsey Route 17', leaves_campus: '1:40 PM', back_on_campus: '2:00 PM' },
+        { route: 'Weekday Roadrunner Express', leaves_campus: '2:05 PM', back_on_campus: '3:05 PM' },
+      ],
+    },
+  };
+  const shown = factPacketOf({ facts: { ...packet(), derived_facts: [derived] } });
+  assert.ok(shown, 'a departures entry has no hours and must not reject the packet');
+  assert.equal(
+    packetSummary(shown),
+    'Shuttle: departures on Wednesday 2026-10-14: Ramsey Route 17 leaves campus 1:40 PM back 2:00 PM; ' +
+      'Weekday Roadrunner Express leaves campus 2:05 PM back 3:05 PM'
   );
 });
 
@@ -224,8 +269,11 @@ test('values read as lines: strings as sent, phone objects as numbers, hours by 
     valueLines({ schedule: 'Registrar', days: [{ day: 'Monday', hours: '8:30am-4:30pm' }, { day: 'Sunday', hours: 'Hours unavailable' }], notes: 'Fall hours' }),
     ['Registrar', 'Monday  8:30am-4:30pm', 'Sunday  Hours unavailable', 'notes: Fall hours']
   );
-  // An object with more than a number keeps every key.
-  assert.deepEqual(valueLines({ number: '+1201', extension: '12' }), ['{"number":"+1201","extension":"12"}']);
+  // A phone's extension, type and label are said beside its number; nothing is dropped.
+  assert.deepEqual(valueLines({ number: '+1201', extension: '12' }), ['+1201 ext. 12']);
+  assert.deepEqual(valueLines({ type: 'Fax', number: '+1201' }), ['+1201 (Fax)']);
+  // An object with any other key keeps every key.
+  assert.deepEqual(valueLines({ number: '+1201', rank: 2 }), ['{"number":"+1201","rank":2}']);
   assert.deepEqual(valueLines(7), ['7']);
 });
 

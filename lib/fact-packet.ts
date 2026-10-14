@@ -61,7 +61,12 @@ export interface PacketDerived {
   day: string;
   date: string;
   value: {
-    schedule?: string; season?: string; hours: string | null; notes?: string[];
+    schedule?: string; season?: string; hours?: string | null; notes?: string[];
+    /** A shuttle's departures: the trips that answer, and the flags that say when none do. */
+    trips?: Array<{ route?: string; leaves_campus?: string; reached_at?: string; back_on_campus?: string }>;
+    none_left?: boolean; last_left_at?: string; already_left?: boolean; stop_unknown?: boolean;
+    service?: string; stop?: string | null; trip_count?: number;
+    first_leaves_campus?: string; last_leaves_campus?: string;
     /** What an undated seasonal schedule lists for the weekday: said as listed, never as open. */
     listed_hours?: string | null;
     window?: { from?: string; until?: string };
@@ -148,7 +153,8 @@ function derivedOk(entry: unknown): boolean {
     typeof item.day === 'string' &&
     typeof item.date === 'string' &&
     !!value &&
-    (value.hours === null || typeof value.hours === 'string') &&
+    // Only a day's hours has `hours`; a shuttle's departures are worked out without one.
+    (value.hours === undefined || value.hours === null || typeof value.hours === 'string') &&
     typeof item.applies === 'boolean' &&
     typeof item.current === 'boolean' &&
     Array.isArray(item.from) &&
@@ -186,10 +192,31 @@ export function replacedFactIds(packet: FactPacket): Set<string> {
   return new Set(packet.derived_facts.flatMap((entry) => entry.from));
 }
 
+/** What the shuttle's worked-out departures say, from the fields the Brain set and nothing else. */
+function departuresText(value: PacketDerived['value']): string {
+  if (value.stop_unknown) return 'that stop is not on the timetable';
+  const trips = (value.trips ?? []).map((trip) => [
+    trip.route,
+    trip.leaves_campus ? `leaves campus ${trip.leaves_campus}` : undefined,
+    trip.reached_at ? `reaches the stop ${trip.reached_at}` : undefined,
+    trip.back_on_campus ? `back ${trip.back_on_campus}` : undefined,
+  ].filter(Boolean).join(' '));
+  const notes = [
+    value.already_left ? 'already left today' : undefined,
+    value.none_left ? `none left${value.last_left_at ? ` (the last left ${value.last_left_at})` : ''}` : undefined,
+    value.service === 'none' ? `no service${value.stop ? ` at ${value.stop}` : ''}` : undefined,
+    value.first_leaves_campus ? `first ${value.first_leaves_campus}` : undefined,
+    value.last_leaves_campus ? `last ${value.last_leaves_campus}` : undefined,
+    typeof value.trip_count === 'number' ? `${value.trip_count} trips` : undefined,
+  ].filter(Boolean);
+  return [...trips, ...notes].join('; ') || 'no departures';
+}
+
 /** A worked-out day on one line: "hours on Saturday 2026-10-10: Hours unavailable". */
 export function derivedText(entry: PacketDerived): string {
   const label = entry.predicate === 'hours_on' ? 'hours' : entry.predicate.replaceAll('_', ' ');
   const when = `${entry.day} ${entry.date}`;
+  if (entry.predicate === 'departures') return `${label} on ${when}: ${departuresText(entry.value)}`;
   if (entry.applicability === 'unverified') {
     const reason = entry.applicability_reason ?? 'schedule applicability is unverified';
     if (!('listed_hours' in entry.value)) return `${label} on ${when}: ${reason}`;
@@ -270,6 +297,30 @@ export function packetSummary(packet: FactPacket): string {
   return parts.join(' · ') || packet.status;
 }
 
+/** A date's menu as the Brain sends it: one line per meal, its stations and every item named. */
+function menuLines(object: Record<string, unknown>): string[] | undefined {
+  if (!Array.isArray(object.meals) || !object.meals.every((meal) => record(meal) && Array.isArray(record(meal)?.stations))) {
+    return undefined;
+  }
+  const date = typeof object.date === 'string' ? [object.date] : [];
+  const meals = object.meals.map((meal) => {
+    const row = record(meal) as Record<string, unknown>;
+    const stations = (row.stations as unknown[]).map((station) => {
+      const item = record(station);
+      const names = Array.isArray(item?.items)
+        ? item.items.map((food) => record(food)?.name).filter((name): name is string => typeof name === 'string')
+        : [];
+      return `${String(item?.station ?? '')}: ${names.join(', ')}`;
+    });
+    return `${String(row.meal ?? '')} — ${stations.join('; ')}`;
+  });
+  // Whatever else the Brain says about this menu (a filter, a meal not listed) stays beside it.
+  const rest = Object.entries(object)
+    .filter(([key]) => key !== 'date' && key !== 'meals')
+    .map(([key, extra]) => `${key}: ${valueLines(extra).join('; ')}`);
+  return [...date, ...meals, ...rest];
+}
+
 /** A fact value as lines a person can read. Strings stay as sent; nothing is dropped. */
 export function valueLines(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -278,7 +329,15 @@ export function valueLines(value: unknown): string[] {
   const object = record(value);
   if (!object) return [JSON.stringify(value)];
   const keys = Object.keys(object);
-  if (keys.length === 1 && typeof object.number === 'string') return [object.number];
+  if (typeof object.number === 'string' && keys.every((key) => ['number', 'extension', 'type', 'label'].includes(key)) &&
+    keys.every((key) => typeof object[key] === 'string')) {
+    // A phone as the office publishes it: the number, an extension, and what the line is for.
+    return [[object.number, object.extension ? `ext. ${object.extension}` : undefined,
+      object.type ? `(${object.type})` : undefined, object.label ? `(${object.label})` : undefined]
+      .filter(Boolean).join(' ')];
+  }
+  const menu = menuLines(object);
+  if (menu) return menu;
   const days = Array.isArray(object.days) ? object.days.map(record) : [];
   if (days.length > 0 && days.every((day) => day && typeof day.day === 'string' &&
     (typeof day.hours === 'string' || day.hours === null))) {

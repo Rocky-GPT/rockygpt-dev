@@ -10,8 +10,8 @@ import { failureMessage } from '@/lib/brain-failure';
 import type { DevOffices } from '@/lib/brain-dev-types';
 import {
   countFacts,
-  formatHours,
   readFacts,
+  readHours,
   type FactProperty,
   type FactSource,
   type OfficeFacts,
@@ -22,14 +22,58 @@ type FactsResult =
   | { key: string; changed: true }
   | { key: string; error: string };
 
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return 'null';
-  if (Array.isArray(value)) return value.map(formatValue).join(', ');
-  if (typeof value === 'object') {
-    const entries = Object.entries(value);
-    return entries.map(([name, item]) => `${name}: ${formatValue(item)}`).join(', ');
+/** "+12016847300" as people write it; anything else unchanged. */
+function formatPhone(text: string): string {
+  const us = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(text);
+  return us ? `(${us[1]}) ${us[2]}-${us[3]}` : text;
+}
+
+function formatScalar(value: unknown): string {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'boolean') return value ? 'yes' : 'no';
+  return formatPhone(String(value));
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+/** A published value laid out by its shape: a list one item per line, a record one field per line. */
+function ValueView({ value }: { value: unknown }) {
+  if (Array.isArray(value)) {
+    if (value.every((item) => !isRecord(item) && !Array.isArray(item))) {
+      return <span className="font-mono text-foreground">{value.map(formatScalar).join(', ')}</span>;
+    }
+    return (
+      <ul className="space-y-0.5">
+        {value.map((item, index) => <li key={index}><ValueView value={item} /></li>)}
+      </ul>
+    );
   }
-  return String(value);
+  if (isRecord(value)) {
+    const entries = Object.entries(value);
+    // A labelled contact ({type, number} or {label, location}) reads as "Label: value" on one line.
+    const label = value.type ?? value.label;
+    const main = value.number ?? value.location;
+    if (entries.length <= 2 && (typeof label === 'string' || label === undefined) && typeof main === 'string') {
+      return (
+        <span className="font-mono text-foreground">
+          {typeof label === 'string' && <span className="font-sans text-muted-foreground">{label}: </span>}
+          {formatScalar(main)}
+        </span>
+      );
+    }
+    return (
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs">
+        {entries.map(([name, item]) => (
+          <div key={name} className="contents">
+            <dt className="text-muted-foreground">{name.replaceAll('_', ' ')}</dt>
+            <dd className="min-w-0 break-words"><ValueView value={item} /></dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+  return <span className="break-words font-mono text-foreground">{formatScalar(value)}</span>;
 }
 
 interface Trip { departure?: string; arrival?: string; stops?: Array<{ location: string; time: string }> }
@@ -85,6 +129,40 @@ function TripsTable({ value }: { value: unknown }) {
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/** One schedule: a row per run of days with the same hours, each meal period on its own line. */
+function HoursTable({ value }: { value: unknown }) {
+  const hours = readHours(value);
+  if (!hours) return null;
+  return (
+    <div className="space-y-1 text-xs">
+      {(hours.schedule || hours.season) && (
+        <p className="text-muted-foreground">
+          {hours.schedule}{hours.season ? ` · ${hours.season}` : ''}
+        </p>
+      )}
+      <table className="text-foreground">
+        <tbody>
+          {hours.runs.map((run) => (
+            <tr key={run.days} className="border-t border-white/5 align-top">
+              <td className="whitespace-nowrap py-1 pr-4 text-muted-foreground">{run.days}</td>
+              <td className="py-1 font-mono">
+                {run.periods.map((period, index) => (
+                  <div key={index} className="flex gap-3">
+                    {period.label && <span className="w-24 shrink-0 font-sans text-muted-foreground">{period.label}</span>}
+                    <span>{period.time}</span>
+                  </div>
+                ))}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {hours.notes.length > 0 && <p className="text-muted-foreground">Published note: {hours.notes.join(' ')}</p>}
+      {hours.absences.map((line) => <p key={line} className="text-muted-foreground">{line}</p>)}
     </div>
   );
 }
@@ -408,10 +486,10 @@ function PropertyRow({ property }: { property: FactProperty }) {
               <li key={index} className="flex flex-wrap items-baseline gap-x-3">
                 {property.key === 'trips' && Array.isArray((value.value as { trips?: unknown })?.trips) ? (
                   <TripsTable value={value.value} />
+                ) : property.key === 'hours' && readHours(value.value) ? (
+                  <HoursTable value={value.value} />
                 ) : (
-                  <span className="break-all font-mono text-foreground">
-                    {(property.key === 'hours' ? formatHours(value.value) : null) ?? formatValue(value.value)}
-                  </span>
+                  <ValueView value={value.value} />
                 )}
                 <span className="text-[11px] text-muted-foreground">
                   {plural(value.source_ids.length, 'source', 'sources')}

@@ -151,8 +151,18 @@ export function scheduleAbsenceLines(value: unknown): string[] {
   return lines;
 }
 
+export interface HoursRun { days: string; periods: Array<{ label: string | null; time: string }> }
+
+export interface ReadHours {
+  schedule: string | null;
+  season: string | null;
+  runs: HoursRun[];
+  notes: string[];
+  absences: string[];
+}
+
 /** The weekdays of an hours value as published. Next weekdays with the same hours share a span; a day with no record is never inside one. */
-export function formatHours(value: unknown): string | null {
+export function readHours(value: unknown): ReadHours | null {
   if (!isObject(value) || !Array.isArray(value.days)) return null;
   const runs: Array<{ first: string; last: string; hours: string; count: number; index: number }> = [];
   for (const entry of value.days) {
@@ -171,10 +181,16 @@ export function formatHours(value: unknown): string | null {
   }
   const span = (run: (typeof runs)[number]) =>
     run.count === 1 ? run.first : run.count === 2 ? `${run.first} and ${run.last}` : `${run.first} to ${run.last}`;
-  const name = typeof value.schedule === 'string' && value.schedule ? `${value.schedule}. ` : '';
-  const season = typeof value.season === 'string' && value.season ? `Season: ${value.season}. ` : '';
-  const notes = Array.isArray(value.notes) ? value.notes.filter((n): n is string => typeof n === 'string') : [];
-  return `${name}${season}${runs.map((run) => `${span(run)}: ${run.hours}`).join('; ')}${
-    notes.length ? `. Published note: ${notes.join(' ')}` : ''
-  }${scheduleAbsenceLines(value).map((line) => `. ${line}`).join('')}`;
+  // A dining day lists its meal periods as "Breakfast: 08:00 AM - 10:30 AM; Lunch: ..."; an office day is one range.
+  const periods = (hours: string) => hours.split('; ').map((part) => {
+    const labelled = /^([A-Za-z][A-Za-z ]*?)\s*:\s*(\d.*|All Day)$/.exec(part);
+    return labelled ? { label: labelled[1], time: labelled[2] } : { label: null, time: part };
+  });
+  return {
+    schedule: typeof value.schedule === 'string' && value.schedule ? value.schedule : null,
+    season: typeof value.season === 'string' && value.season ? value.season : null,
+    runs: runs.map((run) => ({ days: span(run), periods: periods(run.hours) })),
+    notes: Array.isArray(value.notes) ? value.notes.filter((n): n is string => typeof n === 'string') : [],
+    absences: scheduleAbsenceLines(value),
+  };
 }

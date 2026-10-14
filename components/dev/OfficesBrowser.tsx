@@ -76,7 +76,8 @@ function ValueView({ value }: { value: unknown }) {
   return <span className="break-words font-mono text-foreground">{formatScalar(value)}</span>;
 }
 
-interface Trip { departure?: string; arrival?: string; stops?: Array<{ location: string; time: string }> }
+interface Trip { departure?: string; arrival?: string; stops?: Array<{ location: string; time: string }>;
+  trains?: { arrives_from_nyc?: string[]; leaves_for_nyc?: string[]; see_express?: boolean } }
 
 /** A route's trips as its published timetable: one row per trip, one column per stop in route order. */
 function TripsTable({ value }: { value: unknown }) {
@@ -95,6 +96,7 @@ function TripsTable({ value }: { value: unknown }) {
     }));
     return { trip, cells };
   });
+  const hasTrains = (trips as Trip[]).some((trip) => trip.trains);
   const columns: Array<{ key: string; location: string }> = [];
   // The trips with the most stops set the order; shorter trips fit between them.
   for (const { cells } of [...rows].sort((a, b) => b.cells.length - a.cells.length)) {
@@ -119,6 +121,8 @@ function TripsTable({ value }: { value: unknown }) {
               </th>
             ))}
             <th className="px-2 py-1 font-medium">Back on campus</th>
+            {hasTrains && <th className="px-2 py-1 font-medium">Train arrives from NYC</th>}
+            {hasTrains && <th className="px-2 py-1 font-medium">Train leaves for NYC</th>}
           </tr>
         </thead>
         <tbody className="font-mono text-foreground">
@@ -131,6 +135,12 @@ function TripsTable({ value }: { value: unknown }) {
                 </td>
               ))}
               <td className="whitespace-nowrap px-2 py-1">{trip.arrival ?? '–'}</td>
+              {hasTrains && ['arrives_from_nyc', 'leaves_for_nyc'].map((key) => (
+                <td key={key} className="whitespace-nowrap px-2 py-1">
+                  {trip.trains?.see_express ? <span className="text-muted-foreground">see express</span>
+                    : trip.trains?.[key as 'arrives_from_nyc']?.join(', ') || <span className="text-muted-foreground">–</span>}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

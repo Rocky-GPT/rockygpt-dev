@@ -111,7 +111,13 @@ function TripsTable({ value }: { value: unknown }) {
         <thead className="text-left text-muted-foreground">
           <tr>
             <th className="px-2 py-1 font-medium">Leave campus</th>
-            {columns.map((column) => <th key={column.key} className="px-2 py-1 font-medium">{column.location}</th>)}
+            {columns.map((column) => (
+              <th key={column.key} className="px-2 py-1 font-medium">
+                {column.location}
+                {column.key.endsWith('#out') && <span className="font-normal"> (going)</span>}
+                {column.key.endsWith('#back') && <span className="font-normal"> (coming back)</span>}
+              </th>
+            ))}
             <th className="px-2 py-1 font-medium">Back on campus</th>
           </tr>
         </thead>

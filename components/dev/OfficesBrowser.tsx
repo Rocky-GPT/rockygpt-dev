@@ -133,6 +133,49 @@ function TripsTable({ value }: { value: unknown }) {
   );
 }
 
+interface MenuItem { name?: string; calories?: number | null; portion?: string | null; vegan?: boolean;
+  vegetarian?: boolean; allergens?: string[] }
+interface Menu { date?: string; meals?: Array<{ meal?: string; stations?: Array<{ station?: string; items?: MenuItem[] }> }> }
+
+const isMenu = (value: unknown): value is Menu =>
+  isRecord(value) && Array.isArray(value.meals) && value.meals.every((meal) => isRecord(meal) && Array.isArray(meal.stations));
+
+/** A date's menu: each meal folds open to its stations, and each item shows calories, portion, diet and allergens. */
+function MenuView({ menu }: { menu: Menu }) {
+  return (
+    <div className="space-y-1 text-xs">
+      {menu.date && <p className="text-muted-foreground">Menu for {menu.date}</p>}
+      {(menu.meals ?? []).map((meal, index) => (
+        <details key={index} className="rounded-lg border border-white/10 px-2 py-1">
+          <summary className="cursor-pointer select-none text-foreground">
+            {meal.meal} <span className="text-muted-foreground">· {plural(meal.stations?.length ?? 0, 'station', 'stations')}</span>
+          </summary>
+          <div className="mt-1 space-y-2">
+            {(meal.stations ?? []).map((station, stationIndex) => (
+              <div key={stationIndex}>
+                <p className="font-medium text-muted-foreground">{station.station}</p>
+                <ul className="space-y-0.5">
+                  {(station.items ?? []).map((item, itemIndex) => (
+                    <li key={itemIndex} className="flex flex-wrap gap-x-2">
+                      <span className="text-foreground">{item.name}</span>
+                      <span className="text-muted-foreground">
+                        {[item.calories != null ? `${item.calories} cal` : '', item.portion ?? '',
+                          item.vegan ? 'vegan' : item.vegetarian ? 'vegetarian' : '',
+                          item.allergens?.length ? `contains ${item.allergens.join(', ')}` : '']
+                          .filter(Boolean).join(' · ')}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
 /** One schedule: a row per run of days with the same hours, each meal period on its own line. */
 function HoursTable({ value }: { value: unknown }) {
   const hours = readHours(value);
@@ -486,6 +529,8 @@ function PropertyRow({ property }: { property: FactProperty }) {
               <li key={index} className="flex flex-wrap items-baseline gap-x-3">
                 {property.key === 'trips' && Array.isArray((value.value as { trips?: unknown })?.trips) ? (
                   <TripsTable value={value.value} />
+                ) : property.key === 'menu' && isMenu(value.value) ? (
+                  <MenuView menu={value.value} />
                 ) : property.key === 'hours' && readHours(value.value) ? (
                   <HoursTable value={value.value} />
                 ) : (

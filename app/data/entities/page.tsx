@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Campus Graph | RockyGPT Dev',
-  description: 'Explore the root, office nodes and the published evidence used by chat.',
+  description: 'Explore the root, office, dining and shuttle nodes and the published evidence used by chat.',
 };
 
 interface GraphNode {
@@ -54,7 +54,7 @@ export default async function CampusGraphPage({ searchParams }: {
 
   return (
     <>
-      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices → office" />
+      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices, Dining, Shuttle" />
       <main className="min-w-0 space-y-5 px-6 py-6">
         {!graph ? (
           <>

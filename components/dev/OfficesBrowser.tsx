@@ -537,6 +537,17 @@ function PropertyRow({ property }: { property: FactProperty }) {
               ))}
             </ul>
           </div>
+        ) : property.values.length === 0 && Array.isArray((property as { documents_published?: unknown }).documents_published) ? (
+          <div className="space-y-1 text-xs">
+            <p className="text-muted-foreground">No dated menu. The venue posts its menu as a file:</p>
+            <ul className="space-y-0.5">
+              {((property as { documents_published?: Array<{ title: string; url: string }> }).documents_published ?? []).map((file) => (
+                <li key={file.url}>
+                  <a href={file.url} target="_blank" rel="noreferrer" className="text-sky-300 hover:underline">{file.title}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : property.values.length === 0 ? (
           <p className="text-muted-foreground">No value. Status: {property.status.replaceAll('_', ' ')}.</p>
         ) : (

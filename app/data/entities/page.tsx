@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Campus Graph | RockyGPT Dev',
-  description: 'Explore the root, office, dining and shuttle nodes and the published evidence used by chat.',
+  description: 'Explore the root, office, dining, shuttle and topic nodes and the published evidence used by chat.',
 };
 
 interface GraphNode {
@@ -34,6 +34,18 @@ interface GraphRead {
   scope: string;
   /** A venue's: every date it published a menu for. */
   menu_dates?: string[];
+  /** A topic's: a site with no office of its own, and the offices its page names. */
+  topic?: GraphTopic;
+}
+
+interface GraphTopic {
+  status: 'current' | 'retired';
+  offices: Array<{ id: string; name: string }>;
+  quote: string;
+  page: string;
+  section: string | null;
+  refer_url: string | null;
+  checked_at: string | null;
 }
 
 export default async function CampusGraphPage({ searchParams }: {
@@ -56,7 +68,7 @@ export default async function CampusGraphPage({ searchParams }: {
 
   return (
     <>
-      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices, Dining, Shuttle" />
+      <PageHeader title="Campus Graph" subtitle="Ramapo → Offices, Dining, Shuttle, Topics" />
       <main className="min-w-0 space-y-5 px-6 py-6">
         {!graph ? (
           <>
@@ -121,6 +133,38 @@ export default async function CampusGraphPage({ searchParams }: {
                   );
                 })}
               </nav>
+            )}
+            {graph.topic && (
+              <section className="space-y-2 rounded-xl border border-border p-4 text-sm" aria-label="Topic">
+                {graph.topic.status === 'retired' ? (
+                  <p>No longer at Ramapo College.</p>
+                ) : (
+                  <div>
+                    <p className="text-muted-foreground">Its page sends people to:</p>
+                    <ul className="mt-1 flex flex-wrap gap-2">
+                      {graph.topic.offices.map(office => (
+                        <li key={office.id}>
+                          <Link href={href(`office:${office.id}`)} prefetch={false}
+                            className="block rounded-lg border border-border px-3 py-1.5 text-sky-400 hover:bg-white/5">
+                            {office.name} →
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <blockquote className="border-l-2 border-border pl-3 text-muted-foreground">“{graph.topic.quote}”</blockquote>
+                <p className="break-all text-xs text-muted-foreground">
+                  Read “{graph.topic.section}” on{' '}
+                  <a href={graph.topic.page} target="_blank" rel="noreferrer" className="font-mono text-sky-300 hover:underline">{graph.topic.page}</a>
+                  {graph.topic.checked_at ? `, captured ${graph.topic.checked_at.slice(0, 10)}` : ''}
+                </p>
+                {graph.topic.refer_url && (
+                  <p className="text-xs">It points to{' '}
+                    <a href={graph.topic.refer_url} target="_blank" rel="noreferrer" className="text-sky-300 hover:underline">{graph.topic.refer_url}</a>
+                  </p>
+                )}
+              </section>
             )}
             {facts && (
               <section className="space-y-4" aria-label="Published evidence">

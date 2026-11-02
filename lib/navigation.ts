@@ -201,10 +201,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/data/entities',
         label: 'Campus Graph',
-        description: 'Follow the office branch from Ramapo to its published evidence',
+        description: 'Every node type and link in the published graph, and the evidence chat reads',
         icon: Tags,
-        status: 'partial',
-        upstream: 'GET /v1/dev/graph/node (office branch)',
+        status: 'ready',
+        upstream: 'GET /v1/dev/graph/browse + GET /v1/dev/graph/node',
       },
       {
         href: '/data/aliases',

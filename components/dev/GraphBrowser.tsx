@@ -33,6 +33,8 @@ export interface BrowseRead {
   /** One node's. */
   status?: string | null;
   records?: Array<{ collection: string; source_key: string; count: number }>;
+  /** The rows behind those records (a person's contact and profile, a course's catalog row). */
+  facts?: Array<{ collection: string; total: number; rows: Array<Record<string, unknown>> }>;
   outgoing?: BrowseLink[];
   incoming?: BrowseLink[];
   evidence_node?: string | null;
@@ -76,6 +78,49 @@ function Links({ title, links, href, arrow }: {
               </li>
             ))}
           </ul>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+const label = (key: string) => key.replace(/_/g, ' ');
+
+function Value({ value }: { value: unknown }) {
+  if (typeof value === 'string') {
+    if (/^https:\/\//.test(value)) return <a href={value} target="_blank" rel="noreferrer" className="break-all text-sky-400 underline">{value}</a>;
+    if (value.length > 280) {
+      return <details><summary className="cursor-pointer">{value.slice(0, 200)}…</summary><p className="whitespace-pre-wrap">{value}</p></details>;
+    }
+    return <span className="whitespace-pre-wrap">{value}</span>;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') return <span>{String(value)}</span>;
+  if (Array.isArray(value) && value.every(item => typeof item !== 'object' || item === null)) return <span>{value.join(', ')}</span>;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return (
+      <dl className="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-3 gap-y-1">
+        {Object.entries(value).filter(([, v]) => v !== null && v !== '').map(([key, v]) => (
+          <div key={key} className="contents"><dt className="text-muted-foreground">{label(key)}</dt><dd className="min-w-0"><Value value={v} /></dd></div>
+        ))}
+      </dl>
+    );
+  }
+  return <span className="break-all font-mono text-xs">{JSON.stringify(value)}</span>;
+}
+
+/** Everything the node's own source records say, one block per record. */
+function Facts({ facts }: { facts: NonNullable<BrowseRead['facts']> }) {
+  return (
+    <section className="space-y-3 rounded-xl border border-border p-4 text-sm" aria-label="Facts">
+      <h3 className="font-semibold">Facts</h3>
+      {facts.length === 0 ? <p className="text-muted-foreground">No readable records are linked.</p> : facts.map(group => (
+        <div key={group.collection} className="space-y-2">
+          <p className="font-mono text-xs text-muted-foreground">
+            {group.collection} ({group.rows.length < group.total ? `showing ${group.rows.length} of ${group.total}` : group.total})
+          </p>
+          {group.rows.map((row, index) => (
+            <div key={index} className="rounded-lg border border-border p-3"><Value value={row} /></div>
+          ))}
         </div>
       ))}
     </section>
@@ -180,6 +225,7 @@ export function GraphBrowser({ graph, href, filter }: {
           )}
         </section>
       )}
+      {graph.facts && <Facts facts={graph.facts} />}
       {graph.outgoing && <Links title="Links out" links={graph.outgoing} href={href} arrow="this —TYPE→" />}
       {graph.incoming && <Links title="Links in" links={graph.incoming} href={href} arrow="—TYPE→ this" />}
     </>

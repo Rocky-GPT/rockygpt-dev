@@ -1,9 +1,9 @@
 import type { ComponentType } from 'react';
 import { CourseCard, ProgramCard, SchoolCard, SubjectCard } from './academics';
-import { CalendarDateCard, ClubCard, DefaultCard, EventCard, TermCard } from './happenings';
+import { CalendarDateCard, ClubCard, ClubCategoryCard, DefaultCard, EventCard, TermCard } from './happenings';
 import type { CardContext } from './layout';
 import { PersonCard } from './people';
-import { BuildingCard, DiningCard, OfficeCard, RouteCard, TopicCard } from './places';
+import { BuildingCard, DiningCard, OfficeCard, RouteCard, StopCard, TopicCard } from './places';
 
 export type { CardContext } from './layout';
 
@@ -23,10 +23,12 @@ export const CARDS: Record<string, ComponentType<{ ctx: CardContext }>> = {
   facility: OfficeCard,
   club: ClubCard,
   organization: ClubCard,
+  club_category: ClubCategoryCard,
   event: EventCard,
   term: TermCard,
   calendar_date: CalendarDateCard,
   route: RouteCard,
+  stop: StopCard,
   topic: TopicCard,
 };
 

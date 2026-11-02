@@ -1,5 +1,5 @@
 import {
-  type CardNode, dateInName, dayParts, daysAway, firstRow, linked, nameWithoutDate, record, shortUrl, text, texts,
+  type CardNode, dateInName, kindColor, dayParts, daysAway, firstRow, linked, nameWithoutDate, record, shortUrl, text, texts,
 } from '@/lib/graph-cards';
 import { type CardContext, CardLayout } from './layout';
 import { Photo } from './Photo';
@@ -31,6 +31,8 @@ export function ClubCard({ ctx }: { ctx: CardContext }) {
   const status = read.status;
   const mission = text(listing.mission)?.replace(/^Mission\s*/, '');
   const meetsIn = linked(read, 'out', ['meets_in', 'located_at']);
+  const categories = linked(read, 'out', 'in_category');
+  const listedBy = linked(read, 'out', 'listed_by');
   const short = read.node.label.split(/\s+/).filter(word => /^\p{Lu}/u.test(word)).map(word => word[0]).join('').slice(0, 4);
   return (
     <CardLayout ctx={ctx} gaps={[...(status ? [] : ['status']), ...(meetsIn.length ? [] : ['meets in'])]}
@@ -41,6 +43,8 @@ export function ClubCard({ ctx }: { ctx: CardContext }) {
             : <Tile small>{short || '★'}</Tile>}
           subtitle={[text(club.category) ?? text(listing.category), text(listing.membershipInfo)].filter(Boolean).join(' · ') || undefined}>
           <Row>
+            {categories.map(node => <NodeChip key={node.id} node={node} href={ctx.href} detail="category" />)}
+            {listedBy.map(node => <NodeChip key={node.id} node={node} href={ctx.href} detail="lists this club" />)}
             {events.length > 0 && <Badge tone="pink">{upcoming} upcoming events</Badge>}
             {status ? <Badge tone={/inactive/i.test(status) ? 'rose' : 'green'}>{status}</Badge>
               : read.node.kind === 'club' && <Badge tone="amber">Active or not: not in the graph yet</Badge>}
@@ -72,6 +76,46 @@ export function ClubCard({ ctx }: { ctx: CardContext }) {
             <Empty title="Not in the graph">The Archway listing we read doesn&apos;t name them.</Empty>
           </Box>
         </>
+      )} />
+  );
+}
+
+/** An Archway directory category ("Honor Society"): every club and group filed under it. */
+export function ClubCategoryCard({ ctx }: { ctx: CardContext }) {
+  const { read, href } = ctx;
+  const row = firstRow(read, 'club_categories') ?? {};
+  const members = linked(read, 'in', 'in_category');
+  const filedAs = texts(row.filed_as).filter(name => name !== read.node.label);
+  const source = text(row.source_url);
+  const byKind = [...new Set(members.map(node => node.kind))];
+  return (
+    <CardLayout ctx={ctx}
+      hero={(
+        <Hero kind="club_category" label="Club category" title={read.node.label} visual={<Tile>🗂️</Tile>}
+          subtitle={`${members.length} ${members.length === 1 ? 'club or group' : 'clubs and groups'} filed under it on Archway`}>
+          <Row>
+            {byKind.map(kind => <Badge key={kind} tone="pink">{members.filter(node => node.kind === kind).length} {kind === 'club' ? 'clubs' : 'groups'}</Badge>)}
+            {source && <Action kind="web" href={source}>{shortUrl(source)}</Action>}
+          </Row>
+        </Hero>
+      )}
+      main={(
+        <Box title="Clubs and groups in it" note={members.length}>
+          {members.length === 0 ? <Empty title="Nothing filed under it" /> : (
+            <div className="flex flex-col gap-0.5">
+              {members.map(node => <NodeRow key={node.id} node={node} href={href}
+                lead={<span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: kindColor(node.kind) }} />}
+                detail={node.kind === 'club' ? 'Club' : 'Group'} />)}
+            </div>
+          )}
+          {source && <Source>the Archway club directory</Source>}
+        </Box>
+      )}
+      side={(
+        <Box title="Filed as" note={filedAs.length || undefined}>
+          {filedAs.length ? <Chips>{filedAs.map(name => <Badge key={name}>{name}</Badge>)}</Chips>
+            : <p className="text-sm text-zinc-400">Archway files these clubs under just &ldquo;{read.node.label}&rdquo;.</p>}
+        </Box>
       )} />
   );
 }

@@ -75,6 +75,8 @@ export const KIND_COLORS: Record<string, string> = {
   calendar_date: '#f9a8d4',
   topic: '#94a3b8',
   route: '#facc15',
+  stop: '#fde047',
+  club_category: '#f0abfc',
 };
 
 export function kindColor(kind: string): string {
@@ -160,6 +162,10 @@ const LINK_WORDS: Record<string, { out: string; in: string }> = {
   located_at: { out: 'located in', in: 'inside' },
   in_term: { out: 'term', in: 'dates' },
   requires: { out: 'requires', in: 'needed for' },
+  in_category: { out: 'category', in: 'clubs' },
+  listed_by: { out: 'listed by', in: 'lists' },
+  stops_at: { out: 'stops', in: 'routes' },
+  handled_by: { out: 'handled by', in: 'handles' },
 };
 
 export function plural(word: string): string {

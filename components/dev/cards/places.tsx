@@ -135,7 +135,7 @@ export function BuildingCard({ ctx }: { ctx: CardContext }) {
           <Row>
             {kinds.map(kind => {
               const count = inside.filter(node => node.kind === kind).length;
-              const word = kind === 'venue' ? 'place to eat' : kind.replace(/_/g, ' ');
+              const word = kind === 'venue' ? 'place to eat' : kind === 'stop' ? 'shuttle stop' : kind.replace(/_/g, ' ');
               return <Badge key={kind} tone="amber">{count} {count === 1 ? word : kind === 'venue' ? 'places to eat' : plural(word)}</Badge>;
             })}
             <Badge>{people.length} faculty offices</Badge>
@@ -149,7 +149,7 @@ export function BuildingCard({ ctx }: { ctx: CardContext }) {
               <div className="flex flex-col gap-0.5">
                 {inside.map(node => <NodeRow key={node.id} node={node} href={href} highlight={node.kind === 'venue'}
                   lead={<span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: kindColor(node.kind) }} />}
-                  detail={node.kind === 'venue' ? 'Food · open its card for today’s menu and hours' : node.kind.replace(/_/g, ' ')} />)}
+                  detail={node.kind === 'venue' ? 'Food · open its card for today’s menu and hours' : node.kind === 'stop' ? 'Shuttle stop · open it for the routes' : node.kind.replace(/_/g, ' ')} />)}
               </div>
             )}
           </Box>
@@ -316,6 +316,7 @@ export function RouteCard({ ctx }: { ctx: CardContext }) {
   const { read } = ctx;
   const trips = rowsOf(read, 'shuttle_trips');
   const stops = rowsOf(read, 'shuttle_stops');
+  const stopNodes = linked(read, 'out', 'stops_at', 'stop');
   const day = ctx.weekday === 'Saturday' ? 'saturday' : ctx.weekday === 'Sunday' ? 'sunday' : 'weekday';
   const runsToday = trips.some(trip => text(trip.service_day) === day);
   const page = text(trips[0]?.canonical_url) ?? text(stops[0]?.canonical_url);
@@ -353,12 +354,69 @@ export function RouteCard({ ctx }: { ctx: CardContext }) {
             <ul className="space-y-3 text-sm">
               {stops.map((stop, index) => (
                 <li key={index}>
-                  <p className="font-semibold">{text(stop.label) ?? text(stop.name)}</p>
+                  {(() => {
+                    const node = stopNodes.find(item => item.label === text(stop.name));
+                    const name = text(stop.label) ?? text(stop.name);
+                    return node
+                      ? <Link href={ctx.href(node.id)} prefetch={false} className="font-semibold text-sky-300 hover:underline">{name}</Link>
+                      : <p className="font-semibold">{name}</p>;
+                  })()}
                   {text(stop.pickup) && <p className="text-xs text-zinc-400">Pickup: {text(stop.pickup)}</p>}
                 </li>
               ))}
             </ul>
           )}
+        </Box>
+      )} />
+  );
+}
+
+/** A shuttle stop: where to wait, the routes that stop there, and the building it is outside. */
+export function StopCard({ ctx }: { ctx: CardContext }) {
+  const { read, href } = ctx;
+  const row = firstRow(read, 'stops') ?? {};
+  const routes = linked(read, 'in', 'stops_at', 'route');
+  const buildings = linked(read, 'out', 'located_at');
+  const label = text(row.label);
+  const pickup = text(row.pickup);
+  const description = text(row.description);
+  const source = text(row.source_url);
+  return (
+    <CardLayout ctx={ctx}
+      hero={(
+        <Hero kind="stop" label="Shuttle stop" title={read.node.label} visual={<Tile>🚏</Tile>}
+          subtitle={label && label !== read.node.label ? label : undefined}>
+          <Row>
+            {routes.map(node => <NodeChip key={node.id} node={node} href={href} detail="route" />)}
+            {buildings.map(node => <NodeChip key={node.id} node={node} href={href} detail="building" />)}
+          </Row>
+          {source && <Row><Action kind="web" href={source}>{shortUrl(source)}</Action></Row>}
+        </Hero>
+      )}
+      main={(
+        <>
+          <Box title="Where to wait">
+            {pickup || description ? (
+              <>
+                {pickup && <Facts items={[['Pickup', pickup]]} />}
+                {description && <div className={pickup ? 'mt-3' : undefined}><Prose>{description}</Prose></div>}
+              </>
+            ) : <Empty title="No pickup spot in the graph" />}
+            {source && <Source>{shortUrl(source)}</Source>}
+          </Box>
+          <Box title="Routes that stop here" note={routes.length}>
+            {routes.length ? (
+              <div className="flex flex-col gap-0.5">
+                {routes.map(node => <NodeRow key={node.id} node={node} href={href} lead={<span aria-hidden="true">🚌</span>} detail="Open the route for its trip times" />)}
+              </div>
+            ) : <Empty title="No route linked" />}
+          </Box>
+        </>
+      )}
+      side={(
+        <Box title="Building">
+          {buildings.length ? <Chips>{buildings.map(node => <NodeChip key={node.id} node={node} href={href} />)}</Chips>
+            : <Empty title="Not linked to a building">Only campus stops name a building.</Empty>}
         </Box>
       )} />
   );

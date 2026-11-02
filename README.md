@@ -152,7 +152,7 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 | Variable | Required | Purpose |
 |---|---|---|
 | `BRAIN_URL` | in production | Brain service address; local development falls back to `http://127.0.0.1:8000`. |
-| `STAGING_SERVICE_TOKEN` | for a protected Brain | Shared server-side environment token; must match the Brain. |
+| `SERVICE_TOKEN` | for a protected Brain | Shared server-side service token; must match the Brain (the old name `STAGING_SERVICE_TOKEN` is still read). |
 | `PRODUCTION_BRAIN_URL` | no | The production Brain the Storage page reads; defaults to the public service. |
 | `TYPESAFE_API_KEY` | no | Used only by the switched-off Feedback page; no current use. |
 

@@ -1,22 +1,140 @@
-/**
- * @module api/brain/admin/logs
- * Student chat logs.
- *
- * No NODE_ENV guard. The student app gated this on development, which meant it
- * 404'd on any built instance — the wrong boundary, and the reason these pages
- * moved to their own app. The boundary here is that this app is not deployed;
- * see `proxy.ts`.
- *
- * The query is forwarded whole so `search`, `route`, `origin`, `version` and
- * `limit` stay the brain's business, and `If-None-Match` rides along so the
- * dashboard's 304 path works.
- */
-
-import { proxyBrain } from '@/lib/brain-proxy';
+import { NextRequest, NextResponse } from 'next/server';
+import { brainAddress } from '@/lib/brain-address';
 
 export const dynamic = 'force-dynamic';
 
-export function GET(request: Request) {
-  const query = new URL(request.url).search;
-  return proxyBrain(request, `/v1/admin/logs${query}`, { admin: true });
+interface RawLogEntry {
+  timestamp?: string;
+  requestId?: string;
+  question?: string;
+  messages?: Array<{ role: string; content: string }>;
+  answer?: string | null;
+  status?: string;
+  elapsedMs?: number;
+  citations?: Array<{ title: string; url: string }>;
+  origin?: 'client' | 'dev' | 'bot';
+  tools?: string[];
+}
+
+// Statuses the Brain returns for a turn that ran to completion. Anything else
+// (a timeout, an exhausted budget, a provider error) is a failed turn;
+// clarifications and partial answers used to be counted as errors too.
+// `passed` rows are the synthetic turns the eval endpoints seeded on 2026-09-17.
+const COMPLETED = new Set(['answered', 'partial', 'clarification', 'unavailable', 'passed']);
+
+export async function GET(request: NextRequest) {
+  const { url: brainUrl } = brainAddress();
+  if (!brainUrl) {
+    return NextResponse.json({ error: 'Brain URL not configured' }, { status: 503 });
+  }
+
+  const searchParams = request.nextUrl.searchParams;
+  const limitParam = parseInt(searchParams.get('limit') || '100', 10);
+  const searchFilter = (searchParams.get('search') || '').toLowerCase();
+  const originFilter = searchParams.get('origin')?.split(',').map((s) => s.trim()) || [];
+  const routeFilter = searchParams.get('route')?.split(',').map((s) => s.trim().toLowerCase()) || [];
+  const clientVersion = searchParams.get('version');
+
+  try {
+    const upstream = await fetch(`${brainUrl}/v1/logs?limit=500`, {
+      headers: { accept: 'application/json' },
+      cache: 'no-store',
+    });
+
+    if (!upstream.ok) {
+      return NextResponse.json(
+        { error: `Brain returned ${upstream.status}` },
+        { status: upstream.status }
+      );
+    }
+
+    const data = await upstream.json();
+    const rawEntries: RawLogEntry[] = data.logs || [];
+
+    // Map each raw entry to the ChatLogItem interface expected by LogsDashboard
+    const allLogs = rawEntries.map((entry, idx) => {
+      const id = entry.requestId || `turn-${idx}`;
+      const status = entry.status || 'answered';
+      const question = entry.question || (entry.messages && entry.messages[entry.messages.length - 1]?.content) || '';
+      // Never invent answer text; the status badge carries the outcome.
+      const answer = entry.answer || '';
+      const origin: 'client' | 'dev' | 'bot' = entry.origin || 'client';
+
+      return {
+        id,
+        session_id: entry.requestId ? `sess-${entry.requestId.slice(0, 8)}` : `sess-${idx}`,
+        visitor_id: entry.requestId ? `vis-${entry.requestId.slice(0, 8)}` : `vis-${idx}`,
+        user_message: question,
+        assistant_message: answer,
+        route: status,
+        question_origin: origin,
+        tools_invoked: entry.tools || [],
+        tool_arguments: {},
+        citations: entry.citations || [],
+        facts_extracted: [],
+        latency_ms: entry.elapsedMs ?? 0,
+        created_at: entry.timestamp || new Date().toISOString(),
+      };
+    });
+
+    // Version watermark: based on the total count and latest item timestamp
+    const latestTimestamp = allLogs[0]?.created_at || 'initial';
+    const currentVersion = `${allLogs.length}-${latestTimestamp}`;
+
+    if (clientVersion && clientVersion === currentVersion) {
+      return NextResponse.json({ modified: false, version: currentVersion });
+    }
+
+    // Compute Metrics across all logs
+    // The Brain counts every turn; this route reads the newest 500.
+    const totalLogs = typeof data.total === 'number' ? data.total : allLogs.length;
+    const avgLatencyMs = allLogs.length > 0
+      ? Math.round(allLogs.reduce((sum, l) => sum + l.latency_ms, 0) / allLogs.length)
+      : 0;
+    const errorCount = allLogs.filter((l) => !COMPLETED.has(l.route)).length;
+    const unverifiedCount = allLogs.filter((l) => l.route === 'unavailable').length;
+    const clientCount = allLogs.filter((l) => l.question_origin === 'client').length;
+    const devCount = allLogs.filter((l) => l.question_origin === 'dev').length;
+    const botCount = allLogs.filter((l) => l.question_origin === 'bot').length;
+
+    const metrics = {
+      totalLogs,
+      avgLatencyMs,
+      unverifiedCount,
+      errorCount,
+      clientCount,
+      devCount,
+      botCount,
+    };
+
+    // Filter logs according to client params
+    let filtered = allLogs;
+    if (originFilter.length > 0) {
+      filtered = filtered.filter((l) => originFilter.includes(l.question_origin));
+    }
+    if (routeFilter.length > 0) {
+      filtered = filtered.filter((l) => routeFilter.some((r) => l.route.toLowerCase().includes(r)));
+    }
+    if (searchFilter) {
+      filtered = filtered.filter(
+        (l) =>
+          l.user_message.toLowerCase().includes(searchFilter) ||
+          l.assistant_message.toLowerCase().includes(searchFilter) ||
+          l.id.toLowerCase().includes(searchFilter)
+      );
+    }
+
+    return NextResponse.json({
+      logs: filtered.slice(0, limitParam),
+      metrics,
+      version: currentVersion,
+      total: totalLogs,
+    });
+  } catch (error) {
+    console.error('Failed to proxy admin logs:', error);
+    return NextResponse.json(
+      { error: 'Failed to proxy chat logs from Brain' },
+      { status: 500 }
+    );
+  }
 }

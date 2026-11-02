@@ -2,7 +2,7 @@
   "name": "@rockygpt/dev",
   "version": "0.1.0",
   "private": true,
-  "description": "The RockyGPT developer control room: inspect the brain, browse campus data, read chat logs, and watch service health.",
+  "description": "The RockyGPT developer control room for answers, sources, and tool calls.",
   "engines": {
     "node": "22.x"
   },
@@ -11,7 +11,14 @@
     "build": "next build --webpack",
     "start": "next start -p 3100",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "test:identities": "node --experimental-strip-types --test tests/identities.test.mjs tests/identity-aliases.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:graph": "node --experimental-strip-types --test tests/knowledge-graph.test.mjs tests/graph-projection.test.mjs tests/graph-presentation.test.mjs tests/graph-connection-groups.test.mjs tests/coverage-issues.test.mjs",
+    "test:storage": "node --experimental-strip-types --test tests/storage.test.mjs",
+    "test:feedback": "node --experimental-strip-types --test tests/feedback-tags.test.mjs",
+    "test:export": "node --experimental-strip-types --test tests/turn-export.test.mjs",
+    "test:chat": "node --experimental-strip-types --test tests/chat-request.test.mjs tests/turn-outcome.test.mjs tests/brain-metrics.test.mjs",
+    "test:dev": "node --experimental-strip-types --test tests/dev-format.test.mjs tests/office-facts.test.mjs tests/alias-lookup.test.mjs tests/knowledge-roadmap.test.mjs tests/timing-groups.test.mjs tests/markdown-preview.test.mjs tests/fact-packet.test.mjs tests/inspector-tabs.test.mjs tests/pipeline.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

@@ -9,27 +9,32 @@ export const metadata: Metadata = {
   description: 'What is built, and what each gap is waiting on.',
 };
 
-const TONE: Record<ItemStatus, PillTone> = { ready: 'ok', partial: 'warn', planned: 'idle' };
+const TONE: Record<ItemStatus, PillTone> = {
+  ready: 'ok',
+  partial: 'warn',
+  off: 'idle',
+  planned: 'idle',
+};
 
 export default function RoadmapPage() {
   const counts = ALL_ITEMS.reduce<Record<ItemStatus, number>>(
     (totals, item) => ({ ...totals, [item.status]: totals[item.status] + 1 }),
-    { ready: 0, partial: 0, planned: 0 }
+    { ready: 0, partial: 0, off: 0, planned: 0 }
   );
 
   return (
     <>
       <PageHeader
         title="Roadmap"
-        subtitle={`${counts.ready} built · ${counts.partial} partial · ${counts.planned} waiting on the brain`}
+        subtitle={`${counts.ready} connected · ${counts.partial} partial · ${counts.off} switched off · ${counts.planned} not built`}
       />
       <main className="min-w-0 space-y-6 px-6 py-6">
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Every section this app intends to have, including the ones that do not
-          work yet. What is missing is mostly not missing from here — it is
-          missing from the brain’s HTTP surface, and the blocker column says
-          which. That makes this the working list for what to build upstream
-          next.
+          Connected pages read the current Brain: Ask &amp; Inspect, the pages about its prompt,
+          tools, texts, offices and configuration, and service health. Storage is partial: the
+          production Brain serves its numbers and this one does not. Switched-off pages were built
+          for an older Brain and read routes this one does not serve; their code is kept for when it
+          does. Not-built pages do not exist yet.
         </p>
 
         {NAVIGATION.map((section) => (
@@ -69,16 +74,17 @@ export default function RoadmapPage() {
         ))}
 
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5">
-          <h2 className="text-sm font-semibold">The largest gap</h2>
+          <h2 className="text-sm font-semibold">Current boundary</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Five of the eight <code className="font-mono text-foreground/80">brainTrace</code>{' '}
-            boxes — question, memory, understanding, context, and normalizedPlan
-            — are never written to the database, and no endpoint returns a
-            stored trace or fetches one log by id. So you can inspect a turn you
-            asked yourself, but not one a student asked. Re-asking their question
-            produces a different turn, against different data, at a different
-            time. An endpoint that returns a stored trace is the highest-value
-            thing to add to the brain next.
+            The Dev UI talks to the Brain only over HTTP. The current Brain serves{' '}
+            <code className="font-mono text-foreground/80">GET /health</code>,{' '}
+            <code className="font-mono text-foreground/80">GET /readiness</code>,{' '}
+            <code className="font-mono text-foreground/80">POST /v1/chat</code> and{' '}
+            <code className="font-mono text-foreground/80">GET /v1/entities/&#123;id&#125;/facts</code>.
+            In development, <code className="font-mono text-foreground/80">/v1/chat</code> also
+            returns a <code className="font-mono text-foreground/80">trace</code> and{' '}
+            <code className="font-mono text-foreground/80">metrics</code> when this app asks for them.
+            It never reads the database directly.
           </p>
         </section>
       </main>

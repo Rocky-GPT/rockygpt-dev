@@ -1,232 +1,449 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Copy, Sparkles } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Copy, Loader2 } from 'lucide-react';
 import { BrainMarkdown } from '@/components/BrainMarkdown';
+import { factPacketOf, writerInputOf } from '@/lib/fact-packet';
 import { JsonViewer } from '@/components/JsonViewer';
-import { BOOKKEEPING, modeChips, recordValue, STAGES, turnPipeline } from '@/lib/turn-pipeline';
-
-interface TurnInspectorProps {
-  /** The response body exactly as received. Undefined before the first turn. */
-  payload?: Record<string, unknown>;
-  /** Stands in only for an error turn, whose body carries no trace. */
-  question?: string;
-  /** Drives the step animation and remounts the stack between turns. */
-  requestId?: string;
-  onPrev?: () => void;
-  onNext?: () => void;
-}
+import { SourcesPanel } from './SourcesPanel';
+import { PipelineTab } from './PipelineTab';
+import { PacketTab, TONE, formatMs } from './TraceView';
+import { useNow } from './useNow';
+import { useAskSession } from './AskSession';
+import { shownTab } from '@/lib/inspector-tabs';
+import { turnTabs } from './turnTabs';
+import type { Turn } from './types';
 
 /**
- * A turn, stage by stage.
- *
- * The student app draws this in a modal, which is right there and wrong here.
- * There, chat is the content and the JSON is an aside you open; here the JSON
- * *is* the content, and putting a click in front of it is a step with no
- * decision in it. Three things follow from being a panel rather than a dialog:
- *
- *   - No `useAccessibleDialog`. That hook installs a Tab focus trap, and a
- *     permanently-open trap is a trap you can never leave — with a composer on
- *     the same screen it would be a keyboard dead end rather than a nicety.
- *   - No overlay. `MODAL_OVERLAY` is `fixed inset-0`, which cannot sit beside
- *     anything.
- *   - Arrow keys are bound to this element, not to `document`. The dialog could
- *     claim them outright because nothing behind it took text; a composer does,
- *     and a global handler calling `preventDefault` would eat caret movement.
+ * One turn, read top to bottom: a header that says how it went at a glance,
+ * then tabs for the answer, how it got there and the raw bytes. The tab you pick stays picked as you step between turns, so
+ * comparing the same view across a run is one click per turn.
  */
 export function TurnInspector({
-  payload,
-  question,
-  requestId,
+  turn,
   onPrev,
   onNext,
-}: TurnInspectorProps) {
-  const [copied, setCopied] = useState(false);
-  // Which way the last step went, so the incoming turn enters from the side you
-  // came from. Null on first render, when there is no direction to imply.
-  const [came, setCame] = useState<'next' | 'prev' | null>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-
+}: {
+  turn?: Turn;
+  onPrev?: () => void;
+  onNext?: () => void;
+}) {
+  const { inspectorTab: tab, setInspectorTab: setTab } = useAskSession();
+  const tabBar = useRef<HTMLDivElement>(null);
+  const turnId = turn?.localId;
+  // The arrow keys can step to a tab that is scrolled out of the bar.
   useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      // Up joins Right and Down joins Left, matching the workbench's own
-      // handler, so the keys mean one thing wherever focus happens to be.
-      const forward = event.key === 'ArrowRight' || event.key === 'ArrowUp';
-      const backward = event.key === 'ArrowLeft' || event.key === 'ArrowDown';
-      const step = forward ? onNext : backward ? onPrev : null;
-      if (!step) return;
-      event.preventDefault();
-      setCopied(false);
-      setCame(forward ? 'next' : 'prev');
-      step();
-    };
-    panel.addEventListener('keydown', onKeyDown);
-    return () => panel.removeEventListener('keydown', onKeyDown);
-  }, [onPrev, onNext]);
+    tabBar.current
+      ?.querySelector('[aria-selected="true"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab, turnId]);
 
-  if (!payload) {
+  if (!turn) {
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <p className="max-w-xs text-sm leading-6 text-muted-foreground">
-          Ask something and the whole pipeline lands here — what BRAIN #1 made of
-          it, what BRAIN #2 planned, what PYTHON ran, and what BRAIN #3 wrote.
+          Send a message to see the exact request and response here.
         </p>
       </div>
     );
   }
 
-  const trace = recordValue(payload.brainTrace);
-  const memory = recordValue(trace?.memory);
-  // The server's clock, not the browser's. It is what both brains were handed
-  // and what every time word in the plan resolved against; the browser's own
-  // timestamp is a different clock measuring a different moment.
-  const clock = typeof memory?.currentTime === 'string' ? memory.currentTime : null;
-  const pipeline = turnPipeline(payload);
-  const chips = modeChips(memory);
-  const asked = recordValue(trace?.question)?.question;
-  // The trace value is what the brain was actually sent; the prop is this app's
-  // own copy, and only stands in on an error turn that never parsed a body. On
-  // a turn that went wrong the difference between them is the finding.
-  const questionText = typeof asked === 'string' ? asked : (question ?? null);
-  const answer = recordValue(trace?.answer)?.answer;
-  const answerText = typeof answer === 'string' ? answer : null;
-
-  const copyAll = () => {
-    navigator.clipboard.writeText(JSON.stringify(pipeline, null, 2));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const stepper = onPrev || onNext;
+  const live = turn.status === 'pending';
+  const citations = Array.isArray(turn.raw?.citations) ? turn.raw.citations : [];
+  const tabs = turnTabs(turn);
+  const shown = shownTab(tabs, tab);
 
   return (
-    <div ref={panelRef} tabIndex={-1} className="flex h-full min-h-0 flex-col outline-none">
-      <div
-        className="flex shrink-0 items-start gap-3 border-b border-border bg-neutral-900/60 px-5 py-3.5"
-        onDoubleClick={copyAll}
-        title="Double-click to copy the whole turn"
-      >
-        <div className="min-w-0 flex-1">
-          {questionText && (
-            <p className="text-sm font-medium leading-5 text-foreground">{questionText}</p>
-          )}
-          <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground">
-            {clock && <span className="font-mono">{clock}</span>}
-            {chips.map((chip) => (
-              <span key={chip} className="rounded border border-white/10 px-1.5 py-0.5">
-                {chip}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-1">
-          {copied ? (
-            <span
-              aria-live="polite"
-              className="flex items-center gap-1.5 px-2 text-[11px] text-emerald-400"
-            >
-              <Check className="h-3 w-3" />
-              Copied
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={copyAll}
-              title="Copy the whole turn as JSON"
-              className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <Copy className="h-4 w-4" />
-            </button>
-          )}
-          {stepper && (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setCame('prev');
-                  onPrev?.();
-                }}
-                disabled={!onPrev}
-                title="Previous turn (← or ↓)"
-                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCame('next');
-                  onNext?.();
-                }}
-                disabled={!onNext}
-                title="Next turn (→ or ↑)"
-                className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Keyed on the turn so React remounts the stack and the glide replays. */}
-      <div
-        key={requestId}
-        className={`min-h-0 flex-1 overflow-auto ${
-          came === 'next' ? 'turn-glide-next' : came === 'prev' ? 'turn-glide-prev' : ''
-        }`}
-      >
-        {STAGES.filter(({ key, select, omitWhenEmpty }) => {
-          if (!omitWhenEmpty) return true;
-          const drawn = select ? select(pipeline) : pipeline[key];
-          if (drawn == null) return false;
-          // An object with no keys draws as `{}`, which reads as a stage that
-          // ran and found nothing rather than one with nothing to do.
-          return typeof drawn !== 'object' || Object.keys(drawn).length > 0;
-        }).map(({ key, title, select, preview, hidden, collapsed }, index) => {
-          // `?? null` on both branches: `JSON.stringify(undefined)` is
-          // `undefined`, not a string, and the viewer reads it as one. An error
-          // turn carries no `brainTrace`, so the never-omitted plan box selects
-          // nothing and would take the page down with it.
-          const drawn = (select ? select(pipeline) : pipeline[key]) ?? null;
-          return (
-            <JsonViewer
-              key={key}
-              data={drawn}
-              title={title}
-              alwaysOpen={!collapsed}
-              hiddenKeys={typeof hidden === 'function' ? hidden(drawn) : (hidden ?? BOOKKEEPING)}
-              previewTransform={preview}
-              hideCopy
-              className={index === 0 ? 'border-t-0' : undefined}
+    <div className="flex h-full min-h-0 flex-col">
+      <header className="shrink-0 border-b border-border bg-neutral-900/60">
+        <div className="flex items-start gap-3 px-5 pt-3.5">
+          <p className="line-clamp-2 min-w-0 flex-1 text-[15px] font-medium leading-6 text-foreground">
+            {turn.question}
+          </p>
+          <div className="flex shrink-0 items-center gap-1">
+            <CopyButton
+              title="Copy raw request and response"
+              text={() => `Request\n${turn.requestText}\n\nResponse\n${turn.rawText ?? ''}`}
             />
-          );
-        })}
-      </div>
-
-      {/*
-        The last stage, pinned rather than scrolled. It is the one payload that
-        is prose, and it stays in view while the stages above it are read —
-        which is the comparison anyone has this open to make. Being prose, it
-        is also the one drawn as Markdown rather than as JSON: a `<p>` collapses
-        the newlines it was written with and leaves the `###` and `**` showing.
-      */}
-      {answerText ? (
-        <div className="shrink-0 border-t border-border bg-neutral-950/80 px-5 py-3.5">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 shrink-0 text-sky-400" />
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-sky-300">
-              BRAIN #3 · translate
-            </span>
-          </div>
-          <div className="mt-2 max-h-32 overflow-auto text-sm leading-relaxed text-foreground">
-            <BrainMarkdown>{answerText}</BrainMarkdown>
+            <IconButton title="Previous turn" onClick={onPrev}>
+              <ChevronLeft className="h-4 w-4" />
+            </IconButton>
+            <IconButton title="Next turn" onClick={onNext}>
+              <ChevronRight className="h-4 w-4" />
+            </IconButton>
           </div>
         </div>
-      ) : null}
+        <Summary turn={turn} />
+        <div
+          ref={tabBar}
+          role="tablist"
+          aria-label="Turn details"
+          title="Left and right arrow keys switch tabs"
+          className="mt-3 flex gap-1 overflow-x-auto px-3"
+        >
+          {tabs.map((item) => {
+            const selected = shown === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setTab(item.id)}
+                className={`flex shrink-0 items-center gap-1.5 border-b-2 px-2.5 pb-2 pt-1 text-xs font-medium transition-colors ${
+                  selected
+                    ? 'border-sky-400 text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.label}
+                {item.id === 'answer' && live && (
+                  <Loader2 className="h-3 w-3 animate-spin text-sky-300" />
+                )}
+                {item.count !== undefined && (
+                  <span className="rounded bg-white/[0.06] px-1.5 py-px font-mono text-[10px] text-muted-foreground">
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </header>
+
+      <div role="tabpanel" className="min-h-0 flex-1 overflow-auto">
+        {shown === 'answer' && <AnswerTab turn={turn} />}
+        {shown === 'pipeline' && (
+          <PipelineTab turn={turn} tabs={tabs.map((item) => item.id)} onOpen={setTab} />
+        )}
+        {shown === 'sources' &&
+          (citations.length > 0 ? (
+            <SourcesPanel citations={citations} />
+          ) : (
+            <Placeholder>
+              {live ? 'Sources arrive with the answer.' : 'This answer cites no sources.'}
+            </Placeholder>
+          ))}
+        {shown === 'packet' && <PacketTab turn={turn} />}
+        {shown === 'raw' && <RawTab turn={turn} />}
+      </div>
     </div>
+  );
+}
+
+/* --------------------------------------------------------------- Header */
+
+/** The turn at a glance: how it came out, how long it took, and who answered. */
+function Summary({ turn }: { turn: Turn }) {
+  const model = typeof turn.raw?.model === 'string' ? turn.raw.model : undefined;
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5 px-5">
+      <StatusPill turn={turn} />
+      {turn.latencyMs !== undefined && <Pill>{formatMs(turn.latencyMs)}</Pill>}
+      {turn.httpStatus !== undefined && (turn.httpStatus < 200 || turn.httpStatus >= 300) && (
+        <Pill
+          className={
+            turn.status === 'not_built'
+              ? TONE.neutral
+              : 'border-red-500/30 bg-red-500/10 text-red-300'
+          }
+        >
+          HTTP {turn.httpStatus}
+        </Pill>
+      )}
+      {model && (
+        <Pill className="border-white/10 bg-white/[0.04] font-mono text-muted-foreground">
+          {model}
+        </Pill>
+      )}
+      {turn.requestId && <RequestId id={turn.requestId} />}
+    </div>
+  );
+}
+
+function StatusPill({ turn }: { turn: Turn }) {
+  const now = useNow(turn.status === 'pending' ? 1_000 : null);
+  if (turn.status === 'pending') {
+    const seconds = Math.max(0, Math.floor((now - turn.startedAt) / 1_000));
+    return (
+      <Pill className="border-sky-500/30 bg-sky-500/10 text-sky-300">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        Working · {seconds} s
+      </Pill>
+    );
+  }
+  // The Brain's own verdict when it gave one: a 200 can still be "partial"
+  // or "unavailable", and that is not the same green as a full answer.
+  const verdict = typeof turn.raw?.status === 'string' ? turn.raw.status : undefined;
+  const label =
+    turn.status === 'failed'
+      ? 'Failed'
+      : turn.status === 'not_built'
+        ? 'Not built yet'
+        : verdict
+          ? humanizeIdentifier(verdict)
+          : turn.status === 'declined'
+            ? 'Declined'
+            : 'Answered';
+  const tone =
+    turn.status === 'failed'
+      ? 'border-red-500/30 bg-red-500/10 text-red-300'
+      : turn.status === 'not_built'
+        ? TONE.neutral
+        : turn.status === 'declined' || (verdict && verdict !== 'answered')
+          ? TONE.attention
+          : TONE.positive;
+  return <Pill className={tone}>{label}</Pill>;
+}
+
+function RequestId({ id }: { id: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      title="Copy request id"
+      onClick={() => {
+        void navigator.clipboard.writeText(id);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      }}
+      className="ml-auto flex max-w-[14rem] items-center gap-1 truncate font-mono text-[10px] text-muted-foreground hover:text-foreground"
+    >
+      {copied ? <Check className="h-3 w-3 text-emerald-400" /> : null}
+      <span className="truncate">{id}</span>
+    </button>
+  );
+}
+
+/* --------------------------------------------------------------- Answer */
+
+function AnswerTab({ turn }: { turn: Turn }) {
+  const answer = typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined;
+  if (turn.status === 'pending') return <LiveAnswer />;
+  const packet = factPacketOf(turn.raw);
+  if (!answer && packet) {
+    // A Brain in JSON mode writes no text. Its output is what a writer would be handed, and the
+    // Fact Packet it was cut from.
+    const writerInput = writerInputOf(turn.raw);
+    return (
+      <div className="space-y-4 px-5 py-4">
+        {writerInput && (
+          <div className="overflow-hidden rounded-xl border border-border">
+            <JsonViewer data={writerInput} title="Writer input · what the writer receives" alwaysOpen className="border-t-0" />
+          </div>
+        )}
+        <div className="overflow-hidden rounded-xl border border-border">
+          <JsonViewer
+            data={packet}
+            title={writerInput ? 'Fact Packet · the Brain’s full record' : 'Answer · Fact Packet JSON'}
+            alwaysOpen={!writerInput}
+            className="border-t-0"
+          />
+        </div>
+      </div>
+    );
+  }
+  if (answer) {
+    return (
+      <div className="px-5 py-4">
+        <div className="rounded-xl border border-border bg-neutral-950/70 p-4 text-[15px] leading-7 text-foreground">
+          <BrainMarkdown>{answer}</BrainMarkdown>
+        </div>
+      </div>
+    );
+  }
+  if (turn.status === 'failed') return <FailurePanel turn={turn} />;
+  if (turn.status === 'not_built') return <NotBuiltPanel />;
+  return (
+    <div className="px-5 py-4">
+      <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-border bg-neutral-950/70 p-3 font-mono text-xs leading-5 text-foreground">
+        {turn.rawText ?? 'No response body.'}
+      </pre>
+    </div>
+  );
+}
+
+/** The Brain sends one answer at the end, so a turn in flight only shows that it is waiting. */
+function LiveAnswer() {
+  return (
+    <div className="px-5 py-4">
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-xl border border-border bg-neutral-950/70 px-4 py-3"
+      >
+        <div className="flex items-center gap-2.5">
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sky-300" />
+          <p className="min-w-0 flex-1 truncate text-sm text-foreground">Sending the question…</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FailurePanel({ turn }: { turn: Turn }) {
+  const reason = typeof turn.raw?.reason === 'string' ? turn.raw.reason : undefined;
+  const errorMessage = typeof turn.raw?.error === 'string' ? turn.raw.error : undefined;
+  const detailMessage = typeof turn.raw?.detail === 'string' ? turn.raw.detail : undefined;
+  const message =
+    errorMessage ??
+    detailMessage ??
+    turn.failure ??
+    'The request failed before a response was received.';
+  const detail = errorMessage ? detailMessage : undefined;
+  const retryable = typeof turn.raw?.retryable === 'boolean' ? turn.raw.retryable : undefined;
+  const timeoutMs = typeof turn.raw?.timeoutMs === 'number' ? turn.raw.timeoutMs : undefined;
+  const heading =
+    reason === 'timeout' || reason === 'model_timeout'
+      ? 'Brain response timed out'
+      : reason === 'unreachable'
+        ? 'Brain connection failed'
+        : reason === 'misconfigured'
+          ? 'Brain is not configured'
+          : reason === 'cancelled'
+            ? 'Request stopped'
+            : reason === 'client_network_error'
+              ? 'Browser request failed'
+              : 'Brain request failed';
+
+  return (
+    <div className="px-5 py-4">
+      <div className="rounded-xl border border-red-500/25 bg-red-500/[0.06] p-4">
+        <p className="text-base font-semibold text-red-200">{heading}</p>
+        <p className="mt-2 text-sm leading-6 text-foreground">{message}</p>
+        {detail && <p className="mt-1 text-sm leading-6 text-muted-foreground">{detail}</p>}
+        <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          {turn.httpStatus !== undefined && (
+            <FailureDetail label="HTTP status" value={String(turn.httpStatus)} />
+          )}
+          {reason && <FailureDetail label="Reason" value={humanizeIdentifier(reason)} />}
+          {timeoutMs !== undefined && (
+            <FailureDetail label="Timeout" value={`${timeoutMs / 1_000} seconds`} />
+          )}
+          {retryable !== undefined && (
+            <FailureDetail label="Retryable" value={retryable ? 'Yes' : 'No'} />
+          )}
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+/** The Brain answered "not ready": nothing broke, the step for this question isn't built. */
+function NotBuiltPanel() {
+  return (
+    <div className="px-5 py-4">
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <p className="text-base font-semibold text-foreground">Not built yet</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          The Brain answered &quot;not ready&quot;: the step for this question isn&apos;t built yet.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function FailureDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 font-mono text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ Raw */
+
+function RawTab({ turn }: { turn: Turn }) {
+  return (
+    <div className="space-y-4 px-5 py-4">
+      <div className="overflow-hidden rounded-xl border border-border">
+        <JsonViewer
+          data={turn.request}
+          title="Request · POST /v1/chat"
+          alwaysOpen
+          className="border-t-0"
+        />
+      </div>
+      {turn.raw ? (
+        <div className="overflow-hidden rounded-xl border border-border">
+          <JsonViewer data={turn.raw} title="Response" alwaysOpen className="border-t-0" />
+        </div>
+      ) : turn.rawText ? (
+        <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-xl border border-border bg-neutral-950/70 p-3 font-mono text-xs leading-5 text-foreground">
+          {turn.rawText}
+        </pre>
+      ) : (
+        <Placeholder>The response is not in yet.</Placeholder>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------- Helpers */
+
+function humanizeIdentifier(value: string) {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function Pill({ className = '', children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] ${
+        className || 'border-white/10 bg-white/[0.04] text-muted-foreground'
+      }`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Placeholder({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-5 py-4">
+      <p className="rounded-xl border border-dashed border-border px-4 py-3 text-xs text-muted-foreground">
+        {children}
+      </p>
+    </div>
+  );
+}
+
+function CopyButton({ title, text }: { title: string; text: () => string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <IconButton
+      title={title}
+      onClick={() => {
+        void navigator.clipboard.writeText(text());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+    >
+      {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+    </IconButton>
+  );
+}
+
+function IconButton({
+  title,
+  onClick,
+  children,
+}: {
+  title: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      title={title}
+      aria-label={title}
+      className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+    >
+      {children}
+    </button>
   );
 }

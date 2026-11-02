@@ -66,7 +66,7 @@ interface ChatLogItem {
 interface LogMetrics {
   totalLogs: number;
   avgLatencyMs: number;
-  uniqueSessions: number;
+  unverifiedCount: number;
   uniqueVisitors?: number;
   errorCount: number;
   clientCount: number;
@@ -79,7 +79,7 @@ export function LogsDashboard() {
   const [metrics, setMetrics] = useState<LogMetrics>({
     totalLogs: 0,
     avgLatencyMs: 0,
-    uniqueSessions: 0,
+    unverifiedCount: 0,
     errorCount: 0,
     clientCount: 0,
     devCount: 0,
@@ -102,7 +102,11 @@ export function LogsDashboard() {
   const filterMenuRef = useRef<HTMLDivElement>(null);
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const viewMenuRef = useRef<HTMLDivElement>(null);
-  const [viewMode, setViewMode] = useState<'devices' | 'sessions' | 'cards' | 'json'>('sessions');
+  // The Brain records no sessions or devices; those views grouped each turn
+  // under an ID made from its own request ID. The feed is the honest default.
+  const [viewMode, setViewMode] = useState<'devices' | 'sessions' | 'cards' | 'json'>('cards');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
   const [collapsedSessions, setCollapsedSessions] = useState<Set<string>>(new Set());
   const [collapsedDevices, setCollapsedDevices] = useState<Set<string>>(new Set());
 
@@ -172,12 +176,19 @@ export function LogsDashboard() {
         // No changes in database! Return with zero state churn.
         return;
       }
+      if (!res.ok) {
+        // A failed load used to leave "No chat logs found" on screen.
+        const body = await res.json().catch(() => null);
+        setLoadError(`Chat logs are unavailable (HTTP ${res.status})${body?.error ? `: ${body.error}` : ''}`);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         // If conditional check returned modified: false
         if (data && data.modified === false) {
           return;
         }
+        setLoadError(null);
         setLogs(data.logs || []);
         if (data.metrics) setMetrics(data.metrics);
         if (data.version) lastKnownVersionRef.current = data.version;
@@ -187,6 +198,7 @@ export function LogsDashboard() {
       }
     } catch (err) {
       console.error('Failed to fetch chat logs:', err);
+      setLoadError('Could not reach the Dev app’s logs route.');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -266,26 +278,23 @@ export function LogsDashboard() {
   };
 
   const handleFeedback = async (logId: string, feedbackType: 'positive' | 'negative') => {
-    // Optimistic UI state update
-    setLogs((prev) =>
-      prev.map((l) => {
-        if (l.id !== logId) return l;
-        const nextFeedback = l.feedback === feedbackType ? null : feedbackType;
-        return { ...l, feedback: nextFeedback };
-      })
-    );
-
+    const previous = logs.find((l) => l.id === logId)?.feedback ?? null;
+    // Reviews can be changed but not cleared: the Brain keeps no way to
+    // delete one, so re-clicking the same thumb is a no-op.
+    if (previous === feedbackType) return;
+    setFeedbackNotice(null);
+    setLogs((prev) => prev.map((l) => (l.id === logId ? { ...l, feedback: feedbackType } : l)));
     try {
-      const currentLog = logs.find((l) => l.id === logId);
-      const nextFeedback = currentLog?.feedback === feedbackType ? null : feedbackType;
-
-      await fetch('/api/brain/admin/logs/feedback', {
+      const res = await fetch('/api/brain/admin/logs/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logId, feedback: nextFeedback }),
+        body: JSON.stringify({ logId, feedback: feedbackType }),
       });
+      const result = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      if (!res.ok || result.ok !== true) throw new Error(result.error || `HTTP ${res.status}`);
     } catch (err) {
-      console.error('Failed to submit log feedback', err);
+      setLogs((prev) => prev.map((l) => (l.id === logId ? { ...l, feedback: previous } : l)));
+      setFeedbackNotice(`Review not saved: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -363,18 +372,24 @@ export function LogsDashboard() {
     );
   };
 
+  // The badge names the turn's real outcome. Every turn used to read
+  // "Standard" unless its route contained "error", which no status does.
   const getRouteBadge = (route: string) => {
-    const r = route.toLowerCase();
-    if (r.includes('error')) {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-300 border border-rose-500/30">
-          <ShieldAlert className="h-3 w-3" /> Error
-        </span>
-      );
-    }
+    const status = route.toLowerCase();
+    const style =
+      status === 'answered'
+        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+        : status === 'partial' || status === 'clarification'
+          ? 'bg-sky-500/15 text-sky-300 border-sky-500/30'
+          : status === 'unavailable'
+            ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+            : 'bg-rose-500/15 text-rose-300 border-rose-500/30';
+    const label =
+      status === 'unavailable' ? 'Couldn’t verify' : status.replace(/_/g, ' ') || 'unknown';
+    const Icon = ['answered', 'partial', 'clarification', 'unavailable'].includes(status) ? Sparkles : ShieldAlert;
     return (
-      <span className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-300 border border-sky-500/30">
-        <Sparkles className="h-3 w-3" /> Standard
+      <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs font-medium capitalize ${style}`}>
+        <Icon className="h-3 w-3" /> {label}
       </span>
     );
   };
@@ -539,7 +554,7 @@ export function LogsDashboard() {
           <div className="flex items-center gap-3 min-w-0 flex-1">
             {getOriginIcon(log.question_origin)}
             <p className="text-sm font-medium text-white leading-relaxed truncate">
-              {log.user_message}
+              {log.user_message || <span className="italic text-muted-foreground">Question not stored</span>}
             </p>
           </div>
 
@@ -609,7 +624,7 @@ export function LogsDashboard() {
                     ),
                   }}
                 >
-                  {log.assistant_message}
+                  {log.assistant_message || '_Answer not stored. Turn records keep no student text._'}
                 </ReactMarkdown>
               </div>
 
@@ -756,38 +771,45 @@ export function LogsDashboard() {
              attached, and the seconds count is how long since the last one. */
           <div
             className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur-md transition-all duration-300 ${
-              isSyncing
-                ? 'border-emerald-400 bg-emerald-500/25 text-emerald-300 shadow-emerald-500/20 ring-2 ring-emerald-400/40'
-                : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+              loadError
+                ? 'border-red-500/40 bg-red-500/10 text-red-300'
+                : isSyncing
+                  ? 'border-emerald-400 bg-emerald-500/25 text-emerald-300 shadow-emerald-500/20 ring-2 ring-emerald-400/40'
+                  : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
             }`}
             title={
-              lastUpdated === null
-                ? 'Listening for real-time database changes'
-                : secondsAgo < 5
-                  ? 'Updated just now'
-                  : `Last change ${secondsAgo}s ago`
+              loadError
+                ? loadError
+                : lastUpdated === null
+                  ? 'Loading chat logs; they refresh every 10 seconds'
+                  : `Refreshed ${secondsAgo < 5 ? 'just now' : `${secondsAgo}s ago`}; refreshes every 10 seconds`
             }
             aria-label={
-              lastUpdated === null
-                ? 'Listening for real-time database changes'
-                : secondsAgo < 5
-                  ? 'Updated just now'
-                  : `Last change ${secondsAgo}s ago`
+              loadError
+                ? loadError
+                : lastUpdated === null
+                  ? 'Loading chat logs; they refresh every 10 seconds'
+                  : `Refreshed ${secondsAgo < 5 ? 'just now' : `${secondsAgo}s ago`}; refreshes every 10 seconds`
             }
           >
             <span
               className={`h-2 w-2 rounded-full transition-transform ${
-                isSyncing ? 'scale-125 animate-ping bg-emerald-300' : 'animate-pulse bg-emerald-400'
+                loadError ? 'bg-red-400' : isSyncing ? 'scale-125 animate-ping bg-emerald-300' : 'bg-emerald-400'
               }`}
             />
             <span className="font-semibold tracking-wide">
-              {isSyncing ? 'SYNCED' : lastUpdated === null || secondsAgo < 5 ? 'LIVE' : `${secondsAgo}s ago`}
+              {loadError ? 'OFFLINE' : isSyncing ? 'UPDATED' : lastUpdated === null ? 'LOADING' : `${secondsAgo}s ago`}
             </span>
           </div>
         }
       />
 
       <main className="min-w-0 space-y-6 px-6 py-6">
+        {feedbackNotice && (
+          <p role="alert" className="rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">
+            {feedbackNotice}
+          </p>
+        )}
         {/* 1. TOP STATS BAR */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Inquiries & Breakdown */}
@@ -855,7 +877,7 @@ export function LogsDashboard() {
             <span className="text-xs text-muted-foreground">responses</span>
           </div>
           <div className="mt-2 text-[11px] text-muted-foreground">
-            {metrics.errorCount === 0 ? 'Zero errors' : `${metrics.errorCount} errors`}
+            {metrics.errorCount === 0 ? 'Zero failed turns' : `${metrics.errorCount} failed turns`}
           </div>
         </div>
 
@@ -863,7 +885,7 @@ export function LogsDashboard() {
         <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-neutral-900/90 to-neutral-950/90 p-4 shadow-sm backdrop-blur-md">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Unique Sessions
+              Couldn&rsquo;t verify
             </span>
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
               <Users className="h-4 w-4" />
@@ -871,12 +893,12 @@ export function LogsDashboard() {
           </div>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-2xl font-bold tracking-tight text-purple-300">
-              {metrics.uniqueSessions.toLocaleString()}
+              {metrics.unverifiedCount.toLocaleString()}
             </span>
-            <span className="text-xs text-muted-foreground">conversations</span>
+            <span className="text-xs text-muted-foreground">turns</span>
           </div>
           <div className="mt-2 text-[11px] text-muted-foreground">
-            Continuous multi-turn tracking
+            Answers review rejected (safe fallback)
           </div>
         </div>
       </div>
@@ -1023,20 +1045,6 @@ export function LogsDashboard() {
                   <div className="space-y-1">
                     {[
                       {
-                        key: 'sessions',
-                        label: 'Conversations',
-                        desc: 'Grouped by session ID',
-                        icon: Users,
-                        color: 'text-purple-400',
-                      },
-                      {
-                        key: 'devices',
-                        label: 'By Device / Cookie',
-                        desc: 'Grouped by visitor cookie',
-                        icon: Cookie,
-                        color: 'text-emerald-400',
-                      },
-                      {
                         key: 'cards',
                         label: 'Questions Feed',
                         desc: 'Individual card breakdown',
@@ -1103,6 +1111,18 @@ export function LogsDashboard() {
             <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <RefreshCw className="h-8 w-8 animate-spin text-sky-400 mb-3" />
               <p className="text-sm">Connecting to PostgreSQL chat logs...</p>
+            </div>
+          ) : loadError && logs.length === 0 ? (
+            <div role="alert" className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 py-16 text-center">
+              <h3 className="text-base font-semibold text-white">Chat logs could not be loaded</h3>
+              <p className="max-w-md text-sm text-muted-foreground">{loadError}</p>
+              <button
+                type="button"
+                onClick={() => fetchLogs(true, false)}
+                className="min-h-10 rounded-lg border border-white/20 px-4 text-sm font-semibold text-white hover:bg-white/10"
+              >
+                Retry
+              </button>
             </div>
           ) : logs.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-neutral-900/40 py-20 text-center text-muted-foreground">

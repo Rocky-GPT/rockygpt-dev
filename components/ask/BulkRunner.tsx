@@ -1,33 +1,29 @@
 'use client';
 
 import { Square } from 'lucide-react';
-import type { TurnOutcome } from './types';
 
 export interface BulkProgress {
   running: boolean;
   asked: number;
   /** The system broke. */
   failed: number;
-  /** A guard refused. Counted apart, because it is not the same news. */
+  /**
+   * The Brain answered "unavailable": a guard refused or a fact could not be
+   * verified. Counted apart, because it is not the same news. Counted from the
+   * Brain's status, not HTTP 200 (09-29).
+   */
   declined: number;
+  /** Answered in part: the Brain's `partial` status. */
+  partial: number;
+  /** The new Brain's step for the route isn't built yet: not a failure (09-29). */
+  notBuilt: number;
   total: number;
   stop: () => void;
   stopped?: boolean;
 }
 
-export function BulkRunner({
-  progress,
-  shown,
-  onShowOnly,
-}: {
-  progress: BulkProgress;
-  /** The outcomes currently on screen, so a chip can show it is the only one. */
-  shown: ReadonlySet<TurnOutcome>;
-  /** The counts are where the eye already is, so they are also the control. */
-  onShowOnly: (outcome: TurnOutcome) => void;
-}) {
-  const { running, asked, failed, declined, total, stop, stopped } = progress;
-  const only = (outcome: TurnOutcome) => shown.size === 1 && shown.has(outcome);
+export function BulkRunner({ progress }: { progress: BulkProgress }) {
+  const { running, asked, failed, declined, partial, notBuilt, total, stop, stopped } = progress;
   const percent = total === 0 ? 0 : Math.round((asked / total) * 100);
 
   return (
@@ -36,35 +32,25 @@ export function BulkRunner({
         <span className="text-xs font-medium text-foreground">
           {running ? 'Running' : stopped ? 'Stopped' : 'Finished'} {asked} of {total}
         </span>
+        {partial > 0 && (
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-sky-300">
+            {partial} partial
+          </span>
+        )}
         {declined > 0 && (
-          <button
-            type="button"
-            onClick={() => onShowOnly('declined')}
-            aria-pressed={only('declined')}
-            title={only('declined') ? 'Show every turn' : 'Show only the declined turns'}
-            className={`shrink-0 rounded border px-1.5 py-0.5 text-xs transition-colors ${
-              only('declined')
-                ? 'border-amber-500/50 bg-amber-500/15 text-amber-200'
-                : 'border-transparent text-amber-300 hover:border-amber-500/30 hover:bg-amber-500/10'
-            }`}
-          >
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-amber-300">
             {declined} declined
-          </button>
+          </span>
+        )}
+        {notBuilt > 0 && (
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-muted-foreground">
+            {notBuilt} not built yet
+          </span>
         )}
         {failed > 0 && (
-          <button
-            type="button"
-            onClick={() => onShowOnly('failed')}
-            aria-pressed={only('failed')}
-            title={only('failed') ? 'Show every turn' : 'Show only the failed turns'}
-            className={`shrink-0 rounded border px-1.5 py-0.5 text-xs transition-colors ${
-              only('failed')
-                ? 'border-red-500/50 bg-red-500/15 text-red-200'
-                : 'border-transparent text-red-300 hover:border-red-500/30 hover:bg-red-500/10'
-            }`}
-          >
+          <span className="shrink-0 rounded px-1.5 py-0.5 text-xs text-red-300">
             {failed} failed
-          </button>
+          </span>
         )}
         <div className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-white/10">
           <div

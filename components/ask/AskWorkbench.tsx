@@ -2,58 +2,42 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AlertCircle,
   Check,
   ClipboardCopy,
   Download,
   FileDown,
-  Filter,
-  ShieldAlert,
   PanelRightClose,
   PanelRightOpen,
-  Plus,
   Trash2,
 } from 'lucide-react';
-import { PageHeader } from '@/components/shell/PageHeader';
 import { BulkQuestionModal } from '@/components/BulkQuestionModal';
-import { Composer } from './Composer';
-import { TurnList } from './TurnList';
-import { TurnInspector } from './TurnInspector';
+import { PageHeader } from '@/components/shell/PageHeader';
+import { buildBody, validate, windowHistory, type ChatMessageInput } from '@/lib/chat-request';
+import { exportConversation } from '@/lib/turn-export';
 import { BulkRunner, type BulkProgress } from './BulkRunner';
+import { Composer } from './Composer';
 import { useAskSession } from './AskSession';
-import { OUTCOMES, type Turn, type TurnOutcome } from './types';
-import {
-  buildBody,
-  buildHistory,
-  classifyFailure,
-  describeFailure,
-  newConversationId,
-  validate,
-  type ChatRequestBody,
-  type ComposerState,
-} from '@/lib/chat-request';
+import { neighborTab, shownTab } from '@/lib/inspector-tabs';
+import { turnTabs } from './turnTabs';
+import { TurnInspector } from './TurnInspector';
+import { TurnList } from './TurnList';
+import { conversationHistory, currentOutcome, historyOf, turnOutcome, type Turn } from './types';
+
+interface SendOptions {
+  signal?: AbortSignal;
+  priorMessages?: ChatMessageInput[];
+  select?: boolean;
+  bulk?: boolean;
+}
 
 /**
- * How many turns to keep. A hundred turns of trace is a few megabytes of React
- * state, which is fine — but a long bulk session should degrade visibly rather
- * than silently, so the ceiling is stated and the drop is announced.
+ * The conversation this app replays as history: every turn the Brain answered,
+ * including an "unavailable" one, since its reply is part of what the student would
+ * have read. Failed and bulk turns are not. Bulk runs build their own.
  */
-const MAX_RETAINED_TURNS = 200;
-
-/** The same mark and tone the list draws, so the filter reads as the list. */
-const OUTCOME_TONE: Record<TurnOutcome, { icon: typeof Check; tone: string }> = {
-  ok: { icon: Check, tone: 'text-emerald-400' },
-  declined: { icon: ShieldAlert, tone: 'text-amber-400' },
-  failed: { icon: AlertCircle, tone: 'text-red-400' },
-};
-
-const EVERY_OUTCOME: ReadonlySet<TurnOutcome> = new Set(OUTCOMES.map((outcome) => outcome.id));
+type ConversationExportStatus = 'idle' | 'copied' | 'downloaded' | 'copy-error';
 
 export function AskWorkbench() {
-  // The thread outlives this page: it is held by `AskSessionProvider` up in the
-  // shell, so stepping over to Capabilities and back returns to the same
-  // conversation rather than a new one. What stays local is the request in
-  // flight, which genuinely does not survive leaving the page it was sent from.
   const {
     state,
     setState,
@@ -61,450 +45,331 @@ export function AskWorkbench() {
     setTurns,
     selectedId,
     setSelectedId,
-    dropped,
-    setDropped,
     inspectorOpen,
     setInspectorOpen,
+    inspectorTab,
+    setInspectorTab,
+    ready,
+    storageWarning,
   } = useAskSession();
   const [busy, setBusy] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulk, setBulk] = useState<BulkProgress | null>(null);
-  // A view of the list, not a fact about the thread, so it stays local: coming
-  // back to Ask should show what is there rather than what was last narrowed to.
-  //
-  // A set rather than a flag, because the useful questions are combinations:
-  // what broke and what was refused, ignoring the answers; or what answered and
-  // what was refused, ignoring an outage someone already knows about.
-  const [shown, setShown] = useState<ReadonlySet<TurnOutcome>>(EVERY_OUTCOME);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
-  const [exportOpen, setExportOpen] = useState(false);
-  const [exported, setExported] = useState(false);
-  const exportRef = useRef<HTMLDivElement>(null);
+  const [conversationExportOpen, setConversationExportOpen] = useState(false);
+  const [conversationExportStatus, setConversationExportStatus] =
+    useState<ConversationExportStatus>('idle');
+  const conversationExportRef = useRef<HTMLDivElement>(null);
+  const conversationExportTimerRef = useRef<number | null>(null);
+  const turnsRef = useRef(turns);
+  const problems = useMemo(() => validate(state), [state]);
+  const pendingReply = turns.some(turn => turn.status === 'pending');
 
-  // Read by the send path rather than the render closure, so a bulk run holding
-  // one closure across dozens of awaits still sees current turns. Synced in an
-  // effect rather than assigned during render, which React treats as a bug —
-  // a render that is thrown away would still have mutated it.
-  const turnsRef = useRef<Turn[]>([]);
   useEffect(() => {
     turnsRef.current = turns;
   }, [turns]);
 
-  // Same dismissal contract as the menus on Chat Logs: a click anywhere else
-  // or Escape closes it. Bound only while open, so the app is not listening to
-  // every click on the document for the sake of a menu nobody opened.
+  // The bulk run's progress and Stop button live in this page. Leaving the
+  // page used to leave a paid run going with no way to stop it, writing turns
+  // into the session behind the next page's back, so leaving stops it.
+  const bulkStopRef = useRef<(() => void) | null>(null);
   useEffect(() => {
-    if (!exportOpen) return;
-    const onPointerDown = (event: MouseEvent) => {
-      if (exportRef.current && !exportRef.current.contains(event.target as Node)) {
-        setExportOpen(false);
+    bulkStopRef.current = bulk?.running ? bulk.stop : null;
+  }, [bulk]);
+  useEffect(() => () => bulkStopRef.current?.(), []);
+
+  useEffect(
+    () => () => {
+      if (conversationExportTimerRef.current !== null) {
+        window.clearTimeout(conversationExportTimerRef.current);
       }
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExportOpen(false);
-    };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [exportOpen]);
+    },
+    []
+  );
 
   useEffect(() => {
-    if (!filterOpen) return;
-    const onPointerDown = (event: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setFilterOpen(false);
+    if (!conversationExportOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (
+        conversationExportRef.current &&
+        !conversationExportRef.current.contains(event.target as Node)
+      ) {
+        setConversationExportOpen(false);
       }
     };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setFilterOpen(false);
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setConversationExportOpen(false);
     };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
     return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
     };
-  }, [filterOpen]);
+  }, [conversationExportOpen]);
 
-  const problems = useMemo(() => validate(state), [state]);
-
-  const pushTurn = useCallback((turn: Turn) => {
-    setTurns((current) => {
-      const next = [...current, turn];
-      if (next.length <= MAX_RETAINED_TURNS) return next;
-      setDropped((count) => count + next.length - MAX_RETAINED_TURNS);
-      return next.slice(next.length - MAX_RETAINED_TURNS);
-    });
-  }, [setTurns, setDropped]);
-
-  /**
-   * Sends one turn and records everything about it.
-   *
-   * No typewriter, no optimistic answer bubble, no haptics. A pending turn is a
-   * question and a spinner: rendering anything where the answer goes before the
-   * brain has sent one would be inventing text, which is the one thing this
-   * app must not do.
-   */
   const send = useCallback(
-    async (message: string, signal?: AbortSignal): Promise<Turn> => {
-      const localId = crypto.randomUUID();
-      const composer: ComposerState = { ...state, message };
-      const history = buildHistory(
-        turnsRef.current.map((turn) => ({
-          question: turn.question,
-          answer: typeof turn.raw?.answer === 'string' ? turn.raw.answer : undefined,
-          ok: turn.status === 'ok',
-        }))
-      );
-      const body: ChatRequestBody = buildBody(composer, history);
+    async (message: string, options: SendOptions = {}): Promise<Turn> => {
       const startedAt = Date.now();
-
+      const startedMono = performance.now();
+      const elapsedUs = () => Math.round((performance.now() - startedMono) * 1_000);
+      // Typed questions and bulk runs with history share one window, and the Brain
+      // is told how much was left out (09-29).
+      const history = windowHistory(
+        options.priorMessages ?? conversationHistory(turnsRef.current),
+        message
+      );
+      const body = buildBody({ message }, history.messages, history.omittedMessages);
+      const requestText = JSON.stringify(body);
+      const localId = crypto.randomUUID();
       const pending: Turn = {
         localId,
         question: message.trim(),
         request: body,
+        requestText,
         status: 'pending',
         startedAt,
+        bulk: options.bulk,
       };
-      pushTurn(pending);
-      setSelectedId(localId);
 
-      /**
-       * Records how the turn ended, and answers with it.
-       *
-       * The settled turn is built here rather than read back out of the state
-       * updater. React runs an updater during render, not during the call that
-       * schedules it — it runs one early only as a bail-out optimisation, and
-       * only while nothing else is queued. So the assignment this used to read
-       * back was there for a single turn and gone during a bulk run, where the
-       * queue is never empty, and the `?? { status: 'failed' }` it fell through
-       * to reported every answered question as a failure. The rows on screen
-       * were right the whole time: only what `send` returned was wrong, and
-       * the bulk counter is the one thing that reads it.
-       */
+      turnsRef.current = [...turnsRef.current, pending];
+      setTurns(previous => [...previous, pending]);
+      if (options.select !== false) setSelectedId(localId);
+
+      let current = pending;
+      let preparedUs = 0;
+      let headersUs: number | undefined;
+      let bodyUs: number | undefined;
+      let brainTotalUs: number | undefined;
+      const write = (turn: Turn) => {
+        current = turn;
+        turnsRef.current = turnsRef.current.map((existing) =>
+          existing.localId === localId ? turn : existing
+        );
+        // Read the shared session, including turns created after page navigation.
+        // A cleared conversation also stays cleared when a late reply arrives.
+        setTurns(previous => previous.map(existing => existing.localId === localId ? turn : existing));
+      };
       const settle = (patch: Partial<Turn>): Turn => {
-        const settled: Turn = { ...pending, ...patch, latencyMs: Date.now() - startedAt };
-        setTurns((current) => current.map((turn) => (turn.localId === localId ? settled : turn)));
-        return settled;
+        const finishedAt = Date.now();
+        const totalUs = elapsedUs();
+        write({
+          ...current,
+          ...patch,
+          finishedAt,
+          latencyMs: totalUs / 1_000,
+          timing: { totalUs, preparedUs, headersUs, bodyUs, brainTotalUs },
+        });
+        return current;
       };
 
       try {
+        preparedUs = elapsedUs();
         const response = await fetch('/api/brain/chat', {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(body),
-          signal,
+          headers: { 'content-type': 'application/json', accept: 'application/json' },
+          body: requestText,
+          signal: options.signal,
         });
-        // Bytes first, then parse. The raw text is what the wire said; a
-        // re-stringified object is not the same artifact.
+        headersUs = elapsedUs();
+        const serverTime = response.headers.get('x-rockygpt-brain-total-us');
+        if (serverTime !== null && /^\d+$/.test(serverTime)) {
+          const duration = Number(serverTime);
+          if (Number.isSafeInteger(duration)) brainTotalUs = duration;
+        }
+        const httpStatus = response.status;
         const rawText = await response.text();
-        const headerId = response.headers.get('x-request-id') ?? undefined;
-
+        bodyUs = elapsedUs();
         let raw: Record<string, unknown> | undefined;
         try {
           raw = JSON.parse(rawText) as Record<string, unknown>;
         } catch {
           raw = undefined;
         }
-        const requestId =
-          headerId ?? (typeof raw?.requestId === 'string' ? raw.requestId : undefined);
-
-        if (!response.ok) {
-          return settle({
-            status: classifyFailure(rawText),
-            httpStatus: response.status,
-            rawText,
-            raw,
-            requestId,
-            failure: describeFailure(response.status, rawText, requestId),
-          });
-        }
+        const status = turnOutcome(httpStatus, raw);
 
         return settle({
-          status: 'ok',
-          httpStatus: response.status,
+          status,
+          httpStatus,
           rawText,
           raw,
-          requestId,
+          requestId:
+            response.headers.get('x-request-id') ??
+            (typeof raw?.requestId === 'string' ? raw.requestId : undefined),
+          failure: status === 'failed' ? describeFailure(httpStatus, raw) : undefined,
         });
       } catch (error) {
-        const aborted = error instanceof DOMException && error.name === 'AbortError';
+        const stopped = error instanceof DOMException && error.name === 'AbortError';
+        const raw = stopped
+          ? {
+              error: 'The request was stopped before the Brain answered.',
+              reason: 'cancelled',
+              detail: 'The Dev UI cancelled this request.',
+              retryable: true,
+            }
+          : {
+              error: 'The Dev UI could not complete the request.',
+              reason: 'client_network_error',
+              detail: error instanceof Error ? error.message : String(error),
+              retryable: true,
+            };
         return settle({
           status: 'failed',
-          failure: aborted ? 'Stopped.' : `Request failed — ${String(error)}`,
+          raw,
+          failure: describeFailure(0, raw),
         });
       }
     },
-    [state, pushTurn, setTurns, setSelectedId]
+    [setSelectedId, setTurns]
   );
 
   const sendFromComposer = useCallback(async () => {
-    if (problems.length > 0 || busy) return;
+    if (!ready || busy || pendingReply || bulk?.running || problems.length > 0) return;
     const message = state.message;
-    setState((current) => ({ ...current, message: '' }));
+    setState({ message: '' });
     setBusy(true);
     try {
       await send(message);
     } finally {
       setBusy(false);
     }
-  }, [problems.length, busy, state.message, send, setState]);
+  }, [ready, pendingReply, bulk?.running, busy, problems.length, send, setState, state.message]);
 
-  // Counted from the turns rather than from the bulk progress, so a single
-  // send's outcome is filterable too, and so the counts cannot disagree with
-  // what the filter actually shows.
-  const counts = OUTCOMES.reduce<Record<TurnOutcome, number>>(
-    (tally, outcome) => ({
-      ...tally,
-      [outcome.id]: turns.filter((turn) => turn.status === outcome.id).length,
-    }),
-    { ok: 0, declined: 0, failed: 0 }
-  );
-  const filtering = shown.size < OUTCOMES.length;
-  // A turn still in flight has no outcome to filter on, and hiding it would
-  // make a run look stalled. It stays, whatever is selected.
-  const shownTurns = filtering
-    ? turns.filter((turn) => turn.status === 'pending' || shown.has(turn.status))
-    : turns;
+  const conversationJson = () => exportConversation(turns);
 
-  const toggleOutcome = (outcome: TurnOutcome) =>
-    setShown((current) => {
-      const next = new Set(current);
-      if (next.has(outcome)) next.delete(outcome);
-      else next.add(outcome);
-      return next;
-    });
-
-  // What a count chip does: narrow to just this, or undo that.
-  const showOnly = (outcome: TurnOutcome) =>
-    setShown((current) =>
-      current.size === 1 && current.has(outcome) ? EVERY_OUTCOME : new Set([outcome])
-    );
-
-  // Named where the export is offered, so the narrowed case is never a
-  // surprise found later in the file.
-  const exportScope = filtering
-    ? `the ${shownTurns.length} shown turn${shownTurns.length === 1 ? '' : 's'}`
-    : `all ${shownTurns.length} turn${shownTurns.length === 1 ? '' : 's'}`;
-
-  const selected = turns.find((turn) => turn.localId === selectedId);
-  // Stepping walks the list on screen. It used to walk every turn carrying a
-  // trace, which was the same list until a filter existed; now they differ, and
-  // an arrow that jumps to a turn the filter is hiding is an arrow that undoes
-  // the filter without saying so.
-  const position = shownTurns.findIndex((turn) => turn.localId === selectedId);
-
-  const stepTurn = useCallback(
-    (delta: number) => {
-      if (shownTurns.length === 0) return;
-      const at = shownTurns.findIndex((turn) => turn.localId === selectedId);
-      // Nothing selected yet: enter the list from the end you asked for.
-      const next = at === -1 ? (delta > 0 ? 0 : shownTurns.length - 1) : at + delta;
-      if (next < 0 || next >= shownTurns.length) return;
-      setSelectedId(shownTurns[next].localId);
-    },
-    [shownTurns, selectedId, setSelectedId]
-  );
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const forward = event.key === 'ArrowRight' || event.key === 'ArrowUp';
-      const back = event.key === 'ArrowLeft' || event.key === 'ArrowDown';
-      if (!forward && !back) return;
-      if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
-      // The inspector binds these on its own panel and calls `preventDefault`;
-      // letting both fire would step twice for one press.
-      if (event.defaultPrevented) return;
-      // A caret is what arrow keys are for wherever text is being edited, and
-      // an open dialog owns its own keys.
-      // `event.target` is only an element when something is focused; on a
-      // document-level keydown it can be the document itself, which has no
-      // `closest` and would throw rather than fall through.
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        target.closest('input, textarea, select, [contenteditable="true"]')
-      ) {
-        return;
-      }
-      if (document.querySelector('[role="dialog"]')) return;
-      event.preventDefault();
-      stepTurn(forward ? 1 : -1);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [stepTurn]);
-
-  /**
-   * The session as NDJSON: one turn per line, request and response whole.
-   *
-   * Both export routes render the same bytes, because they are the same
-   * artifact wanted two ways — a file to keep and re-read, or a paste into the
-   * issue you are already writing. Making the second one a save-then-open was
-   * the friction worth removing.
-   *
-   * It exports what the list shows. Narrowing to the failures and then
-   * exporting is one action — here are the ones that broke — and an export
-   * that quietly widened back to everything would be the wrong artifact
-   * attached to the report.
-   */
-  const sessionNdjson = () =>
-    shownTurns
-      .map((turn) =>
-        JSON.stringify({
-          question: turn.question,
-          status: turn.status,
-          httpStatus: turn.httpStatus,
-          latencyMs: turn.latencyMs,
-          requestId: turn.requestId,
-          request: turn.request,
-          response: turn.raw,
-        })
-      )
-      .join('\n');
-
-  const copySession = () => {
-    void navigator.clipboard.writeText(sessionNdjson());
-    setExportOpen(false);
-    setExported(true);
-    setTimeout(() => setExported(false), 2000);
+  const showConversationExportStatus = (status: ConversationExportStatus) => {
+    if (conversationExportTimerRef.current !== null) {
+      window.clearTimeout(conversationExportTimerRef.current);
+    }
+    setConversationExportStatus(status);
+    conversationExportTimerRef.current = window.setTimeout(() => {
+      setConversationExportStatus('idle');
+      conversationExportTimerRef.current = null;
+    }, 2500);
   };
 
-  const saveSessionFile = () => {
-    const blob = new Blob([sessionNdjson()], { type: 'application/x-ndjson' });
-    const url = URL.createObjectURL(blob);
+  const copyConversation = async () => {
+    try {
+      await copyText(conversationJson());
+      showConversationExportStatus('copied');
+    } catch {
+      showConversationExportStatus('copy-error');
+    }
+  };
+
+  const downloadConversation = () => {
+    const url = URL.createObjectURL(new Blob([conversationJson()], { type: 'application/json' }));
     const anchor = document.createElement('a');
     anchor.href = url;
-    const scope = filtering
-      ? `-${OUTCOMES.filter((outcome) => shown.has(outcome.id))
-          .map((outcome) => outcome.id)
-          .join('-')}`
-      : '';
-    anchor.download = `rockygpt-dev-session${scope}-${new Date().toISOString().slice(0, 19)}.ndjson`;
+    anchor.download = `rockygpt-dev-conversation-${new Date().toISOString().slice(0, 19)}.json`;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(url);
-    setExportOpen(false);
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showConversationExportStatus('downloaded');
+  };
+
+  const shown = useMemo(() => turns.map(currentOutcome), [turns]);
+  const selected = shown.find((turn) => turn.localId === selectedId);
+  const position = turns.findIndex((turn) => turn.localId === selectedId);
+  const stepTurn = (delta: number) => {
+    const next = position + delta;
+    if (next >= 0 && next < turns.length) setSelectedId(turns[next].localId);
+  };
+
+  // Up and Down step through the questions like the inspector's arrows, except while
+  // typing or picking in a field or menu (Dan, 09-29).
+  useEffect(() => {
+    const step = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.shiftKey || bulkOpen || typesHere(event.target) || turns.length === 0) return;
+      const down = event.key === 'ArrowDown';
+      const current = turns.findIndex((turn) => turn.localId === selectedId);
+      const next = current < 0 ? (down ? 0 : turns.length - 1) : current + (down ? 1 : -1);
+      if (next < 0 || next >= turns.length) return;
+      event.preventDefault();
+      setSelectedId(turns[next].localId);
+    };
+    document.addEventListener('keydown', step);
+    return () => document.removeEventListener('keydown', step);
+  }, [turns, selectedId, bulkOpen, setSelectedId]);
+
+  // Left and Right switch the inspector's tabs, except while typing in a box that has text (the arrows
+  // move its caret) or picking in a menu. An empty question box does not count: there is nothing to move.
+  useEffect(() => {
+    const switchTab = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.shiftKey || bulkOpen || !inspectorOpen || !selected) return;
+      if (typesHere(event.target) && !emptyTextBox(event.target)) return;
+      event.preventDefault();
+      const tabs = turnTabs(selected);
+      setInspectorTab(neighborTab(tabs, shownTab(tabs, inspectorTab), event.key === 'ArrowRight' ? 1 : -1));
+    };
+    document.addEventListener('keydown', switchTab);
+    return () => document.removeEventListener('keydown', switchTab);
+  }, [selected, inspectorOpen, inspectorTab, bulkOpen, setInspectorTab]);
+
+  // Clearing starts a new conversation: the history sent with a question is made from the turns.
+  // A reply that arrives after this is ignored, so it stays cleared.
+  const clearTurns = () => {
+    turnsRef.current = [];
+    setTurns([]);
+    setSelectedId(undefined);
   };
 
   return (
     <>
       <PageHeader
         title="Ask & Inspect"
-        subtitle={`${state.conversationId || 'new thread'} · ${turns.length} turn${turns.length === 1 ? '' : 's'}${
-          dropped ? ` · ${dropped} dropped` : ''
-        }${filtering ? ` · showing ${shownTurns.length} of ${turns.length}` : ''}`}
+        subtitle={`${turns.length} turn${turns.length === 1 ? '' : 's'} · POST /v1/chat`}
         actions={
           <>
-            <HeaderButton
-              onClick={() => setState((current) => ({ ...current, conversationId: newConversationId() }))}
-              title="New thread — a fresh conversationId, keeping the turns on screen"
-            >
-              <Plus className="h-4 w-4" />
-            </HeaderButton>
-            <HeaderButton
-              onClick={() => {
-                setTurns([]);
-                setSelectedId(undefined);
-                setDropped(0);
-                setShown(EVERY_OUTCOME);
-              }}
-              title="Clear turns"
-            >
+            <HeaderButton onClick={clearTurns} title="Clear turns">
               <Trash2 className="h-4 w-4" />
             </HeaderButton>
-            {/* Offered only when there is something to filter to. */}
             {turns.length > 0 && (
-              <div ref={filterRef} className="relative">
+              <div ref={conversationExportRef} className="relative">
                 <HeaderButton
-                  onClick={() => setFilterOpen((open) => !open)}
-                  title={filtering ? 'Filtered by outcome' : 'Filter by outcome'}
-                  expanded={filterOpen}
-                  active={filtering}
+                  onClick={() => setConversationExportOpen((open) => !open)}
+                  title="Export all conversation as JSON"
+                  expanded={conversationExportOpen}
                 >
-                  <Filter className="h-4 w-4" />
+                  {conversationExportStatus === 'copied' ||
+                  conversationExportStatus === 'downloaded' ? (
+                    <Check className="h-4 w-4 text-emerald-400" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
                 </HeaderButton>
-                {filterOpen && (
+                {conversationExportOpen && (
                   <div
                     role="menu"
-                    className="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-2xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
+                    className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
                   >
-                    {OUTCOMES.map(({ id, label }) => {
-                      const { icon: Mark, tone } = OUTCOME_TONE[id];
-                      const on = shown.has(id);
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          role="menuitemcheckbox"
-                          aria-checked={on}
-                          onClick={() => toggleOutcome(id)}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-white/10"
-                        >
-                          <span
-                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                              on ? 'border-sky-400/60 bg-sky-500/20' : 'border-white/20'
-                            }`}
-                          >
-                            {on && <Check className="h-3 w-3 text-sky-300" />}
-                          </span>
-                          <Mark className={`h-3.5 w-3.5 shrink-0 ${tone}`} />
-                          <span className="min-w-0 flex-1 text-sm text-foreground">{label}</span>
-                          <span className="font-mono text-[11px] text-muted-foreground">
-                            {counts[id]}
-                          </span>
-                        </button>
-                      );
-                    })}
-                    {filtering && (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => setShown(EVERY_OUTCOME)}
-                        className="mt-1 flex w-full items-center justify-center rounded-xl border-t border-white/10 px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-                      >
-                        Show all
-                      </button>
+                    <ConversationExportItem
+                      icon={conversationExportStatus === 'copied' ? Check : ClipboardCopy}
+                      label={conversationExportStatus === 'copied' ? 'Copied JSON' : 'Copy JSON'}
+                      onClick={() => void copyConversation()}
+                    />
+                    <ConversationExportItem
+                      icon={conversationExportStatus === 'downloaded' ? Check : FileDown}
+                      label={
+                        conversationExportStatus === 'downloaded'
+                          ? 'Downloaded JSON'
+                          : 'Download JSON'
+                      }
+                      onClick={downloadConversation}
+                    />
+                    {conversationExportStatus === 'copy-error' && (
+                      <p role="status" className="px-2.5 pb-1 pt-2 text-xs leading-4 text-red-300">
+                        Couldn&apos;t copy JSON. Check this browser&apos;s clipboard permission.
+                      </p>
                     )}
                   </div>
                 )}
               </div>
             )}
-            <div ref={exportRef} className="relative">
-              <HeaderButton
-                onClick={() => setExportOpen((open) => !open)}
-                title="Export this session as NDJSON"
-                expanded={exportOpen}
-              >
-                {exported ? (
-                  <Check className="h-4 w-4 text-emerald-400" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-              </HeaderButton>
-              {exportOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 top-full z-50 mt-2 w-60 origin-top-right rounded-2xl border border-white/15 bg-neutral-900/95 p-1.5 shadow-2xl backdrop-blur-2xl"
-                >
-                  <ExportItem
-                    icon={ClipboardCopy}
-                    label="Clipboard"
-                    hint={exportScope}
-                    onClick={copySession}
-                  />
-                  <ExportItem
-                    icon={FileDown}
-                    label="File"
-                    hint={`.ndjson · ${exportScope}`}
-                    onClick={saveSessionFile}
-                  />
-                </div>
-              )}
-            </div>
             <HeaderButton
               onClick={() => setInspectorOpen((open) => !open)}
               title={inspectorOpen ? 'Hide inspector' : 'Show inspector'}
@@ -519,36 +384,29 @@ export function AskWorkbench() {
         }
       />
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col border-border lg:border-r">
-          {bulk && (
-            <BulkRunner progress={bulk} shown={shown} onShowOnly={showOnly} />
-          )}
-          <TurnList
-            turns={shownTurns}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            filtered={filtering}
-            onShowAll={() => setShown(EVERY_OUTCOME)}
-          />
+      {storageWarning && <p role="status" className="px-5 py-2 text-xs text-amber-300">{storageWarning}</p>}
+      <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col border-border lg:min-h-0 lg:border-r">
+          {bulk && <BulkRunner progress={bulk} />}
+          <TurnList turns={shown} selectedId={selectedId} onSelect={setSelectedId} />
           <Composer
             state={state}
             onChange={(patch) => setState((current) => ({ ...current, ...patch }))}
-            onSend={sendFromComposer}
+            onSend={() => void sendFromComposer()}
             onOpenBulk={() => setBulkOpen(true)}
-            busy={busy || bulk?.running === true}
+            onClear={clearTurns}
+            canClear={turns.length > 0}
+            busy={!ready || busy || pendingReply || bulk?.running === true}
             problems={problems}
           />
         </div>
 
         {inspectorOpen && (
-          <div className="flex min-h-0 w-full shrink-0 flex-col border-t border-border lg:w-[46rem] lg:max-w-[50%] lg:border-t-0">
+          <div className="flex w-full shrink-0 flex-col border-t border-border lg:min-h-0 lg:w-[46rem] lg:max-w-[50%] lg:border-t-0">
             <TurnInspector
-              payload={selected?.raw}
-              question={selected?.question}
-              requestId={selected?.localId}
+              turn={selected}
               onPrev={position > 0 ? () => stepTurn(-1) : undefined}
-              onNext={position >= 0 && position < shownTurns.length - 1 ? () => stepTurn(1) : undefined}
+              onNext={position >= 0 && position < turns.length - 1 ? () => stepTurn(1) : undefined}
             />
           </div>
         )}
@@ -558,91 +416,55 @@ export function AskWorkbench() {
         isOpen={bulkOpen}
         onClose={() => setBulkOpen(false)}
         sessionQuestions={turns.map((turn) => turn.question)}
-        onStartSequence={(questions, delayMs) => {
-          setBulkOpen(false);
-          void runBulk(questions, delayMs, send, setBulk);
+        onStartSequence={(questions, delayMs, preserveHistory) => {
+          void runBulk(questions, delayMs, preserveHistory, send, setBulk);
         }}
       />
     </>
   );
 }
 
-function HeaderButton({
-  onClick,
-  title,
-  children,
-  expanded,
-  active,
-}: {
-  onClick: () => void;
-  title: string;
-  children: React.ReactNode;
-  /** Set only by a button that owns a menu, which then announces its state. */
-  expanded?: boolean;
-  /** A toggle that is currently on, drawn so the list's state has a cause. */
-  active?: boolean;
-}) {
+/** Whether a key pressed here belongs to a field or menu rather than the page. */
+function typesHere(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      aria-label={title}
-      aria-haspopup={expanded === undefined ? undefined : 'menu'}
-      aria-expanded={expanded}
-      aria-pressed={active}
-      className={`rounded-lg border p-2 transition-colors ${
-        active
-          ? 'border-sky-500/50 bg-sky-500/10 text-sky-300'
-          : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-      }`}
-    >
-      {children}
-    </button>
+    target.isContentEditable ||
+    target.closest('input, textarea, select, [role="menu"], [role="listbox"]') !== null
   );
 }
 
-function ExportItem({
-  icon: Icon,
-  label,
-  hint,
-  onClick,
-}: {
-  icon: typeof ClipboardCopy;
-  label: string;
-  hint: string;
-  onClick: () => void;
-}) {
+/** An empty text box has no caret to move, so the arrow keys are free for the page. */
+function emptyTextBox(target: EventTarget | null): boolean {
   return (
-    <button
-      type="button"
-      role="menuitem"
-      onClick={onClick}
-      className="flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-white/10"
-    >
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-      <span className="min-w-0">
-        <span className="block text-sm font-medium text-foreground">{label}</span>
-        <span className="block text-[11px] text-muted-foreground">{hint}</span>
-      </span>
-    </button>
+    (target instanceof HTMLTextAreaElement ||
+      (target instanceof HTMLInputElement && ['text', 'search'].includes(target.type))) &&
+    target.value === ''
   );
 }
 
-/**
- * Runs a question set, one at a time.
- *
- * Sequential on purpose rather than for throughput: the bundled sets are
- * ordered conversations, so a question that says "which one is cheapest" is
- * meaningless if it races the question that established the list.
- *
- * A failure records itself and the run continues — a run that stopped at the
- * first 503 would tell you nothing about the other ninety-nine.
- */
+function describeFailure(status: number, body?: Record<string, unknown>): string {
+  const message =
+    typeof body?.error === 'string'
+      ? body.error
+      : typeof body?.detail === 'string'
+        ? body.detail
+        : 'The Brain request failed.';
+  const reason = typeof body?.reason === 'string' ? body.reason : undefined;
+
+  if (reason === 'timeout' || reason === 'model_timeout') return `Timed out — ${message}`;
+  if (reason === 'budget_exhausted') return `Budget spent — ${message}`;
+  if (reason === 'unreachable') return `Connection failed — ${message}`;
+  if (reason === 'misconfigured') return `Configuration error — ${message}`;
+  if (reason === 'cancelled') return `Cancelled — ${message}`;
+  if (reason === 'client_network_error') return `Browser request failed — ${message}`;
+  return `HTTP ${status} — ${message}`;
+}
+
 async function runBulk(
   questions: string[],
   delayMs: number,
-  send: (message: string, signal?: AbortSignal) => Promise<Turn>,
+  preserveHistory: boolean,
+  send: (message: string, options?: SendOptions) => Promise<Turn>,
   setBulk: (progress: BulkProgress | null) => void
 ) {
   const controller = new AbortController();
@@ -650,16 +472,47 @@ async function runBulk(
   let asked = 0;
   let failed = 0;
   let declined = 0;
+  let partial = 0;
+  let notBuilt = 0;
+  // Every exchange so far; `send` windows it like a typed question's history.
+  const history: ChatMessageInput[] = [];
 
-  setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+  setBulk({
+    running: true,
+    asked,
+    failed,
+    declined,
+    partial,
+    notBuilt,
+    total: questions.length,
+    stop,
+  });
 
   for (const question of questions) {
     if (controller.signal.aborted) break;
-    const turn = await send(question, controller.signal);
+    const turn = await send(question, {
+      signal: controller.signal,
+      priorMessages: preserveHistory ? history : [],
+      select: false,
+      bulk: true,
+    });
     asked += 1;
     if (turn.status === 'failed') failed += 1;
     else if (turn.status === 'declined') declined += 1;
-    setBulk({ running: true, asked, failed, declined, total: questions.length, stop });
+    else if (turn.status === 'not_built') notBuilt += 1;
+    else if (turn.raw?.status === 'partial') partial += 1;
+    if (preserveHistory) history.push(...historyOf(turn));
+    setBulk({
+      running: true,
+      asked,
+      failed,
+      declined,
+      partial,
+      notBuilt,
+      total: questions.length,
+      stop,
+    });
+
     if (delayMs > 0 && !controller.signal.aborted) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
@@ -670,8 +523,76 @@ async function runBulk(
     asked,
     failed,
     declined,
+    partial,
+    notBuilt,
     total: questions.length,
     stop,
     stopped: controller.signal.aborted,
   });
+}
+
+function HeaderButton({
+  onClick,
+  title,
+  children,
+  expanded,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+  expanded?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      aria-label={title}
+      aria-haspopup={expanded === undefined ? undefined : 'menu'}
+      aria-expanded={expanded}
+      className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    >
+      {children}
+    </button>
+  );
+}
+
+function ConversationExportItem({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: typeof ClipboardCopy;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-white/10"
+    >
+      <Icon className="h-4 w-4 text-muted-foreground" />
+      {label}
+    </button>
+  );
+}
+
+async function copyText(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    if (!copied) throw new Error('Clipboard access was denied.');
+  }
 }

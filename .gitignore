@@ -8,6 +8,9 @@
 # misc
 .DS_Store
 
+# local data: Jev's feedback tags
+/.data/
+
 # debug
 npm-debug.log*
 

@@ -7,17 +7,12 @@
  * do with whether this process can serve.
  */
 
-import { hasAdminToken } from '@/lib/brain-address';
-
 export const dynamic = 'force-dynamic';
 
 export function GET() {
   return Response.json({
     status: 'healthy',
     service: 'rockygpt-dev',
-    // Boolean only. Whether a token exists is the single most likely
-    // explanation for an empty Logs page, and it is otherwise invisible.
-    adminTokenConfigured: hasAdminToken(),
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });

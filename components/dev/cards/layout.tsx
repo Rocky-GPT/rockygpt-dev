@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { type CardRead, kindColor, linkGroups } from '@/lib/graph-cards';
 import { Links } from '../GraphBrowser';
 import { ConnectionsMap } from './ConnectionsMap';
-import { Box, type Href } from './parts';
+import { Box, Empty, type Href } from './parts';
 
 /** What every card gets: the node's read, links to other cards, and the campus clock. */
 export interface CardContext {
@@ -31,9 +31,15 @@ export function CardLayout({ ctx, hero, main, side, gaps = [] }: {
   const { read, href } = ctx;
   const groups = linkGroups(read);
   const total = groups.reduce((sum, group) => sum + group.nodes.length + group.missing, 0);
+  const unread = (read.facts ?? []).filter(fact => fact.unavailable).map(fact => fact.collection);
   return (
     <div className="space-y-5">
       {hero}
+      {unread.length > 0 && (
+        <Empty title={`This data release has no ${unread.join(', ')} records yet`}>
+          The node and its links are here, but its own rows are not, so the boxes below stay empty. A newer release fills them in.
+        </Empty>
+      )}
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_352px]">
         <div className="min-w-0 space-y-5">{main}</div>
         <div className="min-w-0 space-y-5">

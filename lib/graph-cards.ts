@@ -40,6 +40,8 @@ export interface CardFacts {
   /** A venue's menu: every day it has a menu for, and the day these rows are. */
   dates?: string[];
   date?: string;
+  /** The release holds this node but not its kind's records yet, so these rows could not be read. */
+  unavailable?: boolean;
 }
 
 export interface CardRead {

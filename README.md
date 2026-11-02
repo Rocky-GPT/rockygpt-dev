@@ -17,6 +17,7 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 | Dashboard | Liveness, readiness, a count of the public routes | `/health`, `/readiness`, `/openapi.json` |
 | Service Health | Liveness and readiness, with a fixed list of the Brain's routes | `/health`, `/readiness` |
 | Ask & Inspect | Answer, sources, the lookups the model made, who decided, the exact request and response; a bulk runner | `POST /v1/chat` |
+| Laptop vs Production | One question, or a pasted or uploaded list, asked of the laptop Brain and the production Brain side by side, with status, time, sources and an agree/differ marker; a switch adds the laptop and live websites. Production gets at most 2 asks at once; its token comes from 1Password via `local-env.py` | `POST /v1/chat` on both Brains, `POST /api/chat` on both sites |
 | Capabilities | The tools and answer parts the model is given | `/v1/dev/runtime` |
 | Prompts & Models | The system prompt, the model and its prices, what the model receives each turn | `/v1/dev/runtime` |
 | Templates | Every text the code writes itself, and when | `/v1/dev/runtime` |

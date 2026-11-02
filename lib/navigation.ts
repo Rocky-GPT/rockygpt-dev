@@ -16,6 +16,7 @@
 
 import {
   Boxes,
+  Columns2,
   Database,
   FileText,
   FlaskConical,
@@ -100,6 +101,14 @@ export const NAVIGATION: NavSection[] = [
         icon: MessageSquareCode,
         status: 'ready',
         upstream: 'POST /v1/chat',
+      },
+      {
+        href: '/brain/laptop-vs-production',
+        label: 'Laptop vs Production',
+        description: 'The same question to the laptop Brain and the production Brain, side by side',
+        icon: Columns2,
+        status: 'ready',
+        upstream: 'POST /v1/chat on both Brains (+ POST /api/chat on both sites, when switched on)',
       },
       {
         href: '/brain/capabilities',

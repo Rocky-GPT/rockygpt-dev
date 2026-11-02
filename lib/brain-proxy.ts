@@ -125,7 +125,7 @@ export async function proxyBrainChat(request: Request): Promise<Response> {
       accept: 'application/json',
       'content-type': 'application/json',
     });
-    const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
+    const environmentToken = (process.env.SERVICE_TOKEN || process.env.STAGING_SERVICE_TOKEN)?.trim();
     if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
     // A development Brain then adds which Brain answered, the evidence the writer and
     // reviewer were given, and every draft with its verdicts. The student app never
@@ -206,7 +206,7 @@ export async function readBrainProbe<T>(
  */
 function devHeaders(): Headers {
   const headers = new Headers({ accept: 'application/json', 'x-rockygpt-diagnostics': '1' });
-  const environmentToken = process.env.STAGING_SERVICE_TOKEN?.trim();
+  const environmentToken = (process.env.SERVICE_TOKEN || process.env.STAGING_SERVICE_TOKEN)?.trim();
   if (environmentToken) headers.set('x-rockygpt-environment-token', environmentToken);
   return headers;
 }

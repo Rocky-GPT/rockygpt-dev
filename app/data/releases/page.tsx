@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CopyHash } from '@/components/dev/CopyHash';
 import { ErrorPanel } from '@/components/ErrorPanel';
 import { PageHeader } from '@/components/shell/PageHeader';
+import { ProductionSyncPanel } from '@/components/dev/ProductionSyncPanel';
 import { readBrainDev } from '@/lib/brain-proxy';
 import type { DevOffices } from '@/lib/brain-dev-types';
 
@@ -24,6 +25,8 @@ export default async function ReleasePage() {
     <>
       <PageHeader title="Release" subtitle="The published data the Brain answers from" />
       <main className="min-w-0 space-y-6 px-6 py-6">
+        <ProductionSyncPanel />
+
         {!release && <ErrorPanel title="Could not read the release" detail={result.problem} />}
 
         {release && (

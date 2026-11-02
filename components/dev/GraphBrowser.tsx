@@ -46,7 +46,7 @@ function grouped(links: BrowseLink[]): Array<[string, BrowseLink[]]> {
   return [...groups.entries()];
 }
 
-function Links({ title, links, href, arrow }: {
+export function Links({ title, links, href, arrow }: {
   title: string;
   links: BrowseLink[];
   href: (nodeId: string) => string;

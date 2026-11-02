@@ -6,6 +6,8 @@ import { FactsView } from '@/components/dev/OfficesBrowser';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { readBrainDev } from '@/lib/brain-proxy';
 import { campusGraphHref } from '@/lib/campus-graph-link';
+import { NodeCard } from '@/components/dev/cards/NodeCard';
+import { type CardRead, campusToday } from '@/lib/graph-cards';
 import { readFacts } from '@/lib/office-facts';
 
 export const dynamic = 'force-dynamic';
@@ -64,21 +66,23 @@ export default async function CampusGraphPage({ searchParams }: {
   // The whole graph (every type, node and link) comes from the Brain's graph reader. The chat
   // lookup's own map (Offices, Dining, Shuttle, Topics) still opens an office's, venue's, topic's
   // or route's published evidence, so trace links keep working.
-  if (nodeId === 'ramapo' || nodeId.startsWith('kind:') || nodeId.startsWith('entity:')) {
+  if (nodeId === 'ramapo' || nodeId.startsWith('kind:') || nodeId.startsWith('entity:') || nodeId.startsWith('name:')) {
     const browse = new URLSearchParams({ node_id: nodeId });
-    for (const key of ['dataset_version', 'identity_hash']) {
+    for (const key of ['dataset_version', 'identity_hash', 'on']) {
       const value = params.get(key);
       if (value) browse.set(key, value);
     }
     const read = await readBrainDev<BrowseRead>(`/v1/dev/graph/browse?${browse}`);
     const whole = read.data;
+    const { date: today, weekday, minutes } = campusToday();
+    const clock = { today, weekday, minutes };
     const link = (id: string) => whole
       ? campusGraphHref(id, whole.dataset_version, whole.identity_hash)
       : '/data/entities';
     return (
       <>
-        <PageHeader title="Campus Graph" subtitle="Every node type and link in the published release" />
-        <main className="min-w-0 space-y-5 px-6 py-6">
+        <PageHeader title="Campus Graph" subtitle="Every node type and link in the published release; click any name to open its card" />
+        <main className="min-w-0 space-y-5 px-4 py-6 sm:px-6">
           {!whole ? (
             <>
               <ErrorPanel title="Could not open this graph node" detail={read.problem} />
@@ -102,7 +106,14 @@ export default async function CampusGraphPage({ searchParams }: {
                   ))}
                 </ol>
               </nav>
-              <GraphBrowser graph={whole} href={link} filter={filter} />
+              {whole.node.entity_id ? (
+                <NodeCard ctx={{
+                  read: whole as CardRead,
+                  href: link,
+                  ...clock,
+                  dayHref: (day: string) => `${link(whole.node.id)}&on=${day}`,
+                }} />
+              ) : <GraphBrowser graph={whole} href={link} filter={filter} />}
               <div className="space-y-1 break-all font-mono text-xs text-muted-foreground">
                 <p>Release: {whole.dataset_version}</p>
                 <p>Identity hash: {whole.identity_hash}</p>

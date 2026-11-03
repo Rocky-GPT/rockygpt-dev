@@ -18,6 +18,14 @@ export interface BrowseLink {
   sources: string[];
 }
 
+/** The data build's note on a node with no link in or out. */
+export interface UnlinkedNote {
+  reason: string | null;
+  on_purpose: boolean;
+}
+
+export interface UnlinkedNode extends BrowseNode, UnlinkedNote {}
+
 export interface BrowseRead {
   dataset_version: string;
   identity_hash: string;
@@ -28,6 +36,10 @@ export interface BrowseRead {
   link_types?: Array<{ from: string; type: string; to: string; count: number }>;
   unlinked_targets?: Record<string, number>;
   entity_count?: number;
+  /** The root's count of nodes with no link in or out; one node's note when it has none. */
+  unlinked?: { total: number; on_purpose: number } | UnlinkedNote | null;
+  /** The `unlinked` check's: every node with no link in or out. */
+  unlinked_nodes?: UnlinkedNode[];
   /** A node type's: every node of that type. */
   children?: BrowseNode[];
   /** One node's. */
@@ -36,6 +48,83 @@ export interface BrowseRead {
   outgoing?: BrowseLink[];
   incoming?: BrowseLink[];
   evidence_node?: string | null;
+}
+
+/** The browse reader's check that lists every node with no link in or out. */
+export const UNLINKED_ID = 'unlinked';
+
+const amber = 'rounded-xl border border-dashed border-amber-400/50 bg-amber-400/[0.07]';
+
+function Tag({ onPurpose }: { onPurpose: boolean }) {
+  return onPurpose
+    ? <span className="inline-block shrink-0 rounded-full border border-zinc-500 px-2 py-0.5 text-xs text-muted-foreground">alone on purpose</span>
+    : <span className="inline-block shrink-0 rounded-full border border-amber-400/60 px-2 py-0.5 text-xs text-amber-300">gap</span>;
+}
+
+/** The root's way to the nodes no link reaches. It is styled apart from the type tiles because it
+ * is a check, not part of the graph. */
+function UnlinkedBox({ count, href }: { count: { total: number; on_purpose: number }; href: string }) {
+  const gaps = count.total - count.on_purpose;
+  return (
+    <div className="space-y-1">
+      <Link href={href} prefetch={false} className={`block p-4 hover:bg-amber-400/10 ${amber}`}>
+        <span className="font-semibold text-amber-300">⚠ Not linked to anything ({count.total}) →</span>
+        <span className="mt-1 block text-sm text-amber-100/80">
+          These nodes have no link in or out, so you can&apos;t reach them by following links from Ramapo.
+          The bot can&apos;t walk to them either. Each one says why.
+        </span>
+        <span className="mt-2 flex flex-wrap gap-4 text-xs text-amber-100/80">
+          <span className="flex items-center gap-2"><Tag onPurpose={false} /> {gaps} still need a page that says where they belong</span>
+          <span className="flex items-center gap-2"><Tag onPurpose /> {count.on_purpose} should stay alone</span>
+        </span>
+      </Link>
+      <p className="font-mono text-xs text-muted-foreground">This box is a check, not part of the graph: it has no link of its own.</p>
+    </div>
+  );
+}
+
+function UnlinkedList({ nodes, href }: { nodes: UnlinkedNode[]; href: (nodeId: string) => string }) {
+  const byKind = new Map<string, UnlinkedNode[]>();
+  for (const node of nodes) byKind.set(node.kind, [...(byKind.get(node.kind) ?? []), node]);
+  if (nodes.length === 0) return <p className="text-sm text-muted-foreground">Every node in this release has at least one link.</p>;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        No link goes in or out of these {nodes.length} nodes. Their facts are in the release, but nothing in the graph
+        points to them. The reason comes from the data build.
+      </p>
+      {[...byKind.entries()].map(([kind, members]) => (
+        <section key={kind} aria-label={kind}>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{kind} ({members.length})</h3>
+          <ul className="mt-1 divide-y divide-border border-y border-border">
+            {members.map(node => (
+              <li key={node.id} className="grid gap-1 py-2 text-sm sm:grid-cols-[minmax(0,2fr)_minmax(0,4fr)_8.5rem] sm:gap-4">
+                <Link href={href(node.id)} prefetch={false} className="text-sky-400">{node.label} →</Link>
+                <span className={node.reason ? '' : 'text-muted-foreground'}>{node.reason ?? 'No reason recorded by the data build yet.'}</span>
+                <span className="sm:justify-self-end"><Tag onPurpose={node.on_purpose} /></span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/** The note at the top of a node's card when nothing links to or from it. */
+export function UnlinkedBanner({ note, href }: { note: UnlinkedNote; href: string }) {
+  return (
+    <section className={`space-y-1 p-4 text-sm ${amber}`} aria-label="Not linked to anything">
+      <p className="flex flex-wrap items-center gap-2 font-semibold text-amber-300">⚠ Not linked to anything <Tag onPurpose={note.on_purpose} /></p>
+      <p className="text-amber-100/80">
+        No link goes in or out of this node, so you can&apos;t reach it from Ramapo by following links, and the bot can&apos;t either.
+      </p>
+      <p className="text-amber-100/80">
+        <b className="text-amber-300">Why:</b> {note.reason ?? 'No reason recorded by the data build yet.'}
+      </p>
+      <Link href={href} prefetch={false} className="inline-block text-sky-400">See every unlinked node →</Link>
+    </section>
+  );
 }
 
 const card = 'block rounded-lg border border-border p-3 text-sm text-sky-400 hover:bg-white/5';
@@ -115,8 +204,12 @@ export function GraphBrowser({ graph, href, filter }: {
                 </li>
               ))}
             </ul>
+            {graph.unlinked && 'total' in graph.unlinked && graph.unlinked.total > 0 && (
+              <UnlinkedBox count={graph.unlinked} href={href(UNLINKED_ID)} />
+            )}
           </>
         )}
+        {graph.unlinked_nodes && <UnlinkedList nodes={graph.unlinked_nodes} href={href} />}
         {graph.children && (
           <>
             <form className="flex flex-wrap items-center gap-2 text-sm" action="/data/entities">

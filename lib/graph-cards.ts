@@ -162,6 +162,8 @@ const LINK_WORDS: Record<string, { out: string; in: string }> = {
   located_at: { out: 'located in', in: 'inside' },
   in_term: { out: 'term', in: 'dates' },
   requires: { out: 'requires', in: 'needed for' },
+  taken_with: { out: 'taken with', in: 'taken with' },
+  lists_course: { out: 'courses', in: 'in programs' },
   in_category: { out: 'category', in: 'clubs' },
   listed_by: { out: 'listed by', in: 'lists' },
   stops_at: { out: 'stops', in: 'routes' },

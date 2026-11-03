@@ -100,10 +100,11 @@ test("verdicts: Dan's rule, 2 or more off out of 5 is flaky", () => {
 test('estimate: answers, dollars, minutes at the Brain\'s pace, loud over $1', () => {
   const laptop = estimateRepeat(44, 5, 'laptop-brain');
   assert.equal(laptop.answers, 220);
-  assert.equal(laptop.dollars.toFixed(2), '0.88');
+  assert.equal(laptop.dollars.toFixed(2), '0.22');
   assert.equal(laptop.minutes, 7);
   assert.equal(laptop.loud, false);
-  assert.equal(estimateRepeat(60, 5, 'laptop-brain').loud, true);
+  assert.equal(estimateRepeat(60, 5, 'laptop-brain').loud, false);
+  assert.equal(estimateRepeat(60, 20, 'laptop-brain').loud, true);
   assert.equal(estimateRepeat(10, 5, 'production-brain').atOnce, 2);
 });
 

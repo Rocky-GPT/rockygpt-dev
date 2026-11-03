@@ -19,7 +19,8 @@ export function CourseCard({ ctx }: { ctx: CardContext }) {
   const url = text(row.url);
   const subjects = linked(read, 'in', 'includes_course', 'subject');
   const teachers = linked(read, 'in', ['teaches_course', 'profile_course'], 'person');
-  const neededFor = linked(read, 'in', 'requires', 'program');
+  // What lists or needs this course: programs that list it and courses whose prerequisites name it.
+  const neededFor = [...linked(read, 'in', 'lists_course', 'program'), ...linked(read, 'in', 'requires', 'course')];
   const steps = prerequisiteSteps(course);
   const [subject, number] = code.split(/\s+/);
   return (
@@ -82,7 +83,7 @@ export function CourseCard({ ctx }: { ctx: CardContext }) {
           <Box title="Needed for" note={neededFor.length || undefined}>
             {neededFor.length
               ? <Chips>{neededFor.map(node => <NodeChip key={node.id} node={node} href={href} />)}</Chips>
-              : <Empty title="Not linked to programs yet">Programs list their required courses, but those aren&apos;t links yet.</Empty>}
+              : <Empty title="Nothing needs it yet">No program lists this course and no course names it as a prerequisite.</Empty>}
           </Box>
         </>
       )} />

@@ -64,6 +64,17 @@ test('links group by type, direction and kind with plain words', () => {
   const listed = { node: course('entity:a', 'AMER 311'), outgoing: [{ type: 'cross_listed', node: course('entity:b', 'ARHT 311'), sources: [] }], incoming: [] };
   const other = { node: course('entity:b', 'ARHT 311'), outgoing: [], incoming: [{ type: 'cross_listed', node: course('entity:a', 'AMER 311'), sources: [] }] };
   assert.deepEqual([...linkGroups(listed), ...linkGroups(other)].map(group => group.label), ['cross-listed with', 'cross-listed with']);
+  // A category names what it holds by kind: Archway's clubs and offices, the catalog's courses.
+  const tag = { id: 'entity:writ', label: 'WRITING INTENSIVE (WRIT)', kind: 'course_attribute' };
+  const category = { id: 'entity:honor', label: 'Honor Society', kind: 'club_category' };
+  const filed = { node: course('entity:c', 'LITR 201'), outgoing: [{ type: 'in_category', node: tag, sources: [] }], incoming: [] };
+  const tagged = { node: tag, outgoing: [], incoming: [{ type: 'in_category', node: course('entity:c', 'LITR 201'), sources: [] }] };
+  const honor = { node: category, outgoing: [], incoming: [
+    { type: 'in_category', node: { id: 'entity:d', label: 'Phi Alpha', kind: 'club' }, sources: [] },
+    { type: 'in_category', node: { id: 'entity:e', label: 'Yearbook', kind: 'office' }, sources: [] }] };
+  const club = { node: { id: 'entity:d', label: 'Phi Alpha', kind: 'club' }, outgoing: [{ type: 'in_category', node: category, sources: [] }], incoming: [] };
+  assert.deepEqual([filed, tagged, honor, club].flatMap(read => linkGroups(read).map(group => group.label)),
+    ['attributes', 'courses', 'clubs', 'offices', 'category']);
 });
 
 test('a menu day groups into meals in serving order, stations, and dishes once each', () => {

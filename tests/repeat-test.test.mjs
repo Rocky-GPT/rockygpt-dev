@@ -73,14 +73,36 @@ test('tries group by answer, most common first, failures marked X', () => {
   assert.deepEqual(grouping.failed, [3]);
 });
 
-test('a different section of the same page is the same source; another page is not', () => {
+test('links do not count: other pages, a trailing "." or "/", or a Sources list', () => {
   const grouping = groupTries([
     reply(EVENTS),
-    reply(EVENTS, { citations: [{ title: 'c', url: 'https://www.ramapo.edu/calendar' }] }),
-    reply(EVENTS, { citations: [{ title: 'e', url: 'https://www.ramapo.edu/events/' }] }),
+    reply(`${EVENTS} See https://www.ramapo.edu/calendar/.`, { citations: [{ title: 'c', url: 'https://www.ramapo.edu/calendar' }] }),
+    reply(`${EVENTS} See [the events page](https://www.ramapo.edu/events/).\n\nSources: [1](https://www.ramapo.edu/events/)`, {
+      citations: [{ title: 'e', url: 'https://www.ramapo.edu/events/' }],
+    }),
   ]);
-  assert.deepEqual(grouping.letters, ['A', 'A', 'B']);
-  assert.match(grouping.groups[1].differences[0], /Sources differ/);
+  assert.deepEqual(grouping.letters, ['A', 'A', 'A']);
+});
+
+test('the clock time an answer mentions is not a fact; the hours are', () => {
+  const at = (h, m) => new Date(2026, 10, 3, h, m);
+  const a = 'Library is open now (10:44am). Today: 7:45am-12:00am.';
+  const b = 'Library is open now (10:49am). Today: 7:45am-12:00am.';
+  assert.deepEqual(answerFacts(a), answerFacts(b));
+  assert.deepEqual(answerFacts("It's 10:46 AM, the next bus leaves at 11:15 AM.", at(10, 46)), ['time 11:15am']);
+  assert.deepEqual(groupTries([reply(a), reply(b)], [at(10, 44), at(10, 49)]).letters, ['A', 'A']);
+});
+
+test('an ISO timestamp is its date only', () => {
+  assert.deepEqual(answerFacts('(captured 2026-11-02T17:58:09.601000+00:00)'), ['date nov 2']);
+});
+
+test('list numbers are not facts', () => {
+  assert.deepEqual(answerFacts('1. Go to web.ramapo.edu\n2. Click Student Services\n3. Click Transcript'), [
+    'item click student services',
+    'item click transcript',
+    'item go to web.ramapo.edu',
+  ]);
 });
 
 test("verdicts: Dan's rule, 2 or more off out of 5 is flaky", () => {

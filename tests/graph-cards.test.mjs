@@ -59,6 +59,11 @@ test('links group by type, direction and kind with plain words', () => {
   };
   assert.deepEqual(linkGroups(read).map(group => [group.label, group.nodes.length, group.missing]),
     [['teaches', 1, 0], ['teaches', 0, 1], ['leads', 1, 0]]);
+  // A cross-listing reads the same from either course.
+  const course = (id, label) => ({ id, label, kind: 'course' });
+  const listed = { node: course('entity:a', 'AMER 311'), outgoing: [{ type: 'cross_listed', node: course('entity:b', 'ARHT 311'), sources: [] }], incoming: [] };
+  const other = { node: course('entity:b', 'ARHT 311'), outgoing: [], incoming: [{ type: 'cross_listed', node: course('entity:a', 'AMER 311'), sources: [] }] };
+  assert.deepEqual([...linkGroups(listed), ...linkGroups(other)].map(group => group.label), ['cross-listed with', 'cross-listed with']);
 });
 
 test('a menu day groups into meals in serving order, stations, and dishes once each', () => {

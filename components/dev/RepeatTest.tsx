@@ -25,7 +25,7 @@ import {
   type VerdictKind,
 } from '@/lib/repeat-test';
 
-type Try = { phase: 'asking'; startedAt: number } | { phase: 'done'; result: WayResult } | undefined;
+type Try = { phase: 'asking'; startedAt: number } | { phase: 'done'; result: WayResult; answeredAt: number } | undefined;
 
 interface Run {
   label: string;
@@ -142,6 +142,11 @@ function resultsOf(tries: Try[]): (WayResult | undefined)[] {
   return tries.map((item) => (item?.phase === 'done' ? item.result : undefined));
 }
 
+/** When each try was answered, so the clock time an answer mentions is not counted as a fact. */
+function clocksOf(tries: Try[]): (Date | undefined)[] {
+  return tries.map((item) => (item?.phase === 'done' ? new Date(item.answeredAt) : undefined));
+}
+
 function minutesSeconds(ms: number): string {
   const seconds = Math.max(0, Math.round(ms / 1_000));
   const minutes = Math.floor(seconds / 60);
@@ -248,7 +253,7 @@ export function RepeatTest() {
         cursor += 1;
         set(q, t, { phase: 'asking', startedAt: Date.now() });
         const result = await askTry(next.brain, next.questions[q].question, stop.signal);
-        set(q, t, { phase: 'done', result });
+        set(q, t, { phase: 'done', result, answeredAt: Date.now() });
       }
     };
     await Promise.all(Array.from({ length: repeatBrain(next.brain).atOnce }, worker));
@@ -261,7 +266,7 @@ export function RepeatTest() {
       run
         ? run.questions.map((question, index) => {
             const tries = run.tries[index];
-            const grouping = groupTries(resultsOf(tries));
+            const grouping = groupTries(resultsOf(tries), clocksOf(tries));
             const asking = tries.filter((item) => item?.phase === 'asking').length;
             return { index, question, tries, grouping, verdict: verdictFor(grouping, run.times, asking) };
           })
@@ -434,8 +439,9 @@ export function RepeatTest() {
           </p>
           <p className={label}>What counts as the same answer</p>
           <p className="text-sm text-neutral-300">
-            Same status, same source pages, and the same facts: times, dates, phone numbers, emails, rooms, prices, other
-            numbers, and the names in any list. Wording doesn&rsquo;t count. Code compares them, so checking is free.
+            Same status and the same facts: times, dates, phone numbers, emails, rooms, prices, other numbers, and the
+            names in any list. Wording, links and the clock time (&ldquo;open now (10:49am)&rdquo;) don&rsquo;t count. Code
+            compares them, so checking is free.
           </p>
         </section>
       </div>
@@ -555,7 +561,9 @@ export function RepeatTest() {
                             differences: group.differences,
                             facts: group.key.facts,
                           })),
-                          tries: resultsOf(row.tries),
+                          tries: row.tries.map((item) =>
+                            item?.phase === 'done' ? { ...item.result, answeredAt: new Date(item.answeredAt).toISOString() } : null
+                          ),
                         })),
                       })
                     }

@@ -3,9 +3,12 @@
  * bot gives the same answer each time or got lucky once.
  *
  * This is the page's shared logic. Code decides whether two tries gave the same answer,
- * so checking is free: same status, same cited pages, and the same facts (times, dates,
- * phone numbers, emails, rooms, prices, other numbers, and the names in any list). The
- * wording does not count, since the writer words the same facts fresh every time.
+ * so checking is free: same status and the same facts (times, dates, phone numbers, emails,
+ * rooms, prices, other numbers, and the names in any list). The wording does not count, since
+ * the writer words the same facts fresh every time, and neither do the links: Dan's first run
+ * (11-03, 50 questions x5) showed the same facts cited from different pages, and the same link
+ * with and without a trailing "." or "/", flagging steady answers as flaky. The clock time an
+ * answer mentions ("open now (10:49am)") is not a fact either: it moves between tries.
  */
 
 import type { WayResult } from './laptop-vs-production';
@@ -119,11 +122,6 @@ export function pastedQuestions(body: string): RepeatQuestion[] {
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const MONTH = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\.?';
 
-/** A page link without its #section or trailing slash: the writer cites different sections of one page. */
-export function pageOf(url: string): string {
-  return url.trim().replace(/#.*$/, '').replace(/\/+$/, '').replace(/^http:/, 'https:').toLowerCase();
-}
-
 function clockTime(hour: string, minute: string | undefined, half: string): string {
   return `${Number(hour)}:${minute ?? '00'}${half.replace(/\./g, '').toLowerCase()}`;
 }
@@ -132,9 +130,32 @@ function clockTime(hour: string, minute: string | undefined, half: string): stri
  * The facts in an answer, each as a short normalized string such as "time 7:00pm",
  * "phone 2016847500", "date nov 3", "room d-101", "$ 45.00", "number 18" or "item open mic night".
  */
-export function answerFacts(answer: string): string[] {
+/** An answer without its links, its "Sources:" list, its citation markers and the clock time it was written. */
+export function withoutLinks(answer: string): string {
+  return answer
+    .replace(/\n\s*\**sources?\**:[\s\S]*$/i, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/https?:\/\/[^\s)\]>"']+/gi, ' ')
+    .replace(/\[\d+(?:,\s*\d+)*\]/g, ' ')
+    .replace(/\b(open|closed)( right)? now\s*\(\s*\d{1,2}(?::\d{2})?\s*[ap]\.?m\.?\s*\)/gi, '$1 now');
+}
+
+/**
+ * The facts in an answer. `clock`, when given, is when the try was answered: a time within
+ * 5 minutes of it is the answer saying what time it is, not a fact.
+ */
+export function answerFacts(answer: string, clock?: Date): string[] {
   const facts = new Set<string>();
-  let rest = answer.replace(/\[\d+(?:,\s*\d+)*\]/g, ' '); // citation markers
+  const text = withoutLinks(answer);
+  // List numbers ("1.", "2)") are not facts; the list's names are.
+  let rest = text.replace(/^(\s*)\d+[.)]\s+/gm, '$1');
+  const now = clock ? clock.getHours() * 60 + clock.getMinutes() : null;
+  const isNow = (hour: string, minute: string | undefined, half: string) => {
+    if (now === null) return false;
+    const h = (Number(hour) % 12) + (/^p/i.test(half) ? 12 : 0);
+    const minutes = h * 60 + Number(minute ?? 0);
+    return Math.min(Math.abs(minutes - now), 1440 - Math.abs(minutes - now)) <= 5;
+  };
   const take = (pattern: RegExp, fact: (match: RegExpExecArray) => string | null) => {
     rest = rest.replace(pattern, (...args) => {
       const match = args as unknown as RegExpExecArray;
@@ -145,7 +166,7 @@ export function answerFacts(answer: string): string[] {
   };
 
   // Names in a list: "- **Open Mic Night**, 7 PM" -> "open mic night".
-  for (const line of answer.split('\n')) {
+  for (const line of text.split('\n')) {
     const item = /^\s*(?:[-*•]|\d+[.)])\s+(.*)$/.exec(line);
     if (!item) continue;
     const bold = /\*\*(.+?)\*\*/.exec(item[1]);
@@ -157,10 +178,15 @@ export function answerFacts(answer: string): string[] {
     if (name && name.length <= 80) facts.add(`item ${name}`);
   }
 
-  take(/https?:\/\/[^\s)\]>"']+/gi, (match) => `link ${pageOf(match[0])}`);
+  // ISO dates and timestamps ("captured 2026-11-02T17:58:09.601000+00:00") are the date only.
+  take(/\b(20\d\d)-(\d\d)-(\d\d)(?:T\d\d:\d\d(?::\d\d(?:\.\d+)?)?(?:Z|[+-]\d\d:\d\d)?)?/g, (match) =>
+    `date ${MONTHS[Number(match[2]) - 1] ?? match[2]} ${Number(match[3])}`
+  );
   take(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, (match) => `email ${match[0].toLowerCase()}`);
   take(/(?:\+?1[\s.-]?)?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})\b/g, (match) => `phone ${match[1]}${match[2]}${match[3]}`);
-  take(/\b(\d{1,2})(?::(\d{2}))?\s*([ap]\.?m\.?)(?![a-z])/gi, (match) => `time ${clockTime(match[1], match[2], match[3])}`);
+  take(/\b(\d{1,2})(?::(\d{2}))?\s*([ap]\.?m\.?)(?![a-z])/gi, (match) =>
+    isNow(match[1], match[2], match[3]) ? null : `time ${clockTime(match[1], match[2], match[3])}`
+  );
   take(/\bnoon\b/gi, () => 'time 12:00pm');
   take(/\bmidnight\b/gi, () => 'time 12:00am');
   take(new RegExp(`\\b${MONTH}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b`, 'gi'), (match) =>
@@ -176,15 +202,10 @@ export function answerFacts(answer: string): string[] {
 export interface TryKey {
   status: string;
   facts: string[];
-  pages: string[];
 }
 
-export function tryKey(result: WayResult): TryKey {
-  return {
-    status: result.status ?? 'none',
-    facts: answerFacts(result.answer),
-    pages: [...new Set(result.citations.map((citation) => pageOf(citation.url)))].sort(),
-  };
+export function tryKey(result: WayResult, clock?: Date): TryKey {
+  return { status: result.status ?? 'none', facts: answerFacts(result.answer, clock) };
 }
 
 function keyText(key: TryKey): string {
@@ -216,7 +237,7 @@ export interface Grouping {
 const LETTERS = 'ABCDEFGHIJ';
 
 function listOf(values: string[], limit = 4): string {
-  const shown = values.slice(0, limit).map((value) => value.replace(/^(item|time|date|phone|email|room|number|link|\$) /, (_, kind) => (kind === '$' ? '$' : '')));
+  const shown = values.slice(0, limit).map((value) => value.replace(/^(item|time|date|phone|email|room|number|\$) /, (_, kind) => (kind === '$' ? '$' : '')));
   return shown.join(', ') + (values.length > limit ? ` and ${values.length - limit} more` : '');
 }
 
@@ -236,20 +257,14 @@ export function differences(a: TryKey, g: TryKey): string[] {
   const extra = g.facts.filter((fact) => !fact.startsWith('item ') && !a.facts.includes(fact));
   if (missing.length) reasons.push(`Leaves out ${listOf(missing)}`);
   if (extra.length) reasons.push(`Adds ${listOf(extra)}`);
-  const lostPages = a.pages.filter((page) => !g.pages.includes(page));
-  const newPages = g.pages.filter((page) => !a.pages.includes(page));
-  if (lostPages.length || newPages.length) {
-    reasons.push(
-      `Sources differ: ${[lostPages.length ? `${plural(lostPages.length, 'page')} fewer` : '', newPages.length ? `${plural(newPages.length, 'other page')}` : '']
-        .filter(Boolean)
-        .join(', ')}`
-    );
-  }
   return reasons;
 }
 
-/** Group the tries that are back by answer; failed tries stay out of every group. */
-export function groupTries(tries: (WayResult | undefined)[]): Grouping {
+/**
+ * Group the tries that are back by answer; failed tries stay out of every group. `clocks[i]`
+ * is when try i was answered, so the clock time it mentions is not counted as a fact.
+ */
+export function groupTries(tries: (WayResult | undefined)[], clocks: (Date | undefined)[] = []): Grouping {
   const byKey = new Map<string, { tries: number[]; key: TryKey; sample: WayResult }>();
   const failed: number[] = [];
   tries.forEach((result, index) => {
@@ -258,7 +273,7 @@ export function groupTries(tries: (WayResult | undefined)[]): Grouping {
       failed.push(index);
       return;
     }
-    const key = tryKey(result);
+    const key = tryKey(result, clocks[index]);
     const text = keyText(key);
     const group = byKey.get(text) ?? { tries: [], key, sample: result };
     group.tries.push(index);

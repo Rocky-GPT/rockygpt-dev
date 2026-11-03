@@ -31,8 +31,12 @@ export function isRepeatBrain(value: unknown): value is RepeatBrain {
 export const MIN_TIMES = 5;
 export const MAX_TIMES = 10;
 export const TIMES_CHOICES = [5, 6, 7, 8, 9, 10];
-/** Roughly what one answer costs in Luna calls. The real spend is shown as answers come back. */
-export const COST_PER_ANSWER = 0.004;
+/**
+ * Roughly what one answer costs in Luna calls, kept on the high side. The 11-03 Mac check
+ * measured about $0.0003 an answer (15 answers, $0.0044; code-written answers cost nothing),
+ * so this is about 3 times that. The real spend is shown as answers come back.
+ */
+export const COST_PER_ANSWER = 0.001;
 /** A run estimated above this shows its cost box in red. */
 export const LOUD_DOLLARS = 1;
 

@@ -111,7 +111,12 @@ function releaseProductionSlot() {
   else productionActive -= 1;
 }
 
-async function send(way: WayId, question: string, signal: AbortSignal): Promise<WayResult> {
+export interface AskOptions {
+  /** Ask the laptop Brain for its trace and metrics (the Repeat Test page reads the real spend from them). */
+  diagnostics?: boolean;
+}
+
+async function send(way: WayId, question: string, signal: AbortSignal, options: AskOptions = {}): Promise<WayResult> {
   const messages = [{ role: 'user', content: question }];
   const headers = new Headers({ 'content-type': 'application/json', 'user-agent': USER_AGENT });
   let url: string;
@@ -125,6 +130,7 @@ async function send(way: WayId, question: string, signal: AbortSignal): Promise<
     if (!brain) return failedReply(way, 'BRAIN_URL is not set for this dev server.', 0);
     url = `${brain}/v1/chat`;
     headers.set('accept', 'application/json');
+    if (options.diagnostics) headers.set('x-rockygpt-diagnostics', '1');
   } else {
     const target = await productionTarget();
     url = `${target.url}/v1/chat`;
@@ -153,15 +159,20 @@ async function send(way: WayId, question: string, signal: AbortSignal): Promise<
   }
 }
 
-export async function askWay(way: WayId, question: string, signal: AbortSignal): Promise<WayResult> {
-  if (!wayFor(way).production) return send(way, question, signal);
+export async function askWay(
+  way: WayId,
+  question: string,
+  signal: AbortSignal,
+  options: AskOptions = {}
+): Promise<WayResult> {
+  if (!wayFor(way).production) return send(way, question, signal, options);
   try {
     await productionSlot(signal);
   } catch {
     return failedReply(way, 'Stopped before it answered.', 0);
   }
   try {
-    return await send(way, question, signal);
+    return await send(way, question, signal, options);
   } catch (error) {
     return failedReply(way, error instanceof Error ? error.message : 'The ask failed.', 0);
   } finally {

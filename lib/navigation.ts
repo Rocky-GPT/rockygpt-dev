@@ -29,6 +29,7 @@ import {
   MessageSquareCode,
   Milestone,
   Radio,
+  Repeat,
   ScrollText,
   Settings2,
   Signpost,
@@ -109,6 +110,14 @@ export const NAVIGATION: NavSection[] = [
         icon: Columns2,
         status: 'ready',
         upstream: 'POST /v1/chat on both Brains (+ POST /api/chat on both sites, when switched on)',
+      },
+      {
+        href: '/brain/repeat-test',
+        label: 'Repeat Test',
+        description: 'Ask every question several times at once and see if the bot gives the same answer each time',
+        icon: Repeat,
+        status: 'ready',
+        upstream: 'POST /v1/chat, 8 at once on the laptop Brain (2 on production)',
       },
       {
         href: '/brain/capabilities',

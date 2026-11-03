@@ -178,6 +178,8 @@ export function plural(word: string): string {
 export function linkWords(type: string, direction: 'out' | 'in', kind?: string): string {
   const words = LINK_WORDS[type]?.[direction];
   if ((type === 'part_of' || type === 'located_at') && direction === 'in' && kind) return kind === 'venue' ? 'food' : plural(kindName(kind));
+  // A category holds clubs, groups and offices on Archway, and courses in the catalog's attributes.
+  if (type === 'in_category' && kind) return direction === 'in' ? plural(kindName(kind)) : kind === 'course_attribute' ? 'attributes' : words ?? 'category';
   return words ?? `${direction === 'in' ? '← ' : ''}${type.replace(/_/g, ' ')}`;
 }
 

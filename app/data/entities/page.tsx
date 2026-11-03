@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ErrorPanel } from '@/components/ErrorPanel';
-import { type BrowseRead, GraphBrowser } from '@/components/dev/GraphBrowser';
+import { type BrowseRead, GraphBrowser, UNLINKED_ID, UnlinkedBanner, type UnlinkedNote } from '@/components/dev/GraphBrowser';
 import { FactsView } from '@/components/dev/OfficesBrowser';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { readBrainDev } from '@/lib/brain-proxy';
@@ -66,7 +66,7 @@ export default async function CampusGraphPage({ searchParams }: {
   // The whole graph (every type, node and link) comes from the Brain's graph reader. The chat
   // lookup's own map (Offices, Dining, Shuttle, Topics) still opens an office's, venue's, topic's
   // or route's published evidence, so trace links keep working.
-  if (nodeId === 'ramapo' || nodeId.startsWith('kind:') || nodeId.startsWith('entity:') || nodeId.startsWith('name:')) {
+  if (nodeId === 'ramapo' || nodeId === UNLINKED_ID || nodeId.startsWith('kind:') || nodeId.startsWith('entity:') || nodeId.startsWith('name:')) {
     const browse = new URLSearchParams({ node_id: nodeId });
     for (const key of ['dataset_version', 'identity_hash', 'on']) {
       const value = params.get(key);
@@ -106,6 +106,9 @@ export default async function CampusGraphPage({ searchParams }: {
                   ))}
                 </ol>
               </nav>
+              {whole.node.entity_id && whole.unlinked && 'reason' in whole.unlinked && (
+                <UnlinkedBanner note={whole.unlinked as UnlinkedNote} href={link(UNLINKED_ID)} />
+              )}
               {whole.node.entity_id ? (
                 <NodeCard ctx={{
                   read: whole as CardRead,

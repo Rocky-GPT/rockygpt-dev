@@ -10,6 +10,7 @@ import {
   COST_PER_ANSWER,
   REPEAT_BRAINS,
   TIMES_CHOICES,
+  askUntilReached,
   estimateRepeat,
   flakiness,
   groupTries,
@@ -120,7 +121,7 @@ function download(name: string, value: unknown) {
   URL.revokeObjectURL(url);
 }
 
-async function askTry(brain: RepeatBrain, question: string, signal: AbortSignal): Promise<WayResult> {
+async function askOnce(brain: RepeatBrain, question: string, signal: AbortSignal): Promise<WayResult> {
   const started = performance.now();
   try {
     const response = await fetch('/api/local/repeat-test', {
@@ -134,8 +135,14 @@ async function askTry(brain: RepeatBrain, question: string, signal: AbortSignal)
     return failedReply(brain, ('error' in body && body.error) || `The dev server answered HTTP ${response.status}.`, 0);
   } catch {
     const seconds = (performance.now() - started) / 1_000;
-    return failedReply(brain, signal.aborted ? 'Stopped before it answered.' : 'The dev server did not answer.', seconds);
+    if (signal.aborted) return failedReply(brain, 'Stopped before it answered.', seconds);
+    return failedReply(brain, 'The dev server did not answer.', seconds, true);
   }
+}
+
+/** One try; asked again when it failed outside the Brain (askUntilReached). */
+function askTry(brain: RepeatBrain, question: string, signal: AbortSignal): Promise<WayResult> {
+  return askUntilReached(() => askOnce(brain, question, signal), signal);
 }
 
 function resultsOf(tries: Try[]): (WayResult | undefined)[] {
@@ -701,7 +708,9 @@ function RepeatRow({
                 asking={item?.phase === 'asking'}
                 title={
                   item?.phase === 'done'
-                    ? `Try ${index + 1}: ${item.result.ok ? (item.result.status ?? 'answered') : item.result.error} · ${item.result.seconds.toFixed(1)} s`
+                    ? `Try ${index + 1}: ${item.result.ok ? (item.result.status ?? 'answered') : item.result.error} · ${item.result.seconds.toFixed(1)} s${
+                        item.result.retried ? ` (asked ${item.result.retried + 1} times; the earlier asks failed before reaching the Brain)` : ''
+                      }`
                     : `Try ${index + 1}: ${item ? 'asking' : 'waiting'}`
                 }
               />

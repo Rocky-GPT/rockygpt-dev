@@ -364,3 +364,39 @@ export function spentDollars(result: WayResult): number | null {
   const nusd = raw?.metrics?.committedNusd;
   return typeof nusd === 'number' && Number.isFinite(nusd) ? nusd / 1e9 : null;
 }
+
+/**
+ * A try that failed outside the Brain is asked again, at most this many times, after a short
+ * wait. 11-04 blind run: two tries came back "The dev server did not answer." with no Brain
+ * call behind them and were counted as the Brain's errors. A Brain error (a 504, say) or a
+ * timeout is never asked again: those are the Brain's.
+ */
+export const NOT_REACHED_RETRIES = 2;
+export const NOT_REACHED_WAIT_MS = 2_000;
+
+function pause(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) return resolve();
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener('abort', () => {
+      clearTimeout(timer);
+      resolve();
+    }, { once: true });
+  });
+}
+
+/** One try, asked again while it failed outside the Brain; `retried` counts the asks again. */
+export async function askUntilReached(
+  ask: () => Promise<WayResult>,
+  signal: AbortSignal,
+  waitMs = NOT_REACHED_WAIT_MS,
+  retries = NOT_REACHED_RETRIES
+): Promise<WayResult> {
+  let result = await ask();
+  for (let retry = 1; retry <= retries && !result.ok && result.notReached && !signal.aborted; retry += 1) {
+    await pause(waitMs, signal);
+    if (signal.aborted) break;
+    result = { ...(await ask()), retried: retry };
+  }
+  return result;
+}

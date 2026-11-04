@@ -155,7 +155,7 @@ async function send(way: WayId, question: string, signal: AbortSignal, options: 
     if (error instanceof DOMException && error.name === 'TimeoutError') {
       return failedReply(way, `No answer within ${ASK_TIMEOUT_MS / 1_000} seconds.`, seconds());
     }
-    return failedReply(way, `Could not connect to ${new URL(url).host}. Is it running?`, seconds());
+    return failedReply(way, `Could not connect to ${new URL(url).host}. Is it running?`, seconds(), true);
   }
 }
 

@@ -79,6 +79,13 @@ export interface WayResult {
   error: string | null;
   /** The reply body exactly as it came back, for the download. */
   raw: unknown;
+  /**
+   * The ask failed outside the Brain or site: the dev server did not answer the page, or could
+   * not connect. Nothing the Brain said came back, so it is not the Brain's answer.
+   */
+  notReached?: boolean;
+  /** How many times the Repeat Test asked again after a failure outside the Brain. */
+  retried?: number;
 }
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -174,8 +181,11 @@ export function readReply(
   };
 }
 
-/** A way that never got a reply: unreachable, timed out, or stopped. */
-export function failedReply(way: WayId, error: string, seconds: number): WayResult {
+/**
+ * A way that never got a reply: unreachable, timed out, or stopped. `notReached` when the
+ * failure was outside the Brain or site (the dev server, or the connection to it).
+ */
+export function failedReply(way: WayId, error: string, seconds: number, notReached = false): WayResult {
   return {
     way,
     ok: false,
@@ -188,6 +198,7 @@ export function failedReply(way: WayId, error: string, seconds: number): WayResu
     requestId: null,
     error,
     raw: null,
+    ...(notReached ? { notReached: true } : {}),
   };
 }
 

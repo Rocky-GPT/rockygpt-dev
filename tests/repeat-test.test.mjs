@@ -3,6 +3,7 @@ import test from 'node:test';
 import { failedReply } from '../lib/laptop-vs-production.ts';
 import {
   answerFacts,
+  askUntilReached,
   estimateRepeat,
   groupTries,
   isFlaky,
@@ -154,3 +155,39 @@ test('frozen sets are known by their file name', () => {
   assert.equal(isFrozen('tonight-2026-11-02/blind-four-areas/questions-frozen.json'), true);
   assert.equal(isFrozen('fresh-2026-11-03/practice.json'), false);
 });
+
+test('a try that failed outside the Brain is asked again, and only that', async () => {
+  const signal = new AbortController().signal;
+  const asking = (...results) => {
+    const asked = [];
+    return { asked, ask: async () => (asked.push(1), results[Math.min(asked.length, results.length) - 1]) };
+  };
+  // 11-04 blind run: "The dev server did not answer." twice, with no Brain call behind it.
+  const devServer = failedReply('laptop-brain', 'The dev server did not answer.', 8.7, true);
+  let way = asking(devServer, reply('Open 8am to 5pm.'));
+  let result = await askUntilReached(way.ask, signal, 0);
+  assert.equal(result.ok, true);
+  assert.equal(result.retried, 1);
+  assert.equal(way.asked.length, 2);
+  // At most twice again; the last failure stands.
+  way = asking(devServer);
+  result = await askUntilReached(way.ask, signal, 0);
+  assert.equal(result.ok, false);
+  assert.equal(result.retried, 2);
+  assert.equal(way.asked.length, 3);
+  // The Brain's own failures and timeouts are its answers: never asked again.
+  const timedOut = reply('', { ok: false, http: 504, status: null, error: 'RockyGPT took too long to finish.' });
+  way = asking(timedOut, reply('Open 8am to 5pm.'));
+  assert.equal((await askUntilReached(way.ask, signal, 0)).http, 504);
+  assert.equal(way.asked.length, 1);
+  way = asking(failedReply('laptop-brain', 'No answer within 60 seconds.', 60), reply('Open.'));
+  assert.equal((await askUntilReached(way.ask, signal, 0)).ok, false);
+  assert.equal(way.asked.length, 1);
+  // A stopped run is not asked again.
+  const stop = new AbortController();
+  way = asking(devServer, reply('Open.'));
+  stop.abort();
+  assert.equal((await askUntilReached(way.ask, stop.signal, 0)).ok, false);
+  assert.equal(way.asked.length, 1);
+});
+

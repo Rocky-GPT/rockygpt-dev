@@ -11,7 +11,7 @@ import 'server-only';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { askWay } from './laptop-vs-production-server';
-import { failedReply, type WayResult } from './laptop-vs-production';
+import { failedReply, retryable, type WayResult } from './laptop-vs-production';
 import { isFrozen, readSetFile, type QuestionSet, type RepeatBrain, type RepeatQuestion } from './repeat-test';
 
 /** The workspace root: ROCKYGPT_WORKSPACE_DIR, else the folder holding rockygpt-dev. */
@@ -110,13 +110,14 @@ function wait(ms: number, signal: AbortSignal) {
 
 /**
  * One try. The laptop Brain is asked with diagnostics on, so its metrics carry the real
- * spend. When it is busy (another page is asking too, 429), the try waits and asks again.
+ * spend. When it is busy (another page is asking too, 429), the try waits and asks again,
+ * unless the reply says asking again won't help, as when the monthly allowance is spent.
  */
 export async function askTry(brain: RepeatBrain, question: string, signal: AbortSignal): Promise<WayResult> {
   let result = failedReply(brain, 'Not asked.', 0);
   for (let attempt = 0; attempt <= BUSY_RETRIES && !signal.aborted; attempt += 1) {
     result = await askWay(brain, question, signal, { diagnostics: brain === 'laptop-brain' });
-    if (result.http !== 429) return result;
+    if (result.http !== 429 || !retryable(result)) return result;
     await wait(BUSY_WAIT_MS, signal);
   }
   return signal.aborted ? failedReply(brain, 'Stopped before it answered.', 0) : result;

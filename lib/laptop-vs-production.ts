@@ -115,6 +115,12 @@ export function readEventStream(text: string): { status: number | null; body: un
   return null;
 }
 
+/** False when the reply says asking again will not help (the Brain's allowance is spent). */
+export function retryable(result: WayResult): boolean {
+  const error = record(record(result.raw)?.error);
+  return error?.retryable !== false;
+}
+
 function citations(value: unknown): Citation[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
@@ -126,7 +132,6 @@ function citations(value: unknown): Citation[] {
 }
 
 function errorText(http: number | null, body: Record<string, unknown> | null): string {
-  if (http === 429) return 'Too many questions at once: the site allows 12 a minute. Wait a minute and ask again.';
   const error = body?.error;
   const nested = record(error);
   const message =
@@ -134,6 +139,9 @@ function errorText(http: number | null, body: Record<string, unknown> | null): s
     (typeof error === 'string' && error) ||
     (typeof body?.detail === 'string' && body.detail) ||
     '';
+  // A 429 is the site's rate limit, the Brain being busy, or the Brain's monthly allowance
+  // running out; each says which in its own message.
+  if (http === 429) return message || 'Too many questions at once. Wait a minute and ask again.';
   if (http === 504) return message || 'It took too long to answer.';
   if (http !== null && http >= 500) return message || `The server failed (HTTP ${http}).`;
   if (http !== null && http !== 200) return message || `HTTP ${http}.`;

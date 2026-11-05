@@ -5,6 +5,8 @@ import { ChevronDown, ChevronRight, Download, Loader2, Lock, Play, RotateCcw, Sq
 import { BrainMarkdown } from '@/components/BrainMarkdown';
 import { useNow } from '@/components/ask/useNow';
 import { StatusPill, type PillTone } from '@/components/shell/StatusPill';
+import { BudgetLine, leftTone, useBudget } from '@/components/dev/BudgetLine';
+import { budgetFit } from '@/lib/budget';
 import { failedReply, formatDollars, type WayResult } from '@/lib/laptop-vs-production';
 import {
   COST_PER_ANSWER,
@@ -227,6 +229,9 @@ export function RepeatTest() {
   const questions = source === 'set' ? setQuestions : pastedQuestions(pasteText);
   const chosenSet = sets?.find((item) => item.path === setPath);
   const estimate = estimateRepeat(questions.length, times, brain);
+  const budgetState = useBudget(brain === 'laptop-brain' || run?.brain === 'laptop-brain', running);
+  const budget = budgetState.budget;
+  const runFits = brain !== 'laptop-brain' || !budget || budgetFit(budget, estimate.dollars) === 'fits';
 
   /** Ask every [question, try] pair, `atOnce` at a time, in set order. */
   const start = useCallback(async (next: Omit<Run, 'tries' | 'startedAt' | 'finishedAt'>) => {
@@ -453,7 +458,7 @@ export function RepeatTest() {
         </section>
       </div>
 
-      <section className={card}>
+      <section className={running || runFits ? card : card.replace('border-white/10', 'border-red-500/45')}>
         {confirming && !running ? (
           <div className="space-y-3">
             <div
@@ -473,6 +478,9 @@ export function RepeatTest() {
               </strong>
               , {estimate.atOnce} at a time.
               {estimate.loud && ' This is over $1.'}
+              {brain === 'laptop-brain' && budget && (
+                <> {formatDollars(budget.left)} is left this month{runFits ? '.' : ', so it would stop partway.'}</>
+              )}
             </div>
             <div className="flex gap-2">
               <button
@@ -511,6 +519,13 @@ export function RepeatTest() {
             </span>
           </div>
         )}
+        <div className="mt-4 border-t border-white/10 pt-3">
+          <BudgetLine
+            state={budgetState}
+            runDollars={running ? 0 : questions.length ? estimate.dollars : 0}
+            laptop={(running ? run?.brain : brain) === 'laptop-brain'}
+          />
+        </div>
       </section>
 
       {run && (
@@ -526,6 +541,14 @@ export function RepeatTest() {
                 {finished ? 'took' : ''} {minutesSeconds((run.finishedAt ?? now) - run.startedAt)}
                 {!finished && ' so far'} · spent {formatDollars(spent)}
                 {guessed && ' (partly estimated)'}
+                {run.brain === 'laptop-brain' && budget && (
+                  <>
+                    {' · '}
+                    <span className={leftTone(budget, budgetFit(budget, 0))}>
+                      {formatDollars(budget.left)} left this month
+                    </span>
+                  </>
+                )}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -585,6 +608,9 @@ export function RepeatTest() {
           <div className="flex flex-wrap gap-2.5">
             <Stat value={`${back}`} sub={`/ ${allTries.length}`} caption="answers back" />
             {running && <Stat value={`${askingNow}`} caption="asking right now" tone="text-sky-300" />}
+            {run.brain === 'laptop-brain' && budget && (
+              <Stat value={formatDollars(budget.left)} caption="budget left" tone={leftTone(budget, budgetFit(budget, 0))} />
+            )}
             <Stat value={`${counts.steady}`} caption={`steady (${run.times} of ${run.times})`} tone="text-emerald-300" />
             <Stat value={`${counts.off}`} caption="a little off" tone="text-amber-300" />
             <Stat value={`${counts.flaky}`} caption="flaky (40%+ off)" tone="text-red-300" />

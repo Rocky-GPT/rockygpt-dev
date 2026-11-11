@@ -20,6 +20,7 @@ import {
   Database,
   FileText,
   FlaskConical,
+  GalleryVerticalEnd,
   Gauge,
   HardDrive,
   LayoutDashboard,
@@ -118,6 +119,16 @@ export const NAVIGATION: NavSection[] = [
         icon: Repeat,
         status: 'ready',
         upstream: 'POST /v1/chat, 8 at once on the laptop Brain (2 on production)',
+      },
+      {
+        href: '/brain/answer-cards',
+        label: 'Answer Cards',
+        description: 'Every how-to task the night job found on the office pages, with the page words behind each step',
+        icon: GalleryVerticalEnd,
+        // The tasks are listed as each page gives them. Joining the same task across pages into
+        // one card, and its status, is not built yet.
+        status: 'partial',
+        upstream: 'GET /v1/dev/answer-cards + GET /v1/dev/answer-cards/task (tasks page by page; joined cards are not built)',
       },
       {
         href: '/brain/capabilities',

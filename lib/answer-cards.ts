@@ -272,6 +272,50 @@ export function readTaskDetail(body: unknown): CardTaskDetail | null {
   };
 }
 
+/** What the bot would say from one card, written by code, or why code does not answer from it. */
+export interface CardAnswer {
+  cardId: string;
+  /** The reply as the chat would show it, sources included; null when code does not answer. */
+  text: string | null;
+  /** Why code does not answer: needs_look, date_changed, no_steps, too_long, no_page or check. */
+  notSaid: string | null;
+  /** The term or date the card is for, as it stands today, when it is over. */
+  overNow: string | null;
+}
+
+/** The Brain's one-card reply, or null when it is not one. */
+export function readCardAnswer(body: unknown): CardAnswer | null {
+  if (!isRaw(body) || !isRaw(body.card)) return null;
+  const cardId = text(body.card.id);
+  if (!cardId) return null;
+  const said = isRaw(body.answer) ? text(body.answer.text) : null;
+  const notSaid = text(body.not_said);
+  if (!said && !notSaid) return null;
+  return { cardId, text: said, notSaid: said ? null : notSaid, overNow: text(body.card.over_now) };
+}
+
+/** In plain words, why code does not answer from a card. Every such card stays with today's path. */
+export function notSaidReason(answer: CardAnswer, steps: number): string {
+  switch (answer.notSaid) {
+    case 'needs_look':
+      return 'This card needs a look first, so code does not answer from it.';
+    case 'date_changed':
+      return answer.overNow
+        ? `Its date passed after the cards were built (${answer.overNow}). The next graph build updates the card.`
+        : 'Its date is no longer past since the cards were built. The next graph build updates the card.';
+    case 'no_steps':
+      return 'The winning page gave this task no steps to say.';
+    case 'too_long':
+      return `This task has ${plural(steps, 'step')}, more than 12. That is a table, not a how-to, so code does not read it all out.`;
+    case 'no_page':
+      return 'The winning page has no address to cite.';
+    case 'check':
+      return 'The answer held a number, an address or a phone that the card’s facts do not hold, so code does not say it.';
+    default:
+      return 'Code does not answer from this card.';
+  }
+}
+
 /** One task with its page: what a tile shows and what opening it needs. */
 export interface TaskRow {
   /** Unique in a listing: the page's record id and the task's key. */

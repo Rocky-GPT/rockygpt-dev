@@ -90,8 +90,9 @@ export function CardAnswerPanel({
         </p>
       )}
       <p className="text-xs text-muted-foreground">
-        A preview. No chat reply uses a card yet: that comes behind a dev setting, and only when a question
-        clearly matches one card.
+        A preview. A chat reply is this answer only with the dev setting on (it is off), and only when a plain
+        how-to question clearly matches this one card. To try it on the laptop: ./rocky ask &quot;your
+        question&quot; --cards
       </p>
     </section>
   );

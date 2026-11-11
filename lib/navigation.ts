@@ -128,7 +128,7 @@ export const NAVIGATION: NavSection[] = [
         // The cards are joined and shown, each with what the bot will say from it. No chat reply
         // uses a card yet, and how a card did in tests is not built.
         status: 'partial',
-        upstream: 'GET /v1/dev/answer-cards + /task + /card (cards, tasks, and what the bot will say from a card; no chat reply uses a card yet)',
+        upstream: 'GET /v1/dev/answer-cards + /task + /card (cards, tasks, and what the bot will say from a card; a chat reply uses a card only with the dev setting on)',
       },
       {
         href: '/brain/capabilities',

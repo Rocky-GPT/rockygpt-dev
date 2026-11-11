@@ -12,7 +12,7 @@ export default function AnswerCardsPage() {
     <>
       <PageHeader
         title="Answer Cards"
-        subtitle="One card per how-to task, joined from every office page that lists it. Look only: nothing answers from a card yet"
+        subtitle="One card per how-to task, joined from every office page that lists it. Look only: no chat reply uses a card yet"
       />
       <main className="min-w-0 px-6 py-6">
         <AnswerCards />

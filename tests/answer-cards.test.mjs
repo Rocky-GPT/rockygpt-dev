@@ -8,8 +8,10 @@ import {
   flagReasons,
   formatDay,
   nodeNames,
+  notSaidReason,
   placeReason,
   plural,
+  readCardAnswer,
   readListing,
   readTaskDetail,
   statusCounts,
@@ -331,4 +333,43 @@ test('names, days and counts read the way the page says them', () => {
   assert.equal(formatDay('soon'), 'soon');
   assert.equal(plural(1, 'step'), '1 step');
   assert.equal(plural(8102, 'task'), '8,102 tasks');
+});
+
+// The shape the Brain's GET /v1/dev/answer-cards/card sends.
+const cardReply = {
+  dataset_version: 'v2-20261111174533',
+  identity_hash: '758d63c9',
+  card: { id: 'c0123456789ab', status: 'ready', flags: [], notes: [], label: null, over_now: null },
+  answer: {
+    text: '**Get a student parking permit**\n\n1. Register online. [1]\n\nSources: [1](https://www.ramapo.edu/publicsafety/parking-permits/)',
+    citations: [{ id: 'section-1', title: 'Get a student parking permit', url: 'https://www.ramapo.edu/publicsafety/parking-permits/' }],
+  },
+  not_said: null,
+};
+
+test('reads what the bot would say from a card, as code wrote it', () => {
+  const answer = readCardAnswer(cardReply);
+  assert.equal(answer.cardId, 'c0123456789ab');
+  assert.match(answer.text, /^\*\*Get a student parking permit\*\*/);
+  assert.equal(answer.notSaid, null);
+});
+
+test('a card code does not answer from says why, in plain words', () => {
+  const refused = (not_said, over_now = null) =>
+    readCardAnswer({ ...cardReply, card: { ...cardReply.card, over_now }, answer: null, not_said });
+  assert.equal(refused('needs_look').text, null);
+  assert.match(notSaidReason(refused('needs_look'), 3), /needs a look first/);
+  assert.match(notSaidReason(refused('date_changed', 'September 1, 2026'), 3), /passed after the cards were built \(September 1, 2026\)/);
+  assert.match(notSaidReason(refused('date_changed'), 3), /no longer past/);
+  assert.match(notSaidReason(refused('too_long'), 38), /^This task has 38 steps, more than 12\./);
+  assert.match(notSaidReason(refused('check'), 3), /facts do not hold/);
+  // A reason a newer Brain adds still reads as a refusal, not as an answer.
+  assert.match(notSaidReason(refused('something_new'), 3), /does not answer from this card/);
+});
+
+test('a reply with no answer and no reason, or no card, is not a card answer', () => {
+  assert.equal(readCardAnswer({ ...cardReply, answer: null }), null);
+  assert.equal(readCardAnswer({ ...cardReply, card: {} }), null);
+  assert.equal(readCardAnswer({ error: 'not found' }), null);
+  assert.equal(readCardAnswer(null), null);
 });

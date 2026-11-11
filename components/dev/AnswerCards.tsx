@@ -598,7 +598,7 @@ export function AnswerCards() {
 
       <p className="text-xs text-muted-foreground">
         {listing.cards
-          ? 'Look only. Nothing answers from a card yet. Ready means the rules settled the owner and the winning page; Needs a look means they could not; Date passed means the only date the task has is over.'
+          ? 'Look only. No chat reply uses a card yet; open a card to read what the bot will say from it. Ready means the rules settled the owner and the winning page; Needs a look means they could not; Date passed means the only date the task has is over.'
           : 'Look only. This release was built without joined cards, so there are no statuses to show.'}
       </p>
     </div>

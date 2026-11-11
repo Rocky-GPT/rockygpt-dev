@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2, RefreshCw } from 'lucide-react';
 import { ErrorPanel } from '@/components/ErrorPanel';
+import { CardAnswerPanel } from '@/components/dev/CardAnswer';
 import {
   STATUS_LABELS,
   cardLine,
@@ -257,6 +258,13 @@ export function CardView({
         )}
       </section>
 
+      <CardAnswerPanel
+        cardId={card.id}
+        steps={winner.task.steps}
+        datasetVersion={listing.datasetVersion}
+        identityHash={listing.identityHash}
+      />
+
       <section className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="text-sm font-semibold text-foreground">Steps, and the page words behind each one</h3>
@@ -289,9 +297,7 @@ export function CardView({
         onOpen={open}
       />
 
-      <p className="text-xs text-muted-foreground">
-        Look only. Nothing answers from a card yet: what the bot will say from it comes with the next step.
-      </p>
+      <p className="text-xs text-muted-foreground">Look only. Nothing on this page changes a card.</p>
     </div>
   );
 }

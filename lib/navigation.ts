@@ -123,12 +123,12 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/brain/answer-cards',
         label: 'Answer Cards',
-        description: 'Every how-to task the night job found on the office pages, with the page words behind each step',
+        description: 'One card per how-to task, joined from every office page that lists it, with the page whose steps win',
         icon: GalleryVerticalEnd,
-        // The tasks are listed as each page gives them. Joining the same task across pages into
-        // one card, and its status, is not built yet.
+        // The cards are joined and shown. What the bot says from a card, and how a card did in
+        // tests, are not built yet.
         status: 'partial',
-        upstream: 'GET /v1/dev/answer-cards + GET /v1/dev/answer-cards/task (tasks page by page; joined cards are not built)',
+        upstream: 'GET /v1/dev/answer-cards + GET /v1/dev/answer-cards/task (cards and tasks; nothing answers from a card yet)',
       },
       {
         href: '/brain/capabilities',

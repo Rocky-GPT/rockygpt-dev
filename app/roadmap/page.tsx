@@ -33,7 +33,7 @@ export default function RoadmapPage() {
           Connected pages read the current Brain: Ask &amp; Inspect, the pages about its prompt,
           tools, texts, offices and configuration, and service health. Storage is partial: the
           production Brain serves its numbers and this one does not. Answer Cards is partial: it
-          lists every task page by page, and joining them into cards is not built. Switched-off pages were built
+          shows the cards joined from every page&rsquo;s tasks, and nothing answers from a card yet. Switched-off pages were built
           for an older Brain and read routes this one does not serve; their code is kept for when it
           does. Not-built pages do not exist yet.
         </p>

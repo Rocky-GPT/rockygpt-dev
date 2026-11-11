@@ -1,12 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  cardLine,
+  cardRows,
+  filterCards,
   filterTasks,
+  flagReasons,
   formatDay,
   nodeNames,
+  placeReason,
   plural,
   readListing,
   readTaskDetail,
+  statusCounts,
   taskRows,
 } from '../lib/answer-cards.ts';
 
@@ -67,8 +73,178 @@ test('reads the Brain list: totals, nodes, and each page with its tasks', () => 
   });
 });
 
-test('says cards are joined only when the Brain sends them', () => {
-  assert.equal(readListing({ ...reply, cards: [] }).joined, true);
+// The cards the Brain's graph build joins from those three tasks (retrieval/card_join.py): the
+// two parking tasks are one card, Public Safety's page winning over the undated orientation page.
+const cards = {
+  built_on: '2026-11-11',
+  rules: { join_mean: 0.85, join_least: 0.78, big_group: 12 },
+  items: [
+    {
+      id: 'c1',
+      status: 'ready',
+      flags: [],
+      notes: [],
+      owners: [SAFETY],
+      members: [
+        { record_id: 'page-permits', key: 'e0', role: 'winner' },
+        { record_id: 'page-faq', key: 'e0', role: 'left_out', why: 'old' },
+      ],
+    },
+    {
+      id: 'c2',
+      status: 'needs_look',
+      flags: ['owner_unclear', 'no_date'],
+      notes: ['owner_has_no_page'],
+      owners: [ORIENTATION, SAFETY],
+      members: [{ record_id: 'page-permits', key: 'e2', role: 'winner' }],
+    },
+  ],
+};
+const joined = { ...reply, cards };
+
+test('a release built without cards has none, and one built with them sends them', () => {
+  const without = readListing(reply);
+  assert.equal(without.joined, false);
+  assert.equal(without.cards, null);
+  assert.deepEqual(cardRows(without), []);
+  const listing = readListing(joined);
+  assert.equal(listing.joined, true);
+  assert.equal(listing.cards.builtOn, '2026-11-11');
+  assert.deepEqual(listing.cards.items[0], {
+    id: 'c1',
+    status: 'ready',
+    flags: [],
+    notes: [],
+    owners: [SAFETY],
+    members: [
+      { recordId: 'page-permits', key: 'e0', role: 'winner', why: null, label: null },
+      { recordId: 'page-faq', key: 'e0', role: 'left_out', why: 'old', label: null },
+    ],
+  });
+  // A card this page cannot read is left out: no winner first, or a status it does not know.
+  const odd = readListing({
+    ...reply,
+    cards: {
+      items: [
+        ...cards.items,
+        { id: 'c3', status: 'ready', members: [{ record_id: 'page-faq', key: 'e0', role: 'mentions' }] },
+        { id: 'c4', status: 'hidden', members: [{ record_id: 'page-faq', key: 'e0', role: 'winner' }] },
+        'nope',
+      ],
+    },
+  });
+  assert.deepEqual(odd.cards.items.map((card) => card.id), ['c1', 'c2']);
+  assert.equal(odd.cards.builtOn, null);
+});
+
+test('each card has its tasks beside it, the winner first', () => {
+  const rows = cardRows(readListing(joined));
+  assert.deepEqual(rows.map((row) => row.card.id), ['c1', 'c2']);
+  const [parking, ticket] = rows;
+  assert.equal(parking.winner.id, 'page-permits:e0');
+  assert.deepEqual(parking.places.map((place) => [place.row.id, place.member.role]), [
+    ['page-permits:e0', 'winner'],
+    ['page-faq:e0', 'left_out'],
+  ]);
+  assert.deepEqual(parking.owners, ['Public Safety']);
+  assert.equal(parking.pages, 2);
+  assert.deepEqual(ticket.owners, ['Orientation', 'Public Safety']);
+  assert.equal(ticket.pages, 1);
+  assert.deepEqual(statusCounts(rows), { ready: 1, needs_look: 1, date_passed: 0 });
+  // A card whose winning task the list does not hold is left out; another task it does not hold
+  // is dropped from the card.
+  const missing = readListing({
+    ...reply,
+    cards: {
+      items: [
+        { id: 'gone', status: 'ready', members: [{ record_id: 'page-gone', key: 'e0', role: 'winner' }] },
+        {
+          id: 'part',
+          status: 'ready',
+          members: [
+            { record_id: 'page-permits', key: 'e0', role: 'winner' },
+            { record_id: 'page-gone', key: 'e0', role: 'mentions' },
+          ],
+        },
+      ],
+    },
+  });
+  assert.deepEqual(cardRows(missing).map((row) => [row.card.id, row.places.length]), [['part', 1]]);
+});
+
+test('cards are found by any of their tasks, and kept by status, office and joining', () => {
+  const rows = cardRows(readListing(joined));
+  const all = { query: '', node: null, status: null, joinedOnly: false };
+  const found = (filter) => filterCards(rows, { ...all, ...filter }).map((row) => row.card.id);
+  assert.deepEqual(found({}), ['c1', 'c2']);
+  // "car" is only in the left-out orientation task's name: the card is still found by it.
+  assert.deepEqual(found({ query: 'bring a car' }), ['c1']);
+  assert.deepEqual(found({ query: 'ticket' }), ['c2']);
+  assert.deepEqual(found({ query: 'transcript' }), []);
+  assert.deepEqual(found({ status: 'needs_look' }), ['c2']);
+  assert.deepEqual(found({ status: 'date_passed' }), []);
+  assert.deepEqual(found({ joinedOnly: true }), ['c1']);
+  // Orientation owns the second card and links the first card's left-out page.
+  assert.deepEqual(found({ node: ORIENTATION }), ['c1', 'c2']);
+  assert.deepEqual(found({ node: ORIENTATION, joinedOnly: true, query: 'permit' }), ['c1']);
+  // A card named by the search comes before one that only mentions the word.
+  assert.deepEqual(found({ query: 'appeal permits' }), ['c2']);
+  assert.deepEqual(found({ query: 'permits' }), ['c1', 'c2']);
+  assert.deepEqual(found({ query: 'ticket permits' }), ['c2']);
+});
+
+test('a card says in one line why it has its status', () => {
+  const [parking, ticket] = cardRows(readListing(joined));
+  assert.deepEqual(cardLine(parking), { text: '1 old page left out.', warns: false });
+  assert.deepEqual(flagReasons(ticket), [
+    'Its pages do not settle who handles it: Orientation, Public Safety.',
+    'Its page carries no date, so its age cannot be told.',
+  ]);
+  assert.equal(cardLine(ticket).warns, true);
+  assert.equal(placeReason(parking.places[0]), 'Changed Aug 17, 2026');
+  assert.equal(placeReason(parking.places[1]), 'Old page, no date on the page');
+  // A card whose own date passed names it; so does a past-term page left out of a current card.
+  const passed = cardRows(
+    readListing({
+      ...reply,
+      cards: {
+        items: [
+          {
+            id: 'c5',
+            status: 'date_passed',
+            flags: [],
+            notes: [],
+            owners: [SAFETY],
+            members: [
+              { record_id: 'page-permits', key: 'e0', role: 'winner', label: 'September 1, 2026' },
+              { record_id: 'page-faq', key: 'e0', role: 'left_out', why: 'over', label: 'Fall 2022' },
+            ],
+          },
+        ],
+      },
+    })
+  )[0];
+  assert.deepEqual(cardLine(passed), { text: 'Its date passed: September 1, 2026.', warns: false });
+  assert.equal(placeReason(passed.places[0]), 'Its date passed: September 1, 2026');
+  assert.equal(placeReason(passed.places[1]), 'Past term or date: Fall 2022');
+  // A ready card of one task says its page's date, or that the page is old.
+  const single = (notes, updated) =>
+    cardRows(
+      readListing({
+        ...reply,
+        pages: [reply.pages[0], { ...reply.pages[1], updated }],
+        cards: {
+          items: [
+            { id: 'c6', status: 'ready', flags: [], notes, owners: [SAFETY], members: [cards.items[0].members[0]] },
+          ],
+        },
+      })
+    )[0];
+  assert.equal(cardLine(single([], '2026-08-17')).text, 'Page changed Aug 17, 2026.');
+  assert.equal(
+    cardLine(single(['old_page'], '2017-07-03')).text,
+    'Its page last changed Jul 3, 2017, three or more years ago.'
+  );
 });
 
 test('a reply that is not a task list reads as nothing, and a row it cannot read is left out', () => {

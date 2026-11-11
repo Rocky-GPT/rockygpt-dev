@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/shell/PageHeader';
 
 export const metadata: Metadata = {
   title: 'Answer Cards | RockyGPT Dev',
-  description: 'Every how-to task the night job found on the office pages, with the page words behind each step.',
+  description: 'One card per how-to task, joined from every office page that lists it, with the page whose steps win.',
 };
 
 export default function AnswerCardsPage() {
@@ -12,7 +12,7 @@ export default function AnswerCardsPage() {
     <>
       <PageHeader
         title="Answer Cards"
-        subtitle="Every how-to task the night job found on the office pages. Look only: joining them into cards comes next"
+        subtitle="One card per how-to task, joined from every office page that lists it. Look only: nothing answers from a card yet"
       />
       <main className="min-w-0 px-6 py-6">
         <AnswerCards />

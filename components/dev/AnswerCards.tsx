@@ -4,16 +4,22 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2, RefreshCw, Search } from 'lucide-react';
 import { ErrorPanel } from '@/components/ErrorPanel';
+import { CardTile, CardView, TaskSteps, type Detail } from '@/components/dev/AnswerCardView';
 import {
+  STATUS_LABELS,
+  cardRows,
+  filterCards,
   filterTasks,
   formatDay,
   nodeNames,
   plural,
   readListing,
   readTaskDetail,
+  statusCounts,
   taskRows,
   type CardListing,
-  type CardTaskDetail,
+  type CardRow,
+  type CardStatus,
   type TaskRow,
 } from '@/lib/answer-cards';
 import { failureMessage } from '@/lib/brain-failure';
@@ -22,10 +28,25 @@ import { campusGraphHref } from '@/lib/campus-graph-link';
 /** Tiles drawn at first, and added by each "Show more". A release holds about 8,000 tasks. */
 const PAGE_SIZE = 60;
 
-type Detail =
-  | { state: 'loading' }
-  | { state: 'ready'; detail: CardTaskDetail }
-  | { state: 'failed'; problem: string; changed: boolean };
+/** The list shows the joined cards, or every task as its page lists it. */
+type View = 'cards' | 'tasks';
+
+function Choice({ pressed, onPress, children }: { pressed: boolean; onPress: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      onClick={onPress}
+      className={`min-h-11 rounded-xl border px-4 text-sm ${
+        pressed
+          ? 'border-sky-400 bg-white/10 font-semibold text-foreground'
+          : 'border-white/10 bg-white/5 text-foreground/80 hover:bg-white/10'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 
 function Total({ label, value }: { label: string; value: number }) {
   return (
@@ -74,14 +95,22 @@ function TaskView({
   row,
   listing,
   detail,
+  card,
+  back,
   onBack,
+  onCard,
   onOpen,
   onReload,
 }: {
   row: TaskRow;
   listing: CardListing;
   detail: Detail;
+  /** The card this task is part of, when the release has cards. */
+  card: CardRow | null;
+  /** Where the back button goes. */
+  back: string;
   onBack: () => void;
+  onCard: () => void;
   onOpen: (key: string) => void;
   onReload: () => void;
 }) {
@@ -97,14 +126,25 @@ function TaskView({
         onClick={onBack}
         className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-foreground/90 hover:bg-white/10"
       >
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All tasks
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {back}
       </button>
 
       <section className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-5">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-dashed border-amber-500/60 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
-            One page&rsquo;s task, not a joined card yet
-          </span>
+          {card ? (
+            <button
+              type="button"
+              onClick={onCard}
+              className="min-h-8 rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-0.5 text-left text-xs font-semibold text-sky-300 hover:bg-sky-500/20"
+            >
+              One page&rsquo;s task, in the card &ldquo;{card.winner.task.task}&rdquo;
+              {card.winner.id === row.id ? ' (its steps win)' : ''}
+            </button>
+          ) : (
+            <span className="rounded-full border border-dashed border-amber-500/60 bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300">
+              One page&rsquo;s task. This release has no joined cards
+            </span>
+          )}
           {task.term && (
             <span className="rounded-full border border-sky-500/40 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
               {task.term}
@@ -150,46 +190,7 @@ function TaskView({
           <h3 className="text-sm font-semibold text-foreground">Steps, and the page words behind each one</h3>
           <span className="text-xs text-muted-foreground">{plural(task.steps, 'step')} from this page</span>
         </div>
-        {detail.state === 'loading' && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Reading the steps from the Brain
-          </p>
-        )}
-        {detail.state === 'failed' && (
-          <div className="space-y-3">
-            <ErrorPanel title="Could not read this task" detail={detail.problem} />
-            {detail.changed && (
-              <button
-                type="button"
-                onClick={onReload}
-                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-foreground/90 hover:bg-white/10"
-              >
-                <RefreshCw className="h-4 w-4" aria-hidden="true" /> Read the list again
-              </button>
-            )}
-          </div>
-        )}
-        {detail.state === 'ready' && (
-          <ol className="space-y-3">
-            {detail.detail.task.steps.map((step, index) => (
-              <li key={index} className="flex gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/30 font-mono text-xs text-foreground/90">
-                  {index + 1}
-                </span>
-                <div className="min-w-0 flex-1 space-y-1.5">
-                  <p className="text-sm leading-6 text-foreground">{step.text}</p>
-                  {step.quote ? (
-                    <blockquote className="rounded-xl border-l-2 border-white/20 bg-black/30 px-3.5 py-2 text-sm leading-6 text-foreground/80">
-                      {step.quote}
-                    </blockquote>
-                  ) : (
-                    <p className="text-xs text-amber-300">The page read kept no page words for this step.</p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
+        <TaskSteps detail={detail} onReload={onReload} />
       </section>
 
       <section className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-5">
@@ -244,8 +245,7 @@ function TaskView({
       )}
 
       <p className="text-xs text-muted-foreground">
-        Look only. What the bot will say, the pages used and the pages left out come when the same
-        task is joined across pages into one card.
+        Look only. This is the task as its own page lists it; its card shows which page&rsquo;s steps win.
       </p>
     </div>
   );
@@ -259,6 +259,10 @@ export function AnswerCards() {
   const [node, setNode] = useState('');
   const [shown, setShown] = useState(PAGE_SIZE);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
+  const [view, setView] = useState<View>('cards');
+  const [status, setStatus] = useState<CardStatus | null>(null);
+  const [joinedOnly, setJoinedOnly] = useState(false);
   const [detail, setDetail] = useState<Detail>({ state: 'loading' });
 
   const load = useCallback(() => {
@@ -271,6 +275,7 @@ export function AnswerCards() {
           setListing(read);
           setProblem(null);
           setOpenId(null);
+          setOpenCardId(null);
           return;
         }
         setProblem(
@@ -293,15 +298,30 @@ export function AnswerCards() {
   const names = useMemo(() => (listing ? nodeNames(listing) : new Map<string, string>()), [listing]);
   const found = useMemo(() => filterTasks(rows, query, node || null), [rows, query, node]);
   const open = useMemo(() => rows.find((row) => row.id === openId) ?? null, [rows, openId]);
+  const cards = useMemo(() => (listing ? cardRows(listing) : []), [listing]);
+  const counts = useMemo(() => statusCounts(cards), [cards]);
+  const joinedCount = useMemo(() => cards.filter((card) => card.places.length > 1).length, [cards]);
+  const foundCards = useMemo(
+    () => filterCards(cards, { query, node: node || null, status, joinedOnly }),
+    [cards, query, node, status, joinedOnly]
+  );
+  const openCard = useMemo(() => cards.find((card) => card.card.id === openCardId) ?? null, [cards, openCardId]);
+  const cardOf = useMemo(() => {
+    const byTask = new Map<string, CardRow>();
+    for (const card of cards) for (const place of card.places) byTask.set(place.row.id, card);
+    return byTask;
+  }, [cards]);
+  // The task whose steps are on screen: an open task's own, else an open card's winner's.
+  const target = open ?? openCard?.winner ?? null;
 
   useEffect(() => {
-    if (!open || !listing) return;
+    if (!target || !listing) return;
     let stale = false;
     setDetail({ state: 'loading' });
     const params = new URLSearchParams({
-      node_id: open.page.nodes[0] ?? '',
-      record_id: open.page.recordId,
-      key: open.task.key,
+      node_id: target.page.nodes[0] ?? '',
+      record_id: target.page.recordId,
+      key: target.task.key,
       dataset_version: listing.datasetVersion,
       identity_hash: listing.identityHash,
     });
@@ -331,7 +351,7 @@ export function AnswerCards() {
     return () => {
       stale = true;
     };
-  }, [open, listing]);
+  }, [target, listing]);
 
   if (!listing) {
     return problem ? (
@@ -359,21 +379,48 @@ export function AnswerCards() {
         row={open}
         listing={listing}
         detail={detail}
+        card={cardOf.get(open.id) ?? null}
+        back={openCard ? 'Back to the card' : 'All tasks'}
         onBack={() => setOpenId(null)}
+        onCard={() => {
+          setOpenCardId(cardOf.get(open.id)?.card.id ?? null);
+          setOpenId(null);
+        }}
         onOpen={(key) => setOpenId(`${open.page.recordId}:${key}`)}
         onReload={load}
       />
     );
   }
 
+  if (openCard) {
+    return (
+      <CardView
+        row={openCard}
+        listing={listing}
+        detail={detail}
+        onBack={() => setOpenCardId(null)}
+        onOpenTask={setOpenId}
+        onReload={load}
+      />
+    );
+  }
+
+  const showCards = view === 'cards' && listing.cards !== null;
+  const total = showCards ? foundCards.length : found.length;
   const visible = found.slice(0, shown);
+  const visibleCards = foundCards.slice(0, shown);
+  const drawn = showCards ? visibleCards.length : visible.length;
+  const all = showCards ? cards.length : rows.length;
+  const thing = showCards ? 'card' : 'task';
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Each tile is one task as one office page lists it. The same task often sits on several
-          pages, so it shows up several times here. Joining those into one card and choosing which
-          page wins is the next step.
+          {showCards
+            ? 'Each tile is one answer card: one task, joined from every page that lists it. Rules in the graph build choose the office that handles it and the one page whose steps win, and flag what they cannot settle. No AI call joins them.'
+            : listing.cards
+              ? 'Each tile is one task as one office page lists it. The same task often sits on several pages, so it shows up several times here. The cards join them.'
+              : 'Each tile is one task as one office page lists it. The same task often sits on several pages, so it shows up several times here. This release was built without joined cards.'}
         </p>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-foreground/80">
@@ -397,18 +444,43 @@ export function AnswerCards() {
         <Total label="Pages with a task" value={listing.totals.pagesWithTasks} />
         <Total label="Tasks found on pages" value={listing.totals.tasks} />
         <Total label="Steps, each tied to page words" value={listing.totals.steps} />
-        <div className="flex min-w-44 flex-1 flex-col gap-0.5 rounded-2xl border border-dashed border-amber-500/60 bg-amber-500/10 px-4 py-3.5">
-          <span className="text-xs text-amber-300">Cards after joining</span>
-          <span className="pt-1.5 text-base font-semibold text-amber-200">
-            {listing.joined ? 'Built, not shown by this page yet' : 'Not built yet'}
-          </span>
-        </div>
+        {listing.cards ? (
+          <Total label="Cards after joining" value={cards.length} />
+        ) : (
+          <div className="flex min-w-44 flex-1 flex-col gap-0.5 rounded-2xl border border-dashed border-amber-500/60 bg-amber-500/10 px-4 py-3.5">
+            <span className="text-xs text-amber-300">Cards after joining</span>
+            <span className="pt-1.5 text-base font-semibold text-amber-200">Not built for this release</span>
+          </div>
+        )}
       </section>
+
+      {listing.cards && (
+        <section aria-label="What to show" className="flex flex-wrap items-center gap-2">
+          <Choice
+            pressed={showCards}
+            onPress={() => {
+              setView('cards');
+              setShown(PAGE_SIZE);
+            }}
+          >
+            Cards ({cards.length.toLocaleString('en-US')})
+          </Choice>
+          <Choice
+            pressed={!showCards}
+            onPress={() => {
+              setView('tasks');
+              setShown(PAGE_SIZE);
+            }}
+          >
+            Tasks, page by page ({rows.length.toLocaleString('en-US')})
+          </Choice>
+        </section>
+      )}
 
       <section aria-label="Find a task" className="flex flex-wrap items-end gap-3">
         <div className="flex min-w-64 flex-[2] flex-col gap-1.5">
           <label htmlFor="card-search" className="text-xs text-muted-foreground">
-            Search tasks
+            {showCards ? 'Search cards' : 'Search tasks'}
           </label>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -448,17 +520,59 @@ export function AnswerCards() {
         </div>
       </section>
 
+      {showCards && (
+        <section role="group" aria-label="Status" className="flex flex-wrap items-center gap-2">
+          <Choice
+            pressed={status === null}
+            onPress={() => {
+              setStatus(null);
+              setShown(PAGE_SIZE);
+            }}
+          >
+            All ({cards.length.toLocaleString('en-US')})
+          </Choice>
+          {(Object.keys(STATUS_LABELS) as CardStatus[]).map((item) => (
+            <Choice
+              key={item}
+              pressed={status === item}
+              onPress={() => {
+                setStatus(item);
+                setShown(PAGE_SIZE);
+              }}
+            >
+              {STATUS_LABELS[item]} ({counts[item].toLocaleString('en-US')})
+            </Choice>
+          ))}
+          <span className="mx-1 hidden h-6 w-px bg-white/15 sm:block" aria-hidden="true" />
+          <Choice
+            pressed={joinedOnly}
+            onPress={() => {
+              setJoinedOnly((current) => !current);
+              setShown(PAGE_SIZE);
+            }}
+          >
+            Joined from two or more pages ({joinedCount.toLocaleString('en-US')})
+          </Choice>
+        </section>
+      )}
+
       <p className="text-sm text-muted-foreground" aria-live="polite">
-        {found.length === rows.length
-          ? `Showing ${visible.length.toLocaleString('en-US')} of ${plural(rows.length, 'task')}`
-          : `${plural(found.length, 'task')} found, showing ${visible.length.toLocaleString('en-US')}`}
+        {total === all
+          ? `Showing ${drawn.toLocaleString('en-US')} of ${plural(all, thing)}`
+          : `${plural(total, thing)} found, showing ${drawn.toLocaleString('en-US')}`}
       </p>
 
-      {found.length === 0 ? (
+      {total === 0 ? (
         <p className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-muted-foreground">
-          No task has all of those words. The search reads the task, who it is for, the office, the
-          term and the page address.
+          No {thing} has all of those words{showCards ? ' with that status' : ''}. The search reads the task, who
+          it is for, the office, the term and the page address.
         </p>
+      ) : showCards ? (
+        <section aria-label="Cards" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {visibleCards.map((card) => (
+            <CardTile key={card.card.id} row={card} onOpen={() => setOpenCardId(card.card.id)} />
+          ))}
+        </section>
       ) : (
         <section aria-label="Tasks" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visible.map((row) => (
@@ -472,19 +586,20 @@ export function AnswerCards() {
         </section>
       )}
 
-      {found.length > visible.length && (
+      {total > drawn && (
         <button
           type="button"
           onClick={() => setShown((current) => current + PAGE_SIZE)}
           className="inline-flex min-h-11 items-center rounded-xl border border-white/10 bg-white/5 px-4 text-sm font-medium text-foreground/90 hover:bg-white/10"
         >
-          Show {Math.min(PAGE_SIZE, found.length - visible.length)} more
+          Show {Math.min(PAGE_SIZE, total - drawn)} more
         </button>
       )}
 
       <p className="text-xs text-muted-foreground">
-        Look only. The statuses from the mock-up (Ready, Needs a look, Date passed) come when tasks
-        are joined into cards.
+        {listing.cards
+          ? 'Look only. Nothing answers from a card yet. Ready means the rules settled the owner and the winning page; Needs a look means they could not; Date passed means the only date the task has is over.'
+          : 'Look only. This release was built without joined cards, so there are no statuses to show.'}
       </p>
     </div>
   );

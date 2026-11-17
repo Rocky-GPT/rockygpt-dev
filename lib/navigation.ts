@@ -20,7 +20,6 @@ import {
   Database,
   FileText,
   FlaskConical,
-  GalleryVerticalEnd,
   Gauge,
   HardDrive,
   LayoutDashboard,
@@ -119,16 +118,6 @@ export const NAVIGATION: NavSection[] = [
         icon: Repeat,
         status: 'ready',
         upstream: 'POST /v1/chat, 8 at once on the laptop Brain (2 on production)',
-      },
-      {
-        href: '/brain/answer-cards',
-        label: 'Answer Cards',
-        description: 'One card per how-to task, joined from every office page that lists it, with the page whose steps win',
-        icon: GalleryVerticalEnd,
-        // The cards are joined and shown, each with what the bot will say from it. No chat reply
-        // uses a card yet, and how a card did in tests is not built.
-        status: 'partial',
-        upstream: 'GET /v1/dev/answer-cards + /task + /card (cards, tasks, and what the bot will say from a card; a chat reply uses a card only with the dev setting on)',
       },
       {
         href: '/brain/capabilities',

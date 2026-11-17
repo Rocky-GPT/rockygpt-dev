@@ -16,11 +16,12 @@
     "test:storage": "node --experimental-strip-types --test tests/storage.test.mjs",
     "test:export": "node --experimental-strip-types --test tests/turn-export.test.mjs",
     "test:chat": "node --experimental-strip-types --test tests/chat-request.test.mjs tests/turn-outcome.test.mjs tests/brain-metrics.test.mjs",
-    "test:dev": "node --experimental-strip-types --test tests/dev-format.test.mjs tests/office-facts.test.mjs tests/alias-lookup.test.mjs tests/knowledge-roadmap.test.mjs tests/timing-groups.test.mjs tests/markdown-preview.test.mjs tests/fact-packet.test.mjs tests/inspector-tabs.test.mjs tests/pipeline.test.mjs tests/production-sync.test.mjs tests/laptop-vs-production.test.mjs tests/repeat-test.test.mjs tests/budget.test.mjs"
+    "test:dev": "node --experimental-strip-types --test tests/dev-format.test.mjs tests/office-facts.test.mjs tests/alias-lookup.test.mjs tests/knowledge-roadmap.test.mjs tests/timing-groups.test.mjs tests/markdown-preview.test.mjs tests/fact-packet.test.mjs tests/inspector-tabs.test.mjs tests/pipeline.test.mjs tests/production-sync.test.mjs tests/laptop-vs-production.test.mjs tests/repeat-test.test.mjs tests/budget.test.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
-    "next": "^16.2.11",
+    "next": "^16.4.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
@@ -33,7 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "^10.1.8",
     "tailwindcss": "^4",
     "typescript": "^5"

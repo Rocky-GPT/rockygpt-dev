@@ -44,6 +44,7 @@ test("an answered turn says when it ran and keeps the Brain's trace and metrics 
     firstAnswerTextMs: 6_400,
     firstAnswerText: 'answer',
     totalMs: 6_400,
+    browser: null,
   });
   assert.deepEqual(exported.brain, { datasetVersion: 'dev-offices-20261001-v2' });
   assert.deepEqual(exported.response.trace, trace);

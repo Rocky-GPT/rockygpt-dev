@@ -18,6 +18,7 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 | Service Health | Liveness and readiness, with a fixed list of the Brain's routes | `/health`, `/readiness` |
 | Ask & Inspect | Answer, sources, the lookups the model made, who decided, the exact request and response; a bulk runner | `POST /v1/chat` |
 | Laptop vs Production | One question, or a pasted or uploaded list, asked of the laptop Brain and the production Brain side by side, with status, time, sources and an agree/differ marker; a switch adds the laptop and live websites. Production gets at most 2 asks at once; its token comes from 1Password via `local-env.py` | `POST /v1/chat` on both Brains, `POST /api/chat` on both sites |
+| Repeat Test | Every question of a set (from the laptop's rockygpt-evals folder, frozen sets locked) or a pasted list, asked 5 to 10 times at once, live: each try's box fills as it answers, same letter = same answer, and each question is marked Steady, a little off, or Flaky (40% or more of tries differ). Code compares status and facts, not wording, links or the clock time an answer mentions, so checking is free. Shows the cost before it starts and the real spend as it runs | `POST /v1/chat`, 8 at once on the laptop Brain, 2 on production |
 | Capabilities | The tools and answer parts the model is given | `/v1/dev/runtime` |
 | Prompts & Models | The system prompt, the model and its prices, what the model receives each turn | `/v1/dev/runtime` |
 | Templates | Every text the code writes itself, and when | `/v1/dev/runtime` |
@@ -29,7 +30,7 @@ code that writes every answer text. It serves `GET /health`, `GET /readiness`, `
 
 Documents, Chat Logs, Feedback and Eval Runs are switched off: they were built for an
 older Brain and read routes this one does not serve, so each shows a "switched off" card. Their code
-is kept. Artifacts, Endpoints and Trace Replay do not exist yet. The Roadmap page lists all of this
+was removed on 2026-11-17 (git history keeps it). Artifacts, Endpoints and Trace Replay do not exist yet. The Roadmap page lists all of this
 from `lib/navigation.ts`; its "connected" count is of pages, and the Roadmap page itself is one.
 
 ## Ask & Inspect
@@ -43,81 +44,6 @@ offices shown, how the model finished). The Trace tab says "This Brain sent no t
 sends neither.
 
 Answer-quality evaluation lives in the sibling `rockygpt-evals` repository.
-
-## Campus Graph (switched off)
-
-> Switched off: the current Brain serves no `/v1/dev/graph` or `/v1/dev/identities` routes, so
-> `/data/entities` shows the "switched off" card. The code and docs below are kept for when it does.
-
-Open **Data → Campus Graph** (`/data/entities`) to inspect the active
-identity release. Start at Ramapo College, browse a category, or search names,
-aliases or persistent IDs to jump directly to an identity. Category navigation
-uses gray dotted edges; it does not assert an organizational or location fact.
-Identity relationships use teal dashed edges and original records use solid sky
-edges. Selecting identities expands their immediate connections while retaining
-the visited neighborhood. Focus, collapse, clear, or return to Ramapo College to
-reduce the view. The graph shows at most eight identities and twelve record
-groups, reports omitted counts, and pages category results eight at a time.
-All source records, including data without identities, remain accessible from
-the graph. Edge inspectors expose exact evidence references and safe source
-links; source capture timestamps are shown when available in the loaded profile.
-Click a source group to inspect its section. The original connection list remains
-available below the graph.
-Selections are addressable with `?entity=<persistent-id>`.
-
-The evidence inspector preserves source IDs, timestamps and conflicting values.
-Missing sections remain unknown. Faculty course lists are undated; operating
-hours do not establish staff or phone availability. Apply a campus date and meal
-to inspect dining evidence; menus show a labelled sample of up to 12 records.
-The Unresolved view explains links that still need evidence. Both the identity
-and the exact assembled profile can be downloaded as JSON.
-
-The data coverage issues panel groups the release's coverage report by each
-issue's `kind` from the Data identity compiler: records no entity links to,
-missing connections, reviewed entries with no data in the release, and notes.
-For releases compiled before kinds existed, it matches each reason to a template
-the compiler writes. A kind or reason the panel does not recognize stays visible
-under Other.
-
-Clubs and event occurrences appear alongside people, offices, facilities, dining
-venues and academic programs. Events and club-linked occurrences retain their
-published dates; optional event-date filters do not default to today or inherit
-a dining meal selection. Explicit organizer links can be followed in either direction.
-An organizer or location mentioned only by name remains source information, not
-an inferred identity relationship. Administrative entries in a club directory
-are not automatically treated as student clubs.
-
-This read-only view uses `GET /v1/dev/identities` and
-`GET /v1/dev/identities/{id}` through the server-side Brain proxy. The Brain only
-exposes these routes when `BRAIN_ENVIRONMENT=development`. It uses the existing
-identity artifact and profile lookup without model calls or a second database.
-Release/hash checks prevent mixing an identity map with a different profile
-release. The Student UI is unchanged.
-
-Verify changes with `npm run test:identities`, `npm run typecheck`,
-`npm run lint`, and `npm run build`.
-
-## Feedback sorting (switched off)
-
-> Switched off: the current Brain serves no `/v1/feedback` route, so `/quality/feedback` shows the
-> "switched off" card and nothing reaches Jev. `TYPESAFE_API_KEY` has no use until it returns.
-
-**Quality → Feedback** (`/quality/feedback`) can sort the recent ratings with
-Jev, TypeSafe's classifier. Press **Sort with Jev** and each rating gets a topic
-(dining, hours, shuttle and parking, courses, and so on). A thumbs down gets a
-reason too when the student gave none or chose "Other": inaccurate, incomplete,
-outdated or could be better, the same labels the student UI offers. The
-**What students are unhappy about** panel counts thumbs down by topic and
-reason; click a row to filter the list. It counts student ratings only, not the
-reviews you give on Chat Logs.
-
-Each rating is one Jev call of about $0.0001, and one press sorts at most 100.
-Jev reads the rated question, answer and comment and only picks labels. The tags
-are saved in `.data/feedback-tags.json` on this machine (git-ignored). The file
-holds feedback IDs, labels and Jev's confidence, never a question, answer or
-comment, and nothing is written back to the Brain's database. A rating whose
-reason or comment changes later is sorted again. Set `TYPESAFE_API_KEY` to turn
-the button on; verify changes with `npm run test:feedback`.
 
 ## Conversation export
 
@@ -155,7 +81,6 @@ The Dev UI runs at `http://localhost:3100`. The Brain defaults to
 | `BRAIN_URL` | in production | Brain service address; local development falls back to `http://127.0.0.1:8000`. |
 | `SERVICE_TOKEN` | for a protected Brain | Shared server-side service token; must match the Brain (the old name `STAGING_SERVICE_TOKEN` is still read). |
 | `PRODUCTION_BRAIN_URL` | no | The production Brain the Storage page reads; defaults to the public service. |
-| `TYPESAFE_API_KEY` | no | Used only by the switched-off Feedback page; no current use. |
 
 The Dev UI does not connect to a database or import another repository's source. It calls only Brains:
 the one at `BRAIN_URL`, and, for the Storage page, the production Brain at `PRODUCTION_BRAIN_URL`.

@@ -9,8 +9,9 @@
  * leaked url must not become a search result.
  */
 
-/** Sites the browser may load entity photos from; the Campus Graph shows only these. */
-export const PHOTO_ORIGINS = ['https://www.ramapo.edu'];
+/** Sites the browser may load entity photos from; the Campus Graph shows only these: faculty
+ * profile photos (ramapo.edu), and club logos and event posters (Archway). */
+export const PHOTO_ORIGINS = ['https://www.ramapo.edu', 'https://archway.ramapo.edu'];
 
 export type CspMode = 'enforce' | 'report-only';
 

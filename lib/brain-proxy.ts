@@ -211,18 +211,22 @@ function devHeaders(): Headers {
   return headers;
 }
 
-export async function proxyBrainDev(path: string, search = ''): Promise<Response> {
+export async function proxyBrainDev(
+  path: string,
+  search = '',
+  timeoutMs = PROBE_TIMEOUT_MS
+): Promise<Response> {
   const target = targetFor(`${path}${search}`);
   if (target === null) return misconfigured();
   try {
     const upstream = await fetch(target, {
       headers: devHeaders(),
       cache: 'no-store',
-      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     return proxyResponse(upstream, `GET ${path}`);
   } catch (error) {
-    return upstreamFailure(error, `GET ${path}`);
+    return upstreamFailure(error, `GET ${path}`, timeoutMs);
   }
 }
 

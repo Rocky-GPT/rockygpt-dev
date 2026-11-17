@@ -29,6 +29,7 @@ import {
   MessageSquareCode,
   Milestone,
   Radio,
+  Repeat,
   ScrollText,
   Settings2,
   Signpost,
@@ -109,6 +110,14 @@ export const NAVIGATION: NavSection[] = [
         icon: Columns2,
         status: 'ready',
         upstream: 'POST /v1/chat on both Brains (+ POST /api/chat on both sites, when switched on)',
+      },
+      {
+        href: '/brain/repeat-test',
+        label: 'Repeat Test',
+        description: 'Ask every question several times at once and see if the bot gives the same answer each time',
+        icon: Repeat,
+        status: 'ready',
+        upstream: 'POST /v1/chat, 8 at once on the laptop Brain (2 on production)',
       },
       {
         href: '/brain/capabilities',
@@ -201,10 +210,10 @@ export const NAVIGATION: NavSection[] = [
       {
         href: '/data/entities',
         label: 'Campus Graph',
-        description: 'Follow the office branch from Ramapo to its published evidence',
+        description: 'Every node type and link in the published graph, and the evidence chat reads',
         icon: Tags,
-        status: 'partial',
-        upstream: 'GET /v1/dev/graph/node (office branch)',
+        status: 'ready',
+        upstream: 'GET /v1/dev/graph/browse + GET /v1/dev/graph/node',
       },
       {
         href: '/data/aliases',

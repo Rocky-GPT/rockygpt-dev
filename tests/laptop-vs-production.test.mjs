@@ -7,6 +7,7 @@ import {
   parseQuestions,
   readEventStream,
   readReply,
+  retryable,
 } from '../lib/laptop-vs-production.ts';
 
 const body = (overrides = {}) =>
@@ -41,7 +42,16 @@ test("a site's event stream is read from its result event, and its inner status 
 });
 
 test('a rate limit and an empty answer say so in plain words', () => {
-  assert.match(readReply('live-site', 429, 'application/json', '{}', 0).error, /12 a minute/);
+  assert.match(readReply('live-site', 429, 'application/json', '{}', 0).error, /Too many questions/);
+  const spent = readReply('laptop-brain', 429, 'application/json', JSON.stringify({
+    error: { code: 'budget_exhausted', message: "RockyGPT's monthly AI allowance is exhausted.", retryable: false },
+  }), 0);
+  assert.equal(spent.error, "RockyGPT's monthly AI allowance is exhausted.");
+  assert.equal(retryable(spent), false);
+  const busy = readReply('laptop-brain', 429, 'application/json', JSON.stringify({
+    error: { code: 'busy', message: 'RockyGPT is busy. Please try again shortly.', retryable: true },
+  }), 0);
+  assert.equal(retryable(busy), true);
   assert.equal(readReply('laptop-brain', 200, 'application/json', body({ answer: '  ' }), 1).ok, false);
 });
 
